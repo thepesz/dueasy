@@ -1,0 +1,11 @@
+/*
+  InfoPlist.strings (Polish)
+  DuEasy
+
+  Polish localization for Info.plist strings
+*/
+
+"NSCameraUsageDescription" = "DuEasy uzywa aparatu do skanowania dokumentow, takich jak faktury i paragony.";
+"NSCalendarsUsageDescription" = "DuEasy dodaje terminy platnosci do kalendarza, abys nigdy nie przegapil terminu.";
+"NSCalendarsWriteOnlyAccessUsageDescription" = "DuEasy dodaje terminy platnosci do kalendarza, abys nigdy nie przegapil terminu.";
+"NSCalendarsFullAccessUsageDescription" = "DuEasy dodaje i zarzadza terminami platnosci w kalendarzu, abys nigdy nie przegapil terminu.";

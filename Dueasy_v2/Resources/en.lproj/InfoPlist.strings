@@ -1,0 +1,11 @@
+/*
+  InfoPlist.strings (English)
+  DuEasy
+
+  English localization for Info.plist strings
+*/
+
+"NSCameraUsageDescription" = "DuEasy uses your camera to scan documents like invoices and receipts.";
+"NSCalendarsUsageDescription" = "DuEasy adds payment due dates to your calendar so you never miss a deadline.";
+"NSCalendarsWriteOnlyAccessUsageDescription" = "DuEasy adds payment due dates to your calendar so you never miss a deadline.";
+"NSCalendarsFullAccessUsageDescription" = "DuEasy adds and manages payment due dates in your calendar so you never miss a deadline.";

@@ -1,0 +1,1222 @@
+✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/210D15D1-3217-4B0B-BFF8-B3314BD1ED88/DuEasy.app/pl.lproj
+✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/210D15D1-3217-4B0B-BFF8-B3314BD1ED88/DuEasy.app/pl.lproj
+PRIVACY: Applied FileProtectionType.complete to 3 SwiftData store files
+✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/210D15D1-3217-4B0B-BFF8-B3314BD1ED88/DuEasy.app/pl.lproj
+AppleVisionOCRService initialized
+Requested recognition languages: pl-PL, en-US
+numANECores: Unknown aneSubType
+Vision supported languages: en-US, fr-FR, it-IT, de-DE, es-ES, pt-BR, zh-Hans, zh-Hant, yue-Hans, yue-Hant, ko-KR, ja-JP, ru-RU, uk-UA, th-TH, vi-VT, ar-SA, ars-SA, tr-TR, id-ID, cs-CZ, da-DK, nl-NL, no-NO, nn-NO, nb-NO, ms-MY, pl-PL, ro-RO, sv-SE
+LocalInvoiceParsingService initialized with keyword learning enabled
+✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/210D15D1-3217-4B0B-BFF8-B3314BD1ED88/DuEasy.app/pl.lproj
+✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/210D15D1-3217-4B0B-BFF8-B3314BD1ED88/DuEasy.app/pl.lproj
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Checking for vendor migrations to global version 1
+No vendors need migration - all up to date
+✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/210D15D1-3217-4B0B-BFF8-B3314BD1ED88/DuEasy.app/pl.lproj
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/210D15D1-3217-4B0B-BFF8-B3314BD1ED88/DuEasy.app/pl.lproj
+Initialized VNDocumentCameraViewController (VisionKit document scanner)
+Scanner provides: edge detection, perspective correction, contrast enhancement
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Unable to simultaneously satisfy constraints.
+	Probably at least one of the constraints in the following list is one you don't want. 
+	Try this: 
+		(1) look at each constraint and try to figure out which you don't expect; 
+		(2) find the code that added the unwanted constraint or constraints and fix it. 
+	(Note: If you're seeing NSAutoresizingMaskLayoutConstraints that you don't understand, refer to the documentation for the UIView property translatesAutoresizingMaskIntoConstraints) 
+(
+    "<NSAutoresizingMaskLayoutConstraint:0x11a9d4c30 h=--& v=--& _TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x11a9c8c40.width == 0   (active)>",
+    "<NSLayoutConstraint:0x11a9d4550 _TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x11a9c8c40.leading == _UIButtonBarButton:0x11a698c80.leading   (active)>",
+    "<NSLayoutConstraint:0x11a9d45a0 H:[_UIButtonBarButton:0x11a698c80]-(0)-|   (active, names: '|':_TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x11a9c8c40 )>",
+    "<NSLayoutConstraint:0x11a9d4370 'IB_Leading_Leading' H:|-(2)-[_UIModernBarButton:0x11a8da300]   (active, names: '|':_UIButtonBarButton:0x11a698c80 )>",
+    "<NSLayoutConstraint:0x11a9d43c0 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x11a8da300]-(2)-|   (active, names: '|':_UIButtonBarButton:0x11a698c80 )>"
+)
+
+Will attempt to recover by breaking constraint 
+<NSLayoutConstraint:0x11a9d43c0 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x11a8da300]-(2)-|   (active, names: '|':_UIButtonBarButton:0x11a698c80 )>
+
+Make a symbolic breakpoint at UIViewAlertForUnsatisfiableConstraints to catch this in the debugger.
+The methods in the UIConstraintBasedLayoutDebugging category on UIView listed in <UIKitCore/UIView.h> may also be helpful.
+<0x109262a80> Gesture: System gesture gate timed out.
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+Unable to simultaneously satisfy constraints.
+	Probably at least one of the constraints in the following list is one you don't want. 
+	Try this: 
+		(1) look at each constraint and try to figure out which you don't expect; 
+		(2) find the code that added the unwanted constraint or constraints and fix it. 
+	(Note: If you're seeing NSAutoresizingMaskLayoutConstraints that you don't understand, refer to the documentation for the UIView property translatesAutoresizingMaskIntoConstraints) 
+(
+    "<NSAutoresizingMaskLayoutConstraint:0x11a9794f0 h=--& v=--& _TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x11aa76840.width == 0   (active)>",
+    "<NSLayoutConstraint:0x11a89bc50 _TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x11aa76840.leading == _UIButtonBarButton:0x118b13700.leading   (active)>",
+    "<NSLayoutConstraint:0x11a89ba70 H:[_UIButtonBarButton:0x118b13700]-(0)-|   (active, names: '|':_TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x11aa76840 )>",
+    "<NSLayoutConstraint:0x11a89b840 'IB_Leading_Leading' H:|-(2)-[_UIModernBarButton:0x11a8daa00]   (active, names: '|':_UIButtonBarButton:0x118b13700 )>",
+    "<NSLayoutConstraint:0x11a89b980 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x11a8daa00]-(2)-|   (active, names: '|':_UIButtonBarButton:0x118b13700 )>"
+)
+
+Will attempt to recover by breaking constraint 
+<NSLayoutConstraint:0x11a89b980 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x11a8daa00]-(2)-|   (active, names: '|':_UIButtonBarButton:0x118b13700 )>
+
+Make a symbolic breakpoint at UIViewAlertForUnsatisfiableConstraints to catch this in the debugger.
+The methods in the UIConstraintBasedLayoutDebugging category on UIView listed in <UIKitCore/UIView.h> may also be helpful.
+✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/210D15D1-3217-4B0B-BFF8-B3314BD1ED88/DuEasy.app/pl.lproj
+✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/210D15D1-3217-4B0B-BFF8-B3314BD1ED88/DuEasy.app/pl.lproj
+UIColor created with component values far outside the expected range. Set a breakpoint on UIColorBreakForOutOfRangeColorComponents to debug. This message will only be logged once.
+✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/210D15D1-3217-4B0B-BFF8-B3314BD1ED88/DuEasy.app/pl.lproj
+Document scan completed: 1 page(s) scanned
+Images are pre-processed by VisionKit for optimal OCR quality
+Saved document with 1 pages: 240BAE09-3A71-4A0D-A932-A0332626FCE7
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+Permissions checked: calendar=true, notifications=true
+Processing 1 images for document 61C2371C-2C8F-4D6D-BC55-2BD005463A0E
+Permissions checked: calendar=true, notifications=true
+Skipping duplicate OCR processing - already processed or in progress
+Image pre-processing applied: contrast +20%, noise reduction, sharpening
+Starting 2-pass OCR: Pass A (readable text) + Pass B (small print keywords)
+OCR pass A (readable) configured: minTextHeight=0.012000
+Locale not supported: pl
+OCR pass A (readable) completed: 81 lines, confidence: 0.993827
+OCR pass B (small print) configured: minTextHeight=0.007000
+OCR pass B (small print) completed: 84 lines, confidence: 0.994048
+Added 14 unique small-print lines from Pass B
+2-pass OCR completed: Pass A (81 lines), Pass B (84 lines), Combined text length: 1433 chars
+Analyzing document of type: invoice, text length: 1433
+Parsing invoice with 95 lines
+OCR text preview (first 500 chars): Faktura nr 3418/11/2025/KTOP
+Data wystawienia:
+Data sprzedazy:
+Miejsce wystawienia:
+04-11-2025
+03-11-2025
+Sopot
+Sprzedawca:
+Autopay Spólka Akcyjna
+ul. Powstańców Warszawy 6
+81-718 Sopot
+PL Polska
+NIP: PL5851351185
+LP
+Nazwa towaru lub usługi
+Doładowanie telefonu pre-paid
+PKWIU
+Jm
+ust.
+Ilosc
+Forma zapłaty:
+Termin zapłaty:
+Bank:
+Nr konta:
+Uwagi:
+Przelew
+03-11-2025
+Faktura VAT za transakcję o ID:
+AKKGDXXJUF_32598589 zapłacona w całości
+przelewem.
+Nabywca:
+B+ Bartłomiej Łoniewski
+ul. Kameliowa 3/1
+71
+First 10 lines: Faktura nr 3418/11/2025/KTOP | Data wystawienia: | Data sprzedazy: | Miejsce wystawienia: | 04-11-2025 | 03-11-2025 | Sopot | Sprzedawca: | Autopay Spólka Akcyjna | ul. Powstańców Warszawy 6
+=== VENDOR EXTRACTION START ===
+Extracted vendor section between seller and buyer labels (335 chars)
+Search text length: 335 chars (isolated: true)
+Checking labeled vendor candidate (Sprzedawca label): length=22
+SELECTED VENDOR via Sprzedawca label (name hidden for privacy)
+Extracting vendor address
+Extracted vendor section between seller and buyer labels (335 chars)
+Found multi-line address: ul. Powstańców Warszawy 6, 81-718 Sopot
+=== AMOUNT EXTRACTION START ===
+Text length: 1433 chars
+Retrieved 48 learned keywords for amount
+Using 48 learned amount keywords
+🔍 AMOUNT DEBUG: Testing regex pattern against text of length 1433
+🔍 BASIC AMOUNT REGEX TEST: Found 13 amounts matching pattern
+🔍 BASIC AMOUNT REGEX TEST: Found 13 amounts matching pattern
+  Sample #1: '25.20'
+  Sample #1: '25.20'
+  Sample #2: '25.20'
+  Sample #2: '25.20'
+  Sample #3: '5.80'
+  Sample #3: '5.80'
+  Sample #4: '25.20'
+  Sample #4: '25.20'
+  Sample #5: '25.20'
+  Sample #5: '25.20'
+Testing top 10 amount patterns against text...
+  Pattern #0: 'current account amount payable' - NO MATCH
+  Pattern #1: 'amount before payable' - NO MATCH
+  Pattern #2: 'amount due' - NO MATCH
+  Pattern #3: 'balance/total due' - NO MATCH
+  Pattern #4: 'pay this amount' - NO MATCH
+  Pattern #5: 'outstanding balance' - NO MATCH
+  Pattern #6: 'rachunek biezacy' - NO MATCH
+  Pattern #7: 'kwota biezacego rachunku (OCR tolerant)' - NO MATCH
+  Pattern #8: 'saldo do zaplaty' - NO MATCH
+  Pattern #9: 'naleznosc ogolem' - NO MATCH
+Parsing amount string: '31.00' -> normalized: '31.00'
+Amount score: 100 using global keywords (matched: do zapłaty)
+AMOUNT FOUND: 31 via 'do zaplaty + amount' score=420 (base: 320 + semantic: 100) keywords: do zapłaty
+Parsing amount string: '31.00' -> normalized: '31.00'
+Parsing amount string: '31.00' -> normalized: '31.00'
+Parsing amount string: '5.80' -> normalized: '5.80'
+Amount score: 20 using global keywords (matched: razem)
+AMOUNT FOUND: 5.8 via 'amount before keyword' score=170 (base: 150 + semantic: 20) keywords: razem
+Parsing amount string: '31.00' -> normalized: '31.00'
+Parsing amount string: '0.00' -> normalized: '0.00'
+Amount score: 0 using global keywords (matched: )
+AMOUNT FOUND: 0 via 'PLN + amount on next line' score=135 (base: 135 + semantic: 0) keywords:
+Parsing amount string: '31.00' -> normalized: '31.00'
+Parsing amount string: '31.00' -> normalized: '31.00'
+Parsing amount string: '0.00' -> normalized: '0.00'
+Parsing amount string: '31.00' -> normalized: '31.00'
+Parsing amount string: '31.00' -> normalized: '31.00'
+Parsing amount string: '0.00' -> normalized: '0.00'
+Parsing amount string: '31.00' -> normalized: '31.00'
+Parsing amount string: '0.00' -> normalized: '0.00'
+Parsing amount string: '31.00' -> normalized: '31.00'
+Parsing amount string: '31.00' -> normalized: '31.00'
+Parsing amount string: '5.80' -> normalized: '5.80'
+Parsing amount string: '5.80' -> normalized: '5.80'
+Parsing amount string: '25.20' -> normalized: '25.20'
+Amount score: -60 using global keywords (matched: netto, net)
+AMOUNT FOUND: 25.2 via 'Generic decimal' score=-50 (base: 10 + semantic: -60) keywords: -netto, -net
+Parsing amount string: '25.20' -> normalized: '25.20'
+Parsing amount string: '5.80' -> normalized: '5.80'
+Parsing amount string: '25.20' -> normalized: '25.20'
+Parsing amount string: '25.20' -> normalized: '25.20'
+Parsing amount string: '5.80' -> normalized: '5.80'
+Parsing amount string: '5.80' -> normalized: '5.80'
+Parsing amount string: '31.00' -> normalized: '31.00'
+Parsing amount string: '31.00' -> normalized: '31.00'
+Parsing amount string: '0.00' -> normalized: '0.00'
+Parsing amount string: '31.00' -> normalized: '31.00'
+Parsing amount string: '31.00' -> normalized: '31.00'
+Parsing amount string: '31.00' -> normalized: '31.00'
+Found 3 unique amounts
+  #1: 31 PLN - score=420 (base:320) line:60 keywords:do zapłaty
+  #2: 5.8 PLN - score=170 (base:150) line:56 keywords:razem
+  #3: 25.2 PLN - score=-50 (base:10) line:38 keywords:-netto,-net
+Found currency: PLN
+=== DUE DATE EXTRACTION START ===
+Valid date range: 2025-01-29 23:00:00 +0000 to 2028-01-29 23:00:00 +0000
+DATE CANDIDATE: 2025-11-17 23:00:00 +0000, score=-100, reasons=[-80 issue keyword 'data wystawienia', -20 old past date], context='faktura nr 3418/11/2025/ktop data wystawienia: data s'
+DATE CANDIDATE: 2025-11-03 23:00:00 +0000, score=-100, reasons=[-80 issue keyword 'data wystawienia', -20 old past date], context='ura nr 3418/11/2025/ktop data wystawienia: data sprzedazy: miejsce wystawienia: 04-11-2025 03-11-2025 sopot sprzedawca: '
+DATE CANDIDATE: 2025-11-02 23:00:00 +0000, score=-100, reasons=[-80 issue keyword 'data wystawienia', -20 old past date], context='/11/2025/ktop data wystawienia: data sprzedazy: miejsce wystawienia: 04-11-2025 03-11-2025 sopot sprzedawca: autopay spó'
+DATE CANDIDATE: 2025-11-02 23:00:00 +0000, score=80, reasons=[+100 due keyword 'termin zapłaty', -20 old past date], context='wiu jm ust. ilosc forma zapłaty: termin zapłaty: bank: nr konta: uwagi: przelew 03-11-2025 faktura vat za transakcję o i'
+DATE CANDIDATE: 2025-11-17 23:00:00 +0000, score=-100, reasons=[-80 issue keyword 'data sprzedaży', -20 old past date], context='ał zakladowy 2 205 500 pln (oplacony w calodoi) nip. 586-13-51-106 faktura nr 3418/11/2025/ktoр data sprzedaży: doladowa'
+REJECTED date 3418-11-19 23:00:00 +0000 - more than 2 years in future (max: 2028-01-29 23:00:00 +0000)
+REJECTED date 3418-11-19 23:00:00 +0000 - more than 2 years in future (max: 2028-01-29 23:00:00 +0000)
+Found 5 valid date candidates
+  Top #1: 2025-11-02 23:00:00 +0000, score=80, reason=+100 due keyword 'termin zapłaty', -20 old past date
+  Top #2: 2025-11-17 23:00:00 +0000, score=-100, reason=-80 issue keyword 'data wystawienia', -20 old past date
+  Top #3: 2025-11-03 23:00:00 +0000, score=-100, reason=-80 issue keyword 'data wystawienia', -20 old past date
+  Top #4: 2025-11-02 23:00:00 +0000, score=-100, reason=-80 issue keyword 'data wystawienia', -20 old past date
+  Top #5: 2025-11-17 23:00:00 +0000, score=-100, reason=-80 issue keyword 'data sprzedaży', -20 old past date
+=== SELECTED DUE DATE: 2025-11-02 23:00:00 +0000 (score: 80) ===
+Found invoice number via 'faktura/FV prefix': 3418/11/2025/KTOP
+Extracting bank account number
+Found vendor (name hidden for privacy)
+Found vendor address (hidden for privacy)
+Found amount from 3 candidates (value hidden for privacy)
+Found due date (hidden for privacy)
+Found invoice number (hidden for privacy)
+No bank account found
+Parsed invoice: fields=4/4, confidence=1.000000
+OCR/Parsing result: hasVendor=true, hasAmount=true, hasDueDate=true, confidence=0.993827
+Set vendor: Autopay Spólka Akcyjna
+Set vendorAddress: ul. Powstańców Warszawy 6, 81-718 Sopot
+Found 3 suggested amounts
+Set amount: 31,00
+Set currency: PLN
+Set dueDate: 2025-11-02 23:00:00 +0000
+Set documentNumber: 3418/11/2025/KTOP
+Saving document - hasVendor: true, hasAmount: true, hasDueDate: true
+Calling finalizeUseCase (amount and date hidden for privacy)
+Recording corrections for adaptive learning
+Correction learning completed
+Finalizing document: hasTitle=true, currency=PLN (amount/date hidden for privacy)
+Document fields updated
+Calendar event creation skipped (skipCalendar=true)
+Saved learning data: amountCorrected=false, dueDateCorrected=false, vendorCorrected=false
+Privacy-safe learning data saved (no PII/financial data)
+Notification authorization: isAuthorized=true, enabled=true
+Cancelled 0 notifications for document: 61C2371C-2C8F-4D6D-BC55-2BD005463A0E
+Updated 0 notification reminders (old ones cancelled)
+Document finalized and saved successfully
+Document saved successfully
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Initialized VNDocumentCameraViewController (VisionKit document scanner)
+Scanner provides: edge detection, perspective correction, contrast enhancement
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Unable to simultaneously satisfy constraints.
+	Probably at least one of the constraints in the following list is one you don't want. 
+	Try this: 
+		(1) look at each constraint and try to figure out which you don't expect; 
+		(2) find the code that added the unwanted constraint or constraints and fix it. 
+	(Note: If you're seeing NSAutoresizingMaskLayoutConstraints that you don't understand, refer to the documentation for the UIView property translatesAutoresizingMaskIntoConstraints) 
+(
+    "<NSAutoresizingMaskLayoutConstraint:0x11b4b1f90 h=--& v=--& _TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x119099500.width == 0   (active)>",
+    "<NSLayoutConstraint:0x11b4b1b80 _TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x119099500.leading == _UIButtonBarButton:0x11a69ad00.leading   (active)>",
+    "<NSLayoutConstraint:0x11b4b1900 H:[_UIButtonBarButton:0x11a69ad00]-(0)-|   (active, names: '|':_TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x119099500 )>",
+    "<NSLayoutConstraint:0x11b4b0320 'IB_Leading_Leading' H:|-(2)-[_UIModernBarButton:0x11a81b480]   (active, names: '|':_UIButtonBarButton:0x11a69ad00 )>",
+    "<NSLayoutConstraint:0x11b4b09b0 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x11a81b480]-(2)-|   (active, names: '|':_UIButtonBarButton:0x11a69ad00 )>"
+)
+
+Will attempt to recover by breaking constraint 
+<NSLayoutConstraint:0x11b4b09b0 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x11a81b480]-(2)-|   (active, names: '|':_UIButtonBarButton:0x11a69ad00 )>
+
+Make a symbolic breakpoint at UIViewAlertForUnsatisfiableConstraints to catch this in the debugger.
+The methods in the UIConstraintBasedLayoutDebugging category on UIView listed in <UIKitCore/UIView.h> may also be helpful.
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/210D15D1-3217-4B0B-BFF8-B3314BD1ED88/DuEasy.app/pl.lproj
+Unable to simultaneously satisfy constraints.
+	Probably at least one of the constraints in the following list is one you don't want. 
+	Try this: 
+		(1) look at each constraint and try to figure out which you don't expect; 
+		(2) find the code that added the unwanted constraint or constraints and fix it. 
+	(Note: If you're seeing NSAutoresizingMaskLayoutConstraints that you don't understand, refer to the documentation for the UIView property translatesAutoresizingMaskIntoConstraints) 
+(
+    "<NSAutoresizingMaskLayoutConstraint:0x11b6065d0 h=--& v=--& _TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x11b5aa140.width == 0   (active)>",
+    "<NSLayoutConstraint:0x11b4b0c80 _TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x11b5aa140.leading == _UIButtonBarButton:0x118b10f00.leading   (active)>",
+    "<NSLayoutConstraint:0x11b4b3e30 H:[_UIButtonBarButton:0x118b10f00]-(0)-|   (active, names: '|':_TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x11b5aa140 )>",
+    "<NSLayoutConstraint:0x11b4b2030 'IB_Leading_Leading' H:|-(2)-[_UIModernBarButton:0x11a81bb80]   (active, names: '|':_UIButtonBarButton:0x118b10f00 )>",
+    "<NSLayoutConstraint:0x11b4b3b60 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x11a81bb80]-(2)-|   (active, names: '|':_UIButtonBarButton:0x118b10f00 )>"
+)
+
+Will attempt to recover by breaking constraint 
+<NSLayoutConstraint:0x11b4b3b60 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x11a81bb80]-(2)-|   (active, names: '|':_UIButtonBarButton:0x118b10f00 )>
+
+Make a symbolic breakpoint at UIViewAlertForUnsatisfiableConstraints to catch this in the debugger.
+The methods in the UIConstraintBasedLayoutDebugging category on UIView listed in <UIKitCore/UIView.h> may also be helpful.
+✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/210D15D1-3217-4B0B-BFF8-B3314BD1ED88/DuEasy.app/pl.lproj
+✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/210D15D1-3217-4B0B-BFF8-B3314BD1ED88/DuEasy.app/pl.lproj
+Document scan completed: 1 page(s) scanned
+Images are pre-processed by VisionKit for optimal OCR quality
+Saved document with 1 pages: 99918FD5-0920-43A5-824A-A79D50C06650
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+Permissions checked: calendar=true, notifications=true
+Processing 1 images for document 2DA7C326-B07A-4C6F-B905-7998A31B3AA3
+Permissions checked: calendar=true, notifications=true
+Skipping duplicate OCR processing - already processed or in progress
+Image pre-processing applied: contrast +20%, noise reduction, sharpening
+Starting 2-pass OCR: Pass A (readable text) + Pass B (small print keywords)
+OCR pass A (readable) configured: minTextHeight=0.012000
+OCR pass A (readable) completed: 79 lines, confidence: 0.956962
+OCR pass B (small print) configured: minTextHeight=0.007000
+OCR pass B (small print) completed: 79 lines, confidence: 0.956962
+Added 10 unique small-print lines from Pass B
+2-pass OCR completed: Pass A (79 lines), Pass B (79 lines), Combined text length: 1309 chars
+Analyzing document of type: invoice, text length: 1309
+Parsing invoice with 89 lines
+OCR text preview (first 500 chars): TERG S.A.
+mediaexpert O
+77-400 Złotów
+Za Dworcem 1D
+tel. 22 122 31.00
+NIP: 7671004218 BDO: 000135672
+FAKTURA VAT
+nr FS-1421593/25/MEPL1/12
+Data dostawy/wykonania usługi: 19-12-2025
+Data wystawienia: 19-12-2025
+FS-1421593/25/MEPL1/12 02457137318
+Nabywca:
+B+ BARTŁOMIEJ ŁONIEWSKI
+Kameliowa 3 1
+71-804 Szczecin
+NIP: 8522541213
+Sposób dostawy:
+Opis:
+PACZKOMAT
+02457137318
+Lp.
+Nazwa towaru
+1
+2
+Dron DJI Neo Ultralekki i maly - 139g, Pamięć
+wewnętrzna 22 GB, kod: 2026501
+Dostawa w weekend InPost, kod: 603
+First 10 lines: TERG S.A. | mediaexpert O | 77-400 Złotów | Za Dworcem 1D | tel. 22 122 31.00 | NIP: 7671004218 BDO: 000135672 | FAKTURA VAT | nr FS-1421593/25/MEPL1/12 | Data dostawy/wykonania usługi: 19-12-2025 | Data wystawienia: 19-12-2025
+=== VENDOR EXTRACTION START ===
+Extracted vendor section before buyer label (245 chars)
+Search text length: 245 chars (isolated: true)
+Checking company pattern candidate (S.A.): 'TERG S.A.'
+SELECTED VENDOR via company pattern (S.A.): 'TERG S.A.'
+Extracting vendor address
+Extracted vendor section before buyer label (245 chars)
+Found multi-line address: 77-400 Złotów, Za Dworcem 1D
+Found NIP: 7671004218
+=== AMOUNT EXTRACTION START ===
+Text length: 1309 chars
+Retrieved 48 learned keywords for amount
+Using 48 learned amount keywords
+🔍 AMOUNT DEBUG: Testing regex pattern against text of length 1309
+🔍 BASIC AMOUNT REGEX TEST: Found 12 amounts matching pattern
+🔍 BASIC AMOUNT REGEX TEST: Found 12 amounts matching pattern
+  Sample #1: '31.00'
+  Sample #1: '31.00'
+  Sample #2: '693,99'
+  Sample #2: '693,99'
+  Sample #3: '564,22'
+  Sample #3: '564,22'
+  Sample #4: '564,22'
+  Sample #4: '564,22'
+  Sample #5: '689,00'
+  Sample #5: '689,00'
+Testing top 10 amount patterns against text...
+  Pattern #0: 'current account amount payable' - NO MATCH
+  Pattern #1: 'amount before payable' - NO MATCH
+  Pattern #2: 'amount due' - NO MATCH
+  Pattern #3: 'balance/total due' - NO MATCH
+  Pattern #4: 'pay this amount' - NO MATCH
+  Pattern #5: 'outstanding balance' - NO MATCH
+  Pattern #6: 'rachunek biezacy' - NO MATCH
+  Pattern #7: 'kwota biezacego rachunku (OCR tolerant)' - NO MATCH
+  Pattern #8: 'saldo do zaplaty' - NO MATCH
+  Pattern #9: 'naleznosc ogolem' - NO MATCH
+Parsing amount string: '693,99' -> normalized: '693,99'
+Amount score: 0 using global keywords (matched: )
+AMOUNT FOUND: 693.99 via 'kwota (OCR tolerant)' score=300 (base: 300 + semantic: 0) keywords:
+Parsing amount string: '4,99' -> normalized: '4,99'
+Amount score: 20 using global keywords (matched: brutto)
+AMOUNT FOUND: 4.99 via 'amount before keyword' score=170 (base: 150 + semantic: 20) keywords: brutto
+Parsing amount string: '31.00' -> normalized: '31.00'
+Amount score: 0 using global keywords (matched: )
+AMOUNT FOUND: 31 via 'Generic decimal' score=10 (base: 10 + semantic: 0) keywords:
+Parsing amount string: '693,99' -> normalized: '693,99'
+Parsing amount string: '564,22' -> normalized: '564,22'
+Amount score: 0 using global keywords (matched: )
+AMOUNT FOUND: 564.22 via 'Generic decimal' score=10 (base: 10 + semantic: 0) keywords:
+Parsing amount string: '564,22' -> normalized: '564,22'
+Parsing amount string: '689,00' -> normalized: '689,00'
+Amount score: 40 using global keywords (matched: wartość, wartosc)
+AMOUNT FOUND: 689 via 'Generic decimal' score=50 (base: 10 + semantic: 40) keywords: wartość, wartosc
+Parsing amount string: '689,00' -> normalized: '689,00'
+Parsing amount string: '4,99' -> normalized: '4,99'
+Parsing amount string: '129,77' -> normalized: '129,77'
+Amount score: 0 using global keywords (matched: )
+AMOUNT FOUND: 129.77 via 'Generic decimal' score=10 (base: 10 + semantic: 0) keywords:
+Parsing amount string: '129,77' -> normalized: '129,77'
+Parsing amount string: '4,99' -> normalized: '4,99'
+Parsing amount string: '693,99' -> normalized: '693,99'
+Parsing amount string: '693,99' -> normalized: '693,99'
+Found 6 unique amounts
+  #1: 693.99 PLN - score=300 (base:300) line:31 keywords:
+  #2: 4.99 PLN - score=170 (base:150) line:68 keywords:brutto
+  #3: 689 PLN - score=50 (base:10) line:58 keywords:wartość,wartosc
+  #4: 129.77 PLN - score=10 (base:10) line:66 keywords:
+  #5: 564.22 PLN - score=10 (base:10) line:48 keywords:
+Found currency: PLN
+=== DUE DATE EXTRACTION START ===
+Valid date range: 2025-01-29 23:00:00 +0000 to 2028-01-29 23:00:00 +0000
+DATE CANDIDATE: 2025-12-18 23:00:00 +0000, score=-100, reasons=[-80 issue keyword 'data wystawienia', -20 old past date], context=' 000135672 faktura vat nr fs-1421593/25/mepl1/12 data dostawy/wykonania usługi: 19-12-2025 data wystawienia: 19-12-2025 '
+DATE CANDIDATE: 2025-12-18 23:00:00 +0000, score=-100, reasons=[-80 issue keyword 'data wystawienia', -20 old past date], context='1421593/25/mepl1/12 data dostawy/wykonania usługi: 19-12-2025 data wystawienia: 19-12-2025 fs-1421593/25/mepl1/12 024571'
+DATE CANDIDATE: 2025-12-18 23:00:00 +0000, score=80, reasons=[+100 due keyword 'platności', -20 old past date], context='01 dostawa w weekend inpost, kod: 603688 forma platności gotowka data platności 19-12-2025 kwota 693,99 pkwiu ilość j.m.'
+Found 3 valid date candidates
+  Top #1: 2025-12-18 23:00:00 +0000, score=80, reason=+100 due keyword 'platności', -20 old past date
+  Top #2: 2025-12-18 23:00:00 +0000, score=-100, reason=-80 issue keyword 'data wystawienia', -20 old past date
+  Top #3: 2025-12-18 23:00:00 +0000, score=-100, reason=-80 issue keyword 'data wystawienia', -20 old past date
+=== SELECTED DUE DATE: 2025-12-18 23:00:00 +0000 (score: 80) ===
+Found invoice number via 'faktura/FV prefix': FS-1421593/25/MEPL1/12
+Extracting bank account number
+Found vendor (name hidden for privacy)
+Found vendor address (hidden for privacy)
+Found amount from 6 candidates (value hidden for privacy)
+Found due date (hidden for privacy)
+Found invoice number (hidden for privacy)
+No bank account found
+Parsed invoice: fields=4/4, confidence=1.000000
+OCR/Parsing result: hasVendor=true, hasAmount=true, hasDueDate=true, confidence=0.956962
+Set vendor: TERG S.A.
+Set vendorAddress: 77-400 Złotów, Za Dworcem 1D
+Found 6 suggested amounts
+Set amount: 693,99
+Set currency: PLN
+Set dueDate: 2025-12-18 23:00:00 +0000
+Set documentNumber: FS-1421593/25/MEPL1/12
+Saving document - hasVendor: true, hasAmount: true, hasDueDate: true
+Calling finalizeUseCase (amount and date hidden for privacy)
+Recording corrections for adaptive learning
+Correction learning completed
+Finalizing document: hasTitle=true, currency=PLN (amount/date hidden for privacy)
+Document fields updated
+Calendar event creation skipped (skipCalendar=true)
+Saved learning data: amountCorrected=false, dueDateCorrected=false, vendorCorrected=false
+Privacy-safe learning data saved (no PII/financial data)
+Notification authorization: isAuthorized=true, enabled=true
+Cancelled 0 notifications for document: 2DA7C326-B07A-4C6F-B905-7998A31B3AA3
+Updated 0 notification reminders (old ones cancelled)
+Document finalized and saved successfully
+Document saved successfully
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Initialized VNDocumentCameraViewController (VisionKit document scanner)
+Scanner provides: edge detection, perspective correction, contrast enhancement
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Unable to simultaneously satisfy constraints.
+	Probably at least one of the constraints in the following list is one you don't want. 
+	Try this: 
+		(1) look at each constraint and try to figure out which you don't expect; 
+		(2) find the code that added the unwanted constraint or constraints and fix it. 
+	(Note: If you're seeing NSAutoresizingMaskLayoutConstraints that you don't understand, refer to the documentation for the UIView property translatesAutoresizingMaskIntoConstraints) 
+(
+    "<NSAutoresizingMaskLayoutConstraint:0x11ce73ed0 h=--& v=--& _TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x11a9ca680.width == 0   (active)>",
+    "<NSLayoutConstraint:0x11ce737f0 _TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x11a9ca680.leading == _UIButtonBarButton:0x118b10280.leading   (active)>",
+    "<NSLayoutConstraint:0x11ce73840 H:[_UIButtonBarButton:0x118b10280]-(0)-|   (active, names: '|':_TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x11a9ca680 )>",
+    "<NSLayoutConstraint:0x11ce73610 'IB_Leading_Leading' H:|-(2)-[_UIModernBarButton:0x128c93b80]   (active, names: '|':_UIButtonBarButton:0x118b10280 )>",
+    "<NSLayoutConstraint:0x11ce73660 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x128c93b80]-(2)-|   (active, names: '|':_UIButtonBarButton:0x118b10280 )>"
+)
+
+Will attempt to recover by breaking constraint 
+<NSLayoutConstraint:0x11ce73660 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x128c93b80]-(2)-|   (active, names: '|':_UIButtonBarButton:0x118b10280 )>
+
+Make a symbolic breakpoint at UIViewAlertForUnsatisfiableConstraints to catch this in the debugger.
+The methods in the UIConstraintBasedLayoutDebugging category on UIView listed in <UIKitCore/UIView.h> may also be helpful.
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/210D15D1-3217-4B0B-BFF8-B3314BD1ED88/DuEasy.app/pl.lproj
+Unable to simultaneously satisfy constraints.
+	Probably at least one of the constraints in the following list is one you don't want. 
+	Try this: 
+		(1) look at each constraint and try to figure out which you don't expect; 
+		(2) find the code that added the unwanted constraint or constraints and fix it. 
+	(Note: If you're seeing NSAutoresizingMaskLayoutConstraints that you don't understand, refer to the documentation for the UIView property translatesAutoresizingMaskIntoConstraints) 
+(
+    "<NSAutoresizingMaskLayoutConstraint:0x11ce517c0 h=--& v=--& _TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x11b4f56c0.width == 0   (active)>",
+    "<NSLayoutConstraint:0x118bc72f0 _TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x11b4f56c0.leading == _UIButtonBarButton:0x118b11900.leading   (active)>",
+    "<NSLayoutConstraint:0x118bc6c10 H:[_UIButtonBarButton:0x118b11900]-(0)-|   (active, names: '|':_TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x11b4f56c0 )>",
+    "<NSLayoutConstraint:0x128d06a30 'IB_Leading_Leading' H:|-(2)-[_UIModernBarButton:0x11fdf8380]   (active, names: '|':_UIButtonBarButton:0x118b11900 )>",
+    "<NSLayoutConstraint:0x128d06f30 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x11fdf8380]-(2)-|   (active, names: '|':_UIButtonBarButton:0x118b11900 )>"
+)
+
+Will attempt to recover by breaking constraint 
+<NSLayoutConstraint:0x128d06f30 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x11fdf8380]-(2)-|   (active, names: '|':_UIButtonBarButton:0x118b11900 )>
+
+Make a symbolic breakpoint at UIViewAlertForUnsatisfiableConstraints to catch this in the debugger.
+The methods in the UIConstraintBasedLayoutDebugging category on UIView listed in <UIKitCore/UIView.h> may also be helpful.
+✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/210D15D1-3217-4B0B-BFF8-B3314BD1ED88/DuEasy.app/pl.lproj
+✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/210D15D1-3217-4B0B-BFF8-B3314BD1ED88/DuEasy.app/pl.lproj
+Document scan completed: 1 page(s) scanned
+Images are pre-processed by VisionKit for optimal OCR quality
+Saved document with 1 pages: CDA59364-47A7-4A32-B6C4-A1CA4E9DC490
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+Permissions checked: calendar=true, notifications=true
+Processing 1 images for document 685508C0-4408-46FD-9BC5-EF683D9B1853
+Permissions checked: calendar=true, notifications=true
+Skipping duplicate OCR processing - already processed or in progress
+Image pre-processing applied: contrast +20%, noise reduction, sharpening
+Starting 2-pass OCR: Pass A (readable text) + Pass B (small print keywords)
+OCR pass A (readable) configured: minTextHeight=0.012000
+OCR pass A (readable) completed: 85 lines, confidence: 0.952941
+OCR pass B (small print) configured: minTextHeight=0.007000
+OCR pass B (small print) completed: 81 lines, confidence: 0.950617
+Added 10 unique small-print lines from Pass B
+2-pass OCR completed: Pass A (85 lines), Pass B (81 lines), Combined text length: 1544 chars
+Analyzing document of type: invoice, text length: 1544
+Parsing invoice with 95 lines
+OCR text preview (first 500 chars): FAKTURA VAT / INVOICE
+nr / no: 1001227745
+Data sprzedaży /
+Service date:
+Data wystawienia /
+Date of issue:
+Miejsce wystawienia /
+Transaction location:
+2025-08-27
+2025-09-02
+Kraków
+Nabywca / Sold to Party
+B+ BARTŁOMIEJ ŁONIEWSKI
+KAMELIOWA 3
+71-804 SZCZECIN
+NIP/NAT ID: PL8522541213
+Lp.
+No.
+Pozycja / Item description
+APLIK. MOB. PACZKOMAT STD. GAB. C
+610999000512100143853184
+Razem / Total:
+Waluta / Stawka /VAT
+Currency
+rate
+PLN
+PLN
+23%
+Sprzedawca / Supplier
+INPOST SP. Z O.O.
+ul. Pana Tadeusza 4
+30-
+First 10 lines: FAKTURA VAT / INVOICE | nr / no: 1001227745 | Data sprzedaży / | Service date: | Data wystawienia / | Date of issue: | Miejsce wystawienia / | Transaction location: | 2025-08-27 | 2025-09-02
+=== VENDOR EXTRACTION START ===
+Extracted vendor section from seller label (1000 chars)
+Search text length: 1000 chars (isolated: true)
+Checking labeled vendor candidate (Vendor/Seller label): length=17
+SELECTED VENDOR via Vendor/Seller label (name hidden for privacy)
+Extracting vendor address
+Extracted vendor section from seller label (1000 chars)
+Found multi-line address: ul. Pana Tadeusza 4, 30-727 Kraków
+=== AMOUNT EXTRACTION START ===
+Text length: 1544 chars
+Retrieved 48 learned keywords for amount
+Using 48 learned amount keywords
+🔍 AMOUNT DEBUG: Testing regex pattern against text of length 1544
+🔍 BASIC AMOUNT REGEX TEST: Found 10 amounts matching pattern
+🔍 BASIC AMOUNT REGEX TEST: Found 10 amounts matching pattern
+  Sample #1: '17,07'
+  Sample #1: '17,07'
+  Sample #2: '17,07'
+  Sample #2: '17,07'
+  Sample #3: '20,99'
+  Sample #3: '20,99'
+  Sample #4: '3,92'
+  Sample #4: '3,92'
+  Sample #5: '3,92'
+  Sample #5: '3,92'
+Testing top 10 amount patterns against text...
+  Pattern #0: 'current account amount payable' - NO MATCH
+  Pattern #1: 'amount before payable' - NO MATCH
+  Pattern #2: 'amount due' - NO MATCH
+  Pattern #3: 'balance/total due' - NO MATCH
+  Pattern #4: 'pay this amount' - NO MATCH
+  Pattern #5: 'outstanding balance' - NO MATCH
+  Pattern #6: 'rachunek biezacy' - NO MATCH
+  Pattern #7: 'kwota biezacego rachunku (OCR tolerant)' - NO MATCH
+  Pattern #8: 'saldo do zaplaty' - NO MATCH
+  Pattern #9: 'naleznosc ogolem' - NO MATCH
+Parsing amount string: '20,99' -> normalized: '20,99'
+Amount score: 40 using global keywords (matched: razem, total)
+AMOUNT FOUND: 20.99 via 'amount before keyword' score=190 (base: 150 + semantic: 40) keywords: razem, total
+Parsing amount string: '17,07' -> normalized: '17,07'
+Amount score: -60 using global keywords (matched: netto, net)
+AMOUNT FOUND: 17.07 via 'wartosc/value' score=80 (base: 140 + semantic: -60) keywords: -netto, -net
+Parsing amount string: '20,99' -> normalized: '20,99'
+Parsing amount string: '20,99' -> normalized: '20,99'
+Parsing amount string: '20,99' -> normalized: '20,99'
+Parsing amount string: '3,92' -> normalized: '3,92'
+Amount score: -50 using global keywords (matched: vat)
+AMOUNT FOUND: 3.92 via 'VAT keyword' score=20 (base: 70 + semantic: -50) keywords: -vat
+Parsing amount string: '17,07' -> normalized: '17,07'
+Parsing amount string: '17,07' -> normalized: '17,07'
+Parsing amount string: '20,99' -> normalized: '20,99'
+Parsing amount string: '3,92' -> normalized: '3,92'
+Parsing amount string: '3,92' -> normalized: '3,92'
+Parsing amount string: '20,99' -> normalized: '20,99'
+Parsing amount string: '20,99' -> normalized: '20,99'
+Parsing amount string: '20,99' -> normalized: '20,99'
+Parsing amount string: '20,99' -> normalized: '20,99'
+Parsing amount string: '20,99' -> normalized: '20,99'
+Found 3 unique amounts
+  #1: 20.99 PLN - score=190 (base:150) line:67 keywords:razem,total
+  #2: 17.07 PLN - score=80 (base:140) line:45 keywords:-netto,-net
+  #3: 3.92 PLN - score=20 (base:70) line:51 keywords:-vat
+Found currency: PLN
+=== DUE DATE EXTRACTION START ===
+Valid date range: 2025-01-29 23:00:00 +0000 to 2028-01-29 23:00:00 +0000
+DATE CANDIDATE: 2025-08-26 22:00:00 +0000, score=-100, reasons=[-80 issue keyword 'data wystawienia', -20 old past date], context=': data wystawienia / date of issue: miejsce wystawienia / transaction location: 2025-08-27 2025-09-02 kraków nabywca / s'
+DATE CANDIDATE: 2025-09-01 22:00:00 +0000, score=-100, reasons=[-80 issue keyword 'wystawienia', -20 old past date], context='awienia / date of issue: miejsce wystawienia / transaction location: 2025-08-27 2025-09-02 kraków nabywca / sold to part'
+DATE CANDIDATE: 2027-08-24 22:00:00 +0000, score=-65, reasons=[-80 issue keyword 'data wystawienia', +15 future date], context='data wystawienia / date of issue: miejsce wystawienia / transaction location: 2025-08-27 2025-09-02 kraków nabywca / s'
+REJECTED date 2002-09-24 22:00:00 +0000 - more than 1 year in past (min: 2025-01-29 23:00:00 +0000)
+Found 3 valid date candidates
+  Top #1: 2027-08-24 22:00:00 +0000, score=-65, reason=-80 issue keyword 'data wystawienia', +15 future date
+  Top #2: 2025-08-26 22:00:00 +0000, score=-100, reason=-80 issue keyword 'data wystawienia', -20 old past date
+  Top #3: 2025-09-01 22:00:00 +0000, score=-100, reason=-80 issue keyword 'wystawienia', -20 old past date
+=== SELECTED DUE DATE (future fallback): 2027-08-24 22:00:00 +0000 ===
+Found invoice number via 'nr/numer prefix': 1001227745
+Extracting bank account number
+Found vendor (name hidden for privacy)
+Found vendor address (hidden for privacy)
+Found amount from 3 candidates (value hidden for privacy)
+Found due date (hidden for privacy)
+Found invoice number (hidden for privacy)
+No bank account found
+Parsed invoice: fields=4/4, confidence=1.000000
+OCR/Parsing result: hasVendor=true, hasAmount=true, hasDueDate=true, confidence=0.952941
+Set vendor: INPOST SP. Z O.O.
+Set vendorAddress: ul. Pana Tadeusza 4, 30-727 Kraków
+Found 3 suggested amounts
+Set amount: 20,99
+Set currency: PLN
+Set dueDate: 2027-08-24 22:00:00 +0000
+Set documentNumber: 1001227745
+Saving document - hasVendor: true, hasAmount: true, hasDueDate: true
+Calling finalizeUseCase (amount and date hidden for privacy)
+Recording corrections for adaptive learning
+Due date was corrected: 2027-08-24 22:00:00 +0000 -> 2025-08-26 22:00:00 +0000
+Learning from user correction for dueDate: '27.08.2025'
+Could not find corrected value '27.08.2025' in OCR text
+Correction learning completed
+Finalizing document: hasTitle=true, currency=PLN (amount/date hidden for privacy)
+Document fields updated
+Calendar event creation skipped (skipCalendar=true)
+Saved learning data: amountCorrected=false, dueDateCorrected=true, vendorCorrected=false
+Privacy-safe learning data saved (no PII/financial data)
+Notification authorization: isAuthorized=true, enabled=true
+Cancelled 0 notifications for document: 685508C0-4408-46FD-9BC5-EF683D9B1853
+Updated 0 notification reminders (old ones cancelled)
+Document finalized and saved successfully
+Document saved successfully
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Initialized VNDocumentCameraViewController (VisionKit document scanner)
+Scanner provides: edge detection, perspective correction, contrast enhancement
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Unable to simultaneously satisfy constraints.
+	Probably at least one of the constraints in the following list is one you don't want. 
+	Try this: 
+		(1) look at each constraint and try to figure out which you don't expect; 
+		(2) find the code that added the unwanted constraint or constraints and fix it. 
+	(Note: If you're seeing NSAutoresizingMaskLayoutConstraints that you don't understand, refer to the documentation for the UIView property translatesAutoresizingMaskIntoConstraints) 
+(
+    "<NSAutoresizingMaskLayoutConstraint:0x132dec690 h=--& v=--& _TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x132f1bd40.width == 0   (active)>",
+    "<NSLayoutConstraint:0x132defd40 _TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x132f1bd40.leading == _UIButtonBarButton:0x11b44b700.leading   (active)>",
+    "<NSLayoutConstraint:0x132def6b0 H:[_UIButtonBarButton:0x11b44b700]-(0)-|   (active, names: '|':_TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x132f1bd40 )>",
+    "<NSLayoutConstraint:0x132dedb30 'IB_Leading_Leading' H:|-(2)-[_UIModernBarButton:0x132fe3b80]   (active, names: '|':_UIButtonBarButton:0x11b44b700 )>",
+    "<NSLayoutConstraint:0x132deee90 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x132fe3b80]-(2)-|   (active, names: '|':_UIButtonBarButton:0x11b44b700 )>"
+)
+
+Will attempt to recover by breaking constraint 
+<NSLayoutConstraint:0x132deee90 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x132fe3b80]-(2)-|   (active, names: '|':_UIButtonBarButton:0x11b44b700 )>
+
+Make a symbolic breakpoint at UIViewAlertForUnsatisfiableConstraints to catch this in the debugger.
+The methods in the UIConstraintBasedLayoutDebugging category on UIView listed in <UIKitCore/UIView.h> may also be helpful.
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+Unable to simultaneously satisfy constraints.
+	Probably at least one of the constraints in the following list is one you don't want. 
+	Try this: 
+		(1) look at each constraint and try to figure out which you don't expect; 
+		(2) find the code that added the unwanted constraint or constraints and fix it. 
+	(Note: If you're seeing NSAutoresizingMaskLayoutConstraints that you don't understand, refer to the documentation for the UIView property translatesAutoresizingMaskIntoConstraints) 
+(
+    "<NSAutoresizingMaskLayoutConstraint:0x11ce50910 h=--& v=--& _TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x132fc8700.width == 0   (active)>",
+    "<NSLayoutConstraint:0x11ff82080 _TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x132fc8700.leading == _UIButtonBarButton:0x132f29680.leading   (active)>",
+    "<NSLayoutConstraint:0x11ff81770 H:[_UIButtonBarButton:0x132f29680]-(0)-|   (active, names: '|':_TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x132fc8700 )>",
+    "<NSLayoutConstraint:0x11ff83b10 'IB_Leading_Leading' H:|-(2)-[_UIModernBarButton:0x132fe3480]   (active, names: '|':_UIButtonBarButton:0x132f29680 )>",
+    "<NSLayoutConstraint:0x11ff82620 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x132fe3480]-(2)-|   (active, names: '|':_UIButtonBarButton:0x132f29680 )>"
+)
+
+Will attempt to recover by breaking constraint 
+<NSLayoutConstraint:0x11ff82620 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x132fe3480]-(2)-|   (active, names: '|':_UIButtonBarButton:0x132f29680 )>
+
+Make a symbolic breakpoint at UIViewAlertForUnsatisfiableConstraints to catch this in the debugger.
+The methods in the UIConstraintBasedLayoutDebugging category on UIView listed in <UIKitCore/UIView.h> may also be helpful.
+✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/210D15D1-3217-4B0B-BFF8-B3314BD1ED88/DuEasy.app/pl.lproj
+✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/210D15D1-3217-4B0B-BFF8-B3314BD1ED88/DuEasy.app/pl.lproj
+✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/210D15D1-3217-4B0B-BFF8-B3314BD1ED88/DuEasy.app/pl.lproj
+Document scan completed: 1 page(s) scanned
+Images are pre-processed by VisionKit for optimal OCR quality
+Saved document with 1 pages: 43528D17-D92C-44CF-9991-BF6E004D5BCA
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+Permissions checked: calendar=true, notifications=true
+Processing 1 images for document FFAD6760-1658-4785-B708-F002CDD69056
+Permissions checked: calendar=true, notifications=true
+Skipping duplicate OCR processing - already processed or in progress
+Image pre-processing applied: contrast +20%, noise reduction, sharpening
+Starting 2-pass OCR: Pass A (readable text) + Pass B (small print keywords)
+OCR pass A (readable) configured: minTextHeight=0.012000
+OCR pass A (readable) completed: 100 lines, confidence: 0.949000
+OCR pass B (small print) configured: minTextHeight=0.007000
+Locale not supported: cs
+OCR pass B (small print) completed: 96 lines, confidence: 0.852083
+Added 29 unique small-print lines from Pass B
+2-pass OCR completed: Pass A (100 lines), Pass B (96 lines), Combined text length: 2057 chars
+Analyzing document of type: invoice, text length: 2057
+Parsing invoice with 129 lines
+OCR text preview (first 500 chars): Traficar
+TrafiCargo
+Sprzedawca:
+Firma:
+TRAFICAR spółka z ograniczoną
+odpowiedzialnoscią
+Adres:
+ul. Puszkarska 7f, 30-644 Kraków
+Tel/fax:
++48 123 000 330
+Email/www:
+traficar@traficar.pl/ www.traficar.pl
+REGON:
+363258160
+NIP:
+6751529371
+Nr rachunku IBAN:
+78 1600 1462 1808 6253 0000 0013
+Do umowy:
+Wynajem Traficar - oplata za przejechane kilometry samochód
+dostawczy KK55374
+9
+2
+Wynajem Traficar - opłata startowa samochód dostawczy
+KK55374
+3
+Wynajem Traficar - oplata za postój w dzier samochód
+dosta
+First 10 lines: Traficar | TrafiCargo | Sprzedawca: | Firma: | TRAFICAR spółka z ograniczoną | odpowiedzialnoscią | Adres: | ul. Puszkarska 7f, 30-644 Kraków | Tel/fax: | +48 123 000 330
+=== VENDOR EXTRACTION START ===
+Extracted vendor section between seller and buyer labels (753 chars)
+Search text length: 753 chars (isolated: true)
+Checking company pattern candidate (s.k.a.): 'Puszkarska'
+SELECTED VENDOR via company pattern (s.k.a.): 'Puszkarska'
+Extracting vendor address
+Extracted vendor section between seller and buyer labels (753 chars)
+Found address via label pattern: ul. Puszkarska 7f, 30-644 Kraków
+Found NIP: 6751529371
+Found REGON: 363258160
+=== AMOUNT EXTRACTION START ===
+Text length: 2057 chars
+Retrieved 48 learned keywords for amount
+Using 48 learned amount keywords
+🔍 AMOUNT DEBUG: Testing regex pattern against text of length 2057
+🔍 BASIC AMOUNT REGEX TEST: Found 11 amounts matching pattern
+🔍 BASIC AMOUNT REGEX TEST: Found 11 amounts matching pattern
+  Sample #1: '2,59'
+  Sample #1: '2,59'
+  Sample #2: '23.34'
+  Sample #2: '23.34'
+  Sample #3: '4.06'
+  Sample #3: '4.06'
+  Sample #4: '4.06'
+  Sample #4: '4.06'
+  Sample #5: '0.24'
+  Sample #5: '0.24'
+Testing top 10 amount patterns against text...
+  Pattern #0: 'current account amount payable' - NO MATCH
+  Pattern #1: 'amount before payable' - NO MATCH
+  Pattern #2: 'amount due' - NO MATCH
+  Pattern #3: 'balance/total due' - NO MATCH
+  Pattern #4: 'pay this amount' - NO MATCH
+  Pattern #5: 'outstanding balance' - NO MATCH
+  Pattern #6: 'rachunek biezacy' - NO MATCH
+  Pattern #7: 'kwota biezacego rachunku (OCR tolerant)' - NO MATCH
+  Pattern #8: 'saldo do zaplaty' - NO MATCH
+  Pattern #9: 'naleznosc ogolem' - NO MATCH
+Parsing amount string: '2,59' -> normalized: '2,59'
+Amount score: -60 using global keywords (matched: netto, net)
+AMOUNT FOUND: 2.59 via 'Generic decimal' score=-50 (base: 10 + semantic: -60) keywords: -netto, -net
+Parsing amount string: '23.34' -> normalized: '23.34'
+Amount score: 0 using global keywords (matched: )
+AMOUNT FOUND: 23.34 via 'Generic decimal' score=10 (base: 10 + semantic: 0) keywords:
+Parsing amount string: '4.06' -> normalized: '4.06'
+Amount score: 0 using global keywords (matched: )
+AMOUNT FOUND: 4.06 via 'Generic decimal' score=10 (base: 10 + semantic: 0) keywords:
+Parsing amount string: '4.06' -> normalized: '4.06'
+Parsing amount string: '0.24' -> normalized: '0.24'
+Amount score: 0 using global keywords (matched: )
+AMOUNT FOUND: 0.24 via 'Generic decimal' score=10 (base: 10 + semantic: 0) keywords:
+Parsing amount string: '23.34' -> normalized: '23.34'
+Parsing amount string: '5.37' -> normalized: '5.37'
+Amount score: 0 using global keywords (matched: )
+AMOUNT FOUND: 5.37 via 'Generic decimal' score=10 (base: 10 + semantic: 0) keywords:
+Parsing amount string: '4.06' -> normalized: '4.06'
+Parsing amount string: '0.93' -> normalized: '0.93'
+Amount score: 0 using global keywords (matched: )
+AMOUNT FOUND: 0.93 via 'Generic decimal' score=10 (base: 10 + semantic: 0) keywords:
+Parsing amount string: '28.71' -> normalized: '28.71'
+Amount score: 0 using global keywords (matched: )
+AMOUNT FOUND: 28.71 via 'Generic decimal' score=10 (base: 10 + semantic: 0) keywords:
+Parsing amount string: '4.99' -> normalized: '4.99'
+Amount score: 0 using global keywords (matched: )
+AMOUNT FOUND: 4.99 via 'Generic decimal' score=10 (base: 10 + semantic: 0) keywords:
+Found 8 unique amounts
+  #1: 4.99 PLN - score=10 (base:10) line:90 keywords:
+  #2: 28.71 PLN - score=10 (base:10) line:89 keywords:
+  #3: 0.93 PLN - score=10 (base:10) line:83 keywords:
+  #4: 5.37 PLN - score=10 (base:10) line:80 keywords:
+  #5: 0.24 PLN - score=10 (base:10) line:59 keywords:
+=== DUE DATE EXTRACTION START ===
+Valid date range: 2025-01-29 23:00:00 +0000 to 2028-01-29 23:00:00 +0000
+DATE CANDIDATE: 2025-06-13 22:00:00 +0000, score=-20, reasons=[-20 old past date], context='zapłaty/do zwrotu: stownie: bartłomiej loniewski kameliowa 3/1, 71-804 szczecin 14-06-2025 14-06-2025 14-06-2025 karta d'
+DATE CANDIDATE: 2025-06-13 22:00:00 +0000, score=-20, reasons=[-20 old past date], context='zwrotu: stownie: bartłomiej loniewski kameliowa 3/1, 71-804 szczecin 14-06-2025 14-06-2025 14-06-2025 karta domyşlna reb'
+DATE CANDIDATE: 2025-06-13 22:00:00 +0000, score=-20, reasons=[-20 old past date], context='wnie: bartłomiej loniewski kameliowa 3/1, 71-804 szczecin 14-06-2025 14-06-2025 14-06-2025 karta domyşlna rebe wartaséne'
+REJECTED date 6970-06-19 22:00:00 +0000 - more than 2 years in future (max: 2028-01-29 23:00:00 +0000)
+Found 3 valid date candidates
+  Top #1: 2025-06-13 22:00:00 +0000, score=-20, reason=-20 old past date
+  Top #2: 2025-06-13 22:00:00 +0000, score=-20, reason=-20 old past date
+  Top #3: 2025-06-13 22:00:00 +0000, score=-20, reason=-20 old past date
+=== SELECTED DUE DATE (past date last resort): 2025-06-13 22:00:00 +0000 ===
+Found invoice number via 'faktura/FV prefix': TCFV/66970/06/2025
+Extracting bank account number
+Found bank account via 'IBAN with label': 78 1600 1462 1808 6253 0000 0013
+Found vendor (name hidden for privacy)
+Found vendor address (hidden for privacy)
+Found amount from 8 candidates (value hidden for privacy)
+Found due date (hidden for privacy)
+Found invoice number (hidden for privacy)
+Found bank account (hidden for privacy)
+Parsed invoice: fields=4/4, confidence=1.000000
+OCR/Parsing result: hasVendor=true, hasAmount=true, hasDueDate=true, confidence=0.949000
+Set vendor: Puszkarska
+Set vendorAddress: ul. Puszkarska 7f, 30-644 Kraków
+Found 8 suggested amounts
+Set amount: 4,99
+Set currency: PLN
+Set dueDate: 2025-06-13 22:00:00 +0000
+Set documentNumber: TCFV/66970/06/2025
+Set bankAccountNumber: 78 1600 1462 1808 6253 0000 0013
+Initialized VNDocumentCameraViewController (VisionKit document scanner)
+Scanner provides: edge detection, perspective correction, contrast enhancement
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Unable to simultaneously satisfy constraints.
+	Probably at least one of the constraints in the following list is one you don't want. 
+	Try this: 
+		(1) look at each constraint and try to figure out which you don't expect; 
+		(2) find the code that added the unwanted constraint or constraints and fix it. 
+	(Note: If you're seeing NSAutoresizingMaskLayoutConstraints that you don't understand, refer to the documentation for the UIView property translatesAutoresizingMaskIntoConstraints) 
+(
+    "<NSAutoresizingMaskLayoutConstraint:0x11ff7c0f0 h=--& v=--& _TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x132f2d500.width == 0   (active)>",
+    "<NSLayoutConstraint:0x11ff7c910 _TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x132f2d500.leading == _UIButtonBarButton:0x132f28780.leading   (active)>",
+    "<NSLayoutConstraint:0x11ff7fa20 H:[_UIButtonBarButton:0x132f28780]-(0)-|   (active, names: '|':_TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x132f2d500 )>",
+    "<NSLayoutConstraint:0x11ff7e9e0 'IB_Leading_Leading' H:|-(2)-[_UIModernBarButton:0x132fac000]   (active, names: '|':_UIButtonBarButton:0x132f28780 )>",
+    "<NSLayoutConstraint:0x11ff7fed0 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x132fac000]-(2)-|   (active, names: '|':_UIButtonBarButton:0x132f28780 )>"
+)
+
+Will attempt to recover by breaking constraint 
+<NSLayoutConstraint:0x11ff7fed0 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x132fac000]-(2)-|   (active, names: '|':_UIButtonBarButton:0x132f28780 )>
+
+Make a symbolic breakpoint at UIViewAlertForUnsatisfiableConstraints to catch this in the debugger.
+The methods in the UIConstraintBasedLayoutDebugging category on UIView listed in <UIKitCore/UIView.h> may also be helpful.
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/210D15D1-3217-4B0B-BFF8-B3314BD1ED88/DuEasy.app/pl.lproj
+Unable to simultaneously satisfy constraints.
+	Probably at least one of the constraints in the following list is one you don't want. 
+	Try this: 
+		(1) look at each constraint and try to figure out which you don't expect; 
+		(2) find the code that added the unwanted constraint or constraints and fix it. 
+	(Note: If you're seeing NSAutoresizingMaskLayoutConstraints that you don't understand, refer to the documentation for the UIView property translatesAutoresizingMaskIntoConstraints) 
+(
+    "<NSAutoresizingMaskLayoutConstraint:0x11ff7efd0 h=--& v=--& _TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x12c013d40.width == 0   (active)>",
+    "<NSLayoutConstraint:0x11ff7d4a0 _TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x12c013d40.leading == _UIButtonBarButton:0x11b448280.leading   (active)>",
+    "<NSLayoutConstraint:0x11ff7f610 H:[_UIButtonBarButton:0x11b448280]-(0)-|   (active, names: '|':_TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x12c013d40 )>",
+    "<NSLayoutConstraint:0x11ff7cd70 'IB_Leading_Leading' H:|-(2)-[_UIModernBarButton:0x132fac700]   (active, names: '|':_UIButtonBarButton:0x11b448280 )>",
+    "<NSLayoutConstraint:0x11ff7f5c0 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x132fac700]-(2)-|   (active, names: '|':_UIButtonBarButton:0x11b448280 )>"
+)
+
+Will attempt to recover by breaking constraint 
+<NSLayoutConstraint:0x11ff7f5c0 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x132fac700]-(2)-|   (active, names: '|':_UIButtonBarButton:0x11b448280 )>
+
+Make a symbolic breakpoint at UIViewAlertForUnsatisfiableConstraints to catch this in the debugger.
+The methods in the UIConstraintBasedLayoutDebugging category on UIView listed in <UIKitCore/UIView.h> may also be helpful.
+✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/210D15D1-3217-4B0B-BFF8-B3314BD1ED88/DuEasy.app/pl.lproj

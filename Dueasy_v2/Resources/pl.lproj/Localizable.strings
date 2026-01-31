@@ -1,0 +1,301 @@
+/*
+  Localizable.strings (Polish)
+  DuEasy
+
+  Polish localization
+*/
+
+// MARK: - Common
+
+"common.cancel" = "Anuluj";
+"common.save" = "Zapisz";
+"common.delete" = "Usun";
+"common.edit" = "Edytuj";
+"common.done" = "Gotowe";
+"common.loading" = "Ladowanie...";
+"common.error" = "Blad";
+"common.retry" = "Ponow";
+"common.ok" = "OK";
+"common.yes" = "Tak";
+"common.no" = "Nie";
+"common.skip" = "Pomin";
+"common.continue" = "Dalej";
+"common.getStarted" = "Rozpocznij";
+"common.documents" = "Dokumenty";
+"common.settings" = "Ustawienia";
+
+// MARK: - Documents
+
+"documents.title" = "Dokumenty";
+"documents.searchPlaceholder" = "Szukaj dokumentow";
+"documents.addNew" = "Dodaj nowy dokument";
+"documents.deleteConfirmTitle" = "Usun dokument";
+"documents.deleteConfirmMessage" = "Spowoduje to rowniez usuniecie wydarzenia z kalendarza i zaplanowanych powiadomien.";
+"documents.loadingDocuments" = "Ladowanie dokumentow...";
+
+// Empty states
+"documents.noDocuments.title" = "Brak dokumentow";
+"documents.noDocuments.message" = "Zeskanuj pierwsza fakture, aby rozpoczac sledzenie terminow platnosci.";
+"documents.noDocuments.action" = "Skanuj fakture";
+"documents.noResults.title" = "Brak wynikow";
+"documents.noResults.message" = "Brak dokumentow pasujacych do filtra %@.";
+"documents.noSearchResults.message" = "Nie znaleziono dokumentow dla \"%@\"";
+
+// MARK: - Document Types
+
+"documentType.invoice" = "Faktura";
+"documentType.contract" = "Umowa";
+"documentType.receipt" = "Paragon";
+"documentType.comingSoon" = "Wkrotce";
+
+// MARK: - Document Status
+
+"status.draft" = "Szkic";
+"status.scheduled" = "Zaplanowane";
+"status.paid" = "Zaplacone";
+"status.archived" = "Zarchiwizowane";
+"status.overdue" = "Przeterminowane";
+
+// MARK: - Filters
+
+"filter.all" = "Wszystkie";
+"filter.pending" = "Oczekujace";
+"filter.scheduled" = "Zaplanowane";
+"filter.paid" = "Zaplacone";
+"filter.overdue" = "Przeterminowane";
+
+// MARK: - Add Document
+
+"addDocument.title" = "Dodaj dokument";
+"addDocument.documentType" = "Typ dokumentu";
+"addDocument.scanDocument" = "Skanuj dokument";
+"addDocument.processing" = "Przetwarzanie...";
+
+// MARK: - Review Document
+
+"review.title" = "Sprawdz dokument";
+"review.analyzing" = "Analizowanie dokumentu...";
+"review.analyzingSubtitle" = "Rozpoznawanie tekstu i identyfikacja pol";
+"review.lowConfidenceWarning" = "Niektore pola moga byc nieprawidlowe";
+"review.lowConfidenceSuggestion" = "Prosze sprawdzic i poprawic wyodrebnione wartosci";
+"review.pagesScanned" = "Zeskanowano %d stron";
+
+// Form fields
+"review.vendorLabel" = "Sprzedawca / Tytul";
+"review.vendorPlaceholder" = "Wprowadz nazwe sprzedawcy";
+"review.vendorAddressLabel" = "Adres sprzedawcy";
+"review.vendorAddressPlaceholder" = "Wprowadz adres sprzedawcy (opcjonalnie)";
+"review.amountLabel" = "Kwota";
+"review.detectedAmounts" = "Wykryte kwoty:";
+"review.currencyLabel" = "Waluta";
+"review.dueDateLabel" = "Termin platnosci";
+"review.dueDatePast" = "Ta data jest w przeszlosci";
+"review.invoiceNumberLabel" = "Numer faktury";
+"review.invoiceNumberPlaceholder" = "Opcjonalnie";
+"review.bankAccountLabel" = "Numer konta";
+"review.bankAccountPlaceholder" = "Wprowadz numer konta (opcjonalnie)";
+"review.notesLabel" = "Notatki";
+"review.notesPlaceholder" = "Opcjonalne notatki";
+
+// Calendar
+"review.addToCalendar.title" = "Dodaj do kalendarza";
+"review.addToCalendar.description" = "Utworz wydarzenie kalendarzowe dla terminu platnosci";
+
+// Reminders
+"review.remindersTitle" = "Przypomnienia";
+"review.remindersRequireCalendar" = "Przypomnienia wymagaja wydarzenia kalendarzowego";
+"review.reminderDueDate" = "W dniu platnosci";
+"review.reminderOneDay" = "1 dzien";
+"review.reminderDays" = "%d dni";
+
+// Save button
+"review.saveButton" = "Zapisz";
+"review.saveAndAddToCalendar" = "Zapisz i dodaj do kalendarza";
+"review.saving" = "Zapisywanie...";
+
+// Validation
+"review.validation.vendorRequired" = "Nazwa sprzedawcy jest wymagana";
+"review.validation.amountRequired" = "Kwota musi byc wieksza od zera";
+
+// Permission prompts
+"review.permissions.needed" = "Wymagane uprawnienia";
+"review.permissions.calendar" = "Dostep do kalendarza jest potrzebny, aby dodac terminy platnosci.";
+"review.permissions.notification" = "Dostep do powiadomien jest potrzebny do wysylania przypomnien.";
+"review.permissions.grant" = "Nadaj uprawnienia";
+"review.permissions.saveWithoutCalendar" = "Zapisz bez kalendarza";
+
+// MARK: - Document Detail
+
+"detail.title" = "Dokument";
+"detail.documentNumber" = "Nr %@";
+"detail.amount" = "Kwota";
+"detail.vendor" = "Sprzedawca";
+"detail.dueDate" = "Termin platnosci";
+"detail.notes" = "Notatki";
+"detail.created" = "Utworzono";
+"detail.notSpecified" = "Nie okreslono";
+"detail.address" = "Adres";
+"detail.bankAccount" = "Numer konta";
+"detail.added" = "Dodano";
+"detail.notAdded" = "Nie dodano";
+"detail.deleteMessage" = "Spowoduje to rowniez usuniecie wydarzenia z kalendarza i zaplanowanych powiadomien.";
+
+// Calendar
+"detail.calendar" = "Kalendarz";
+"detail.calendarAdded" = "Dodano";
+"detail.calendarNotAdded" = "Nie dodano";
+"detail.reminders" = "Przypomnienia";
+
+// Actions
+"detail.markAsPaid" = "Oznacz jako zaplacone";
+"detail.deleting" = "Usuwanie...";
+"detail.editDocument" = "Edytuj dokument";
+
+// MARK: - Due Dates
+
+"dueDate.today" = "Termin dzisiaj";
+"dueDate.tomorrow" = "Termin jutro";
+"dueDate.inDays" = "Termin za %d dni";
+"dueDate.overdueDays" = "Opoznienie %d dni";
+"dueDate.overdueDay" = "Opoznienie 1 dzien";
+"dueDate.noDate" = "Brak daty";
+"dueDate.daysBefore" = "%d dni przed";
+"dueDate.dayBefore" = "1 dzien przed";
+
+// MARK: - Settings
+
+"settings.title" = "Ustawienia";
+
+// Notifications section
+"settings.notifications.section" = "Powiadomienia";
+"settings.reminders" = "Przypomnienia";
+"settings.remindersConfigured" = "Skonfigurowano %d przypomnien";
+"settings.noReminders" = "Brak przypomnien";
+
+// Reminder settings
+"settings.defaultReminders" = "Domyslne przypomnienia";
+"settings.remindersFooter" = "Te przypomnienia beda stosowane do nowych dokumentow. Mozesz dostosowac przypomnienia dla kazdego dokumentu osobno.";
+"settings.onDueDate" = "W dniu platnosci";
+"settings.oneDayBefore" = "1 dzien przed";
+"settings.daysBefore" = "%d dni przed";
+
+// Calendar section
+"settings.calendar.section" = "Kalendarz";
+"settings.calendar" = "Kalendarz";
+"settings.useInvoicesCalendar" = "Uzyj dedykowanego kalendarza Faktury";
+"settings.usingInvoicesCalendar" = "Kalendarz Faktury";
+"settings.usingDefaultCalendar" = "Kalendarz domyslny";
+"settings.calendarFooter" = "Po wlaczeniu DuEasy tworzy oddzielny kalendarz \"Faktury\" dla wszystkich terminow platnosci. Ulatwia to pokazywanie lub ukrywanie terminow platnosci faktur w aplikacji kalendarza.";
+
+// Defaults section
+"settings.defaults.section" = "Ustawienia domyslne";
+"settings.defaultCurrency" = "Domyslna waluta";
+
+// About section
+"settings.about.section" = "O aplikacji";
+"settings.aboutDuEasy" = "O DuEasy";
+"settings.privacy" = "Prywatnosc";
+"settings.privacySubtitle" = "Twoje dane pozostaja na urzadzeniu";
+"settings.version" = "Wersja";
+"settings.build" = "Kompilacja";
+"settings.aboutDescription" = "DuEasy pomaga sledzic terminy platnosci faktur, skanujac dokumenty i automatycznie dodajac przypomnienia do kalendarza.";
+
+// Permissions section
+"settings.permissions.section" = "Uprawnienia";
+"settings.permissions" = "Uprawnienia";
+"settings.calendarPermission" = "Kalendarz";
+"settings.calendarPermission.granted" = "Przyznano";
+"settings.calendarPermission.denied" = "Nie przyznano";
+"settings.notificationPermission" = "Powiadomienia";
+"settings.notificationPermission.granted" = "Przyznano";
+"settings.notificationPermission.denied" = "Nie przyznano";
+"settings.openSettings" = "Otworz ustawienia";
+"settings.grantPermissions" = "Nadaj uprawnienia";
+
+// MARK: - Privacy
+
+"privacy.title" = "Prywatnosc";
+"privacy.localProcessing.title" = "Lokalne przetwarzanie";
+"privacy.localProcessing.description" = "Skanowanie dokumentow i rozpoznawanie tekstu odbywa sie na Twoim urzadzeniu. Twoje dokumenty nigdy nie sa przesylane na zaden serwer.";
+"privacy.secureStorage.title" = "Bezpieczne przechowywanie";
+"privacy.secureStorage.description" = "Zeskanowane dokumenty sa bezpiecznie przechowywane w prywatnej pamieci aplikacji z wlaczona ochrona danych iOS.";
+"privacy.yourData.title" = "Twoje dane, Twoja kontrola";
+"privacy.yourData.description" = "Mozesz usunac dowolny dokument w kazdej chwili. Usuniecie aplikacji powoduje usuniecie wszystkich przechowywanych dokumentow.";
+"privacy.noAccount.title" = "Bez konta";
+"privacy.noAccount.description" = "DuEasy dziala calkowicie offline. Nie wymaga konta, logowania ani polaczenia z internetem.";
+
+// MARK: - Onboarding
+
+"onboarding.scan.title" = "Skanuj faktury";
+"onboarding.scan.description" = "Uzyj aparatu, aby szybko przechwycic faktury. DuEasy automatycznie wyodrêbnia terminy platnosci i kwoty.";
+"onboarding.calendar.title" = "Nigdy nie przegap terminu";
+"onboarding.calendar.description" = "Terminy platnosci sa automatycznie dodawane do kalendarza. Otrzymuj przypomnienia przed terminem platnosci.";
+"onboarding.security.title" = "Prywatne i bezpieczne";
+"onboarding.security.description" = "Wszystko pozostaje na Twoim urzadzeniu. Bez kont, bez przesylania, bez sledzenia.";
+
+// Permission page
+"onboarding.permissions.title" = "Nadaj uprawnienia";
+"onboarding.permissions.description" = "DuEasy potrzebuje dostepu do kalendarza i powiadomien, aby dzialac efektywnie.";
+"onboarding.permissions.calendar" = "Dostep do kalendarza";
+"onboarding.permissions.calendarSubtitle" = "Dodawaj terminy platnosci do kalendarza";
+"onboarding.permissions.notification" = "Powiadomienia";
+"onboarding.permissions.notificationSubtitle" = "Otrzymuj przypomnienia o platnosci";
+"onboarding.permissions.allGranted" = "Wszystkie uprawnienia przyznane";
+"onboarding.permissions.optional" = "Mozesz nadac te uprawnienia pozniej w Ustawieniach.";
+
+// MARK: - Errors
+
+// File Storage
+"error.fileStorage.saveFailed" = "Nie udalo sie zapisac pliku dokumentu";
+"error.fileStorage.loadFailed" = "Nie udalo sie wczytac pliku dokumentu";
+"error.fileStorage.deleteFailed" = "Nie udalo sie usunac pliku dokumentu";
+"error.fileStorage.notFound" = "Nie znaleziono pliku dokumentu";
+
+// Scanner
+"error.scanner.unavailable" = "Skaner dokumentow nie jest dostepny na tym urzadzeniu";
+"error.scanner.cancelled" = "Skanowanie dokumentu zostalo anulowane";
+"error.scanner.failed" = "Nie udalo sie zeskanowac dokumentu";
+"error.camera.permissionDenied" = "Dostep do aparatu jest wymagany do skanowania dokumentow";
+
+// OCR
+"error.ocr.failed" = "Nie udalo sie odczytac tekstu z dokumentu";
+"error.ocr.noTextFound" = "Nie znaleziono tekstu w dokumencie";
+"error.ocr.lowConfidence" = "Niska pewnosc rozpoznawania tekstu";
+
+// Parsing
+"error.parsing.failed" = "Nie udalo sie przeanalizowac dokumentu";
+"error.parsing.noData" = "Nie udalo sie wyodrebnic informacji z dokumentu";
+
+// Calendar
+"error.calendar.permissionDenied" = "Dostep do kalendarza jest wymagany do dodawania terminow platnosci";
+"error.calendar.accessRestricted" = "Dostep do kalendarza jest ograniczony";
+"error.calendar.eventCreationFailed" = "Nie udalo sie utworzyc wydarzenia w kalendarzu";
+"error.calendar.eventUpdateFailed" = "Nie udalo sie zaktualizowac wydarzenia w kalendarzu";
+"error.calendar.eventDeletionFailed" = "Nie udalo sie usunac wydarzenia z kalendarza";
+"error.calendar.notFound" = "Nie znaleziono wybranego kalendarza";
+
+// Notifications
+"error.notification.permissionDenied" = "Uprawnienia do powiadomien sa wymagane dla przypomnien";
+"error.notification.schedulingFailed" = "Nie udalo sie zaplanowac przypomnienia";
+"error.notification.cancellationFailed" = "Nie udalo sie anulowac przypomnienia";
+
+// Repository
+"error.repository.saveFailed" = "Nie udalo sie zapisac dokumentu";
+"error.repository.fetchFailed" = "Nie udalo sie wczytac dokumentow";
+"error.repository.deleteFailed" = "Nie udalo sie usunac dokumentu";
+"error.document.notFound" = "Nie znaleziono dokumentu";
+
+// Validation
+"error.validation.amountInvalid" = "Kwota musi byc wieksza od zera";
+"error.validation.dueDateInPast" = "Termin platnosci jest w przeszlosci";
+"error.validation.missingField" = "Pole %@ jest wymagane";
+
+// General
+"error.unknown" = "Wystapil nieoczekiwany blad";
+
+// Recovery suggestions
+"error.recovery.cameraSettings" = "Przejdz do Ustawienia > DuEasy, aby wlaczyc dostep do aparatu";
+"error.recovery.calendarSettings" = "Przejdz do Ustawienia > DuEasy, aby wlaczyc dostep do kalendarza";
+"error.recovery.notificationSettings" = "Przejdz do Ustawienia > DuEasy, aby wlaczyc powiadomienia";
+"error.recovery.manualEntry" = "Mozesz wprowadzic dane recznie";
+"error.recovery.dueDatePast" = "Mozesz zapisac z ta data, jesli to konieczne";

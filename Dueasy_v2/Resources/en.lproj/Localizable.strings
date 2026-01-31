@@ -1,0 +1,301 @@
+/*
+  Localizable.strings (English)
+  DuEasy
+
+  English localization - Base language
+*/
+
+// MARK: - Common
+
+"common.cancel" = "Cancel";
+"common.save" = "Save";
+"common.delete" = "Delete";
+"common.edit" = "Edit";
+"common.done" = "Done";
+"common.loading" = "Loading...";
+"common.error" = "Error";
+"common.retry" = "Retry";
+"common.ok" = "OK";
+"common.yes" = "Yes";
+"common.no" = "No";
+"common.skip" = "Skip";
+"common.continue" = "Continue";
+"common.getStarted" = "Get Started";
+"common.documents" = "Documents";
+"common.settings" = "Settings";
+
+// MARK: - Documents
+
+"documents.title" = "Documents";
+"documents.searchPlaceholder" = "Search documents";
+"documents.addNew" = "Add new document";
+"documents.deleteConfirmTitle" = "Delete Document";
+"documents.deleteConfirmMessage" = "This will also remove the calendar event and scheduled notifications.";
+"documents.loadingDocuments" = "Loading documents...";
+
+// Empty states
+"documents.noDocuments.title" = "No Documents Yet";
+"documents.noDocuments.message" = "Scan your first invoice to get started tracking due dates.";
+"documents.noDocuments.action" = "Scan Invoice";
+"documents.noResults.title" = "No Results";
+"documents.noResults.message" = "No documents match your %@ filter.";
+"documents.noSearchResults.message" = "No documents found for \"%@\"";
+
+// MARK: - Document Types
+
+"documentType.invoice" = "Invoice";
+"documentType.contract" = "Contract";
+"documentType.receipt" = "Receipt";
+"documentType.comingSoon" = "Coming soon";
+
+// MARK: - Document Status
+
+"status.draft" = "Draft";
+"status.scheduled" = "Scheduled";
+"status.paid" = "Paid";
+"status.archived" = "Archived";
+"status.overdue" = "Overdue";
+
+// MARK: - Filters
+
+"filter.all" = "All";
+"filter.pending" = "Pending";
+"filter.scheduled" = "Scheduled";
+"filter.paid" = "Paid";
+"filter.overdue" = "Overdue";
+
+// MARK: - Add Document
+
+"addDocument.title" = "Add Document";
+"addDocument.documentType" = "Document Type";
+"addDocument.scanDocument" = "Scan Document";
+"addDocument.processing" = "Processing...";
+
+// MARK: - Review Document
+
+"review.title" = "Review Document";
+"review.analyzing" = "Analyzing document...";
+"review.analyzingSubtitle" = "Extracting text and identifying fields";
+"review.lowConfidenceWarning" = "Some fields may not be accurate";
+"review.lowConfidenceSuggestion" = "Please review and correct the extracted values";
+"review.pagesScanned" = "%d pages scanned";
+
+// Form fields
+"review.vendorLabel" = "Vendor / Title";
+"review.vendorPlaceholder" = "Enter vendor name";
+"review.vendorAddressLabel" = "Vendor Address";
+"review.vendorAddressPlaceholder" = "Enter vendor address (optional)";
+"review.amountLabel" = "Amount";
+"review.detectedAmounts" = "Detected amounts:";
+"review.currencyLabel" = "Currency";
+"review.dueDateLabel" = "Due Date";
+"review.dueDatePast" = "This date is in the past";
+"review.invoiceNumberLabel" = "Invoice Number";
+"review.invoiceNumberPlaceholder" = "Optional";
+"review.bankAccountLabel" = "Bank Account";
+"review.bankAccountPlaceholder" = "Enter bank account (optional)";
+"review.notesLabel" = "Notes";
+"review.notesPlaceholder" = "Optional notes";
+
+// Calendar
+"review.addToCalendar.title" = "Add to Calendar";
+"review.addToCalendar.description" = "Create calendar event for due date";
+
+// Reminders
+"review.remindersTitle" = "Reminders";
+"review.remindersRequireCalendar" = "Reminders require calendar event";
+"review.reminderDueDate" = "Due date";
+"review.reminderOneDay" = "1 day";
+"review.reminderDays" = "%d days";
+
+// Save button
+"review.saveButton" = "Save";
+"review.saveAndAddToCalendar" = "Save & Add to Calendar";
+"review.saving" = "Saving...";
+
+// Validation
+"review.validation.vendorRequired" = "Vendor name is required";
+"review.validation.amountRequired" = "Amount must be greater than zero";
+
+// Permission prompts
+"review.permissions.needed" = "Permissions Required";
+"review.permissions.calendar" = "Calendar access is needed to add due dates to your calendar.";
+"review.permissions.notification" = "Notification access is needed to send reminders.";
+"review.permissions.grant" = "Grant Permissions";
+"review.permissions.saveWithoutCalendar" = "Save Without Calendar";
+
+// MARK: - Document Detail
+
+"detail.title" = "Document";
+"detail.documentNumber" = "No. %@";
+"detail.amount" = "Amount";
+"detail.vendor" = "Vendor";
+"detail.dueDate" = "Due Date";
+"detail.notes" = "Notes";
+"detail.created" = "Created";
+"detail.notSpecified" = "Not specified";
+"detail.address" = "Address";
+"detail.bankAccount" = "Bank Account";
+"detail.added" = "Added";
+"detail.notAdded" = "Not added";
+"detail.deleteMessage" = "This will also remove the calendar event and scheduled notifications.";
+
+// Calendar
+"detail.calendar" = "Calendar";
+"detail.calendarAdded" = "Added";
+"detail.calendarNotAdded" = "Not added";
+"detail.reminders" = "Reminders";
+
+// Actions
+"detail.markAsPaid" = "Mark as Paid";
+"detail.deleting" = "Deleting...";
+"detail.editDocument" = "Edit Document";
+
+// MARK: - Due Dates
+
+"dueDate.today" = "Due today";
+"dueDate.tomorrow" = "Due tomorrow";
+"dueDate.inDays" = "Due in %d days";
+"dueDate.overdueDays" = "%d days overdue";
+"dueDate.overdueDay" = "1 day overdue";
+"dueDate.noDate" = "No date";
+"dueDate.daysBefore" = "%d days before";
+"dueDate.dayBefore" = "1 day before";
+
+// MARK: - Settings
+
+"settings.title" = "Settings";
+
+// Notifications section
+"settings.notifications.section" = "Notifications";
+"settings.reminders" = "Reminders";
+"settings.remindersConfigured" = "%d reminder(s) configured";
+"settings.noReminders" = "No reminders";
+
+// Reminder settings
+"settings.defaultReminders" = "Default Reminders";
+"settings.remindersFooter" = "These reminders will be applied to new documents. You can customize reminders for each document individually.";
+"settings.onDueDate" = "On due date";
+"settings.oneDayBefore" = "1 day before";
+"settings.daysBefore" = "%d days before";
+
+// Calendar section
+"settings.calendar.section" = "Calendar";
+"settings.calendar" = "Calendar";
+"settings.useInvoicesCalendar" = "Use dedicated Invoices calendar";
+"settings.usingInvoicesCalendar" = "Using Invoices calendar";
+"settings.usingDefaultCalendar" = "Using default calendar";
+"settings.calendarFooter" = "When enabled, DuEasy creates a separate \"Invoices\" calendar for all due date events. This makes it easy to show or hide invoice due dates in your calendar app.";
+
+// Defaults section
+"settings.defaults.section" = "Defaults";
+"settings.defaultCurrency" = "Default Currency";
+
+// About section
+"settings.about.section" = "About";
+"settings.aboutDuEasy" = "About DuEasy";
+"settings.privacy" = "Privacy";
+"settings.privacySubtitle" = "Your data stays on your device";
+"settings.version" = "Version";
+"settings.build" = "Build";
+"settings.aboutDescription" = "DuEasy helps you track invoice due dates by scanning documents and automatically adding reminders to your calendar.";
+
+// Permissions section
+"settings.permissions.section" = "Permissions";
+"settings.permissions" = "Permissions";
+"settings.calendarPermission" = "Calendar";
+"settings.calendarPermission.granted" = "Granted";
+"settings.calendarPermission.denied" = "Not Granted";
+"settings.notificationPermission" = "Notifications";
+"settings.notificationPermission.granted" = "Granted";
+"settings.notificationPermission.denied" = "Not Granted";
+"settings.openSettings" = "Open Settings";
+"settings.grantPermissions" = "Grant Permissions";
+
+// MARK: - Privacy
+
+"privacy.title" = "Privacy";
+"privacy.localProcessing.title" = "Local Processing";
+"privacy.localProcessing.description" = "All document scanning and text recognition happens on your device. Your documents are never uploaded to any server.";
+"privacy.secureStorage.title" = "Secure Storage";
+"privacy.secureStorage.description" = "Scanned documents are stored securely in your app's private storage with iOS data protection enabled.";
+"privacy.yourData.title" = "Your Data, Your Control";
+"privacy.yourData.description" = "You can delete any document at any time. Deleting the app removes all stored documents.";
+"privacy.noAccount.title" = "No Account Required";
+"privacy.noAccount.description" = "DuEasy works completely offline. No account, login, or internet connection is required.";
+
+// MARK: - Onboarding
+
+"onboarding.scan.title" = "Scan Your Invoices";
+"onboarding.scan.description" = "Use your camera to quickly capture invoices. DuEasy automatically extracts due dates and amounts.";
+"onboarding.calendar.title" = "Never Miss a Deadline";
+"onboarding.calendar.description" = "Due dates are automatically added to your calendar. Get reminded before payments are due.";
+"onboarding.security.title" = "Private and Secure";
+"onboarding.security.description" = "Everything stays on your device. No accounts, no uploads, no tracking.";
+
+// Permission page
+"onboarding.permissions.title" = "Grant Permissions";
+"onboarding.permissions.description" = "DuEasy needs access to your calendar and notifications to work effectively.";
+"onboarding.permissions.calendar" = "Calendar Access";
+"onboarding.permissions.calendarSubtitle" = "Add due dates to your calendar";
+"onboarding.permissions.notification" = "Notifications";
+"onboarding.permissions.notificationSubtitle" = "Receive payment reminders";
+"onboarding.permissions.allGranted" = "All permissions granted";
+"onboarding.permissions.optional" = "You can grant these later in Settings if you prefer.";
+
+// MARK: - Errors
+
+// File Storage
+"error.fileStorage.saveFailed" = "Failed to save document file";
+"error.fileStorage.loadFailed" = "Failed to load document file";
+"error.fileStorage.deleteFailed" = "Failed to delete document file";
+"error.fileStorage.notFound" = "Document file not found";
+
+// Scanner
+"error.scanner.unavailable" = "Document scanner is not available on this device";
+"error.scanner.cancelled" = "Document scanning was cancelled";
+"error.scanner.failed" = "Failed to scan document";
+"error.camera.permissionDenied" = "Camera access is required to scan documents";
+
+// OCR
+"error.ocr.failed" = "Failed to read text from document";
+"error.ocr.noTextFound" = "No text found in document";
+"error.ocr.lowConfidence" = "Low confidence in text recognition";
+
+// Parsing
+"error.parsing.failed" = "Failed to analyze document";
+"error.parsing.noData" = "Could not extract information from document";
+
+// Calendar
+"error.calendar.permissionDenied" = "Calendar access is required to add due dates";
+"error.calendar.accessRestricted" = "Calendar access is restricted";
+"error.calendar.eventCreationFailed" = "Failed to create calendar event";
+"error.calendar.eventUpdateFailed" = "Failed to update calendar event";
+"error.calendar.eventDeletionFailed" = "Failed to delete calendar event";
+"error.calendar.notFound" = "Selected calendar not found";
+
+// Notifications
+"error.notification.permissionDenied" = "Notification permission is required for reminders";
+"error.notification.schedulingFailed" = "Failed to schedule reminder";
+"error.notification.cancellationFailed" = "Failed to cancel reminder";
+
+// Repository
+"error.repository.saveFailed" = "Failed to save document";
+"error.repository.fetchFailed" = "Failed to load documents";
+"error.repository.deleteFailed" = "Failed to delete document";
+"error.document.notFound" = "Document not found";
+
+// Validation
+"error.validation.amountInvalid" = "Amount must be greater than zero";
+"error.validation.dueDateInPast" = "Due date is in the past";
+"error.validation.missingField" = "%@ is required";
+
+// General
+"error.unknown" = "An unexpected error occurred";
+
+// Recovery suggestions
+"error.recovery.cameraSettings" = "Go to Settings > DuEasy to enable camera access";
+"error.recovery.calendarSettings" = "Go to Settings > DuEasy to enable calendar access";
+"error.recovery.notificationSettings" = "Go to Settings > DuEasy to enable notifications";
+"error.recovery.manualEntry" = "You can enter the details manually";
+"error.recovery.dueDatePast" = "You can still save with this date if needed";
