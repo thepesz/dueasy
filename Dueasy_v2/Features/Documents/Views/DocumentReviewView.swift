@@ -6,9 +6,11 @@ struct DocumentReviewView: View {
 
     @Environment(AppEnvironment.self) private var environment
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     @State private var viewModel: DocumentReviewViewModel
     @State private var showPermissionAlert = false
+    @State private var appeared = false
 
     private let logger = Logger(subsystem: "com.dueasy.app", category: "DocumentReview")
 
@@ -29,47 +31,70 @@ struct DocumentReviewView: View {
             checkPermissionsUseCase: environment.makeCheckPermissionsUseCase(),
             settingsManager: environment.settingsManager,
             keywordLearningService: environment.keywordLearningService,
-            learningDataService: environment.learningDataService
+            learningDataService: environment.learningDataService,
+            vendorTemplateService: environment.vendorTemplateService
         ))
     }
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: Spacing.lg) {
-                    // Permission prompt (if needed)
-                    if viewModel.needsPermissions && !viewModel.isProcessingOCR {
-                        permissionPrompt
+            ZStack {
+                // Modern gradient background
+                GradientBackground()
+
+                ScrollView {
+                    VStack(spacing: Spacing.lg) {
+                        // Permission prompt (if needed)
+                        if viewModel.needsPermissions && !viewModel.isProcessingOCR {
+                            permissionPrompt
+                                .transition(.opacity.combined(with: .move(edge: .top)))
+                        }
+
+                        // Document preview
+                        documentPreview
+                            .opacity(appeared ? 1 : 0)
+                            .offset(y: appeared ? 0 : 15)
+                            .animation(reduceMotion ? .none : .spring(response: 0.4, dampingFraction: 0.8), value: appeared)
+
+                        // OCR status
+                        if viewModel.isProcessingOCR {
+                            ocrProcessingView
+                        } else if viewModel.hasLowConfidence {
+                            lowConfidenceWarning
+                        }
+
+                        // Form fields
+                        formFields
+                            .opacity(appeared ? 1 : 0)
+                            .offset(y: appeared ? 0 : 15)
+                            .animation(reduceMotion ? .none : .spring(response: 0.4, dampingFraction: 0.8).delay(0.1), value: appeared)
+
+                        // Calendar settings
+                        calendarSettings
+                            .opacity(appeared ? 1 : 0)
+                            .offset(y: appeared ? 0 : 15)
+                            .animation(reduceMotion ? .none : .spring(response: 0.4, dampingFraction: 0.8).delay(0.15), value: appeared)
+
+                        // Reminder settings
+                        reminderSettings
+                            .opacity(appeared ? 1 : 0)
+                            .offset(y: appeared ? 0 : 15)
+                            .animation(reduceMotion ? .none : .spring(response: 0.4, dampingFraction: 0.8).delay(0.2), value: appeared)
+
+                        // Validation errors
+                        if !viewModel.validationErrors.isEmpty {
+                            validationErrorsView
+                        }
+
+                        // Save button
+                        saveButton
+                            .opacity(appeared ? 1 : 0)
+                            .offset(y: appeared ? 0 : 20)
+                            .animation(reduceMotion ? .none : .spring(response: 0.5, dampingFraction: 0.8).delay(0.25), value: appeared)
                     }
-
-                    // Document preview
-                    documentPreview
-
-                    // OCR status
-                    if viewModel.isProcessingOCR {
-                        ocrProcessingView
-                    } else if viewModel.hasLowConfidence {
-                        lowConfidenceWarning
-                    }
-
-                    // Form fields
-                    formFields
-
-                    // Calendar settings
-                    calendarSettings
-
-                    // Reminder settings
-                    reminderSettings
-
-                    // Validation errors
-                    if !viewModel.validationErrors.isEmpty {
-                        validationErrorsView
-                    }
-
-                    // Save button
-                    saveButton
+                    .padding(Spacing.md)
+                    .padding(.bottom, Spacing.xl)
                 }
-                .padding(Spacing.md)
             }
             .navigationTitle(L10n.Review.title.localized)
             .navigationBarTitleDisplayMode(.inline)
@@ -93,6 +118,15 @@ struct DocumentReviewView: View {
             await viewModel.processImages()
         }
         .interactiveDismissDisabled(viewModel.isSaving)
+        .onAppear {
+            if !reduceMotion {
+                withAnimation(.easeOut(duration: 0.4)) {
+                    appeared = true
+                }
+            } else {
+                appeared = true
+            }
+        }
     }
 
     // MARK: - Permission Prompt
@@ -216,12 +250,8 @@ struct DocumentReviewView: View {
     @ViewBuilder
     private var formFields: some View {
         VStack(spacing: Spacing.md) {
-            // Vendor name
-            FormField(label: L10n.Review.vendorLabel.localized, isRequired: true) {
-                TextField(L10n.Review.vendorPlaceholder.localized, text: $viewModel.vendorName, axis: .vertical)
-                    .textContentType(.organizationName)
-                    .lineLimit(2...4)
-            }
+            // Vendor name with evidence and alternatives
+            vendorFieldWithEvidence
 
             // Vendor address (optional - always show for manual entry)
             FormField(label: L10n.Review.vendorAddressLabel.localized, isRequired: false) {
@@ -230,10 +260,132 @@ struct DocumentReviewView: View {
                     .lineLimit(2...5)
             }
 
-            // Amount with dropdown for multiple detected amounts
-            amountSection
+            // Amount with evidence and alternatives
+            amountFieldWithEvidence
 
-            // Due date
+            // Due date with evidence and alternatives
+            dueDateFieldWithEvidence
+
+            // Document number with alternatives
+            documentNumberFieldWithEvidence
+
+            // NIP with alternatives
+            nipFieldWithEvidence
+
+            // Bank account with alternatives
+            bankAccountFieldWithEvidence
+
+            // Notes (optional)
+            FormField(label: L10n.Review.notesLabel.localized, isRequired: false) {
+                TextField(L10n.Review.notesPlaceholder.localized, text: $viewModel.notes, axis: .vertical)
+                    .lineLimit(3...6)
+            }
+        }
+    }
+
+    // MARK: - Vendor Field with Evidence
+
+    @ViewBuilder
+    private var vendorFieldWithEvidence: some View {
+        if viewModel.showExtractionEvidence && viewModel.vendorCandidates.count > 1 {
+            FieldWithEvidence(
+                label: L10n.Review.vendorLabel.localized,
+                isRequired: true,
+                selectedValue: $viewModel.vendorName,
+                alternatives: viewModel.vendorCandidates,
+                evidence: viewModel.vendorEvidence,
+                confidence: viewModel.vendorConfidence,
+                reviewMode: viewModel.vendorReviewMode,
+                onAlternativeSelected: { candidate in
+                    viewModel.selectVendorAlternative(candidate)
+                    viewModel.recordAlternativeSelection(
+                        field: .vendor,
+                        selectedCandidate: candidate,
+                        alternativeIndex: viewModel.vendorCandidates.firstIndex(where: { $0.value == candidate.value })
+                    )
+                }
+            )
+        } else {
+            FormField(label: L10n.Review.vendorLabel.localized, isRequired: true) {
+                VStack(alignment: .leading, spacing: Spacing.xs) {
+                    TextField(L10n.Review.vendorPlaceholder.localized, text: $viewModel.vendorName, axis: .vertical)
+                        .textContentType(.organizationName)
+                        .lineLimit(2...4)
+
+                    // Show confidence badge if extraction happened
+                    if viewModel.showExtractionEvidence && viewModel.vendorConfidence > 0 {
+                        HStack(spacing: Spacing.xs) {
+                            ConfidenceBadge(confidence: viewModel.vendorConfidence, reviewMode: viewModel.vendorReviewMode)
+
+                            if let evidence = viewModel.vendorEvidence {
+                                EvidenceIndicator(bbox: evidence, confidence: viewModel.vendorConfidence)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // MARK: - Amount Field with Evidence
+
+    @ViewBuilder
+    private var amountFieldWithEvidence: some View {
+        if viewModel.showExtractionEvidence {
+            AmountFieldWithEvidence(
+                label: L10n.Review.amountLabel.localized,
+                isRequired: true,
+                amount: $viewModel.amount,
+                currency: $viewModel.currency,
+                alternatives: viewModel.suggestedAmounts,
+                confidence: viewModel.amountConfidence,
+                reviewMode: viewModel.amountReviewMode,
+                onAlternativeSelected: { index in
+                    viewModel.selectAmount(at: index)
+                }
+            )
+        } else {
+            amountSection
+        }
+    }
+
+    // MARK: - Due Date Field with Evidence
+
+    @ViewBuilder
+    private var dueDateFieldWithEvidence: some View {
+        if viewModel.showExtractionEvidence && viewModel.dateCandidates.count > 1 {
+            DateFieldWithEvidence(
+                label: L10n.Review.dueDateLabel.localized,
+                isRequired: true,
+                selectedDate: $viewModel.dueDate,
+                alternatives: viewModel.dateCandidates,
+                evidence: viewModel.dueDateEvidence,
+                confidence: viewModel.dueDateConfidence,
+                reviewMode: viewModel.dueDateReviewMode,
+                onAlternativeSelected: { candidate in
+                    viewModel.selectDateAlternative(candidate)
+                    // Convert DateCandidate to ExtractionCandidate for learning
+                    let dateFormatter = DateFormatter()
+                    dateFormatter.dateFormat = "dd.MM.yyyy"
+                    let extractionCandidate = ExtractionCandidate(
+                        value: dateFormatter.string(from: candidate.date),
+                        confidence: Double(candidate.score) / 200.0,
+                        bbox: candidate.lineBBox,
+                        method: candidate.extractionMethod ?? .patternMatching,
+                        source: candidate.scoreReason
+                    )
+                    viewModel.recordAlternativeSelection(
+                        field: .dueDate,
+                        selectedCandidate: extractionCandidate,
+                        alternativeIndex: viewModel.dateCandidates.firstIndex(where: { Calendar.current.isDate($0.date, inSameDayAs: candidate.date) })
+                    )
+                },
+                showPastDateWarning: viewModel.showDueDateWarning
+            )
+            .onChange(of: viewModel.dueDate) { _, _ in
+                viewModel.checkDueDateWarning()
+            }
+        } else {
             FormField(label: L10n.Review.dueDateLabel.localized, isRequired: true) {
                 VStack(alignment: .leading, spacing: Spacing.xs) {
                     DatePicker(
@@ -247,6 +399,17 @@ struct DocumentReviewView: View {
                         viewModel.checkDueDateWarning()
                     }
 
+                    // Show confidence badge if extraction happened
+                    if viewModel.showExtractionEvidence && viewModel.dueDateConfidence > 0 {
+                        HStack(spacing: Spacing.xs) {
+                            ConfidenceBadge(confidence: viewModel.dueDateConfidence, reviewMode: viewModel.dueDateReviewMode)
+
+                            if let evidence = viewModel.dueDateEvidence {
+                                EvidenceIndicator(bbox: evidence, confidence: viewModel.dueDateConfidence)
+                            }
+                        }
+                    }
+
                     if viewModel.showDueDateWarning {
                         HStack(spacing: Spacing.xxs) {
                             Image(systemName: "exclamationmark.triangle.fill")
@@ -258,24 +421,136 @@ struct DocumentReviewView: View {
                     }
                 }
             }
+        }
+    }
 
-            // Document number (optional)
+    // MARK: - Document Number Field with Evidence
+
+    @ViewBuilder
+    private var documentNumberFieldWithEvidence: some View {
+        if viewModel.showExtractionEvidence && viewModel.documentNumberCandidates.count > 1 {
+            FieldWithEvidence(
+                label: L10n.Review.invoiceNumberLabel.localized,
+                isRequired: false,
+                selectedValue: $viewModel.documentNumber,
+                alternatives: viewModel.documentNumberCandidates,
+                evidence: viewModel.documentNumberEvidence,
+                confidence: viewModel.documentNumberConfidence,
+                reviewMode: viewModel.documentNumberReviewMode,
+                onAlternativeSelected: { candidate in
+                    viewModel.selectDocumentNumberAlternative(candidate)
+                    viewModel.recordAlternativeSelection(
+                        field: .documentNumber,
+                        selectedCandidate: candidate,
+                        alternativeIndex: viewModel.documentNumberCandidates.firstIndex(where: { $0.value == candidate.value })
+                    )
+                }
+            )
+        } else {
             FormField(label: L10n.Review.invoiceNumberLabel.localized, isRequired: false) {
-                TextField(L10n.Review.invoiceNumberPlaceholder.localized, text: $viewModel.documentNumber, axis: .vertical)
-                    .lineLimit(1...3)
-            }
+                VStack(alignment: .leading, spacing: Spacing.xs) {
+                    TextField(L10n.Review.invoiceNumberPlaceholder.localized, text: $viewModel.documentNumber, axis: .vertical)
+                        .lineLimit(1...3)
 
-            // Bank account number (always show for manual entry)
+                    // Show confidence badge if extraction happened
+                    if viewModel.showExtractionEvidence && viewModel.documentNumberConfidence > 0 {
+                        HStack(spacing: Spacing.xs) {
+                            ConfidenceBadge(confidence: viewModel.documentNumberConfidence, reviewMode: viewModel.documentNumberReviewMode)
+
+                            if let evidence = viewModel.documentNumberEvidence {
+                                EvidenceIndicator(bbox: evidence, confidence: viewModel.documentNumberConfidence)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // MARK: - NIP Field with Evidence
+
+    @ViewBuilder
+    private var nipFieldWithEvidence: some View {
+        if viewModel.showExtractionEvidence && viewModel.nipCandidates.count > 1 {
+            FieldWithEvidence(
+                label: L10n.Review.nipLabel.localized,
+                isRequired: false,
+                selectedValue: $viewModel.nip,
+                alternatives: viewModel.nipCandidates,
+                evidence: viewModel.nipEvidence,
+                confidence: viewModel.nipConfidence,
+                reviewMode: viewModel.nipReviewMode,
+                onAlternativeSelected: { candidate in
+                    viewModel.selectNIPAlternative(candidate)
+                    viewModel.recordAlternativeSelection(
+                        field: .nip,
+                        selectedCandidate: candidate,
+                        alternativeIndex: viewModel.nipCandidates.firstIndex(where: { $0.value == candidate.value })
+                    )
+                }
+            )
+        } else {
+            FormField(label: L10n.Review.nipLabel.localized, isRequired: false) {
+                VStack(alignment: .leading, spacing: Spacing.xs) {
+                    TextField(L10n.Review.nipPlaceholder.localized, text: $viewModel.nip, axis: .vertical)
+                        .font(.system(.body, design: .monospaced))
+                        .lineLimit(1)
+
+                    // Show confidence badge if extraction happened
+                    if viewModel.showExtractionEvidence && viewModel.nipConfidence > 0 {
+                        HStack(spacing: Spacing.xs) {
+                            ConfidenceBadge(confidence: viewModel.nipConfidence, reviewMode: viewModel.nipReviewMode)
+
+                            if let evidence = viewModel.nipEvidence {
+                                EvidenceIndicator(bbox: evidence, confidence: viewModel.nipConfidence)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // MARK: - Bank Account Field with Evidence
+
+    @ViewBuilder
+    private var bankAccountFieldWithEvidence: some View {
+        if viewModel.showExtractionEvidence && viewModel.bankAccountCandidates.count > 1 {
+            FieldWithEvidence(
+                label: L10n.Review.bankAccountLabel.localized,
+                isRequired: false,
+                selectedValue: $viewModel.bankAccountNumber,
+                alternatives: viewModel.bankAccountCandidates,
+                evidence: viewModel.bankAccountEvidence,
+                confidence: viewModel.bankAccountConfidence,
+                reviewMode: viewModel.bankAccountReviewMode,
+                onAlternativeSelected: { candidate in
+                    viewModel.selectBankAccountAlternative(candidate)
+                    viewModel.recordAlternativeSelection(
+                        field: .bankAccount,
+                        selectedCandidate: candidate,
+                        alternativeIndex: viewModel.bankAccountCandidates.firstIndex(where: { $0.value == candidate.value })
+                    )
+                }
+            )
+        } else {
             FormField(label: L10n.Review.bankAccountLabel.localized, isRequired: false) {
-                TextField(L10n.Review.bankAccountPlaceholder.localized, text: $viewModel.bankAccountNumber, axis: .vertical)
-                    .font(.system(.body, design: .monospaced))
-                    .lineLimit(1...3)
-            }
+                VStack(alignment: .leading, spacing: Spacing.xs) {
+                    TextField(L10n.Review.bankAccountPlaceholder.localized, text: $viewModel.bankAccountNumber, axis: .vertical)
+                        .font(.system(.body, design: .monospaced))
+                        .lineLimit(1...3)
 
-            // Notes (optional)
-            FormField(label: L10n.Review.notesLabel.localized, isRequired: false) {
-                TextField(L10n.Review.notesPlaceholder.localized, text: $viewModel.notes, axis: .vertical)
-                    .lineLimit(3...6)
+                    // Show confidence badge if extraction happened
+                    if viewModel.showExtractionEvidence && viewModel.bankAccountConfidence > 0 {
+                        HStack(spacing: Spacing.xs) {
+                            ConfidenceBadge(confidence: viewModel.bankAccountConfidence, reviewMode: viewModel.bankAccountReviewMode)
+
+                            if let evidence = viewModel.bankAccountEvidence {
+                                EvidenceIndicator(bbox: evidence, confidence: viewModel.bankAccountConfidence)
+                            }
+                        }
+                    }
+                }
             }
         }
     }

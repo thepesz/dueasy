@@ -3,11 +3,17 @@ import SwiftUI
 /// Reusable empty state view for lists and screens.
 struct EmptyStateView: View {
 
+    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     let icon: String
     let title: String
     let message: String
     let actionTitle: String?
     let action: (() -> Void)?
+
+    @State private var appeared = false
 
     init(
         icon: String,
@@ -24,12 +30,63 @@ struct EmptyStateView: View {
     }
 
     var body: some View {
-        VStack(spacing: Spacing.lg) {
-            Image(systemName: icon)
-                .font(.system(size: 56))
-                .foregroundStyle(.secondary)
+        VStack(spacing: Spacing.xl) {
+            // Icon with glass styling
+            ZStack {
+                // Outer glow
+                Circle()
+                    .fill(
+                        RadialGradient(
+                            colors: [AppColors.primary.opacity(0.15), AppColors.primary.opacity(0)],
+                            center: .center,
+                            startRadius: 30,
+                            endRadius: 80
+                        )
+                    )
+                    .frame(width: 160, height: 160)
 
-            VStack(spacing: Spacing.xs) {
+                // Glass circle
+                glassCircle
+                    .frame(width: 100, height: 100)
+                    .overlay {
+                        Circle()
+                            .fill(
+                                LinearGradient(
+                                    colors: [
+                                        Color.white.opacity(colorScheme == .light ? 0.5 : 0.15),
+                                        Color.white.opacity(0)
+                                    ],
+                                    startPoint: .top,
+                                    endPoint: .center
+                                )
+                            )
+                    }
+                    .overlay {
+                        Circle()
+                            .strokeBorder(
+                                LinearGradient(
+                                    colors: [
+                                        Color.white.opacity(colorScheme == .light ? 0.6 : 0.2),
+                                        Color.white.opacity(0.1)
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ),
+                                lineWidth: 0.5
+                            )
+                    }
+                    .shadow(color: Color.black.opacity(0.08), radius: 12, y: 6)
+
+                Image(systemName: icon)
+                    .font(.system(size: 40, weight: .light))
+                    .foregroundStyle(AppColors.primary.opacity(0.7))
+                    .symbolRenderingMode(.hierarchical)
+            }
+            .opacity(appeared ? 1 : 0)
+            .scaleEffect(appeared ? 1 : 0.8)
+            .animation(reduceMotion ? .none : .spring(response: 0.5, dampingFraction: 0.7), value: appeared)
+
+            VStack(spacing: Spacing.sm) {
                 Text(title)
                     .font(Typography.title3)
                     .foregroundStyle(.primary)
@@ -38,16 +95,43 @@ struct EmptyStateView: View {
                     .font(Typography.body)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
+                    .lineSpacing(4)
             }
+            .opacity(appeared ? 1 : 0)
+            .offset(y: appeared ? 0 : 10)
+            .animation(reduceMotion ? .none : .spring(response: 0.4, dampingFraction: 0.8).delay(0.1), value: appeared)
 
             if let actionTitle = actionTitle, let action = action {
                 PrimaryButton(actionTitle, icon: "plus") {
                     action()
                 }
+                .opacity(appeared ? 1 : 0)
+                .offset(y: appeared ? 0 : 15)
+                .animation(reduceMotion ? .none : .spring(response: 0.5, dampingFraction: 0.8).delay(0.2), value: appeared)
             }
         }
         .padding(Spacing.xl)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .onAppear {
+            if !reduceMotion {
+                withAnimation {
+                    appeared = true
+                }
+            } else {
+                appeared = true
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var glassCircle: some View {
+        if reduceTransparency {
+            Circle()
+                .fill(AppColors.secondaryBackground)
+        } else {
+            Circle()
+                .fill(.ultraThinMaterial)
+        }
     }
 }
 

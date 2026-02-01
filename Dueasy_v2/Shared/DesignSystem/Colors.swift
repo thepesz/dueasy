@@ -49,6 +49,21 @@ enum AppColors {
     /// Glass border color
     static let glassBorder = Color.white.opacity(0.2)
 
+    // MARK: - Gradient Colors
+
+    /// Gradient accent colors for light mode
+    static let gradientStartLight = Color(red: 0.94, green: 0.95, blue: 1.0)
+    static let gradientEndLight = Color(red: 0.98, green: 0.94, blue: 0.98)
+
+    /// Gradient accent colors for dark mode
+    static let gradientStartDark = Color(red: 0.08, green: 0.08, blue: 0.15)
+    static let gradientEndDark = Color(red: 0.12, green: 0.08, blue: 0.18)
+
+    /// Accent orb colors
+    static let orbPrimary = Color.blue.opacity(0.15)
+    static let orbSecondary = Color.purple.opacity(0.12)
+    static let orbTertiary = Color.cyan.opacity(0.1)
+
     // MARK: - Document Status Colors
 
     /// Returns the appropriate color for a document status

@@ -98,7 +98,7 @@
 					};
 				};
 			};
-			buildConfigurationList = CCDD80132F2D795400080A4A /* Build configuration list for PBXProject "Dueasy_v2" */;
+			buildConfigurationList = CCDD80132F2D795400080A4A /* Build configuration list for PBXProject "DuEasy" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -319,7 +319,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		CCDD80132F2D795400080A4A /* Build configuration list for PBXProject "Dueasy_v2" */ = {
+		CCDD80132F2D795400080A4A /* Build configuration list for PBXProject "DuEasy" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				CCDD80212F2D795500080A4A /* Debug */,

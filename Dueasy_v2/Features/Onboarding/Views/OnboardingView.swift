@@ -8,6 +8,7 @@ import os.log
 struct OnboardingView: View {
 
     @Environment(AppEnvironment.self) private var environment
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     let onComplete: () -> Void
 
@@ -15,6 +16,7 @@ struct OnboardingView: View {
     @State private var calendarPermissionGranted = false
     @State private var notificationPermissionGranted = false
     @State private var isRequestingPermission = false
+    @State private var appeared = false
 
     private let logger = Logger(subsystem: "com.dueasy.app", category: "Onboarding")
 
@@ -46,67 +48,83 @@ struct OnboardingView: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            // Page content
-            TabView(selection: $currentPage) {
-                // Info pages
-                ForEach(Array(infoPages.enumerated()), id: \.offset) { index, page in
-                    OnboardingPageView(page: page)
-                        .tag(index)
-                }
+        ZStack {
+            // Modern gradient background
+            GradientBackground()
 
-                // Permission request page
-                PermissionRequestPageView(
-                    calendarGranted: calendarPermissionGranted,
-                    notificationGranted: notificationPermissionGranted,
-                    isRequesting: isRequestingPermission,
-                    onRequestCalendar: requestCalendarPermission,
-                    onRequestNotification: requestNotificationPermission
-                )
-                .tag(permissionPageIndex)
-            }
-            .tabViewStyle(.page(indexDisplayMode: .never))
-
-            // Page indicator and button
-            VStack(spacing: Spacing.lg) {
-                // Page dots
-                HStack(spacing: Spacing.xs) {
-                    ForEach(0..<totalPages, id: \.self) { index in
-                        Circle()
-                            .fill(index == currentPage ? AppColors.primary : Color.secondary.opacity(0.3))
-                            .frame(width: 8, height: 8)
-                            .animation(.easeInOut, value: currentPage)
+            VStack(spacing: 0) {
+                // Page content
+                TabView(selection: $currentPage) {
+                    // Info pages
+                    ForEach(Array(infoPages.enumerated()), id: \.offset) { index, page in
+                        OnboardingPageView(page: page)
+                            .tag(index)
                     }
-                }
 
-                // Action button
-                PrimaryButton(
-                    buttonTitle,
-                    icon: currentPage == permissionPageIndex ? "arrow.right" : nil,
-                    isLoading: isRequestingPermission
-                ) {
-                    handleButtonTap()
+                    // Permission request page
+                    PermissionRequestPageView(
+                        calendarGranted: calendarPermissionGranted,
+                        notificationGranted: notificationPermissionGranted,
+                        isRequesting: isRequestingPermission,
+                        onRequestCalendar: requestCalendarPermission,
+                        onRequestNotification: requestNotificationPermission
+                    )
+                    .tag(permissionPageIndex)
                 }
-                .padding(.horizontal, Spacing.xl)
-                .disabled(isRequestingPermission)
+                .tabViewStyle(.page(indexDisplayMode: .never))
 
-                // Skip button (not on last page)
-                if currentPage < permissionPageIndex {
-                    Button(L10n.Common.skip.localized) {
-                        // Skip to permissions page
-                        withAnimation {
-                            currentPage = permissionPageIndex
+                // Page indicator and button
+                VStack(spacing: Spacing.lg) {
+                    // Modern page dots with animation
+                    HStack(spacing: Spacing.sm) {
+                        ForEach(0..<totalPages, id: \.self) { index in
+                            Capsule()
+                                .fill(index == currentPage ? AppColors.primary : Color.secondary.opacity(0.3))
+                                .frame(width: index == currentPage ? 24 : 8, height: 8)
+                                .animation(.spring(response: 0.3, dampingFraction: 0.7), value: currentPage)
                         }
                     }
-                    .font(Typography.subheadline)
-                    .foregroundStyle(.secondary)
+
+                    // Action button
+                    PrimaryButton(
+                        buttonTitle,
+                        icon: currentPage == permissionPageIndex ? "arrow.right" : nil,
+                        isLoading: isRequestingPermission
+                    ) {
+                        handleButtonTap()
+                    }
+                    .padding(.horizontal, Spacing.xl)
+                    .disabled(isRequestingPermission)
+                    .opacity(appeared ? 1 : 0)
+                    .offset(y: appeared ? 0 : 20)
+                    .animation(reduceMotion ? .none : .spring(response: 0.5, dampingFraction: 0.8).delay(0.3), value: appeared)
+
+                    // Skip button (not on last page)
+                    if currentPage < permissionPageIndex {
+                        Button(L10n.Common.skip.localized) {
+                            // Skip to permissions page
+                            withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                                currentPage = permissionPageIndex
+                            }
+                        }
+                        .font(Typography.subheadline.weight(.medium))
+                        .foregroundStyle(.secondary)
+                    }
                 }
+                .padding(.bottom, Spacing.xl)
             }
-            .padding(.bottom, Spacing.xl)
         }
-        .background(AppColors.background)
         .task {
             await checkCurrentPermissions()
+        }
+        .onAppear {
+            if !reduceMotion {
+                withAnimation(.easeOut(duration: 0.5)) {
+                    appeared = true
+                }
+            } else {
+                appeared = true
+            }
         }
     }
 
@@ -188,22 +206,68 @@ struct OnboardingPage {
 // MARK: - Onboarding Page View
 
 struct OnboardingPageView: View {
+    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+
     let page: OnboardingPage
 
     var body: some View {
         VStack(spacing: Spacing.xl) {
             Spacer()
 
-            // Icon
-            Image(systemName: page.icon)
-                .font(.system(size: 80))
-                .foregroundStyle(page.color)
-                .padding(Spacing.xl)
-                .background(page.color.opacity(0.12))
-                .clipShape(Circle())
+            // Icon with premium glass styling
+            ZStack {
+                // Outer glow ring
+                Circle()
+                    .fill(
+                        RadialGradient(
+                            colors: [page.color.opacity(0.3), page.color.opacity(0)],
+                            center: .center,
+                            startRadius: 50,
+                            endRadius: 100
+                        )
+                    )
+                    .frame(width: 200, height: 200)
+
+                // Glass circle background
+                glassCircle(for: page)
+                    .frame(width: 140, height: 140)
+                    .overlay {
+                        Circle()
+                            .fill(
+                                LinearGradient(
+                                    colors: [page.color.opacity(0.2), page.color.opacity(0.05)],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                    }
+                    .overlay {
+                        Circle()
+                            .strokeBorder(
+                                LinearGradient(
+                                    colors: [
+                                        page.color.opacity(0.6),
+                                        Color.white.opacity(colorScheme == .light ? 0.5 : 0.2),
+                                        page.color.opacity(0.3)
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ),
+                                lineWidth: 1.5
+                            )
+                    }
+                    .shadow(color: page.color.opacity(0.3), radius: 16, y: 8)
+
+                // Icon
+                Image(systemName: page.icon)
+                    .font(.system(size: 56, weight: .light))
+                    .foregroundStyle(page.color)
+                    .symbolRenderingMode(.hierarchical)
+            }
 
             // Text content
-            VStack(spacing: Spacing.sm) {
+            VStack(spacing: Spacing.md) {
                 Text(page.title)
                     .font(Typography.title1)
                     .multilineTextAlignment(.center)
@@ -212,6 +276,7 @@ struct OnboardingPageView: View {
                     .font(Typography.body)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
+                    .lineSpacing(4)
                     .padding(.horizontal, Spacing.lg)
             }
 
@@ -219,6 +284,17 @@ struct OnboardingPageView: View {
             Spacer()
         }
         .padding(Spacing.md)
+    }
+
+    @ViewBuilder
+    private func glassCircle(for page: OnboardingPage) -> some View {
+        if reduceTransparency {
+            Circle()
+                .fill(page.color.opacity(0.15))
+        } else {
+            Circle()
+                .fill(.ultraThinMaterial)
+        }
     }
 }
 
@@ -308,12 +384,18 @@ struct PermissionRequestPageView: View {
 // MARK: - Permission Button
 
 struct PermissionButton: View {
+    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+
     let icon: String
     let title: String
     let subtitle: String
     let isGranted: Bool
     let isLoading: Bool
     let action: () -> Void
+
+    @State private var isPressed = false
 
     var body: some View {
         Button(action: {
@@ -322,13 +404,38 @@ struct PermissionButton: View {
             }
         }) {
             HStack(spacing: Spacing.md) {
-                // Icon
-                Image(systemName: icon)
-                    .font(.title2)
-                    .foregroundStyle(isGranted ? .green : AppColors.primary)
-                    .frame(width: 44, height: 44)
-                    .background(isGranted ? Color.green.opacity(0.12) : AppColors.primary.opacity(0.12))
-                    .clipShape(Circle())
+                // Icon with gradient ring
+                ZStack {
+                    Circle()
+                        .fill(
+                            LinearGradient(
+                                colors: isGranted
+                                    ? [Color.green.opacity(0.2), Color.green.opacity(0.05)]
+                                    : [AppColors.primary.opacity(0.2), AppColors.primary.opacity(0.05)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .frame(width: 48, height: 48)
+
+                    Image(systemName: icon)
+                        .font(.title2.weight(.medium))
+                        .foregroundStyle(isGranted ? .green : AppColors.primary)
+                        .symbolRenderingMode(.hierarchical)
+                }
+                .overlay {
+                    Circle()
+                        .strokeBorder(
+                            LinearGradient(
+                                colors: isGranted
+                                    ? [Color.green.opacity(0.5), Color.green.opacity(0.2)]
+                                    : [AppColors.primary.opacity(0.5), AppColors.primary.opacity(0.2)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 1.5
+                        )
+                }
 
                 // Text
                 VStack(alignment: .leading, spacing: 2) {
@@ -350,18 +457,75 @@ struct PermissionButton: View {
                     Image(systemName: "checkmark.circle.fill")
                         .font(.title2)
                         .foregroundStyle(.green)
+                        .symbolEffect(.pulse, options: .speed(0.5))
                 } else {
                     Image(systemName: "chevron.right")
-                        .font(.body)
+                        .font(.body.weight(.semibold))
                         .foregroundStyle(.secondary)
+                        .offset(x: isPressed ? 3 : 0)
                 }
             }
             .padding(Spacing.md)
-            .background(AppColors.secondaryBackground)
-            .clipShape(RoundedRectangle(cornerRadius: CornerRadius.md, style: .continuous))
+            .background {
+                if reduceTransparency {
+                    RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous)
+                        .fill(AppColors.secondaryBackground)
+                } else {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous)
+                            .fill(.ultraThinMaterial)
+
+                        RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous)
+                            .fill(
+                                LinearGradient(
+                                    colors: [
+                                        Color.white.opacity(colorScheme == .light ? 0.5 : 0.1),
+                                        Color.white.opacity(colorScheme == .light ? 0.2 : 0.02)
+                                    ],
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                )
+                            )
+                    }
+                }
+            }
+            .clipShape(RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous))
+            .overlay {
+                RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous)
+                    .strokeBorder(
+                        LinearGradient(
+                            colors: [
+                                Color.white.opacity(colorScheme == .light ? 0.6 : 0.2),
+                                Color.white.opacity(0.1)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ),
+                        lineWidth: 0.5
+                    )
+            }
+            .shadow(color: Color.black.opacity(0.06), radius: 8, y: 4)
+            .scaleEffect(isPressed ? 0.98 : 1.0)
         }
         .buttonStyle(.plain)
         .disabled(isGranted || isLoading)
+        .simultaneousGesture(
+            DragGesture(minimumDistance: 0)
+                .onChanged { _ in
+                    if !reduceMotion && !isPressed && !isGranted {
+                        withAnimation(.easeInOut(duration: 0.1)) {
+                            isPressed = true
+                        }
+                    }
+                }
+                .onEnded { _ in
+                    if !reduceMotion {
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                            isPressed = false
+                        }
+                    }
+                }
+        )
     }
 }
 

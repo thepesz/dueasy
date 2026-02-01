@@ -165,7 +165,7 @@ final class GlobalKeywordConfig {
             return payDueKeywords + totalKeywords
         case .dueDate:
             return dueDateKeywords
-        case .vendor, .documentNumber:
+        case .vendor, .documentNumber, .nip, .bankAccount:
             return []
         }
     }

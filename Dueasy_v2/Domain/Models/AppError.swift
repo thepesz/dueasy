@@ -57,6 +57,16 @@ enum AppError: LocalizedError, Equatable {
     case validationDueDateInPast
     case validationMissingRequiredField(String)
 
+    // MARK: - Authentication Errors
+
+    case authenticationRequired
+    case authenticationFailed(String)
+
+    // MARK: - Cloud Feature Errors
+
+    case featureUnavailable(String)
+    case cloudServiceUnavailable
+
     // MARK: - General Errors
 
     case unknown(String)
@@ -138,6 +148,18 @@ enum AppError: LocalizedError, Equatable {
             return L10n.Errors.validationDueDateInPast.localized
         case .validationMissingRequiredField(let field):
             return L10n.Errors.validationMissingField.localized(with: field)
+
+        // Authentication
+        case .authenticationRequired:
+            return "Authentication required"
+        case .authenticationFailed(let reason):
+            return "Authentication failed: \(reason)"
+
+        // Cloud Features
+        case .featureUnavailable(let reason):
+            return "Feature unavailable: \(reason)"
+        case .cloudServiceUnavailable:
+            return "Cloud service unavailable"
 
         // General
         case .unknown:

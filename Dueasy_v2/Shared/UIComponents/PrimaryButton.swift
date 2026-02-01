@@ -4,11 +4,15 @@ import SwiftUI
 /// Supports loading state and disabled state.
 struct PrimaryButton: View {
 
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     let title: String
     let icon: String?
     let style: ButtonStyle
     let isLoading: Bool
     let action: () -> Void
+
+    @State private var isPressed = false
 
     init(
         _ title: String,
@@ -33,6 +37,7 @@ struct PrimaryButton: View {
                 } else if let icon = icon {
                     Image(systemName: icon)
                         .font(.body.weight(.semibold))
+                        .symbolRenderingMode(.hierarchical)
                 }
 
                 Text(title)
@@ -40,12 +45,59 @@ struct PrimaryButton: View {
             }
             .frame(maxWidth: style.isFullWidth ? .infinity : nil)
             .padding(.horizontal, Spacing.lg)
-            .padding(.vertical, Spacing.sm)
-            .background(style.backgroundColor)
+            .padding(.vertical, Spacing.md)
+            .background(
+                Group {
+                    if style == .primary {
+                        LinearGradient(
+                            colors: [style.backgroundColor, style.backgroundColor.opacity(0.85)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    } else {
+                        style.backgroundColor
+                    }
+                }
+            )
             .foregroundStyle(style.foregroundColor)
             .clipShape(RoundedRectangle(cornerRadius: CornerRadius.md, style: .continuous))
+            .overlay {
+                if style == .primary {
+                    RoundedRectangle(cornerRadius: CornerRadius.md, style: .continuous)
+                        .fill(
+                            LinearGradient(
+                                colors: [Color.white.opacity(0.2), Color.white.opacity(0)],
+                                startPoint: .top,
+                                endPoint: .center
+                            )
+                        )
+                }
+            }
+            .shadow(
+                color: style == .primary ? style.backgroundColor.opacity(0.4) : .clear,
+                radius: 8,
+                y: 4
+            )
+            .scaleEffect(isPressed ? 0.97 : 1.0)
         }
         .disabled(isLoading)
+        .simultaneousGesture(
+            DragGesture(minimumDistance: 0)
+                .onChanged { _ in
+                    if !reduceMotion && !isPressed && !isLoading {
+                        withAnimation(.easeInOut(duration: 0.1)) {
+                            isPressed = true
+                        }
+                    }
+                }
+                .onEnded { _ in
+                    if !reduceMotion {
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                            isPressed = false
+                        }
+                    }
+                }
+        )
     }
 
     /// Button style options

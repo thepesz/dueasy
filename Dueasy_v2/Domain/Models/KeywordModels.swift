@@ -72,13 +72,36 @@ struct WeightsConfig: Codable, Hashable, Sendable {
 
 // MARK: - Document Region
 
-/// Preferred region for field extraction (layout hints)
-enum DocumentRegion: String, Codable, Sendable {
-    case topLeft
-    case topRight
-    case middle
-    case bottomLeft
-    case bottomRight
+/// Nine-region partition of a document for layout-based extraction.
+/// Documents are divided into a 3x3 grid using normalized coordinates.
+enum DocumentRegion: String, Codable, Sendable, CaseIterable {
+    case topLeft = "topLeft"
+    case topCenter = "topCenter"
+    case topRight = "topRight"
+    case middleLeft = "middleLeft"
+    case middleCenter = "middleCenter"
+    case middleRight = "middleRight"
+    case bottomLeft = "bottomLeft"
+    case bottomCenter = "bottomCenter"
+    case bottomRight = "bottomRight"
+
+    /// Backward compatibility alias for "middle" (maps to middleCenter)
+    static var middle: DocumentRegion { .middleCenter }
+
+    /// Typical content found in each region on invoices
+    var typicalContent: String {
+        switch self {
+        case .topLeft: return "Vendor info, logo"
+        case .topCenter: return "Document title, number"
+        case .topRight: return "Date, invoice number"
+        case .middleLeft: return "Vendor details, NIP"
+        case .middleCenter: return "Line items"
+        case .middleRight: return "Buyer info"
+        case .bottomLeft: return "Bank account"
+        case .bottomCenter: return "Notes, terms"
+        case .bottomRight: return "Totals, amount due"
+        }
+    }
 }
 
 // MARK: - Layout Hints
@@ -182,4 +205,6 @@ enum FieldType: String, Codable, Sendable {
     case dueDate
     case vendor
     case documentNumber
+    case nip
+    case bankAccount
 }

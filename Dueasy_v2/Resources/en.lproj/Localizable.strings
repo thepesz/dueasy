@@ -92,6 +92,8 @@
 "review.dueDatePast" = "This date is in the past";
 "review.invoiceNumberLabel" = "Invoice Number";
 "review.invoiceNumberPlaceholder" = "Optional";
+"review.nipLabel" = "Tax ID (NIP)";
+"review.nipPlaceholder" = "Enter vendor NIP (optional)";
 "review.bankAccountLabel" = "Bank Account";
 "review.bankAccountPlaceholder" = "Enter bank account (optional)";
 "review.notesLabel" = "Notes";
@@ -242,6 +244,29 @@
 "onboarding.permissions.notificationSubtitle" = "Receive payment reminders";
 "onboarding.permissions.allGranted" = "All permissions granted";
 "onboarding.permissions.optional" = "You can grant these later in Settings if you prefer.";
+
+// MARK: - Calendar View
+
+"calendarView.title" = "Calendar";
+"calendarView.today" = "Today";
+"calendarView.noDocuments" = "No documents";
+"calendarView.noDocumentsMessage" = "No documents due on this date";
+"calendarView.documentsOnDate" = "Documents in %@";
+"calendarView.documentCount" = "%d document(s)";
+"calendarView.overdueCount" = "%d overdue";
+"calendarView.scheduledCount" = "%d scheduled";
+"calendarView.paidCount" = "%d paid";
+"calendarView.draftCount" = "%d draft";
+"calendarView.previousMonth" = "Previous month";
+"calendarView.nextMonth" = "Next month";
+
+// L10n.CalendarView keys (used in code)
+"calendar.title" = "Calendar";
+"calendar.today" = "Today";
+"calendar.noDocuments" = "No documents due on this date";
+"calendar.documentsCount" = "%d document(s)";
+"calendar.documentsDue" = "Select a day to see documents";
+"calendar.loading" = "Loading calendar...";
 
 // MARK: - Errors
 

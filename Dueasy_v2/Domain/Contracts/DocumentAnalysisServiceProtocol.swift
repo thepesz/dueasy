@@ -16,6 +16,18 @@ protocol DocumentAnalysisServiceProtocol: Sendable {
         documentType: DocumentType
     ) async throws -> DocumentAnalysisResult
 
+    /// Analyzes OCR result with line data for confidence-weighted parsing.
+    /// Uses bounding boxes and per-line confidence for better extraction accuracy.
+    /// - Parameters:
+    ///   - ocrResult: Full OCR result with lineData containing bounding boxes and confidence
+    ///   - documentType: Expected document type (helps focus parsing)
+    /// - Returns: Structured analysis result with confidence-adjusted scores
+    /// - Throws: `AppError.parsingFailed`
+    func analyzeDocument(
+        ocrResult: OCRResult,
+        documentType: DocumentType
+    ) async throws -> DocumentAnalysisResult
+
     /// Analyzes document from images directly (for AI providers that support vision).
     /// Iteration 1: Falls back to OCR + text analysis.
     /// Iteration 2: Sends images directly to vision AI.
@@ -46,6 +58,15 @@ extension DocumentAnalysisServiceProtocol {
     var analysisVersion: Int { 1 }
 
     var supportsVisionAnalysis: Bool { false }
+
+    func analyzeDocument(
+        ocrResult: OCRResult,
+        documentType: DocumentType
+    ) async throws -> DocumentAnalysisResult {
+        // Default: Fall back to text-only analysis
+        // Subclasses should override to use lineData with confidence
+        return try await analyzeDocument(text: ocrResult.text, documentType: documentType)
+    }
 
     func analyzeDocument(
         images: [Data],

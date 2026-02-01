@@ -6,11 +6,11 @@ import SwiftData
 struct DocumentListView: View {
 
     @Environment(AppEnvironment.self) private var environment
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var viewModel: DocumentListViewModel?
     @State private var showingAddDocument = false
     @State private var selectedDocument: FinanceDocument?
-    @State private var documentToDelete: FinanceDocument?
-    @State private var showDeleteConfirmation = false
+    @State private var appeared = false
 
     var body: some View {
         NavigationStack {
@@ -19,6 +19,7 @@ struct DocumentListView: View {
                     documentListContent(viewModel: viewModel)
                 } else {
                     LoadingView(L10n.Common.loading.localized)
+                        .gradientBackground(style: .list)
                 }
             }
             .navigationTitle(L10n.Documents.title.localized)
@@ -30,28 +31,19 @@ struct DocumentListView: View {
                 DocumentDetailView(document: document)
                     .environment(environment)
             }
-            .confirmationDialog(
-                L10n.Documents.deleteConfirmTitle.localized,
-                isPresented: $showDeleteConfirmation,
-                titleVisibility: .visible
-            ) {
-                Button(L10n.Common.delete.localized, role: .destructive) {
-                    if let document = documentToDelete {
-                        Task {
-                            await viewModel?.deleteDocument(document)
-                        }
-                    }
-                }
-                Button(L10n.Common.cancel.localized, role: .cancel) {
-                    documentToDelete = nil
-                }
-            } message: {
-                Text(L10n.Documents.deleteConfirmMessage.localized)
-            }
         }
         .task {
             setupViewModel()
             await viewModel?.loadDocuments()
+        }
+        .onAppear {
+            if !reduceMotion {
+                withAnimation(.easeOut(duration: 0.4)) {
+                    appeared = true
+                }
+            } else {
+                appeared = true
+            }
         }
     }
 
@@ -59,21 +51,26 @@ struct DocumentListView: View {
 
     @ViewBuilder
     private func documentListContent(viewModel: DocumentListViewModel) -> some View {
-        VStack(spacing: 0) {
-            // Filter bar
-            filterBar(viewModel: viewModel)
+        ZStack {
+            // Modern gradient background
+            ListGradientBackground()
 
-            // Content
-            if viewModel.isLoading && !viewModel.hasDocuments {
-                LoadingView(L10n.Documents.loadingDocuments.localized)
-            } else if !viewModel.hasDocuments {
-                EmptyStateView.noDocuments {
-                    showingAddDocument = true
+            VStack(spacing: 0) {
+                // Filter bar with glass effect
+                filterBar(viewModel: viewModel)
+
+                // Content
+                if viewModel.isLoading && !viewModel.hasDocuments {
+                    LoadingView(L10n.Documents.loadingDocuments.localized)
+                } else if !viewModel.hasDocuments {
+                    EmptyStateView.noDocuments {
+                        showingAddDocument = true
+                    }
+                } else if !viewModel.hasFilteredDocuments {
+                    emptyFilterState(viewModel: viewModel)
+                } else {
+                    documentList(viewModel: viewModel)
                 }
-            } else if !viewModel.hasFilteredDocuments {
-                emptyFilterState(viewModel: viewModel)
-            } else {
-                documentList(viewModel: viewModel)
             }
         }
         .searchable(
@@ -121,9 +118,9 @@ struct DocumentListView: View {
                 }
             }
             .padding(.horizontal, Spacing.md)
-            .padding(.vertical, Spacing.xxs)
+            .padding(.vertical, Spacing.sm)
         }
-        .background(AppColors.background)
+        .background(.ultraThinMaterial)
     }
 
     private func filterCount(for filter: DocumentFilter, viewModel: DocumentListViewModel) -> Int? {
@@ -143,30 +140,33 @@ struct DocumentListView: View {
 
     @ViewBuilder
     private func documentList(viewModel: DocumentListViewModel) -> some View {
-        List {
-            ForEach(viewModel.filteredDocuments) { document in
-                DocumentRow(document: document) {
-                    selectedDocument = document
-                }
-                .listRowInsets(EdgeInsets(
-                    top: Spacing.xs,
-                    leading: Spacing.md,
-                    bottom: Spacing.xs,
-                    trailing: Spacing.md
-                ))
-                .listRowSeparator(.hidden)
-                .listRowBackground(Color.clear)
-                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                    Button(role: .destructive) {
-                        documentToDelete = document
-                        showDeleteConfirmation = true
-                    } label: {
-                        Label(L10n.Common.delete.localized, systemImage: "trash")
+        ScrollView {
+            LazyVStack(spacing: Spacing.sm) {
+                ForEach(Array(viewModel.filteredDocuments.enumerated()), id: \.element.id) { index, document in
+                    DocumentRow(document: document) {
+                        selectedDocument = document
+                    }
+                    .opacity(appeared ? 1 : 0)
+                    .offset(y: appeared ? 0 : 20)
+                    .animation(
+                        reduceMotion ? .none : .spring(response: 0.4, dampingFraction: 0.8).delay(Double(index) * 0.05),
+                        value: appeared
+                    )
+                    .contextMenu {
+                        Button(role: .destructive) {
+                            Task {
+                                await viewModel.deleteDocument(document)
+                            }
+                        } label: {
+                            Label(L10n.Common.delete.localized, systemImage: "trash")
+                        }
                     }
                 }
             }
+            .padding(.horizontal, Spacing.md)
+            .padding(.top, Spacing.sm)
+            .padding(.bottom, Spacing.xl)
         }
-        .listStyle(.plain)
     }
 
     @ViewBuilder
@@ -194,37 +194,94 @@ struct DocumentListView: View {
 
 struct FilterChip: View {
 
+    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     let title: String
     let icon: String
     let count: Int?
     let isSelected: Bool
     let action: () -> Void
 
+    @State private var isPressed = false
+
     var body: some View {
         Button(action: action) {
             HStack(spacing: Spacing.xxs) {
                 Image(systemName: icon)
                     .font(.caption2)
+                    .symbolRenderingMode(.hierarchical)
 
                 Text(title)
-                    .font(Typography.caption2)
+                    .font(Typography.caption2.weight(isSelected ? .semibold : .medium))
 
                 if let count = count, count > 0 {
                     Text("\(count)")
-                        .font(Typography.caption2)
-                        .padding(.horizontal, 4)
-                        .padding(.vertical, 1)
-                        .background(isSelected ? Color.white.opacity(0.3) : AppColors.primary.opacity(0.2))
-                        .clipShape(Capsule())
+                        .font(Typography.caption2.weight(.semibold))
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(
+                            Capsule()
+                                .fill(isSelected ? Color.white.opacity(0.25) : AppColors.primary.opacity(0.15))
+                        )
                 }
             }
             .foregroundStyle(isSelected ? .white : .primary)
-            .padding(.horizontal, Spacing.xs)
-            .padding(.vertical, Spacing.xxs)
-            .background(isSelected ? AppColors.primary : AppColors.secondaryBackground)
-            .clipShape(Capsule())
+            .padding(.horizontal, Spacing.sm)
+            .padding(.vertical, Spacing.xs)
+            .background {
+                if isSelected {
+                    Capsule()
+                        .fill(
+                            LinearGradient(
+                                colors: [
+                                    AppColors.primary,
+                                    AppColors.primary.opacity(0.85)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .shadow(color: AppColors.primary.opacity(0.3), radius: 4, y: 2)
+                } else {
+                    Capsule()
+                        .fill(.ultraThinMaterial)
+                        .overlay {
+                            Capsule()
+                                .strokeBorder(
+                                    LinearGradient(
+                                        colors: [
+                                            Color.white.opacity(colorScheme == .light ? 0.6 : 0.2),
+                                            Color.white.opacity(0.1)
+                                        ],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    ),
+                                    lineWidth: 0.5
+                                )
+                        }
+                }
+            }
+            .scaleEffect(isPressed ? 0.95 : 1.0)
         }
         .buttonStyle(.plain)
+        .simultaneousGesture(
+            DragGesture(minimumDistance: 0)
+                .onChanged { _ in
+                    if !reduceMotion {
+                        withAnimation(.easeInOut(duration: 0.1)) {
+                            isPressed = true
+                        }
+                    }
+                }
+                .onEnded { _ in
+                    if !reduceMotion {
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                            isPressed = false
+                        }
+                    }
+                }
+        )
     }
 }
 

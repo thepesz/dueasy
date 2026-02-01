@@ -4,7 +4,7 @@ import Observation
 import os.log
 
 /// ViewModel for the document review screen.
-/// Handles OCR processing, field editing, and document finalization.
+/// Handles OCR processing, field editing, feedback recording, and document finalization.
 @MainActor
 @Observable
 final class DocumentReviewViewModel {
@@ -26,6 +26,7 @@ final class DocumentReviewViewModel {
     var dueDate: Date = Date()
     var hasDueDate: Bool = true
     var documentNumber: String = ""
+    var nip: String = ""
     var bankAccountNumber: String = ""
     var notes: String = ""
 
@@ -54,6 +55,48 @@ final class DocumentReviewViewModel {
     var notificationPermissionGranted: Bool = false
     var isRequestingPermissions: Bool = false
 
+    // MARK: - Field Candidates (for alternatives UI)
+
+    /// Vendor name extraction candidates
+    var vendorCandidates: [ExtractionCandidate] = []
+
+    /// Amount extraction candidates
+    var amountCandidates: [ExtractionCandidate] = []
+
+    /// Due date extraction candidates
+    var dateCandidates: [DateCandidate] = []
+
+    /// Document number extraction candidates
+    var documentNumberCandidates: [ExtractionCandidate] = []
+
+    /// NIP extraction candidates
+    var nipCandidates: [ExtractionCandidate] = []
+
+    /// Bank account extraction candidates
+    var bankAccountCandidates: [ExtractionCandidate] = []
+
+    // MARK: - Review Modes (per field)
+
+    var vendorReviewMode: ReviewMode = .suggested
+    var amountReviewMode: ReviewMode = .suggested
+    var dueDateReviewMode: ReviewMode = .suggested
+    var documentNumberReviewMode: ReviewMode = .suggested
+    var nipReviewMode: ReviewMode = .suggested
+    var bankAccountReviewMode: ReviewMode = .suggested
+
+    // MARK: - Original Values (for correction detection)
+
+    private var originalVendorName: String?
+    private var originalAmount: Decimal?
+    private var originalDueDate: Date?
+    private var originalDocumentNumber: String?
+    private var originalNIP: String?
+    private var originalBankAccount: String?
+
+    // MARK: - Review Timing
+
+    private var reviewStartTime: Date?
+
     // MARK: - Dependencies
 
     private let document: FinanceDocument
@@ -63,6 +106,7 @@ final class DocumentReviewViewModel {
     private let settingsManager: SettingsManager
     private let keywordLearningService: KeywordLearningService?
     private let learningDataService: LearningDataService?
+    private let vendorTemplateService: VendorTemplateService?
 
     var documentId: UUID { document.id }
 
@@ -105,6 +149,71 @@ final class DocumentReviewViewModel {
         isValid && !isSaving && !isProcessingOCR
     }
 
+    /// Whether to show extraction evidence in UI
+    var showExtractionEvidence: Bool {
+        settingsManager.showExtractionEvidence
+    }
+
+    /// Evidence bounding box for vendor field
+    var vendorEvidence: BoundingBox? {
+        analysisResult?.vendorEvidence
+    }
+
+    /// Evidence bounding box for amount field
+    var amountEvidence: BoundingBox? {
+        analysisResult?.amountEvidence
+    }
+
+    /// Evidence bounding box for due date field
+    var dueDateEvidence: BoundingBox? {
+        analysisResult?.dueDateEvidence
+    }
+
+    /// Evidence bounding box for document number field
+    var documentNumberEvidence: BoundingBox? {
+        analysisResult?.documentNumberEvidence
+    }
+
+    /// Field confidence for vendor
+    var vendorConfidence: Double {
+        analysisResult?.fieldConfidences?.vendorName ?? 0.0
+    }
+
+    /// Field confidence for amount
+    var amountConfidence: Double {
+        analysisResult?.fieldConfidences?.amount ?? 0.0
+    }
+
+    /// Field confidence for due date
+    var dueDateConfidence: Double {
+        analysisResult?.fieldConfidences?.dueDate ?? 0.0
+    }
+
+    /// Field confidence for document number
+    var documentNumberConfidence: Double {
+        analysisResult?.fieldConfidences?.documentNumber ?? 0.0
+    }
+
+    /// Field confidence for NIP
+    var nipConfidence: Double {
+        analysisResult?.fieldConfidences?.nip ?? 0.0
+    }
+
+    /// Field confidence for bank account
+    var bankAccountConfidence: Double {
+        analysisResult?.fieldConfidences?.bankAccount ?? 0.0
+    }
+
+    /// Evidence bounding box for NIP field
+    var nipEvidence: BoundingBox? {
+        analysisResult?.nipEvidence
+    }
+
+    /// Evidence bounding box for bank account field
+    var bankAccountEvidence: BoundingBox? {
+        analysisResult?.bankAccountEvidence
+    }
+
     // MARK: - Initialization
 
     init(
@@ -115,7 +224,8 @@ final class DocumentReviewViewModel {
         checkPermissionsUseCase: CheckPermissionsUseCase,
         settingsManager: SettingsManager,
         keywordLearningService: KeywordLearningService? = nil,
-        learningDataService: LearningDataService? = nil
+        learningDataService: LearningDataService? = nil,
+        vendorTemplateService: VendorTemplateService? = nil
     ) {
         self.document = document
         self.images = images
@@ -125,6 +235,7 @@ final class DocumentReviewViewModel {
         self.settingsManager = settingsManager
         self.keywordLearningService = keywordLearningService
         self.learningDataService = learningDataService
+        self.vendorTemplateService = vendorTemplateService
 
         // Initialize reminder offsets and calendar settings from settings
         self.reminderOffsets = Set(settingsManager.defaultReminderOffsets)
@@ -145,12 +256,21 @@ final class DocumentReviewViewModel {
         isProcessingOCR = true
         hasProcessedOCR = true  // Mark as processed immediately to prevent re-runs
         error = nil
+        reviewStartTime = Date()
 
         do {
-            let result = try await extractUseCase.execute(
+            var result = try await extractUseCase.execute(
                 images: images,
                 documentType: document.type
             )
+
+            // Apply vendor template if available and enabled
+            if settingsManager.enableVendorTemplates,
+               let nip = result.vendorNIP,
+               let templateService = vendorTemplateService {
+                result = templateService.applyTemplates(vendorNIP: nip, to: result)
+                logger.info("Applied vendor template for NIP: \(PrivacyLogger.sanitizeNIP(nip))")
+            }
 
             analysisResult = result
             ocrConfidence = result.overallConfidence
@@ -159,43 +279,8 @@ final class DocumentReviewViewModel {
             // PRIVACY: Only log metrics, not actual data (PII + financial)
             logger.info("OCR/Parsing result: hasVendor=\(result.vendorName != nil), hasAmount=\(result.amount != nil), hasDueDate=\(result.dueDate != nil), confidence=\(result.overallConfidence)")
 
-            // Populate fields from analysis result
-            if let vendor = result.vendorName, !vendor.isEmpty {
-                vendorName = vendor
-                logger.debug("Set vendor: \(vendor)")
-            }
-            if let address = result.vendorAddress, !address.isEmpty {
-                vendorAddress = address
-                logger.debug("Set vendorAddress: \(address)")
-            }
-
-            // Store all suggested amounts for dropdown
-            self.suggestedAmounts = result.suggestedAmounts.map { ($0.0, $0.1) }
-            self.selectedAmountIndex = 0
-            logger.info("Found \(self.suggestedAmounts.count) suggested amounts")
-
-            if let extractedAmount = result.amount {
-                amount = formatAmount(extractedAmount)
-                logger.debug("Set amount: \(self.amount)")
-            }
-            if let extractedCurrency = result.currency {
-                currency = extractedCurrency
-                logger.debug("Set currency: \(extractedCurrency)")
-            }
-            if let extractedDate = result.dueDate {
-                dueDate = extractedDate
-                hasDueDate = true
-                checkDueDateWarning()
-                logger.debug("Set dueDate: \(extractedDate)")
-            }
-            if let number = result.documentNumber, !number.isEmpty {
-                documentNumber = number
-                logger.debug("Set documentNumber: \(number)")
-            }
-            if let bankAccount = result.bankAccountNumber, !bankAccount.isEmpty {
-                bankAccountNumber = bankAccount
-                logger.debug("Set bankAccountNumber: \(bankAccount)")
-            }
+            // Populate fields and determine review modes
+            populateFieldsFromResult(result)
 
         } catch let appError as AppError {
             logger.error("OCR failed with AppError: \(appError.localizedDescription)")
@@ -207,6 +292,143 @@ final class DocumentReviewViewModel {
         }
 
         isProcessingOCR = false
+    }
+
+    /// Populate fields from analysis result and set review modes
+    private func populateFieldsFromResult(_ result: DocumentAnalysisResult) {
+        // Vendor name
+        if let vendor = result.vendorName, !vendor.isEmpty {
+            vendorName = vendor
+            originalVendorName = vendor
+            vendorReviewMode = settingsManager.determineReviewMode(for: vendorConfidence)
+            logger.debug("Set vendor with confidence \(self.vendorConfidence), mode: \(self.vendorReviewMode.rawValue)")
+        }
+
+        // Vendor address
+        if let address = result.vendorAddress, !address.isEmpty {
+            vendorAddress = address
+        }
+
+        // Amount
+        if let extractedAmount = result.amount {
+            amount = formatAmount(extractedAmount)
+            originalAmount = extractedAmount
+            amountReviewMode = settingsManager.determineReviewMode(for: amountConfidence)
+            logger.debug("Set amount with confidence \(self.amountConfidence), mode: \(self.amountReviewMode.rawValue)")
+        }
+
+        // Store all suggested amounts for dropdown
+        self.suggestedAmounts = result.suggestedAmounts.map { ($0.0, $0.1) }
+        self.selectedAmountIndex = 0
+        logger.info("Found \(self.suggestedAmounts.count) suggested amounts")
+
+        // Currency
+        if let extractedCurrency = result.currency {
+            currency = extractedCurrency
+        }
+
+        // Due date
+        if let extractedDate = result.dueDate {
+            dueDate = extractedDate
+            originalDueDate = extractedDate
+            hasDueDate = true
+            dueDateReviewMode = settingsManager.determineReviewMode(for: dueDateConfidence)
+            checkDueDateWarning()
+            logger.debug("Set dueDate with confidence \(self.dueDateConfidence), mode: \(self.dueDateReviewMode.rawValue)")
+        }
+
+        // Document number
+        if let number = result.documentNumber, !number.isEmpty {
+            documentNumber = number
+            originalDocumentNumber = number
+            documentNumberReviewMode = settingsManager.determineReviewMode(for: documentNumberConfidence)
+        }
+
+        // NIP
+        if let extractedNIP = result.vendorNIP, !extractedNIP.isEmpty {
+            nip = extractedNIP
+            originalNIP = extractedNIP
+            nipReviewMode = settingsManager.determineReviewMode(for: nipConfidence)
+        }
+
+        // Bank account
+        if let bankAccount = result.bankAccountNumber, !bankAccount.isEmpty {
+            bankAccountNumber = bankAccount
+            originalBankAccount = bankAccount
+            bankAccountReviewMode = settingsManager.determineReviewMode(for: bankAccountConfidence)
+        }
+
+        // Store candidates for alternatives UI
+        // Note: Converting from result candidates to ExtractionCandidate for UI
+        buildCandidatesFromResult(result)
+    }
+
+    /// Build extraction candidates for alternatives UI
+    private func buildCandidatesFromResult(_ result: DocumentAnalysisResult) {
+        // Vendor candidates
+        if let candidates = result.vendorCandidates {
+            vendorCandidates = candidates.map { candidate in
+                ExtractionCandidate(
+                    value: candidate.name,
+                    confidence: candidate.confidence,
+                    bbox: candidate.lineBBox,
+                    method: candidate.extractionMethod ?? .patternMatching,
+                    source: candidate.extractionSource ?? candidate.matchedPattern
+                )
+            }
+        }
+
+        // Date candidates
+        if let candidates = result.dateCandidates {
+            dateCandidates = candidates
+        }
+
+        // Amount candidates - build from suggestedAmounts and amountCandidates
+        if let candidates = result.amountCandidates {
+            amountCandidates = candidates.map { candidate in
+                ExtractionCandidate(
+                    value: formatAmount(candidate.value),
+                    confidence: candidate.confidence,
+                    bbox: candidate.lineBBox,
+                    method: candidate.extractionMethod ?? .patternMatching,
+                    source: candidate.extractionSource ?? candidate.context
+                )
+            }
+        }
+
+        // NIP candidates
+        if let candidates = result.nipCandidates {
+            nipCandidates = candidates.map { candidate in
+                ExtractionCandidate(
+                    value: candidate.value,
+                    confidence: candidate.confidence,
+                    bbox: candidate.lineBBox,
+                    method: candidate.extractionMethod,
+                    source: candidate.extractionSource
+                )
+            }
+        }
+
+        // Document number candidates
+        if let candidates = result.documentNumberCandidates {
+            documentNumberCandidates = candidates
+        }
+
+        // Bank account candidates
+        if let candidates = result.bankAccountCandidates {
+            bankAccountCandidates = candidates.map { candidate in
+                ExtractionCandidate(
+                    value: candidate.value,
+                    confidence: candidate.confidence,
+                    bbox: candidate.lineBBox,
+                    method: candidate.extractionMethod,
+                    source: candidate.extractionSource
+                )
+            }
+        }
+
+        // Log candidate counts for debugging alternatives UI
+        PrivacyLogger.parsing.info("Populating ViewModel fields: vendorCandidates=\(self.vendorCandidates.count), amountCandidates=\(self.amountCandidates.count), dateCandidates=\(self.dateCandidates.count), nipCandidates=\(self.nipCandidates.count), docNumCandidates=\(self.documentNumberCandidates.count), bankCandidates=\(self.bankAccountCandidates.count)")
     }
 
     func save() async -> Bool {
@@ -231,6 +453,12 @@ final class DocumentReviewViewModel {
 
         // ADAPTIVE LEARNING: Record corrections before saving
         recordCorrections()
+
+        // Record parsing feedback (privacy-first)
+        recordParsingFeedback()
+
+        // Record vendor template learning
+        recordVendorTemplateLearning()
 
         do {
             try await finalizeUseCase.execute(
@@ -275,10 +503,62 @@ final class DocumentReviewViewModel {
         guard index >= 0 && index < self.suggestedAmounts.count else { return }
         self.selectedAmountIndex = index
         self.amount = formatAmount(self.suggestedAmounts[index].value)
-        let selectedValue = self.suggestedAmounts[index].value
-        let selectedContext = self.suggestedAmounts[index].context
         // PRIVACY: Don't log actual amount or context (may contain invoice text)
         logger.info("Selected amount candidate #\(index) (value hidden for privacy)")
+    }
+
+    /// Called when user selects an alternative vendor from the alternatives row
+    func selectVendorAlternative(_ candidate: ExtractionCandidate) {
+        vendorName = candidate.value
+        logger.info("Selected vendor alternative from \(candidate.source)")
+    }
+
+    /// Called when user selects an alternative date from the alternatives row
+    func selectDateAlternative(_ candidate: DateCandidate) {
+        dueDate = candidate.date
+        checkDueDateWarning()
+        logger.info("Selected date alternative: \(candidate.scoreReason)")
+    }
+
+    /// Called when user selects an alternative NIP from the alternatives row
+    func selectNIPAlternative(_ candidate: ExtractionCandidate) {
+        nip = candidate.value
+        logger.info("Selected NIP alternative from \(candidate.source)")
+    }
+
+    /// Called when user selects an alternative document number from the alternatives row
+    func selectDocumentNumberAlternative(_ candidate: ExtractionCandidate) {
+        documentNumber = candidate.value
+        logger.info("Selected document number alternative from \(candidate.source)")
+    }
+
+    /// Called when user selects an alternative bank account from the alternatives row
+    func selectBankAccountAlternative(_ candidate: ExtractionCandidate) {
+        bankAccountNumber = candidate.value
+        logger.info("Selected bank account alternative from \(candidate.source)")
+    }
+
+    /// Record when user selects an alternative (non-first choice) for learning
+    func recordAlternativeSelection(
+        field: FieldType,
+        selectedCandidate: ExtractionCandidate,
+        alternativeIndex: Int?
+    ) {
+        // PRIVACY: Log only metrics, not actual values
+        PrivacyLogger.parsing.info("User selected alternative for \(field.rawValue): index=\(alternativeIndex ?? -1), confidence=\(selectedCandidate.confidence), method=\(selectedCandidate.method.rawValue)")
+
+        // If vendor template learning is enabled, update template with selected alternative
+        if let nip = analysisResult?.vendorNIP, let templateService = vendorTemplateService {
+            let wasFirstChoice = alternativeIndex == 0 || alternativeIndex == nil
+
+            templateService.recordAlternativeSelection(
+                vendorNIP: nip,
+                vendorName: vendorName,
+                field: field,
+                selectedAlternative: selectedCandidate,
+                wasFirstChoice: wasFirstChoice
+            )
+        }
     }
 
     func clearError() {
@@ -328,23 +608,23 @@ final class DocumentReviewViewModel {
         logger.info("Recording corrections for adaptive learning")
 
         // Check if amount was corrected
+        // Use KeywordLearningService.FieldType for compatibility with the learning service
         if let autoAmount = result.amount,
            let manualAmount = amountDecimal,
            autoAmount != manualAmount {
-            logger.info("Amount was corrected: \(autoAmount) -> \(manualAmount)")
+            logger.info("Amount was corrected (values hidden for privacy)")
             learningService.learnFromCorrection(
                 correctedValue: amount,
                 ocrText: ocrText,
-                fieldType: .amount
+                fieldType: KeywordLearningService.FieldType.amount
             )
         } else if result.amount == nil && self.amountDecimal != nil {
             // Amount was added manually (OCR missed it)
-            // PRIVACY: Don't log actual amount (financial data)
             logger.info("Amount was added manually (value hidden for privacy)")
             learningService.learnFromCorrection(
                 correctedValue: amount,
                 ocrText: ocrText,
-                fieldType: .amount
+                fieldType: KeywordLearningService.FieldType.amount
             )
         }
 
@@ -352,11 +632,11 @@ final class DocumentReviewViewModel {
         let autoVendor = result.vendorName ?? ""
         let manualVendor = vendorName.trimmingCharacters(in: .whitespaces)
         if autoVendor != manualVendor && !manualVendor.isEmpty {
-            logger.info("Vendor was corrected: '\(autoVendor)' -> '\(manualVendor)'")
+            logger.info("Vendor was corrected (values hidden for privacy)")
             learningService.learnFromCorrection(
                 correctedValue: manualVendor,
                 ocrText: ocrText,
-                fieldType: .vendor
+                fieldType: KeywordLearningService.FieldType.vendor
             )
         }
 
@@ -364,11 +644,12 @@ final class DocumentReviewViewModel {
         let autoNumber = result.documentNumber ?? ""
         let manualNumber = documentNumber.trimmingCharacters(in: .whitespaces)
         if autoNumber != manualNumber && !manualNumber.isEmpty {
-            logger.info("Invoice number was corrected: '\(autoNumber)' -> '\(manualNumber)'")
+            logger.info("Invoice number was corrected (values hidden for privacy)")
+            // Use KeywordLearningService.FieldType.invoiceNumber for compatibility
             learningService.learnFromCorrection(
                 correctedValue: manualNumber,
                 ocrText: ocrText,
-                fieldType: .invoiceNumber
+                fieldType: KeywordLearningService.FieldType.invoiceNumber
             )
         }
 
@@ -376,7 +657,7 @@ final class DocumentReviewViewModel {
         if let autoDueDate = result.dueDate {
             let calendar = Calendar.current
             if !calendar.isDate(autoDueDate, inSameDayAs: self.dueDate) {
-                logger.info("Due date was corrected: \(autoDueDate) -> \(self.dueDate)")
+                logger.info("Due date was corrected (values hidden for privacy)")
                 // Learn from the date string in context
                 let dateFormatter = DateFormatter()
                 dateFormatter.dateFormat = "dd.MM.yyyy"
@@ -384,7 +665,7 @@ final class DocumentReviewViewModel {
                 learningService.learnFromCorrection(
                     correctedValue: dateString,
                     ocrText: ocrText,
-                    fieldType: .dueDate
+                    fieldType: KeywordLearningService.FieldType.dueDate
                 )
             }
         }
@@ -395,6 +676,187 @@ final class DocumentReviewViewModel {
         Task { @MainActor in
             await saveStructuredLearningData()
         }
+    }
+
+    /// Record parsing feedback for analytics (privacy-first)
+    private func recordParsingFeedback() {
+        guard let result = analysisResult,
+              let templateService = vendorTemplateService else {
+            return
+        }
+
+        let reviewDuration: TimeInterval?
+        if let startTime = reviewStartTime {
+            reviewDuration = Date().timeIntervalSince(startTime)
+        } else {
+            reviewDuration = nil
+        }
+
+        // Build field corrections
+        var corrections: [FieldCorrection] = []
+
+        // Vendor correction
+        let vendorCorrected = originalVendorName != nil && vendorName != originalVendorName
+        corrections.append(FieldCorrection(
+            field: .vendor,
+            correctedValue: vendorName,
+            originalValue: originalVendorName,
+            evidence: vendorEvidence,
+            region: regionFromEvidence(vendorEvidence),
+            wasCorrected: vendorCorrected,
+            reviewMode: vendorReviewMode
+        ))
+
+        // Amount correction
+        let amountCorrected = originalAmount != nil && amountDecimal != originalAmount
+        corrections.append(FieldCorrection(
+            field: .amount,
+            correctedValue: amount,
+            originalValue: originalAmount != nil ? formatAmount(originalAmount!) : nil,
+            evidence: amountEvidence,
+            region: regionFromEvidence(amountEvidence),
+            alternativeIndex: selectedAmountIndex > 0 ? selectedAmountIndex : nil,
+            wasCorrected: amountCorrected,
+            reviewMode: amountReviewMode
+        ))
+
+        // Due date correction
+        let dueDateCorrected = originalDueDate != nil && !Calendar.current.isDate(dueDate, inSameDayAs: originalDueDate!)
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "dd.MM.yyyy"
+        corrections.append(FieldCorrection(
+            field: .dueDate,
+            correctedValue: dateFormatter.string(from: dueDate),
+            originalValue: originalDueDate != nil ? dateFormatter.string(from: originalDueDate!) : nil,
+            evidence: dueDateEvidence,
+            region: regionFromEvidence(dueDateEvidence),
+            wasCorrected: dueDateCorrected,
+            reviewMode: dueDateReviewMode
+        ))
+
+        // Document number correction
+        let docNumCorrected = originalDocumentNumber != nil && documentNumber != originalDocumentNumber
+        corrections.append(FieldCorrection(
+            field: .documentNumber,
+            correctedValue: documentNumber,
+            originalValue: originalDocumentNumber,
+            evidence: documentNumberEvidence,
+            region: regionFromEvidence(documentNumberEvidence),
+            wasCorrected: docNumCorrected,
+            reviewMode: documentNumberReviewMode
+        ))
+
+        // Record feedback
+        templateService.recordFeedback(
+            documentId: documentId,
+            vendorNIP: result.vendorNIP,
+            analysisResult: result,
+            corrections: corrections
+        )
+
+        logger.info("Parsing feedback recorded (privacy-safe)")
+    }
+
+    /// Record vendor template learning from corrections
+    private func recordVendorTemplateLearning() {
+        guard settingsManager.enableVendorTemplates,
+              let result = analysisResult,
+              let nip = result.vendorNIP,
+              let templateService = vendorTemplateService else {
+            return
+        }
+
+        // Only learn if there were corrections
+        let vendorCorrected = originalVendorName != nil && vendorName != originalVendorName
+        let amountCorrected = originalAmount != nil && amountDecimal != originalAmount
+        let dueDateCorrected = originalDueDate != nil && !Calendar.current.isDate(dueDate, inSameDayAs: originalDueDate!)
+        let docNumCorrected = originalDocumentNumber != nil && documentNumber != originalDocumentNumber
+
+        if vendorCorrected {
+            templateService.recordCorrection(
+                vendorNIP: nip,
+                vendorName: vendorName,
+                field: .vendor,
+                correctedValue: vendorName,
+                evidence: vendorEvidence,
+                region: regionFromEvidence(vendorEvidence),
+                anchorUsed: result.vendorExtractionMethod?.rawValue
+            )
+        }
+
+        if amountCorrected, let decimal = amountDecimal {
+            templateService.recordCorrection(
+                vendorNIP: nip,
+                vendorName: vendorName,
+                field: .amount,
+                correctedValue: formatAmount(decimal),
+                evidence: amountEvidence,
+                region: regionFromEvidence(amountEvidence),
+                anchorUsed: result.amountExtractionMethod?.rawValue
+            )
+        }
+
+        if dueDateCorrected {
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "dd.MM.yyyy"
+            templateService.recordCorrection(
+                vendorNIP: nip,
+                vendorName: vendorName,
+                field: .dueDate,
+                correctedValue: dateFormatter.string(from: dueDate),
+                evidence: dueDateEvidence,
+                region: regionFromEvidence(dueDateEvidence),
+                anchorUsed: result.dueDateExtractionMethod?.rawValue
+            )
+        }
+
+        if docNumCorrected {
+            templateService.recordCorrection(
+                vendorNIP: nip,
+                vendorName: vendorName,
+                field: .documentNumber,
+                correctedValue: documentNumber,
+                evidence: documentNumberEvidence,
+                region: regionFromEvidence(documentNumberEvidence),
+                anchorUsed: nil
+            )
+        }
+
+        if vendorCorrected || amountCorrected || dueDateCorrected || docNumCorrected {
+            logger.info("Vendor template learning recorded for NIP: \(PrivacyLogger.sanitizeNIP(nip))")
+        }
+    }
+
+    /// Convert bounding box to document region
+    private func regionFromEvidence(_ bbox: BoundingBox?) -> DocumentRegion? {
+        guard let box = bbox else { return nil }
+
+        let verticalIndex: Int
+        let horizontalIndex: Int
+
+        if box.centerY < 0.33 {
+            verticalIndex = 0  // top
+        } else if box.centerY < 0.66 {
+            verticalIndex = 1  // middle
+        } else {
+            verticalIndex = 2  // bottom
+        }
+
+        if box.centerX < 0.33 {
+            horizontalIndex = 0  // left
+        } else if box.centerX < 0.66 {
+            horizontalIndex = 1  // center
+        } else {
+            horizontalIndex = 2  // right
+        }
+
+        let regionMap: [[DocumentRegion]] = [
+            [.topLeft, .topCenter, .topRight],
+            [.middleLeft, .middleCenter, .middleRight],
+            [.bottomLeft, .bottomCenter, .bottomRight]
+        ]
+
+        return regionMap[verticalIndex][horizontalIndex]
     }
 
     /// Save structured learning data to persistent storage (PRIVACY-SAFE)

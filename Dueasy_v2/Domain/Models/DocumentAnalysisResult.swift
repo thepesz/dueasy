@@ -53,6 +53,49 @@ struct DocumentAnalysisResult: Codable, Equatable, Sendable {
     /// All vendor candidates with full context (for learning)
     let vendorCandidates: [VendorCandidate]?
 
+    /// All NIP candidates with full context
+    let nipCandidates: [NIPCandidate]?
+
+    /// All bank account candidates with full context
+    let bankAccountCandidates: [BankAccountCandidate]?
+
+    /// All document number candidates with full context
+    let documentNumberCandidates: [ExtractionCandidate]?
+
+    // MARK: - Evidence Bounding Boxes (for UI highlighting)
+
+    /// Bounding box of the extracted vendor name
+    let vendorEvidence: BoundingBox?
+
+    /// Bounding box of the extracted amount
+    let amountEvidence: BoundingBox?
+
+    /// Bounding box of the extracted due date
+    let dueDateEvidence: BoundingBox?
+
+    /// Bounding box of the extracted document number
+    let documentNumberEvidence: BoundingBox?
+
+    /// Bounding box of the extracted NIP
+    let nipEvidence: BoundingBox?
+
+    /// Bounding box of the extracted bank account
+    let bankAccountEvidence: BoundingBox?
+
+    // MARK: - Extraction Methods (for debugging/learning)
+
+    /// Method used to extract vendor name
+    let vendorExtractionMethod: ExtractionMethod?
+
+    /// Method used to extract amount
+    let amountExtractionMethod: ExtractionMethod?
+
+    /// Method used to extract due date
+    let dueDateExtractionMethod: ExtractionMethod?
+
+    /// Method used to extract NIP
+    let nipExtractionMethod: ExtractionMethod?
+
     // MARK: - Confidence and Metadata
 
     /// Overall confidence score (0.0 to 1.0)
@@ -61,7 +104,7 @@ struct DocumentAnalysisResult: Codable, Equatable, Sendable {
     /// Per-field confidence scores
     let fieldConfidences: FieldConfidences?
 
-    /// Analysis provider identifier (e.g., "local", "openai", "gemini")
+    /// Analysis provider identifier (e.g., "local", "local-layout", "openai", "gemini")
     let provider: String
 
     /// Analysis version for schema evolution
@@ -90,6 +133,19 @@ struct DocumentAnalysisResult: Codable, Equatable, Sendable {
         amountCandidates: [AmountCandidate]? = nil,
         dateCandidates: [DateCandidate]? = nil,
         vendorCandidates: [VendorCandidate]? = nil,
+        nipCandidates: [NIPCandidate]? = nil,
+        bankAccountCandidates: [BankAccountCandidate]? = nil,
+        documentNumberCandidates: [ExtractionCandidate]? = nil,
+        vendorEvidence: BoundingBox? = nil,
+        amountEvidence: BoundingBox? = nil,
+        dueDateEvidence: BoundingBox? = nil,
+        documentNumberEvidence: BoundingBox? = nil,
+        nipEvidence: BoundingBox? = nil,
+        bankAccountEvidence: BoundingBox? = nil,
+        vendorExtractionMethod: ExtractionMethod? = nil,
+        amountExtractionMethod: ExtractionMethod? = nil,
+        dueDateExtractionMethod: ExtractionMethod? = nil,
+        nipExtractionMethod: ExtractionMethod? = nil,
         overallConfidence: Double = 0.0,
         fieldConfidences: FieldConfidences? = nil,
         provider: String = "local",
@@ -111,6 +167,19 @@ struct DocumentAnalysisResult: Codable, Equatable, Sendable {
         self.amountCandidates = amountCandidates
         self.dateCandidates = dateCandidates
         self.vendorCandidates = vendorCandidates
+        self.nipCandidates = nipCandidates
+        self.bankAccountCandidates = bankAccountCandidates
+        self.documentNumberCandidates = documentNumberCandidates
+        self.vendorEvidence = vendorEvidence
+        self.amountEvidence = amountEvidence
+        self.dueDateEvidence = dueDateEvidence
+        self.documentNumberEvidence = documentNumberEvidence
+        self.nipEvidence = nipEvidence
+        self.bankAccountEvidence = bankAccountEvidence
+        self.vendorExtractionMethod = vendorExtractionMethod
+        self.amountExtractionMethod = amountExtractionMethod
+        self.dueDateExtractionMethod = dueDateExtractionMethod
+        self.nipExtractionMethod = nipExtractionMethod
         self.overallConfidence = overallConfidence
         self.fieldConfidences = fieldConfidences
         self.provider = provider
@@ -133,6 +202,11 @@ struct DocumentAnalysisResult: Codable, Equatable, Sendable {
         case amount, currency, dueDate
         case documentNumber, bankAccountNumber, suggestedAmounts
         case amountCandidates, dateCandidates, vendorCandidates
+        case nipCandidates, bankAccountCandidates, documentNumberCandidates
+        case vendorEvidence, amountEvidence, dueDateEvidence
+        case documentNumberEvidence, nipEvidence, bankAccountEvidence
+        case vendorExtractionMethod, amountExtractionMethod
+        case dueDateExtractionMethod, nipExtractionMethod
         case overallConfidence, fieldConfidences, provider, version, rawHints, rawOCRText
     }
 
@@ -157,6 +231,23 @@ struct DocumentAnalysisResult: Codable, Equatable, Sendable {
         amountCandidates = try container.decodeIfPresent([AmountCandidate].self, forKey: .amountCandidates)
         dateCandidates = try container.decodeIfPresent([DateCandidate].self, forKey: .dateCandidates)
         vendorCandidates = try container.decodeIfPresent([VendorCandidate].self, forKey: .vendorCandidates)
+        nipCandidates = try container.decodeIfPresent([NIPCandidate].self, forKey: .nipCandidates)
+        bankAccountCandidates = try container.decodeIfPresent([BankAccountCandidate].self, forKey: .bankAccountCandidates)
+        documentNumberCandidates = try container.decodeIfPresent([ExtractionCandidate].self, forKey: .documentNumberCandidates)
+
+        // Decode evidence bounding boxes
+        vendorEvidence = try container.decodeIfPresent(BoundingBox.self, forKey: .vendorEvidence)
+        amountEvidence = try container.decodeIfPresent(BoundingBox.self, forKey: .amountEvidence)
+        dueDateEvidence = try container.decodeIfPresent(BoundingBox.self, forKey: .dueDateEvidence)
+        documentNumberEvidence = try container.decodeIfPresent(BoundingBox.self, forKey: .documentNumberEvidence)
+        nipEvidence = try container.decodeIfPresent(BoundingBox.self, forKey: .nipEvidence)
+        bankAccountEvidence = try container.decodeIfPresent(BoundingBox.self, forKey: .bankAccountEvidence)
+
+        // Decode extraction methods
+        vendorExtractionMethod = try container.decodeIfPresent(ExtractionMethod.self, forKey: .vendorExtractionMethod)
+        amountExtractionMethod = try container.decodeIfPresent(ExtractionMethod.self, forKey: .amountExtractionMethod)
+        dueDateExtractionMethod = try container.decodeIfPresent(ExtractionMethod.self, forKey: .dueDateExtractionMethod)
+        nipExtractionMethod = try container.decodeIfPresent(ExtractionMethod.self, forKey: .nipExtractionMethod)
 
         overallConfidence = try container.decode(Double.self, forKey: .overallConfidence)
         fieldConfidences = try container.decodeIfPresent(FieldConfidences.self, forKey: .fieldConfidences)
@@ -187,6 +278,23 @@ struct DocumentAnalysisResult: Codable, Equatable, Sendable {
         try container.encodeIfPresent(amountCandidates, forKey: .amountCandidates)
         try container.encodeIfPresent(dateCandidates, forKey: .dateCandidates)
         try container.encodeIfPresent(vendorCandidates, forKey: .vendorCandidates)
+        try container.encodeIfPresent(nipCandidates, forKey: .nipCandidates)
+        try container.encodeIfPresent(bankAccountCandidates, forKey: .bankAccountCandidates)
+        try container.encodeIfPresent(documentNumberCandidates, forKey: .documentNumberCandidates)
+
+        // Encode evidence bounding boxes
+        try container.encodeIfPresent(vendorEvidence, forKey: .vendorEvidence)
+        try container.encodeIfPresent(amountEvidence, forKey: .amountEvidence)
+        try container.encodeIfPresent(dueDateEvidence, forKey: .dueDateEvidence)
+        try container.encodeIfPresent(documentNumberEvidence, forKey: .documentNumberEvidence)
+        try container.encodeIfPresent(nipEvidence, forKey: .nipEvidence)
+        try container.encodeIfPresent(bankAccountEvidence, forKey: .bankAccountEvidence)
+
+        // Encode extraction methods
+        try container.encodeIfPresent(vendorExtractionMethod, forKey: .vendorExtractionMethod)
+        try container.encodeIfPresent(amountExtractionMethod, forKey: .amountExtractionMethod)
+        try container.encodeIfPresent(dueDateExtractionMethod, forKey: .dueDateExtractionMethod)
+        try container.encodeIfPresent(nipExtractionMethod, forKey: .nipExtractionMethod)
 
         try container.encode(overallConfidence, forKey: .overallConfidence)
         try container.encodeIfPresent(fieldConfidences, forKey: .fieldConfidences)
@@ -210,7 +318,12 @@ struct DocumentAnalysisResult: Codable, Equatable, Sendable {
         lhs.provider == rhs.provider &&
         lhs.version == rhs.version &&
         lhs.rawHints == rhs.rawHints &&
-        lhs.rawOCRText == rhs.rawOCRText
+        lhs.rawOCRText == rhs.rawOCRText &&
+        lhs.vendorEvidence == rhs.vendorEvidence &&
+        lhs.amountEvidence == rhs.amountEvidence &&
+        lhs.dueDateEvidence == rhs.dueDateEvidence &&
+        lhs.vendorExtractionMethod == rhs.vendorExtractionMethod &&
+        lhs.amountExtractionMethod == rhs.amountExtractionMethod
     }
 }
 
@@ -228,16 +341,22 @@ struct FieldConfidences: Codable, Equatable, Sendable {
     let amount: Double?
     let dueDate: Double?
     let documentNumber: Double?
+    let nip: Double?
+    let bankAccount: Double?
 
     init(
         vendorName: Double? = nil,
         amount: Double? = nil,
         dueDate: Double? = nil,
-        documentNumber: Double? = nil
+        documentNumber: Double? = nil,
+        nip: Double? = nil,
+        bankAccount: Double? = nil
     ) {
         self.vendorName = vendorName
         self.amount = amount
         self.dueDate = dueDate
         self.documentNumber = documentNumber
+        self.nip = nip
+        self.bankAccount = bankAccount
     }
 }

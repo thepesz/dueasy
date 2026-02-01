@@ -6,12 +6,14 @@ struct AddDocumentView: View {
 
     @Environment(AppEnvironment.self) private var environment
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     @State private var viewModel: AddDocumentViewModel
     @State private var selectedType: DocumentType = .invoice
     @State private var showingScanner = false
     @State private var showingReview = false
     @State private var scannedImages: [UIImage] = []
+    @State private var appeared = false
 
     init(environment: AppEnvironment) {
         _viewModel = State(initialValue: AddDocumentViewModel(environment: environment))
@@ -19,39 +21,56 @@ struct AddDocumentView: View {
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: Spacing.lg) {
-                // Document type selection
-                VStack(alignment: .leading, spacing: Spacing.sm) {
-                    Text(L10n.AddDocument.documentType.localized)
-                        .font(Typography.headline)
-                        .foregroundStyle(.secondary)
+            ZStack {
+                // Modern gradient background
+                GradientBackground()
 
-                    ForEach(DocumentType.allCases) { type in
-                        DocumentTypeRow(
-                            type: type,
-                            isSelected: selectedType == type,
-                            isEnabled: type.isEnabledInMVP
-                        ) {
-                            if type.isEnabledInMVP {
-                                selectedType = type
+                VStack(spacing: Spacing.lg) {
+                    // Document type selection
+                    VStack(alignment: .leading, spacing: Spacing.md) {
+                        Text(L10n.AddDocument.documentType.localized)
+                            .font(Typography.headline)
+                            .foregroundStyle(.secondary)
+                            .padding(.horizontal, Spacing.xxs)
+
+                        ForEach(Array(DocumentType.allCases.enumerated()), id: \.element) { index, type in
+                            DocumentTypeRow(
+                                type: type,
+                                isSelected: selectedType == type,
+                                isEnabled: type.isEnabledInMVP
+                            ) {
+                                if type.isEnabledInMVP {
+                                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                        selectedType = type
+                                    }
+                                }
                             }
+                            .opacity(appeared ? 1 : 0)
+                            .offset(y: appeared ? 0 : 15)
+                            .animation(
+                                reduceMotion ? .none : .spring(response: 0.4, dampingFraction: 0.8).delay(Double(index) * 0.08),
+                                value: appeared
+                            )
                         }
                     }
-                }
 
-                Spacer()
+                    Spacer()
 
-                // Action buttons
-                VStack(spacing: Spacing.sm) {
-                    PrimaryButton(L10n.AddDocument.scanDocument.localized, icon: "camera.fill") {
-                        showingScanner = true
+                    // Action buttons
+                    VStack(spacing: Spacing.sm) {
+                        PrimaryButton(L10n.AddDocument.scanDocument.localized, icon: "camera.fill") {
+                            showingScanner = true
+                        }
+                        .opacity(appeared ? 1 : 0)
+                        .offset(y: appeared ? 0 : 20)
+                        .animation(
+                            reduceMotion ? .none : .spring(response: 0.5, dampingFraction: 0.8).delay(0.3),
+                            value: appeared
+                        )
                     }
-
-                    // PDF import could be added here in the future
-                    // PrimaryButton.secondary("Import PDF", icon: "doc.badge.plus") {}
                 }
+                .padding(Spacing.md)
             }
-            .padding(Spacing.md)
             .navigationTitle(L10n.AddDocument.title.localized)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -99,6 +118,15 @@ struct AddDocumentView: View {
             }
             .loadingOverlay(isLoading: viewModel.isProcessing, message: L10n.AddDocument.processing.localized)
         }
+        .onAppear {
+            if !reduceMotion {
+                withAnimation(.easeOut(duration: 0.4)) {
+                    appeared = true
+                }
+            } else {
+                appeared = true
+            }
+        }
     }
 
     private func handleScannedImages(_ images: [UIImage]) async {
@@ -113,20 +141,63 @@ struct AddDocumentView: View {
 
 struct DocumentTypeRow: View {
 
+    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+
     let type: DocumentType
     let isSelected: Bool
     let isEnabled: Bool
     let onTap: () -> Void
 
+    @State private var isPressed = false
+
     var body: some View {
         Button(action: onTap) {
-            HStack(spacing: Spacing.sm) {
-                Image(systemName: type.iconName)
-                    .font(.title2)
-                    .foregroundStyle(isEnabled ? (isSelected ? AppColors.primary : Color.primary) : Color.secondary.opacity(0.5))
-                    .frame(width: 44, height: 44)
-                    .background(isEnabled ? (isSelected ? AppColors.primary.opacity(0.12) : AppColors.secondaryBackground) : AppColors.tertiaryBackground)
-                    .clipShape(RoundedRectangle(cornerRadius: CornerRadius.sm, style: .continuous))
+            HStack(spacing: Spacing.md) {
+                // Icon with gradient ring
+                ZStack {
+                    Circle()
+                        .fill(
+                            LinearGradient(
+                                colors: isEnabled
+                                    ? (isSelected
+                                        ? [AppColors.primary.opacity(0.25), AppColors.primary.opacity(0.1)]
+                                        : [Color.gray.opacity(0.15), Color.gray.opacity(0.05)])
+                                    : [Color.gray.opacity(0.1), Color.gray.opacity(0.03)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .frame(width: 52, height: 52)
+
+                    Image(systemName: type.iconName)
+                        .font(.title2.weight(.medium))
+                        .foregroundStyle(
+                            isEnabled
+                                ? (isSelected ? AppColors.primary : .primary)
+                                : .secondary.opacity(0.5)
+                        )
+                        .symbolRenderingMode(.hierarchical)
+                }
+                .overlay {
+                    Circle()
+                        .strokeBorder(
+                            LinearGradient(
+                                colors: isEnabled && isSelected
+                                    ? [AppColors.primary.opacity(0.6), AppColors.primary.opacity(0.2)]
+                                    : [Color.gray.opacity(0.2), Color.gray.opacity(0.1)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: isSelected ? 2 : 1
+                        )
+                }
+                .shadow(
+                    color: isSelected ? AppColors.primary.opacity(0.2) : .clear,
+                    radius: 6,
+                    y: 3
+                )
 
                 VStack(alignment: .leading, spacing: Spacing.xxs) {
                     Text(type.displayName)
@@ -144,21 +215,80 @@ struct DocumentTypeRow: View {
 
                 if isSelected && isEnabled {
                     Image(systemName: "checkmark.circle.fill")
+                        .font(.title2)
                         .foregroundStyle(AppColors.primary)
+                        .symbolEffect(.bounce, options: .speed(1.5), value: isSelected)
                 }
             }
-            .padding(Spacing.sm)
-            .background(isSelected && isEnabled ? AppColors.primary.opacity(0.05) : Color.clear)
-            .clipShape(RoundedRectangle(cornerRadius: CornerRadius.md, style: .continuous))
+            .padding(Spacing.md)
+            .background {
+                if reduceTransparency {
+                    RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous)
+                        .fill(isSelected ? AppColors.primary.opacity(0.08) : AppColors.secondaryBackground)
+                } else {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous)
+                            .fill(.ultraThinMaterial)
+
+                        if isSelected {
+                            RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous)
+                                .fill(AppColors.primary.opacity(0.1))
+                        }
+
+                        RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous)
+                            .fill(
+                                LinearGradient(
+                                    colors: [
+                                        Color.white.opacity(colorScheme == .light ? 0.5 : 0.1),
+                                        Color.white.opacity(colorScheme == .light ? 0.2 : 0.02)
+                                    ],
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                )
+                            )
+                    }
+                }
+            }
+            .clipShape(RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous))
             .overlay {
-                if isSelected && isEnabled {
-                    RoundedRectangle(cornerRadius: CornerRadius.md, style: .continuous)
-                        .strokeBorder(AppColors.primary.opacity(0.3), lineWidth: 1)
-                }
+                RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous)
+                    .strokeBorder(
+                        LinearGradient(
+                            colors: isSelected
+                                ? [AppColors.primary.opacity(0.5), AppColors.primary.opacity(0.2)]
+                                : [Color.white.opacity(colorScheme == .light ? 0.6 : 0.2), Color.white.opacity(0.1)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ),
+                        lineWidth: isSelected ? 1.5 : 0.5
+                    )
             }
+            .shadow(
+                color: Color.black.opacity(colorScheme == .light ? 0.06 : 0.15),
+                radius: 8,
+                y: 4
+            )
+            .scaleEffect(isPressed ? 0.98 : 1.0)
         }
         .buttonStyle(.plain)
         .disabled(!isEnabled)
+        .simultaneousGesture(
+            DragGesture(minimumDistance: 0)
+                .onChanged { _ in
+                    if !reduceMotion && !isPressed && isEnabled {
+                        withAnimation(.easeInOut(duration: 0.1)) {
+                            isPressed = true
+                        }
+                    }
+                }
+                .onEnded { _ in
+                    if !reduceMotion {
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                            isPressed = false
+                        }
+                    }
+                }
+        )
     }
 }
 

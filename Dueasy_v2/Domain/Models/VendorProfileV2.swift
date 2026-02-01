@@ -124,7 +124,7 @@ final class VendorProfileV2 {
             vendorKeywords = keywordOverrides.payDue + keywordOverrides.total
         case .dueDate:
             vendorKeywords = keywordOverrides.dueDate
-        case .vendor, .documentNumber:
+        case .vendor, .documentNumber, .nip, .bankAccount:
             vendorKeywords = []
         }
 

@@ -1,15 +1,20 @@
 import Foundation
 import UIKit
-import os.log
+import os
 
 /// Local file storage service using the app sandbox.
 /// Stores documents with iOS Data Protection enabled.
+///
+/// SECURITY FEATURES:
+/// - All files have iOS Data Protection (NSFileProtectionComplete)
+/// - All files and directories are excluded from iCloud backup
+/// - Uses crypto service for optional AES encryption (Iteration 2)
+///
 /// Iteration 1: Uses crypto service for file protection only.
 /// Iteration 2: Will use crypto service for AES encryption before writing.
 final class LocalFileStorageService: FileStorageServiceProtocol, @unchecked Sendable {
 
     private let fileManager = FileManager.default
-    private let logger = Logger(subsystem: "com.dueasy.app", category: "FileStorage")
     private let cryptoService: CryptoServiceProtocol
 
     init(cryptoService: CryptoServiceProtocol) {
@@ -25,12 +30,9 @@ final class LocalFileStorageService: FileStorageServiceProtocol, @unchecked Send
         if !fileManager.fileExists(atPath: documentsDirectory.path) {
             try? fileManager.createDirectory(at: documentsDirectory, withIntermediateDirectories: true)
 
-            // PRIVACY: Exclude from backup to prevent invoice scans in iCloud
-            var url = documentsDirectory
-            var resourceValues = URLResourceValues()
-            resourceValues.isExcludedFromBackup = true
-            try? url.setResourceValues(resourceValues)
-            logger.info("ScannedDocuments directory excluded from backup")
+            // PRIVACY: Exclude directory from backup
+            excludeFromBackup(documentsDirectory)
+            PrivacyLogger.logStorageMetrics(operation: "create_directory", pageCount: 0, success: true)
         }
 
         return documentsDirectory
@@ -50,6 +52,9 @@ final class LocalFileStorageService: FileStorageServiceProtocol, @unchecked Send
             // Create document directory
             try fileManager.createDirectory(at: documentDirectory, withIntermediateDirectories: true)
 
+            // PRIVACY: Exclude document directory from backup
+            excludeFromBackup(documentDirectory)
+
             // Save each image
             for (index, image) in images.enumerated() {
                 guard let imageData = image.jpegData(compressionQuality: 0.85) else {
@@ -63,8 +68,9 @@ final class LocalFileStorageService: FileStorageServiceProtocol, @unchecked Send
                 let encryptedData = try await cryptoService.encrypt(imageData)
                 try encryptedData.write(to: fileURL)
 
-                // Apply iOS file protection
+                // Apply iOS file protection and exclude from backup
                 try cryptoService.applyFileProtection(to: fileURL)
+                excludeFromBackup(fileURL)
             }
 
             // Create manifest file with metadata
@@ -80,14 +86,18 @@ final class LocalFileStorageService: FileStorageServiceProtocol, @unchecked Send
             let encryptedManifest = try await cryptoService.encrypt(manifestData)
             try encryptedManifest.write(to: manifestURL)
             try cryptoService.applyFileProtection(to: manifestURL)
+            excludeFromBackup(manifestURL)
 
-            logger.info("Saved document with \(images.count) pages: \(documentId)")
+            // PRIVACY: Log only metrics, not document ID or path
+            PrivacyLogger.logStorageMetrics(operation: "save", pageCount: images.count, success: true)
 
             return documentDirectory.path
         } catch let error as AppError {
+            PrivacyLogger.logStorageMetrics(operation: "save", pageCount: images.count, success: false)
             throw error
         } catch {
-            logger.error("Failed to save document: \(error.localizedDescription)")
+            PrivacyLogger.logStorageMetrics(operation: "save", pageCount: images.count, success: false)
+            PrivacyLogger.storage.error("Failed to save document: \(error.localizedDescription)")
             throw AppError.fileStorageSaveFailed(error.localizedDescription)
         }
     }
@@ -101,13 +111,18 @@ final class LocalFileStorageService: FileStorageServiceProtocol, @unchecked Send
             // Encrypt data (pass-through in Iteration 1, AES in Iteration 2)
             let encryptedData = try await cryptoService.encrypt(data)
             try encryptedData.write(to: fileURL)
-            try cryptoService.applyFileProtection(to: fileURL)
 
-            logger.info("Saved document file: \(filename)")
+            // Apply iOS file protection and exclude from backup
+            try cryptoService.applyFileProtection(to: fileURL)
+            excludeFromBackup(fileURL)
+
+            // PRIVACY: Log only success, not filename
+            PrivacyLogger.logStorageMetrics(operation: "save_file", pageCount: 1, success: true)
 
             return fileURL.path
         } catch {
-            logger.error("Failed to save document file: \(error.localizedDescription)")
+            PrivacyLogger.logStorageMetrics(operation: "save_file", pageCount: 1, success: false)
+            PrivacyLogger.storage.error("Failed to save document file: \(error.localizedDescription)")
             throw AppError.fileStorageSaveFailed(error.localizedDescription)
         }
     }
@@ -124,7 +139,7 @@ final class LocalFileStorageService: FileStorageServiceProtocol, @unchecked Send
             // Decrypt data (pass-through in Iteration 1, AES decryption in Iteration 2)
             return try await cryptoService.decrypt(encryptedData)
         } catch {
-            logger.error("Failed to load document file: \(error.localizedDescription)")
+            PrivacyLogger.storage.error("Failed to load document file: \(error.localizedDescription)")
             throw AppError.fileStorageLoadFailed(error.localizedDescription)
         }
     }
@@ -168,9 +183,11 @@ final class LocalFileStorageService: FileStorageServiceProtocol, @unchecked Send
 
         do {
             try fileManager.removeItem(at: fileURL)
-            logger.info("Deleted document file: \(urlString)")
+            // PRIVACY: Log only operation success, not path
+            PrivacyLogger.logStorageMetrics(operation: "delete", pageCount: 0, success: true)
         } catch {
-            logger.error("Failed to delete document file: \(error.localizedDescription)")
+            PrivacyLogger.logStorageMetrics(operation: "delete", pageCount: 0, success: false)
+            PrivacyLogger.storage.error("Failed to delete document file: \(error.localizedDescription)")
             throw AppError.fileStorageDeleteFailed(error.localizedDescription)
         }
     }
@@ -209,11 +226,51 @@ final class LocalFileStorageService: FileStorageServiceProtocol, @unchecked Send
         }
     }
 
+    // MARK: - Privacy Helpers
+
+    /// Excludes a file or directory from iCloud backup.
+    /// PRIVACY: Ensures sensitive document scans are never backed up to iCloud.
+    /// - Parameter url: URL of file or directory to exclude
+    @discardableResult
+    private func excludeFromBackup(_ url: URL) -> Bool {
+        var mutableURL = url
+        var resourceValues = URLResourceValues()
+        resourceValues.isExcludedFromBackup = true
+
+        do {
+            try mutableURL.setResourceValues(resourceValues)
+            return true
+        } catch {
+            PrivacyLogger.storage.warning("Failed to exclude from backup: \(error.localizedDescription)")
+            return false
+        }
+    }
+
+    /// Creates a secure directory with backup exclusion and file protection.
+    /// PRIVACY: Use this for any directory containing sensitive data.
+    /// - Parameter name: Directory name
+    /// - Returns: URL of created directory
+    func createSecureDirectory(name: String) throws -> URL {
+        let appSupport = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+        let secureDir = appSupport.appendingPathComponent(name, isDirectory: true)
+
+        try fileManager.createDirectory(at: secureDir, withIntermediateDirectories: true)
+
+        // Exclude from backup
+        excludeFromBackup(secureDir)
+
+        // Apply file protection to directory
+        try cryptoService.applyFileProtection(to: secureDir)
+
+        PrivacyLogger.storage.debug("Created secure directory: \(name)")
+        return secureDir
+    }
 }
 
 // MARK: - Document Manifest
 
-/// Metadata for a stored document
+/// Metadata for a stored document.
+/// PRIVACY: Contains only non-sensitive metadata (ID, page count, date).
 struct DocumentManifest: Codable {
     let id: String
     let pageCount: Int

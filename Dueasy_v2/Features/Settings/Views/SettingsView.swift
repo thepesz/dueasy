@@ -1,20 +1,24 @@
 import SwiftUI
 import UIKit
-import os.log
+import os
 
 /// App settings view.
-/// Configures reminder defaults, calendar preferences, and displays app info.
+/// Configures reminder defaults, calendar preferences, security, and displays app info.
 struct SettingsView: View {
 
     @Environment(AppEnvironment.self) private var environment
+    @Environment(\.appLockManager) private var appLockManager
+    @Environment(\.colorScheme) private var colorScheme
     @State private var calendarPermissionGranted = false
     @State private var notificationPermissionGranted = false
 
-    private let logger = Logger(subsystem: "com.dueasy.app", category: "Settings")
-
     var body: some View {
         NavigationStack {
-            List {
+            ZStack {
+                // Modern gradient background
+                ListGradientBackground()
+
+                List {
                 // Permissions section (show if any permission is not granted)
                 if !calendarPermissionGranted || !notificationPermissionGranted {
                     Section {
@@ -69,6 +73,23 @@ struct SettingsView: View {
                     }
                 } header: {
                     Text(L10n.Settings.calendarSection.localized)
+                }
+
+                // Security section
+                Section {
+                    NavigationLink {
+                        SecuritySettingsView()
+                            .environment(\.appLockManager, appLockManager)
+                    } label: {
+                        SettingsRow(
+                            icon: "lock.shield.fill",
+                            iconColor: .purple,
+                            title: "Security",
+                            subtitle: securitySummary
+                        )
+                    }
+                } header: {
+                    Text("Security")
                 }
 
                 // Language & Currency section
@@ -126,6 +147,9 @@ struct SettingsView: View {
                 } header: {
                     Text(L10n.Settings.aboutSection.localized)
                 }
+                }
+                .scrollContentBackground(.hidden)
+                .listStyle(.insetGrouped)
             }
             .navigationTitle(L10n.Settings.title.localized)
             .task {
@@ -151,11 +175,26 @@ struct SettingsView: View {
     private func checkPermissions() async {
         let calendarStatus = await environment.calendarService.authorizationStatus
         calendarPermissionGranted = calendarStatus.hasWriteAccess
-        logger.info("Calendar permission: \(calendarPermissionGranted)")
+        PrivacyLogger.logPermissionResult(permission: "calendar", granted: calendarPermissionGranted)
 
         let notificationStatus = await environment.notificationService.authorizationStatus
         notificationPermissionGranted = notificationStatus.isAuthorized
-        logger.info("Notification permission: \(notificationPermissionGranted)")
+        PrivacyLogger.logPermissionResult(permission: "notifications", granted: notificationPermissionGranted)
+    }
+
+    private var securitySummary: String {
+        if appLockManager.isEnabled {
+            let biometricType = appLockManager.availableBiometricType
+            switch biometricType {
+            case .faceID:
+                return "Face ID enabled"
+            case .touchID:
+                return "Touch ID enabled"
+            case .none:
+                return "Passcode enabled"
+            }
+        }
+        return "App lock disabled"
     }
 
     private var reminderSummary: String {
@@ -176,6 +215,8 @@ struct SettingsView: View {
 // MARK: - Settings Row
 
 struct SettingsRow: View {
+    @Environment(\.colorScheme) private var colorScheme
+
     let icon: String
     let iconColor: Color
     let title: String
@@ -183,12 +224,24 @@ struct SettingsRow: View {
 
     var body: some View {
         HStack(spacing: Spacing.sm) {
-            Image(systemName: icon)
-                .font(.body)
-                .foregroundStyle(.white)
-                .frame(width: 28, height: 28)
-                .background(iconColor)
-                .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+            // Icon with gradient background
+            ZStack {
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .fill(
+                        LinearGradient(
+                            colors: [iconColor, iconColor.opacity(0.8)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: 32, height: 32)
+
+                Image(systemName: icon)
+                    .font(.body.weight(.medium))
+                    .foregroundStyle(.white)
+                    .symbolRenderingMode(.hierarchical)
+            }
+            .shadow(color: iconColor.opacity(0.3), radius: 4, y: 2)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
@@ -321,49 +374,327 @@ struct AboutView: View {
 // MARK: - Privacy Info View
 
 struct PrivacyInfoView: View {
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var appeared = false
+
+    private let privacyItems: [(icon: String, color: Color, titleKey: String, descKey: String)] = [
+        ("iphone", .blue, "privacy.localProcessing.title", "privacy.localProcessing.description"),
+        ("lock.shield", .green, "privacy.secureStorage.title", "privacy.secureStorage.description"),
+        ("hand.raised", .orange, "privacy.yourData.title", "privacy.yourData.description"),
+        ("person.crop.circle.badge.xmark", .purple, "privacy.noAccount.title", "privacy.noAccount.description")
+    ]
+
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: Spacing.lg) {
-                VStack(alignment: .leading, spacing: Spacing.sm) {
-                    Label(L10n.Privacy.localProcessingTitle.localized, systemImage: "iphone")
-                        .font(Typography.headline)
+        ZStack {
+            ListGradientBackground()
 
-                    Text(L10n.Privacy.localProcessingDescription.localized)
-                        .font(Typography.body)
-                        .foregroundStyle(.secondary)
+            ScrollView {
+                VStack(alignment: .leading, spacing: Spacing.md) {
+                    ForEach(Array(privacyItems.enumerated()), id: \.offset) { index, item in
+                        PrivacyCard(
+                            icon: item.icon,
+                            color: item.color,
+                            title: item.titleKey.localized,
+                            description: item.descKey.localized
+                        )
+                        .opacity(appeared ? 1 : 0)
+                        .offset(y: appeared ? 0 : 15)
+                        .animation(
+                            reduceMotion ? .none : .spring(response: 0.4, dampingFraction: 0.8).delay(Double(index) * 0.08),
+                            value: appeared
+                        )
+                    }
                 }
-
-                VStack(alignment: .leading, spacing: Spacing.sm) {
-                    Label(L10n.Privacy.secureStorageTitle.localized, systemImage: "lock.shield")
-                        .font(Typography.headline)
-
-                    Text(L10n.Privacy.secureStorageDescription.localized)
-                        .font(Typography.body)
-                        .foregroundStyle(.secondary)
-                }
-
-                VStack(alignment: .leading, spacing: Spacing.sm) {
-                    Label(L10n.Privacy.yourDataTitle.localized, systemImage: "hand.raised")
-                        .font(Typography.headline)
-
-                    Text(L10n.Privacy.yourDataDescription.localized)
-                        .font(Typography.body)
-                        .foregroundStyle(.secondary)
-                }
-
-                VStack(alignment: .leading, spacing: Spacing.sm) {
-                    Label(L10n.Privacy.noAccountTitle.localized, systemImage: "person.crop.circle.badge.xmark")
-                        .font(Typography.headline)
-
-                    Text(L10n.Privacy.noAccountDescription.localized)
-                        .font(Typography.body)
-                        .foregroundStyle(.secondary)
-                }
+                .padding(Spacing.md)
+                .padding(.bottom, Spacing.xl)
             }
-            .padding(Spacing.md)
         }
         .navigationTitle(L10n.Privacy.title.localized)
         .navigationBarTitleDisplayMode(.inline)
+        .onAppear {
+            if !reduceMotion {
+                withAnimation(.easeOut(duration: 0.4)) {
+                    appeared = true
+                }
+            } else {
+                appeared = true
+            }
+        }
+    }
+}
+
+struct PrivacyCard: View {
+    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+
+    let icon: String
+    let color: Color
+    let title: String
+    let description: String
+
+    var body: some View {
+        HStack(alignment: .top, spacing: Spacing.md) {
+            // Icon with gradient ring
+            ZStack {
+                Circle()
+                    .fill(
+                        LinearGradient(
+                            colors: [color.opacity(0.2), color.opacity(0.05)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: 48, height: 48)
+
+                Image(systemName: icon)
+                    .font(.title2.weight(.medium))
+                    .foregroundStyle(color)
+                    .symbolRenderingMode(.hierarchical)
+            }
+            .overlay {
+                Circle()
+                    .strokeBorder(
+                        LinearGradient(
+                            colors: [color.opacity(0.5), color.opacity(0.2)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ),
+                        lineWidth: 1.5
+                    )
+            }
+
+            VStack(alignment: .leading, spacing: Spacing.xs) {
+                Text(title)
+                    .font(Typography.headline)
+
+                Text(description)
+                    .font(Typography.body)
+                    .foregroundStyle(.secondary)
+                    .lineSpacing(4)
+            }
+        }
+        .padding(Spacing.md)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background {
+            if reduceTransparency {
+                RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous)
+                    .fill(AppColors.secondaryBackground)
+            } else {
+                ZStack {
+                    RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous)
+                        .fill(.ultraThinMaterial)
+
+                    RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous)
+                        .fill(
+                            LinearGradient(
+                                colors: [
+                                    Color.white.opacity(colorScheme == .light ? 0.5 : 0.1),
+                                    Color.white.opacity(colorScheme == .light ? 0.2 : 0.02)
+                                ],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        )
+                }
+            }
+        }
+        .clipShape(RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous)
+                .strokeBorder(
+                    LinearGradient(
+                        colors: [
+                            Color.white.opacity(colorScheme == .light ? 0.6 : 0.2),
+                            Color.white.opacity(0.1)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: 0.5
+                )
+        }
+        .shadow(color: Color.black.opacity(0.06), radius: 8, y: 4)
+    }
+}
+
+// MARK: - Security Settings View
+
+struct SecuritySettingsView: View {
+    @Environment(\.appLockManager) private var appLockManager
+    @Environment(\.colorScheme) private var colorScheme
+    @State private var showBiometricUnavailableAlert = false
+
+    var body: some View {
+        List {
+            // App Lock Toggle
+            Section {
+                Toggle(isOn: Binding(
+                    get: { appLockManager.isEnabled },
+                    set: { newValue in
+                        if newValue && !appLockManager.isBiometricAvailable {
+                            // Show alert if biometrics not available
+                            showBiometricUnavailableAlert = true
+                        }
+                        appLockManager.isEnabled = newValue
+                    }
+                )) {
+                    HStack(spacing: Spacing.sm) {
+                        Image(systemName: biometricIcon)
+                            .font(.title3)
+                            .foregroundStyle(.purple)
+                            .frame(width: 28)
+
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(biometricTitle)
+                                .font(Typography.body)
+
+                            Text(biometricSubtitle)
+                                .font(Typography.caption1)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+            } header: {
+                Text("App Lock")
+            } footer: {
+                Text("When enabled, the app will require authentication to unlock after being in the background.")
+            }
+
+            // Lock Timeout (only show if enabled)
+            if appLockManager.isEnabled {
+                Section {
+                    Picker("Lock Timeout", selection: Binding(
+                        get: { Int(appLockManager.lockTimeout) },
+                        set: { appLockManager.lockTimeout = TimeInterval($0) }
+                    )) {
+                        Text("Immediately").tag(0)
+                        Text("After 1 minute").tag(60)
+                        Text("After 5 minutes").tag(300)
+                        Text("After 15 minutes").tag(900)
+                        Text("After 30 minutes").tag(1800)
+                    }
+                } header: {
+                    Text("Lock After")
+                } footer: {
+                    Text("How long the app can be in the background before requiring authentication.")
+                }
+            }
+
+            // Biometric Status
+            Section {
+                HStack {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Biometric Status")
+                            .font(Typography.body)
+
+                        Text(biometricStatusDescription)
+                            .font(Typography.caption1)
+                            .foregroundStyle(appLockManager.isBiometricAvailable ? .green : .secondary)
+                    }
+
+                    Spacer()
+
+                    Image(systemName: appLockManager.isBiometricAvailable ? "checkmark.circle.fill" : "xmark.circle.fill")
+                        .foregroundStyle(appLockManager.isBiometricAvailable ? .green : .secondary)
+                }
+            } footer: {
+                if !appLockManager.isBiometricAvailable {
+                    Text(appLockManager.biometricUnavailableReason ?? "Biometric authentication is not available on this device.")
+                }
+            }
+
+            // Data Protection Info
+            Section {
+                VStack(alignment: .leading, spacing: Spacing.sm) {
+                    InfoRow(
+                        icon: "lock.fill",
+                        title: "File Protection",
+                        description: "All documents are encrypted when device is locked"
+                    )
+
+                    InfoRow(
+                        icon: "icloud.slash.fill",
+                        title: "No Cloud Backup",
+                        description: "Scanned documents are excluded from iCloud backup"
+                    )
+
+                    InfoRow(
+                        icon: "eye.slash.fill",
+                        title: "Privacy Logging",
+                        description: "Sensitive data is never logged or transmitted"
+                    )
+                }
+                .padding(.vertical, Spacing.xs)
+            } header: {
+                Text("Data Protection")
+            }
+        }
+        .navigationTitle("Security")
+        .navigationBarTitleDisplayMode(.inline)
+        .alert("Biometric Not Available", isPresented: $showBiometricUnavailableAlert) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text(appLockManager.biometricUnavailableReason ?? "Biometric authentication is not available. The app will use device passcode instead.")
+        }
+    }
+
+    private var biometricIcon: String {
+        let type = appLockManager.availableBiometricType
+        switch type {
+        case .faceID: return "faceid"
+        case .touchID: return "touchid"
+        case .none: return "lock.fill"
+        }
+    }
+
+    private var biometricTitle: String {
+        let type = appLockManager.availableBiometricType
+        switch type {
+        case .faceID: return "Require Face ID"
+        case .touchID: return "Require Touch ID"
+        case .none: return "Require Passcode"
+        }
+    }
+
+    private var biometricSubtitle: String {
+        "Protect your financial data"
+    }
+
+    private var biometricStatusDescription: String {
+        let type = appLockManager.availableBiometricType
+        switch type {
+        case .faceID: return "Face ID is available"
+        case .touchID: return "Touch ID is available"
+        case .none: return "Using device passcode"
+        }
+    }
+}
+
+// MARK: - Info Row
+
+private struct InfoRow: View {
+    let icon: String
+    let title: String
+    let description: String
+
+    var body: some View {
+        HStack(alignment: .top, spacing: Spacing.sm) {
+            Image(systemName: icon)
+                .font(.body)
+                .foregroundStyle(.blue)
+                .frame(width: 24)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(Typography.subheadline)
+                    .fontWeight(.medium)
+
+                Text(description)
+                    .font(Typography.caption1)
+                    .foregroundStyle(.secondary)
+            }
+        }
     }
 }
 
@@ -374,8 +705,6 @@ struct PermissionSettingsView: View {
     @Binding var calendarGranted: Bool
     @Binding var notificationGranted: Bool
     @State private var isRequesting = false
-
-    private let logger = Logger(subsystem: "com.dueasy.app", category: "Permissions")
 
     var body: some View {
         List {
@@ -467,14 +796,13 @@ struct PermissionSettingsView: View {
     private func requestCalendarPermission() {
         guard !isRequesting else { return }
         isRequesting = true
-        logger.info("Requesting calendar permission from Settings...")
 
         Task {
             let granted = await environment.calendarService.requestAccess()
             await MainActor.run {
                 calendarGranted = granted
                 isRequesting = false
-                logger.info("Calendar permission result: \(granted)")
+                PrivacyLogger.logPermissionResult(permission: "calendar", granted: granted)
             }
         }
     }
@@ -482,14 +810,13 @@ struct PermissionSettingsView: View {
     private func requestNotificationPermission() {
         guard !isRequesting else { return }
         isRequesting = true
-        logger.info("Requesting notification permission from Settings...")
 
         Task {
             let granted = await environment.notificationService.requestAuthorization()
             await MainActor.run {
                 notificationGranted = granted
                 isRequesting = false
-                logger.info("Notification permission result: \(granted)")
+                PrivacyLogger.logPermissionResult(permission: "notifications", granted: granted)
             }
         }
     }

@@ -5,6 +5,7 @@ import SwiftUI
 struct Card<Content: View>: View {
 
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+    @Environment(\.colorScheme) private var colorScheme
 
     let style: CardStyle
     let content: () -> Content
@@ -22,6 +23,10 @@ struct Card<Content: View>: View {
             .cardPadding()
             .background(backgroundView)
             .clipShape(RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous))
+            .overlay {
+                RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous)
+                    .strokeBorder(borderGradient, lineWidth: style == .glass ? 1 : 0.5)
+            }
             .elevation(style.elevation)
     }
 
@@ -34,6 +39,30 @@ struct Card<Content: View>: View {
         } else {
             // Glass effect
             GlassBackground()
+        }
+    }
+
+    private var borderGradient: LinearGradient {
+        if colorScheme == .light {
+            return LinearGradient(
+                colors: [
+                    Color.white.opacity(0.8),
+                    Color.white.opacity(0.2),
+                    Color.white.opacity(0.1)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        } else {
+            return LinearGradient(
+                colors: [
+                    Color.white.opacity(0.25),
+                    Color.white.opacity(0.08),
+                    Color.white.opacity(0.03)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
         }
     }
 }
@@ -53,25 +82,111 @@ enum CardStyle {
     }
 }
 
-/// Glass background using system materials
+/// Glass background using system materials with enhanced styling
 struct GlassBackground: View {
     @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         ZStack {
-            // Use ultraThinMaterial for Liquid Glass effect
+            // Base material for blur effect
             RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous)
                 .fill(.ultraThinMaterial)
 
-            // Subtle border for definition
+            // Inner glow for depth
             RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous)
-                .strokeBorder(
-                    colorScheme == .light
-                        ? Color.white.opacity(0.3)
-                        : Color.white.opacity(0.1),
-                    lineWidth: 0.5
+                .fill(
+                    LinearGradient(
+                        colors: colorScheme == .light
+                            ? [Color.white.opacity(0.5), Color.white.opacity(0.1)]
+                            : [Color.white.opacity(0.1), Color.white.opacity(0.02)],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
                 )
         }
+    }
+}
+
+/// Premium glass card with enhanced styling for hero sections
+struct PremiumGlassCard<Content: View>: View {
+
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+    @Environment(\.colorScheme) private var colorScheme
+
+    let accentColor: Color
+    let content: () -> Content
+
+    init(
+        accentColor: Color = AppColors.primary,
+        @ViewBuilder content: @escaping () -> Content
+    ) {
+        self.accentColor = accentColor
+        self.content = content
+    }
+
+    var body: some View {
+        content()
+            .cardPadding()
+            .background {
+                if reduceTransparency {
+                    RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous)
+                        .fill(AppColors.secondaryBackground)
+                } else {
+                    ZStack {
+                        // Material base
+                        RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous)
+                            .fill(.ultraThinMaterial)
+
+                        // Colored accent glow
+                        RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous)
+                            .fill(
+                                LinearGradient(
+                                    colors: [
+                                        accentColor.opacity(colorScheme == .light ? 0.1 : 0.15),
+                                        accentColor.opacity(0)
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+
+                        // Shimmer highlight
+                        RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous)
+                            .fill(
+                                LinearGradient(
+                                    colors: [
+                                        Color.white.opacity(colorScheme == .light ? 0.4 : 0.15),
+                                        Color.white.opacity(0)
+                                    ],
+                                    startPoint: .top,
+                                    endPoint: .center
+                                )
+                            )
+                    }
+                }
+            }
+            .clipShape(RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous))
+            .overlay {
+                RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous)
+                    .strokeBorder(
+                        LinearGradient(
+                            colors: [
+                                accentColor.opacity(0.4),
+                                Color.white.opacity(colorScheme == .light ? 0.6 : 0.2),
+                                accentColor.opacity(0.2)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ),
+                        lineWidth: 1
+                    )
+            }
+            .shadow(
+                color: accentColor.opacity(colorScheme == .light ? 0.15 : 0.25),
+                radius: 12,
+                x: 0,
+                y: 6
+            )
     }
 }
 
@@ -92,29 +207,53 @@ extension Card {
 // MARK: - Preview
 
 #Preview("Card Styles") {
-    VStack(spacing: Spacing.md) {
-        Card.solid {
-            VStack(alignment: .leading, spacing: Spacing.xs) {
-                Text("Solid Card")
-                    .font(Typography.headline)
-                Text("This is a solid background card")
-                    .font(Typography.body)
-                    .foregroundStyle(.secondary)
+    ScrollView {
+        VStack(spacing: Spacing.md) {
+            Card.solid {
+                VStack(alignment: .leading, spacing: Spacing.xs) {
+                    Text("Solid Card")
+                        .font(Typography.headline)
+                    Text("This is a solid background card")
+                        .font(Typography.body)
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-        }
 
-        Card.glass {
-            VStack(alignment: .leading, spacing: Spacing.xs) {
-                Text("Glass Card")
-                    .font(Typography.headline)
-                Text("This is a glass effect card")
-                    .font(Typography.body)
-                    .foregroundStyle(.secondary)
+            Card.glass {
+                VStack(alignment: .leading, spacing: Spacing.xs) {
+                    Text("Glass Card")
+                        .font(Typography.headline)
+                    Text("This is a glass effect card with enhanced borders")
+                        .font(Typography.body)
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
+
+            PremiumGlassCard(accentColor: .blue) {
+                VStack(alignment: .leading, spacing: Spacing.xs) {
+                    Text("Premium Glass Card")
+                        .font(Typography.headline)
+                    Text("This is a premium card with accent color glow")
+                        .font(Typography.body)
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+
+            PremiumGlassCard(accentColor: .purple) {
+                VStack(alignment: .leading, spacing: Spacing.xs) {
+                    Text("Purple Accent")
+                        .font(Typography.headline)
+                    Text("Premium card with purple accent")
+                        .font(Typography.body)
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
         }
+        .padding()
     }
-    .padding()
-    .background(Color.blue.gradient)
+    .gradientBackground()
 }

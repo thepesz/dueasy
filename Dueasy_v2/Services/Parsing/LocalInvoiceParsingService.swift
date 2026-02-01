@@ -1,14 +1,15 @@
 import Foundation
-import os.log
+import os
 
 /// Local heuristic-based invoice parsing service.
 /// Extracts dates, amounts, and vendor names from OCR text.
 /// Supports Polish and English invoice formats with 90%+ detection accuracy.
 /// Handles OCR misreads, diacritics variations, and regional formats.
 /// Includes adaptive learning from user corrections.
+///
+/// PRIVACY: Uses PrivacyLogger to ensure no PII (vendor names, amounts, dates,
+/// addresses, NIP numbers) is ever logged. Only metrics are logged.
 final class LocalInvoiceParsingService: DocumentAnalysisServiceProtocol, @unchecked Sendable {
-
-    private let logger = Logger(subsystem: "com.dueasy.app", category: "Parsing")
     private let keywordLearningService: KeywordLearningService?
     private let globalKeywordConfig: GlobalKeywordConfig
 
@@ -22,14 +23,14 @@ final class LocalInvoiceParsingService: DocumentAnalysisServiceProtocol, @unchec
         self.keywordLearningService = keywordLearningService
         self.globalKeywordConfig = globalKeywordConfig
         if keywordLearningService != nil {
-            logger.info("LocalInvoiceParsingService initialized with keyword learning enabled")
+            PrivacyLogger.parsing.info("LocalInvoiceParsingService initialized with keyword learning enabled")
         }
     }
 
     // MARK: - DocumentAnalysisServiceProtocol
 
     var providerIdentifier: String { "local" }
-    var analysisVersion: Int { 4 } // Bumped for keyword learning support
+    var analysisVersion: Int { 5 } // Bumped for 2-pass OCR confidence support
     var supportsVisionAnalysis: Bool { false }
 
     func analyzeDocument(
@@ -37,15 +38,16 @@ final class LocalInvoiceParsingService: DocumentAnalysisServiceProtocol, @unchec
         documentType: DocumentType
     ) async throws -> DocumentAnalysisResult {
         guard !text.isEmpty else {
-            logger.warning("Empty text provided for analysis")
+            PrivacyLogger.parsing.warning("Empty text provided for analysis")
             return .empty
         }
 
-        logger.info("Analyzing document of type: \(documentType.rawValue), text length: \(text.count)")
+        // PRIVACY: Log metrics only, not actual text content
+        PrivacyLogger.logAnalysisStart(documentType: documentType.rawValue, textLength: text.count, lineCount: 0)
 
         switch documentType {
         case .invoice:
-            return parseInvoice(text: text)
+            return parseInvoice(text: text, lineData: nil)
         case .contract, .receipt:
             // Not implemented in MVP
             return DocumentAnalysisResult(
@@ -57,18 +59,62 @@ final class LocalInvoiceParsingService: DocumentAnalysisServiceProtocol, @unchec
         }
     }
 
+    /// Analyze document using OCRResult with line data for confidence-weighted scoring.
+    /// This method uses per-line OCR confidence to improve extraction accuracy.
+    func analyzeDocument(
+        ocrResult: OCRResult,
+        documentType: DocumentType
+    ) async throws -> DocumentAnalysisResult {
+        guard ocrResult.hasText else {
+            PrivacyLogger.parsing.warning("Empty OCR result provided for analysis")
+            return .empty
+        }
+
+        let lineData = ocrResult.lineData ?? []
+        let hasLineData = !lineData.isEmpty
+
+        // PRIVACY: Log metrics only, not actual content
+        PrivacyLogger.logAnalysisStart(documentType: documentType.rawValue, textLength: ocrResult.text.count, lineCount: lineData.count)
+
+        if hasLineData {
+            // PRIVACY: Log source and confidence distribution metrics only
+            let standardCount = lineData.filter { $0.source == .standard }.count
+            let sensitiveCount = lineData.filter { $0.source == .sensitive }.count
+            let mergedCount = lineData.filter { $0.source == .merged }.count
+            PrivacyLogger.parsing.debug("Line sources: standard=\(standardCount), sensitive=\(sensitiveCount), merged=\(mergedCount)")
+
+            let highConf = lineData.filter { $0.hasHighConfidence }.count
+            let medConf = lineData.filter { $0.hasMediumConfidence }.count
+            let lowConf = lineData.filter { $0.hasLowConfidence }.count
+            PrivacyLogger.parsing.debug("Confidence distribution: high=\(highConf), medium=\(medConf), low=\(lowConf)")
+        }
+
+        switch documentType {
+        case .invoice:
+            return parseInvoice(text: ocrResult.text, lineData: hasLineData ? lineData : nil)
+        case .contract, .receipt:
+            return DocumentAnalysisResult(
+                documentType: documentType,
+                overallConfidence: 0.0,
+                provider: providerIdentifier,
+                version: analysisVersion
+            )
+        }
+    }
+
     // MARK: - Invoice Parsing
 
-    private func parseInvoice(text: String) -> DocumentAnalysisResult {
+    /// Parse invoice from text with optional OCR line data for confidence-weighted scoring.
+    /// - Parameters:
+    ///   - text: Full OCR text
+    ///   - lineData: Optional array of OCRLineData with per-line confidence
+    /// - Returns: Structured analysis result with extracted fields
+    private func parseInvoice(text: String, lineData: [OCRLineData]?) -> DocumentAnalysisResult {
         let lines = text.components(separatedBy: .newlines)
         let normalizedText = text.lowercased()
 
-        logger.debug("Parsing invoice with \(lines.count) lines")
-
-        // DEBUG: Log first 500 chars of OCR text to see what we're working with
-        let preview = String(text.prefix(500))
-        logger.debug("OCR text preview (first 500 chars): \(preview)")
-        logger.debug("First 10 lines: \(lines.prefix(10).joined(separator: " | "))")
+        // PRIVACY: Log metrics only, never log actual text content
+        PrivacyLogger.parsing.debug("Parsing invoice with \(lines.count) lines, lineData: \(lineData?.count ?? 0) entries")
 
         // Store raw text for keyword learning (not persisted, used only during session)
         let rawOCRText = text
@@ -78,8 +124,17 @@ final class LocalInvoiceParsingService: DocumentAnalysisServiceProtocol, @unchec
         let vendorAddress = extractVendorAddress(from: lines, fullText: text)
         let vendorNIP = extractNIP(from: text)
         let vendorREGON = extractREGON(from: text)
-        let allAmounts = extractAllAmounts(from: text)
+
+        // Extract amounts with OCR confidence if lineData available
+        let allAmounts: [InternalAmountCandidate]
+        if let lineData = lineData, !lineData.isEmpty {
+            allAmounts = extractAllAmounts(from: text, lineData: lineData)
+            PrivacyLogger.parsing.info("Amount extraction used \(lineData.count) OCR line entries for confidence scoring")
+        } else {
+            allAmounts = extractAllAmounts(from: text)
+        }
         let amount = allAmounts.first?.value
+
         let currency = extractCurrency(from: text)
         let dueDate = extractDueDate(from: text, normalizedText: normalizedText)
         let invoiceNumber = extractInvoiceNumber(from: text)
@@ -111,56 +166,17 @@ final class LocalInvoiceParsingService: DocumentAnalysisServiceProtocol, @unchec
         // Calculate confidence based on what was found
         var fieldsFound = 0
 
-        if vendorName != nil {
-            fieldsFound += 1
-            // PRIVACY: Metrics only, no PII
-            logger.info("Found vendor (name hidden for privacy)")
-        } else {
-            logger.warning("No vendor name found")
-        }
-
-        if vendorAddress != nil {
-            // PRIVACY: Metrics only, no PII
-            logger.info("Found vendor address (hidden for privacy)")
-        } else {
-            logger.debug("No vendor address found")
-        }
-
-        if amount != nil {
-            fieldsFound += 1
-            // PRIVACY: Log candidate count only, not actual amount
-            logger.info("Found amount from \(allAmounts.count) candidates (value hidden for privacy)")
-        } else {
-            logger.warning("No amount found")
-        }
-
-        if dueDate != nil {
-            fieldsFound += 1
-            // PRIVACY: Don't log actual date
-            logger.info("Found due date (hidden for privacy)")
-        } else {
-            logger.warning("No due date found")
-        }
-
-        if invoiceNumber != nil {
-            fieldsFound += 1
-            // PRIVACY: Don't log invoice number
-            logger.info("Found invoice number (hidden for privacy)")
-        } else {
-            logger.debug("No invoice number found")
-        }
-
-        if bankAccountNumber != nil {
-            // PRIVACY: Don't log bank account (sensitive financial data)
-            logger.info("Found bank account (hidden for privacy)")
-        } else {
-            logger.debug("No bank account found")
-        }
+        // PRIVACY: Count fields without logging actual values
+        if vendorName != nil { fieldsFound += 1 }
+        if amount != nil { fieldsFound += 1 }
+        if dueDate != nil { fieldsFound += 1 }
+        if invoiceNumber != nil { fieldsFound += 1 }
 
         let confidence = Double(fieldsFound) / 4.0
 
-        // PRIVACY: Only log metrics (confidence, field count), no actual data
-        logger.info("Parsed invoice: fields=\(fieldsFound)/4, confidence=\(confidence)")
+        // PRIVACY: Log only metrics - field count, confidence, candidate counts
+        PrivacyLogger.logParsingMetrics(fieldsFound: fieldsFound, totalFields: 4, confidence: confidence)
+        PrivacyLogger.parsing.debug("Candidates: amounts=\(allAmounts.count), vendor=\(vendorName != nil ? 1 : 0), nip=\(vendorNIP != nil ? 1 : 0)")
 
         return DocumentAnalysisResult(
             documentType: .invoice,
@@ -195,14 +211,14 @@ final class LocalInvoiceParsingService: DocumentAnalysisServiceProtocol, @unchec
 
     private func extractVendorName(from lines: [String], fullText: String) -> String? {
         let normalizedText = fullText.lowercased()
-        logger.info("=== VENDOR EXTRACTION START ===")
 
         // CRITICAL: Isolate the vendor section to avoid picking up buyer information
         // Polish invoices have "Sprzedawca" (seller/vendor) and "Nabywca/Kupujący" (buyer)
         // We must only search in the Sprzedawca section
         let vendorSectionText = extractVendorSection(from: fullText)
         let searchText = vendorSectionText ?? fullText
-        logger.debug("Search text length: \(searchText.count) chars (isolated: \(vendorSectionText != nil))")
+        // PRIVACY: Log only metrics (character count), never actual text
+        PrivacyLogger.parsing.debug("Vendor extraction: search text \(searchText.count) chars, isolated=\(vendorSectionText != nil)")
 
         // Strategy 1: Look for labeled vendor information (Polish and English) - HIGHEST PRIORITY
         // These are explicit labels that definitively identify the vendor
@@ -236,21 +252,21 @@ final class LocalInvoiceParsingService: DocumentAnalysisServiceProtocol, @unchec
                             .trimmingCharacters(in: CharacterSet(charactersIn: ":"))
                             .trimmingCharacters(in: .whitespaces)
                         // PRIVACY: Don't log actual vendor name (PII)
-                        logger.debug("Checking labeled vendor candidate (\(description)): length=\(value.count)")
+                        PrivacyLogger.parsing.debug("Checking labeled vendor candidate (\(description)): length=\(value.count)")
 
                         // CRITICAL FIX: If captured value is too short or invalid, look at next lines
                         // This handles OCR fragments like "ine" before "ORLEN S.A."
                         // But still allows legitimate short names like "O2", "ING", "PKO"
                         if isValidVendorName(value) && !isBankName(value) {
                             // PRIVACY: Don't log vendor name
-                            logger.info("SELECTED VENDOR via \(description) (name hidden for privacy)")
+                            PrivacyLogger.parsing.info("SELECTED VENDOR via \(description) (name hidden for privacy)")
                             return cleanVendorName(value)
                         } else if value.count < 5 || !isValidVendorName(value) {
                             // Short or invalid - try next few lines after the label
-                            logger.debug("Vendor too short/invalid (length=\(value.count)), checking next lines...")
+                            PrivacyLogger.parsing.debug("Vendor too short/invalid (length=\(value.count)), checking next lines...")
                             if let vendorFromNextLines = findVendorInNextLines(after: match.range, in: searchText, lines: lines) {
                                 // PRIVACY: Don't log vendor name
-                                logger.info("SELECTED VENDOR from next line after \(description) (name hidden for privacy)")
+                                PrivacyLogger.parsing.info("SELECTED VENDOR from next line after \(description) (name hidden for privacy)")
                                 return vendorFromNextLines
                             }
                         }
@@ -287,13 +303,14 @@ final class LocalInvoiceParsingService: DocumentAnalysisServiceProtocol, @unchec
                 if let match = regex.firstMatch(in: searchText, options: [], range: range) {
                     if let valueRange = Range(match.range(at: 1), in: searchText) {
                         let value = String(searchText[valueRange]).trimmingCharacters(in: .whitespaces)
-                        logger.debug("Checking company pattern candidate (\(description)): '\(value)'")
+                        // PRIVACY: Don't log actual vendor name
+                        PrivacyLogger.parsing.debug("Checking company pattern candidate (\(description)): length=\(value.count)")
                         // CRITICAL: Skip bank names
                         if isValidVendorName(value) && !isBankName(value) {
-                            logger.info("SELECTED VENDOR via company pattern (\(description)): '\(value)'")
+                            PrivacyLogger.parsing.info("SELECTED VENDOR via company pattern (\(description)) (name hidden for privacy)")
                             return cleanVendorName(value)
                         } else {
-                            logger.debug("Rejected: isValidVendorName=\(self.isValidVendorName(value)), isBankName=\(self.isBankName(value))")
+                            PrivacyLogger.parsing.debug("Rejected: isValidVendorName=\(self.isValidVendorName(value)), isBankName=\(self.isBankName(value))")
                         }
                     }
                 }
@@ -310,9 +327,10 @@ final class LocalInvoiceParsingService: DocumentAnalysisServiceProtocol, @unchec
                     // Check line before NIP line
                     if index > 0 {
                         let prevLine = lines[index - 1].trimmingCharacters(in: .whitespaces)
-                        logger.debug("Checking line before NIP: '\(prevLine)'")
+                        // PRIVACY: Don't log actual line content
+                        PrivacyLogger.parsing.debug("Checking line before NIP: length=\(prevLine.count)")
                         if isValidVendorName(prevLine) && !prevLine.lowercased().contains("nip") && !isBankName(prevLine) {
-                            logger.info("SELECTED VENDOR before NIP line: '\(prevLine)'")
+                            PrivacyLogger.parsing.info("SELECTED VENDOR before NIP line (name hidden for privacy)")
                             return cleanVendorName(prevLine)
                         }
                     }
@@ -350,12 +368,13 @@ final class LocalInvoiceParsingService: DocumentAnalysisServiceProtocol, @unchec
 
             // This might be a vendor name
             if isValidVendorName(trimmed) && !isBankName(trimmed) {
-                logger.info("SELECTED VENDOR via heuristic: '\(trimmed)'")
+                // PRIVACY: Don't log actual vendor name
+                PrivacyLogger.parsing.info("SELECTED VENDOR via heuristic (name hidden for privacy)")
                 return cleanVendorName(trimmed)
             }
         }
 
-        logger.warning("=== NO VENDOR FOUND ===")
+        PrivacyLogger.parsing.warning("=== NO VENDOR FOUND ===")
         return nil
     }
 
@@ -419,25 +438,25 @@ final class LocalInvoiceParsingService: DocumentAnalysisServiceProtocol, @unchec
             if let buyerStart = buyerStartIndex, buyerStart > sellerStart {
                 // Seller comes before buyer - extract text between them
                 let vendorSection = String(text[sellerStart..<buyerStart])
-                logger.debug("Extracted vendor section between seller and buyer labels (\(vendorSection.count) chars)")
+                PrivacyLogger.parsing.debug("Extracted vendor section between seller and buyer labels (\(vendorSection.count) chars)")
                 return vendorSection
             } else {
                 // No buyer or buyer comes before seller - take from seller to end (or first 1000 chars)
                 let endIndex = text.index(sellerStart, offsetBy: min(1000, text.distance(from: sellerStart, to: text.endIndex)))
                 let vendorSection = String(text[sellerStart..<endIndex])
-                logger.debug("Extracted vendor section from seller label (\(vendorSection.count) chars)")
+                PrivacyLogger.parsing.debug("Extracted vendor section from seller label (\(vendorSection.count) chars)")
                 return vendorSection
             }
         } else if let buyerStart = buyerStartIndex {
             // No seller label found, but buyer label exists
             // Take everything before buyer section (this is likely the vendor area)
             let vendorSection = String(text[..<buyerStart])
-            logger.debug("Extracted vendor section before buyer label (\(vendorSection.count) chars)")
+            PrivacyLogger.parsing.debug("Extracted vendor section before buyer label (\(vendorSection.count) chars)")
             return vendorSection
         }
 
         // No section markers found - return nil to search full text
-        logger.debug("No vendor/buyer section markers found")
+        PrivacyLogger.parsing.debug("No vendor/buyer section markers found")
         return nil
     }
 
@@ -533,11 +552,75 @@ final class LocalInvoiceParsingService: DocumentAnalysisServiceProtocol, @unchec
     struct InternalAmountCandidate: Sendable {
         let value: Decimal
         let confidence: Int          // Original pattern-based confidence
-        let score: Int                // Semantic score based on keywords
+        let score: Int                // Semantic score based on keywords (includes OCR confidence adjustment)
         let context: String           // Surrounding text
         let description: String       // Pattern that matched
         let lineIndex: Int           // Position in document (for tie-breaking)
         let matchedKeywords: [String] // Keywords found in context (for learning)
+        let ocrConfidence: Double    // OCR confidence for this line (0.0-1.0)
+
+        /// Initialize with default OCR confidence (for text-only parsing)
+        init(value: Decimal, confidence: Int, score: Int, context: String, description: String, lineIndex: Int, matchedKeywords: [String], ocrConfidence: Double = 1.0) {
+            self.value = value
+            self.confidence = confidence
+            self.score = score
+            self.context = context
+            self.description = description
+            self.lineIndex = lineIndex
+            self.matchedKeywords = matchedKeywords
+            self.ocrConfidence = ocrConfidence
+        }
+    }
+
+    // MARK: - OCR Confidence Scoring
+
+    /// Apply OCR confidence adjustment to a score.
+    /// - High confidence (>0.9): +20 bonus
+    /// - Medium confidence (0.7-0.9): no change
+    /// - Low confidence (<0.7): -30 penalty
+    private func applyOCRConfidenceAdjustment(baseScore: Int, ocrConfidence: Double) -> Int {
+        if ocrConfidence > 0.9 {
+            // High confidence: boost score
+            return baseScore + 20
+        } else if ocrConfidence >= 0.7 {
+            // Medium confidence: neutral
+            return baseScore
+        } else {
+            // Low confidence: penalize score
+            return baseScore - 30
+        }
+    }
+
+    /// Find the OCR line data that contains the given match position.
+    /// Returns the OCRLineData and its confidence, or nil if not found.
+    private func findMatchingLineData(
+        for matchRange: NSRange,
+        in text: String,
+        lineData: [OCRLineData]
+    ) -> OCRLineData? {
+        // Convert match position to a rough line index
+        let lines = text.components(separatedBy: .newlines)
+        var currentPos = 0
+        var matchLineIndex = 0
+
+        for (index, line) in lines.enumerated() {
+            let lineLength = line.count + 1 // +1 for newline
+            if currentPos <= matchRange.location && currentPos + lineLength > matchRange.location {
+                matchLineIndex = index
+                break
+            }
+            currentPos += lineLength
+        }
+
+        // Find the OCRLineData for this line index
+        // LineData is sorted by position, so we look for matching Y position
+        // Since Vision uses bottom-left origin, higher Y = higher on page
+        let targetY = 1.0 - (Double(matchLineIndex) / Double(max(1, lines.count)))
+
+        // Find closest matching line by Y position (within 5% tolerance)
+        return lineData.first { lineItem in
+            abs(lineItem.bbox.centerY - targetY) < 0.05
+        }
     }
 
     /// Extract all amounts from text, returning them sorted by confidence
@@ -545,8 +628,8 @@ final class LocalInvoiceParsingService: DocumentAnalysisServiceProtocol, @unchec
     /// EXPANDED: Comprehensive Polish invoice keywords for 90%+ accuracy
     /// ADAPTIVE: Uses learned keywords from user corrections
     func extractAllAmounts(from text: String) -> [InternalAmountCandidate] {
-        logger.info("=== AMOUNT EXTRACTION START ===")
-        logger.debug("Text length: \(text.count) chars")
+        PrivacyLogger.parsing.info("=== AMOUNT EXTRACTION START ===")
+        PrivacyLogger.parsing.debug("Text length: \(text.count) chars")
 
         let lines = text.components(separatedBy: .newlines)
 
@@ -556,7 +639,7 @@ final class LocalInvoiceParsingService: DocumentAnalysisServiceProtocol, @unchec
             let learned = learningService.getLearnedKeywords(for: .amount)
             learnedAmountKeywords = learned.map { $0.keyword }
             if !learned.isEmpty {
-                logger.info("Using \(learned.count) learned amount keywords")
+                PrivacyLogger.parsing.info("Using \(learned.count) learned amount keywords")
             }
         }
 
@@ -775,43 +858,23 @@ final class LocalInvoiceParsingService: DocumentAnalysisServiceProtocol, @unchec
         var amounts: [InternalAmountCandidate] = []
         var seenValues: Set<Decimal> = [] // Deduplicate amounts with same value
 
-        // DEBUG: Test basic amount pattern directly
+        // DEBUG: Test basic amount pattern directly (metrics only, no actual amounts logged)
         // NOTE: Using \xA0 for non-breaking space instead of \u{00A0} which doesn't work in NSRegularExpression
         let testAmountPattern = #"(\d+(?:[\s\xA0]?\d{3})*[,\.]\d{2})"#
-        print("🔍 AMOUNT DEBUG: Testing regex pattern against text of length \(text.count)")
         if let testRegex = try? NSRegularExpression(pattern: testAmountPattern, options: []) {
             let testMatches = testRegex.matches(in: text, options: [], range: NSRange(text.startIndex..., in: text))
-            print("🔍 BASIC AMOUNT REGEX TEST: Found \(testMatches.count) amounts matching pattern")
-            logger.warning("🔍 BASIC AMOUNT REGEX TEST: Found \(testMatches.count) amounts matching pattern")
-            if testMatches.count > 0 {
-                for (idx, match) in testMatches.prefix(5).enumerated() {
-                    if let amountRange = Range(match.range(at: 1), in: text) {
-                        let amountStr = String(text[amountRange])
-                        print("  Sample #\(idx + 1): '\(amountStr)'")
-                        logger.warning("  Sample #\(idx + 1): '\(amountStr)'")
-                    }
-                }
-            } else {
-                // Show first 200 chars of text to debug
-                let preview = String(text.prefix(200))
-                print("  NO MATCHES! Text preview: \(preview)")
-                logger.warning("  NO MATCHES! Text preview: \(preview)")
-            }
-        } else {
-            print("  ERROR: Could not create regex!")
+            // PRIVACY: Only log count, not actual amounts
+            PrivacyLogger.parsing.debug("Basic amount regex test: found \(testMatches.count) matches")
         }
 
-        // DEBUG: Log first 10 high-priority patterns to see if they match
-        logger.debug("Testing top 10 amount patterns against text...")
+        // DEBUG: Log pattern match counts (metrics only)
+        PrivacyLogger.parsing.debug("Testing top 10 amount patterns...")
         for (index, (pattern, description, _)) in patterns.prefix(10).enumerated() {
             if let regex = try? NSRegularExpression(pattern: pattern, options: [.caseInsensitive]) {
                 let range = NSRange(text.startIndex..., in: text)
                 let matches = regex.matches(in: text, options: [], range: range)
-                if matches.isEmpty {
-                    logger.debug("  Pattern #\(index): '\(description)' - NO MATCH")
-                } else {
-                    logger.debug("  Pattern #\(index): '\(description)' - FOUND \(matches.count) match(es)")
-                }
+                // PRIVACY: Only log pattern name and count, not actual values
+                PrivacyLogger.parsing.debug("  Pattern #\(index) (\(description)): \(matches.count) match(es)")
             }
         }
 
@@ -859,7 +922,8 @@ final class LocalInvoiceParsingService: DocumentAnalysisServiceProtocol, @unchec
                                 lineIndex: lineIndex,
                                 matchedKeywords: matchedKeywords
                             ))
-                            logger.info("AMOUNT FOUND: \(amount) via '\(description)' score=\(finalScore) (base: \(baseConfidence) + semantic: \(semanticScore)) keywords: \(matchedKeywords.joined(separator: ", "))")
+                            // PRIVACY: Don't log actual amount value
+                            PrivacyLogger.parsing.debug("Amount candidate found via '\(description)' score=\(finalScore) (base: \(baseConfidence) + semantic: \(semanticScore)) keywords=\(matchedKeywords.count)")
                         }
                     }
                 }
@@ -892,14 +956,103 @@ final class LocalInvoiceParsingService: DocumentAnalysisServiceProtocol, @unchec
             return lhs.value < rhs.value
         }
 
-        logger.info("Found \(sortedAmounts.count) unique amounts")
+        PrivacyLogger.parsing.info("Found \(sortedAmounts.count) unique amounts")
 
-        // Log top candidates sorted by score
+        // Log top candidates sorted by score (sanitized amounts)
         for (index, candidate) in sortedAmounts.prefix(5).enumerated() {
-            logger.info("  #\(index + 1): \(candidate.value) PLN - score=\(candidate.score) (base:\(candidate.confidence)) line:\(candidate.lineIndex) keywords:\(candidate.matchedKeywords.joined(separator: ","))")
+            PrivacyLogger.parsing.info("  #\(index + 1): \(PrivacyLogger.sanitizeAmount(candidate.value)) - score=\(candidate.score) (base:\(candidate.confidence)) line:\(candidate.lineIndex) ocrConf:\(String(format: "%.2f", candidate.ocrConfidence)) keywords:\(candidate.matchedKeywords.joined(separator: ","))")
         }
 
         return sortedAmounts
+    }
+
+    /// Extract all amounts using OCR line data for confidence-weighted scoring.
+    /// This version uses per-line OCR confidence to boost/penalize candidates.
+    /// - Parameters:
+    ///   - text: Full OCR text
+    ///   - lineData: Array of OCRLineData with per-line confidence
+    /// - Returns: Sorted array of amount candidates with OCR confidence applied
+    func extractAllAmounts(from text: String, lineData: [OCRLineData]) -> [InternalAmountCandidate] {
+        // First, get base candidates using text-only extraction
+        var baseCandidates = extractAllAmounts(from: text)
+
+        // If no lineData, return as-is
+        guard !lineData.isEmpty else {
+            return baseCandidates
+        }
+
+        PrivacyLogger.parsing.info("Applying OCR confidence to \(baseCandidates.count) amount candidates using \(lineData.count) line entries")
+
+        // Apply OCR confidence adjustments
+        var adjustedCandidates: [InternalAmountCandidate] = []
+
+        for candidate in baseCandidates {
+            // Find the OCRLineData that contains this amount
+            let matchingLine = findBestMatchingLine(for: candidate, in: lineData)
+            let ocrConfidence = matchingLine?.confidence ?? 1.0
+
+            // Apply OCR confidence adjustment to the score
+            let adjustedScore = applyOCRConfidenceAdjustment(baseScore: candidate.score, ocrConfidence: ocrConfidence)
+
+            adjustedCandidates.append(InternalAmountCandidate(
+                value: candidate.value,
+                confidence: candidate.confidence,
+                score: adjustedScore,
+                context: candidate.context,
+                description: candidate.description,
+                lineIndex: candidate.lineIndex,
+                matchedKeywords: candidate.matchedKeywords,
+                ocrConfidence: ocrConfidence
+            ))
+
+            if ocrConfidence != 1.0 {
+                let adjustment = adjustedScore - candidate.score
+                PrivacyLogger.parsing.debug("OCR confidence adjustment for \(PrivacyLogger.sanitizeAmount(candidate.value)): \(candidate.score) -> \(adjustedScore) (ocrConf: \(String(format: "%.3f", ocrConfidence)), adj: \(adjustment >= 0 ? "+" : "")\(adjustment))")
+            }
+        }
+
+        // Re-sort by adjusted score
+        let sortedAdjusted = adjustedCandidates.sorted { lhs, rhs in
+            if lhs.score != rhs.score {
+                return lhs.score > rhs.score
+            }
+            if lhs.lineIndex != rhs.lineIndex {
+                return lhs.lineIndex > rhs.lineIndex
+            }
+            let lhsHasPLN = lhs.context.lowercased().contains("pln") || lhs.context.lowercased().contains("zl")
+            let rhsHasPLN = rhs.context.lowercased().contains("pln") || rhs.context.lowercased().contains("zl")
+            if lhsHasPLN != rhsHasPLN {
+                return lhsHasPLN
+            }
+            return lhs.value < rhs.value
+        }
+
+        return sortedAdjusted
+    }
+
+    /// Find the best matching OCRLineData for a given amount candidate.
+    /// Matches by text containment.
+    private func findBestMatchingLine(for candidate: InternalAmountCandidate, in lineData: [OCRLineData]) -> OCRLineData? {
+        // Format the amount value as string for matching
+        let amountStr = "\(candidate.value)"
+        let amountComponents = amountStr.components(separatedBy: ".")
+
+        // Try to find a line that contains this amount
+        for line in lineData {
+            let lineText = line.text.replacingOccurrences(of: " ", with: "")
+
+            // Check if line contains the amount (with comma or dot separator)
+            if amountComponents.count == 2 {
+                let withComma = amountComponents[0] + "," + amountComponents[1]
+                let withDot = amountComponents[0] + "." + amountComponents[1]
+
+                if lineText.contains(withComma) || lineText.contains(withDot) {
+                    return line
+                }
+            }
+        }
+
+        return nil
     }
 
     private func extractAmount(from text: String) -> Decimal? {
@@ -907,17 +1060,17 @@ final class LocalInvoiceParsingService: DocumentAnalysisServiceProtocol, @unchec
 
         // Return the highest confidence amount
         if let best = allAmounts.first {
-            logger.info("=== SELECTED AMOUNT: \(best.value) (confidence: \(best.confidence)) via '\(best.description)' ===")
+            PrivacyLogger.parsing.info("=== SELECTED AMOUNT: \(PrivacyLogger.sanitizeAmount(best.value)) (confidence: \(best.confidence)) via '\(best.description)' ===")
             return best.value
         }
 
         // Last resort: find any large number that could be an amount
         if let fallback = findLargestReasonableAmount(in: text) {
-            logger.warning("=== USING FALLBACK AMOUNT: \(fallback) (no keyword matches) ===")
+            PrivacyLogger.parsing.warning("=== USING FALLBACK AMOUNT: \(PrivacyLogger.sanitizeAmount(fallback)) (no keyword matches) ===")
             return fallback
         }
 
-        logger.error("=== NO AMOUNT FOUND ===")
+        PrivacyLogger.parsing.error("=== NO AMOUNT FOUND ===")
         return nil
     }
 
@@ -955,7 +1108,7 @@ final class LocalInvoiceParsingService: DocumentAnalysisServiceProtocol, @unchec
             .replacingOccurrences(of: " ", with: "")
             .replacingOccurrences(of: "\u{00A0}", with: "") // non-breaking space
 
-        logger.debug("Parsing amount string: '\(string)' -> normalized: '\(normalized)'")
+        PrivacyLogger.parsing.debug("Parsing amount string (length: \(string.count)) -> normalized (length: \(normalized.count))")
 
         // Handle European format (1.234,56 -> 1234.56) vs US format (1,234.56)
         if normalized.contains(",") && normalized.contains(".") {
@@ -998,7 +1151,7 @@ final class LocalInvoiceParsingService: DocumentAnalysisServiceProtocol, @unchec
             if let regex = try? NSRegularExpression(pattern: pattern, options: [.caseInsensitive]) {
                 let range = NSRange(text.startIndex..., in: text)
                 if regex.firstMatch(in: text, options: [], range: range) != nil {
-                    logger.debug("Found currency: \(currency)")
+                    PrivacyLogger.parsing.debug("Found currency: \(currency)")
                     return currency
                 }
             }
@@ -1011,24 +1164,24 @@ final class LocalInvoiceParsingService: DocumentAnalysisServiceProtocol, @unchec
 
     /// EXPANDED: Comprehensive due date keyword support for 90%+ Polish invoice accuracy
     private func extractDueDate(from text: String, normalizedText: String) -> Date? {
-        logger.info("=== DUE DATE EXTRACTION START ===")
+        PrivacyLogger.parsing.info("=== DUE DATE EXTRACTION START ===")
 
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
 
         // Max date filter: reject dates more than 2 years in the future
         guard let maxValidDate = calendar.date(byAdding: .year, value: 2, to: today) else {
-            logger.error("Failed to calculate max valid date")
+            PrivacyLogger.parsing.error("Failed to calculate max valid date")
             return nil
         }
 
         // Min date filter: reject dates more than 1 year in the past (very old invoices)
         guard let minValidDate = calendar.date(byAdding: .year, value: -1, to: today) else {
-            logger.error("Failed to calculate min valid date")
+            PrivacyLogger.parsing.error("Failed to calculate min valid date")
             return nil
         }
 
-        logger.info("Valid date range: \(minValidDate) to \(maxValidDate)")
+        PrivacyLogger.parsing.info("Valid date range configured for extraction")
 
         // ========================================
         // KEYWORDS THAT SUGGEST DUE DATE (Polish and English)
@@ -1097,11 +1250,11 @@ final class LocalInvoiceParsingService: DocumentAnalysisServiceProtocol, @unchec
 
                         // CRITICAL: Reject dates outside valid range
                         if date > maxValidDate {
-                            logger.warning("REJECTED date \(date) - more than 2 years in future (max: \(maxValidDate))")
+                            PrivacyLogger.parsing.warning("REJECTED date - more than 2 years in future")
                             continue
                         }
                         if date < minValidDate {
-                            logger.warning("REJECTED date \(date) - more than 1 year in past (min: \(minValidDate))")
+                            PrivacyLogger.parsing.warning("REJECTED date - more than 1 year in past")
                             continue
                         }
 
@@ -1165,25 +1318,25 @@ final class LocalInvoiceParsingService: DocumentAnalysisServiceProtocol, @unchec
 
                         let reasonString = reasons.joined(separator: ", ")
                         candidates.append((date, score, contextClean, reasonString))
-                        logger.info("DATE CANDIDATE: \(date), score=\(score), reasons=[\(reasonString)], context='\(contextClean)'")
+                        PrivacyLogger.parsing.info("DATE CANDIDATE: score=\(score), reasons=[\(reasonString)]")
                     }
                 }
             }
         }
 
-        logger.info("Found \(candidates.count) valid date candidates")
+        PrivacyLogger.parsing.info("Found \(candidates.count) valid date candidates")
 
         // Sort by score descending
         let sortedCandidates = candidates.sorted { $0.score > $1.score }
 
-        // Log top candidates
+        // Log top candidates (sanitized)
         for (index, candidate) in sortedCandidates.prefix(5).enumerated() {
-            logger.info("  Top #\(index + 1): \(candidate.date), score=\(candidate.score), reason=\(candidate.reason)")
+            PrivacyLogger.parsing.info("  Top #\(index + 1): score=\(candidate.score), reason=\(candidate.reason)")
         }
 
         // Return the best candidate with positive score
         if let best = sortedCandidates.first, best.score > 0 {
-            logger.info("=== SELECTED DUE DATE: \(best.date) (score: \(best.score)) ===")
+            PrivacyLogger.parsing.info("=== SELECTED DUE DATE (score: \(best.score)) ===")
             return best.date
         }
 
@@ -1194,25 +1347,25 @@ final class LocalInvoiceParsingService: DocumentAnalysisServiceProtocol, @unchec
         }.sorted { $0.date < $1.date } // Prefer earlier dates
 
         if let ideal = idealRangeCandidates.first {
-            logger.info("=== SELECTED DUE DATE (ideal range fallback): \(ideal.date) ===")
+            PrivacyLogger.parsing.info("=== SELECTED DUE DATE (ideal range fallback) ===")
             return ideal.date
         }
 
         // Second fallback: any future date
         let futureCandidates = candidates.filter { $0.date >= today }.sorted { $0.date < $1.date }
         if let future = futureCandidates.first {
-            logger.info("=== SELECTED DUE DATE (future fallback): \(future.date) ===")
+            PrivacyLogger.parsing.info("=== SELECTED DUE DATE (future fallback) ===")
             return future.date
         }
 
         // Last resort: most recent past date (might be overdue)
         let sortedByDate = candidates.sorted { $0.date > $1.date }
         if let latest = sortedByDate.first {
-            logger.warning("=== SELECTED DUE DATE (past date last resort): \(latest.date) ===")
+            PrivacyLogger.parsing.warning("=== SELECTED DUE DATE (past date last resort) ===")
             return latest.date
         }
 
-        logger.error("=== NO VALID DUE DATE FOUND ===")
+        PrivacyLogger.parsing.error("=== NO VALID DUE DATE FOUND ===")
         return nil
     }
 
@@ -1339,7 +1492,7 @@ final class LocalInvoiceParsingService: DocumentAnalysisServiceProtocol, @unchec
                             .trimmingCharacters(in: .whitespaces)
                             .replacingOccurrences(of: "  ", with: " ") // Normalize multiple spaces
                         if !number.isEmpty && number.count >= 3 {
-                            logger.debug("Found invoice number via '\(description)': \(number)")
+                            PrivacyLogger.parsing.debug("Found invoice number via '\(description)' (length: \(number.count))")
                             return number
                         }
                     }
@@ -1347,14 +1500,14 @@ final class LocalInvoiceParsingService: DocumentAnalysisServiceProtocol, @unchec
             }
         }
 
-        logger.warning("No invoice number found in text")
+        PrivacyLogger.parsing.warning("No invoice number found in text")
         return nil
     }
 
     // MARK: - Vendor Address Extraction
 
     private func extractVendorAddress(from lines: [String], fullText: String) -> String? {
-        logger.debug("Extracting vendor address")
+        PrivacyLogger.parsing.debug("Extracting vendor address")
 
         // CRITICAL: Isolate vendor section to avoid picking up buyer address
         let vendorSectionText = extractVendorSection(from: fullText)
@@ -1376,7 +1529,7 @@ final class LocalInvoiceParsingService: DocumentAnalysisServiceProtocol, @unchec
                     if let valueRange = Range(match.range(at: captureGroup), in: searchText) {
                         let value = String(searchText[valueRange]).trimmingCharacters(in: .whitespaces)
                         if isValidAddress(value) {
-                            logger.debug("Found address via label pattern: \(value)")
+                            PrivacyLogger.parsing.debug("Found address via label pattern (length: \(value.count))")
                             return cleanAddress(value)
                         }
                     }
@@ -1407,7 +1560,7 @@ final class LocalInvoiceParsingService: DocumentAnalysisServiceProtocol, @unchec
                 }
                 if !addressParts.isEmpty {
                     let address = addressParts.joined(separator: ", ")
-                    logger.debug("Found address via street+postal pattern: \(address)")
+                    PrivacyLogger.parsing.debug("Found address via street+postal pattern (length: \(address.count))")
                     return address
                 }
             }
@@ -1425,7 +1578,7 @@ final class LocalInvoiceParsingService: DocumentAnalysisServiceProtocol, @unchec
                         .components(separatedBy: "\n").first ?? ""
                     if !city.isEmpty && city.count < 50 {
                         let address = "\(postal) \(city)"
-                        logger.debug("Found address via postal code: \(address)")
+                        PrivacyLogger.parsing.debug("Found address via postal code (length: \(address.count))")
                         return address
                     }
                 }
@@ -1485,7 +1638,7 @@ final class LocalInvoiceParsingService: DocumentAnalysisServiceProtocol, @unchec
 
     /// EXPANDED: Comprehensive bank account patterns for Polish invoices
     private func extractBankAccountNumber(from text: String) -> String? {
-        logger.debug("Extracting bank account number")
+        PrivacyLogger.parsing.debug("Extracting bank account number")
 
         // Polish IBAN format: PL + 26 digits (can have spaces)
         // Example: PL 61 1090 1014 0000 0712 1981 2874
@@ -1517,7 +1670,7 @@ final class LocalInvoiceParsingService: DocumentAnalysisServiceProtocol, @unchec
                         if digitsOnly.count == 26 {
                             // Format nicely: XX XXXX XXXX XXXX XXXX XXXX XXXX
                             accountNumber = formatBankAccount(digitsOnly)
-                            logger.debug("Found bank account via '\(description)': \(accountNumber)")
+                            PrivacyLogger.parsing.debug("Found bank account via '\(description)' (26 digits)")
                             return accountNumber
                         }
                     }
@@ -1571,11 +1724,13 @@ final class LocalInvoiceParsingService: DocumentAnalysisServiceProtocol, @unchec
         if let vendor = vendorProfile {
             // Use vendor-specific keywords + global fallback
             result = vendor.calculateScore(for: .amount, context: context, globalConfig: globalKeywordConfig)
-            logger.debug("Amount score: \(result.score) using vendor '\(vendor.displayName)' keywords (matched: \(result.matchedRules.map { $0.phrase }.joined(separator: ", ")))")
+            // PRIVACY: Log score only, not actual keywords or vendor name
+            PrivacyLogger.parsing.debug("Amount score: \(result.score) using vendor keywords (matched: \(result.matchedRules.count) rules)")
         } else {
             // Use global keywords only
             result = globalKeywordConfig.calculateScore(for: .amount, context: context)
-            logger.debug("Amount score: \(result.score) using global keywords (matched: \(result.matchedRules.map { $0.phrase }.joined(separator: ", ")))")
+            // PRIVACY: Log score only, not actual keywords
+            PrivacyLogger.parsing.debug("Amount score: \(result.score) using global keywords (matched: \(result.matchedRules.count) rules)")
         }
 
         // Convert KeywordRule matches to strings for backward compatibility
@@ -1646,7 +1801,8 @@ final class LocalInvoiceParsingService: DocumentAnalysisServiceProtocol, @unchec
                 .replacingOccurrences(of: " ", with: "")
                 .replacingOccurrences(of: "-", with: "")
             if nip.count == 10 {
-                logger.debug("Found NIP: \(nip)")
+                // PRIVACY: Don't log the actual NIP value
+                PrivacyLogger.parsing.debug("Found valid NIP (10 digits)")
                 return nip
             }
         }
@@ -1668,7 +1824,8 @@ final class LocalInvoiceParsingService: DocumentAnalysisServiceProtocol, @unchec
            let regonRange = Range(match.range(at: 1), in: text) {
             let regon = String(text[regonRange])
             if regon.count == 9 || regon.count == 14 {
-                logger.debug("Found REGON: \(regon)")
+                // PRIVACY: Don't log the actual REGON value
+                PrivacyLogger.parsing.debug("Found valid REGON (\(regon.count) digits)")
                 return regon
             }
         }

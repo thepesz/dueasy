@@ -276,7 +276,7 @@ final class VendorProfileService {
             )
             logger.info("✅ Synced \(newRules.count) promoted keywords to dueDate for vendor: \(vendorProfile.displayName)")
 
-        case .vendor, .documentNumber:
+        case .vendor, .documentNumber, .nip, .bankAccount:
             // Not applicable
             break
         }

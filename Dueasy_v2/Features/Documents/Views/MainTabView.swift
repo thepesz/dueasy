@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// Main tab navigation for the app.
-/// Contains Home (Documents) and Settings tabs.
+/// Contains Home (Documents), Calendar, and Settings tabs.
 struct MainTabView: View {
 
     @Environment(AppEnvironment.self) private var environment
@@ -15,6 +15,13 @@ struct MainTabView: View {
                 .tag(Tab.documents)
                 .tabItem {
                     Label(L10n.Common.documents.localized, systemImage: "doc.text")
+                }
+
+            CalendarView()
+                .environment(environment)
+                .tag(Tab.calendar)
+                .tabItem {
+                    Label(L10n.CalendarView.title.localized, systemImage: "calendar")
                 }
 
             Color.clear
@@ -45,6 +52,7 @@ struct MainTabView: View {
 
     enum Tab: Hashable {
         case documents
+        case calendar
         case addDocument
         case settings
     }

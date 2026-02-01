@@ -196,5 +196,5 @@ final class FinanceDocument {
     }
 }
 
-// Note: @Model macro provides Identifiable, Hashable, and Equatable conformances
-// Do not add explicit conformances as they conflict with Swift 6 MainActor isolation
+// MARK: - Identifiable
+// Note: Hashable and Equatable are synthesized by @Model macro

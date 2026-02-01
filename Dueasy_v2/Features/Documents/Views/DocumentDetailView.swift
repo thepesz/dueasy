@@ -5,12 +5,13 @@ struct DocumentDetailView: View {
 
     @Environment(AppEnvironment.self) private var environment
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     let document: FinanceDocument
 
     @State private var viewModel: DocumentDetailViewModel?
     @State private var showingEditSheet = false
-    @State private var showingDeleteConfirmation = false
+    @State private var appeared = false
 
     var body: some View {
         Group {
@@ -18,6 +19,7 @@ struct DocumentDetailView: View {
                 contentView(viewModel: viewModel)
             } else {
                 LoadingView(L10n.Common.loading.localized)
+                    .gradientBackground(style: .list)
             }
         }
         .navigationTitle(document.title.isEmpty ? L10n.Detail.title.localized : document.title)
@@ -30,28 +32,58 @@ struct DocumentDetailView: View {
                 dismiss()
             }
         }
+        .onAppear {
+            if !reduceMotion {
+                withAnimation(.easeOut(duration: 0.4)) {
+                    appeared = true
+                }
+            } else {
+                appeared = true
+            }
+        }
     }
 
     @ViewBuilder
     private func contentView(viewModel: DocumentDetailViewModel) -> some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: Spacing.lg) {
-                // Header with status
-                headerSection
+        ZStack {
+            // Modern gradient background
+            GradientBackground()
 
-                // Amount section
-                amountSection
+            ScrollView {
+                VStack(alignment: .leading, spacing: Spacing.lg) {
+                    // Header with status
+                    headerSection
+                        .opacity(appeared ? 1 : 0)
+                        .offset(y: appeared ? 0 : 10)
+                        .animation(reduceMotion ? .none : .spring(response: 0.4, dampingFraction: 0.8), value: appeared)
 
-                // Details section
-                detailsSection
+                    // Amount section
+                    amountSection
+                        .opacity(appeared ? 1 : 0)
+                        .offset(y: appeared ? 0 : 15)
+                        .animation(reduceMotion ? .none : .spring(response: 0.4, dampingFraction: 0.8).delay(0.05), value: appeared)
 
-                // Calendar section
-                calendarSection
+                    // Details section
+                    detailsSection
+                        .opacity(appeared ? 1 : 0)
+                        .offset(y: appeared ? 0 : 15)
+                        .animation(reduceMotion ? .none : .spring(response: 0.4, dampingFraction: 0.8).delay(0.1), value: appeared)
 
-                // Actions section
-                actionsSection(viewModel: viewModel)
+                    // Calendar section
+                    calendarSection
+                        .opacity(appeared ? 1 : 0)
+                        .offset(y: appeared ? 0 : 15)
+                        .animation(reduceMotion ? .none : .spring(response: 0.4, dampingFraction: 0.8).delay(0.15), value: appeared)
+
+                    // Actions section
+                    actionsSection(viewModel: viewModel)
+                        .opacity(appeared ? 1 : 0)
+                        .offset(y: appeared ? 0 : 15)
+                        .animation(reduceMotion ? .none : .spring(response: 0.4, dampingFraction: 0.8).delay(0.2), value: appeared)
+                }
+                .padding(Spacing.md)
+                .padding(.bottom, Spacing.xl)
             }
-            .padding(Spacing.md)
         }
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
@@ -75,7 +107,9 @@ struct DocumentDetailView: View {
                     Divider()
 
                     Button(role: .destructive) {
-                        showingDeleteConfirmation = true
+                        Task {
+                            await viewModel.deleteDocument()
+                        }
                     } label: {
                         Label(L10n.Common.delete.localized, systemImage: "trash")
                     }
@@ -87,20 +121,6 @@ struct DocumentDetailView: View {
         .sheet(isPresented: $showingEditSheet) {
             DocumentEditView(document: document)
                 .environment(environment)
-        }
-        .confirmationDialog(
-            L10n.Documents.deleteConfirmTitle.localized,
-            isPresented: $showingDeleteConfirmation,
-            titleVisibility: .visible
-        ) {
-            Button(L10n.Common.delete.localized, role: .destructive) {
-                Task {
-                    await viewModel.deleteDocument()
-                }
-            }
-            Button(L10n.Common.cancel.localized, role: .cancel) {}
-        } message: {
-            Text(L10n.Detail.deleteMessage.localized)
         }
         .overlay(alignment: .top) {
             if let error = viewModel.error {
@@ -118,7 +138,7 @@ struct DocumentDetailView: View {
         HStack {
             VStack(alignment: .leading, spacing: Spacing.xxs) {
                 Text(document.type.displayName)
-                    .font(Typography.caption1)
+                    .font(Typography.caption1.weight(.medium))
                     .foregroundStyle(.secondary)
 
                 if let number = document.documentNumber, !number.isEmpty {
@@ -130,20 +150,20 @@ struct DocumentDetailView: View {
 
             Spacer()
 
-            StatusBadge(status: document.status)
+            StatusBadge(status: document.status, size: .large)
         }
     }
 
     @ViewBuilder
     private var amountSection: some View {
-        Card.glass {
+        PremiumGlassCard(accentColor: document.status.color) {
             VStack(alignment: .leading, spacing: Spacing.xs) {
                 Text(L10n.Detail.amount.localized)
-                    .font(Typography.caption1)
+                    .font(Typography.caption1.weight(.medium))
                     .foregroundStyle(.secondary)
 
                 Text(formattedAmount)
-                    .font(Typography.monospacedTitle)
+                    .font(.system(size: 32, weight: .bold, design: .rounded).monospacedDigit())
                     .foregroundStyle(.primary)
             }
             .frame(maxWidth: .infinity, alignment: .leading)

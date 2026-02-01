@@ -92,6 +92,8 @@
 "review.dueDatePast" = "Ta data jest w przeszlosci";
 "review.invoiceNumberLabel" = "Numer faktury";
 "review.invoiceNumberPlaceholder" = "Opcjonalnie";
+"review.nipLabel" = "NIP";
+"review.nipPlaceholder" = "Wprowadz NIP sprzedawcy (opcjonalnie)";
 "review.bankAccountLabel" = "Numer konta";
 "review.bankAccountPlaceholder" = "Wprowadz numer konta (opcjonalnie)";
 "review.notesLabel" = "Notatki";
@@ -242,6 +244,29 @@
 "onboarding.permissions.notificationSubtitle" = "Otrzymuj przypomnienia o platnosci";
 "onboarding.permissions.allGranted" = "Wszystkie uprawnienia przyznane";
 "onboarding.permissions.optional" = "Mozesz nadac te uprawnienia pozniej w Ustawieniach.";
+
+// MARK: - Calendar View
+
+"calendarView.title" = "Kalendarz";
+"calendarView.today" = "Dzisiaj";
+"calendarView.noDocuments" = "Brak dokumentow";
+"calendarView.noDocumentsMessage" = "Brak dokumentow na ten dzien";
+"calendarView.documentsOnDate" = "Dokumenty w %@";
+"calendarView.documentCount" = "%d dokument(y)";
+"calendarView.overdueCount" = "%d przeterminowane";
+"calendarView.scheduledCount" = "%d zaplanowane";
+"calendarView.paidCount" = "%d zaplacone";
+"calendarView.draftCount" = "%d szkicow";
+"calendarView.previousMonth" = "Poprzedni miesiac";
+"calendarView.nextMonth" = "Nastepny miesiac";
+
+// L10n.CalendarView keys (used in code)
+"calendar.title" = "Kalendarz";
+"calendar.today" = "Dzisiaj";
+"calendar.noDocuments" = "Brak dokumentow na ten dzien";
+"calendar.documentsCount" = "%d dokument(y)";
+"calendar.documentsDue" = "Wybierz dzien, aby zobaczyc dokumenty";
+"calendar.loading" = "Ladowanie kalendarza...";
 
 // MARK: - Errors
 

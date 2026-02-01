@@ -3,6 +3,9 @@ import SwiftUI
 /// Full-screen loading indicator view.
 struct LoadingView: View {
 
+    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+
     let message: String?
 
     init(_ message: String? = nil) {
@@ -10,18 +13,63 @@ struct LoadingView: View {
     }
 
     var body: some View {
-        VStack(spacing: Spacing.md) {
-            ProgressView()
-                .scaleEffect(1.2)
+        VStack(spacing: Spacing.lg) {
+            // Modern loading indicator with glass styling
+            ZStack {
+                // Outer glow
+                Circle()
+                    .fill(
+                        RadialGradient(
+                            colors: [AppColors.primary.opacity(0.1), AppColors.primary.opacity(0)],
+                            center: .center,
+                            startRadius: 20,
+                            endRadius: 60
+                        )
+                    )
+                    .frame(width: 120, height: 120)
+
+                // Glass background
+                glassCircle
+                    .frame(width: 80, height: 80)
+                    .overlay {
+                        Circle()
+                            .strokeBorder(
+                                LinearGradient(
+                                    colors: [
+                                        Color.white.opacity(colorScheme == .light ? 0.6 : 0.2),
+                                        Color.white.opacity(0.1)
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ),
+                                lineWidth: 0.5
+                            )
+                    }
+                    .shadow(color: Color.black.opacity(0.08), radius: 12, y: 6)
+
+                ProgressView()
+                    .scaleEffect(1.5)
+                    .tint(AppColors.primary)
+            }
 
             if let message = message {
                 Text(message)
-                    .font(Typography.subheadline)
+                    .font(Typography.subheadline.weight(.medium))
                     .foregroundStyle(.secondary)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(AppColors.background.opacity(0.8))
+    }
+
+    @ViewBuilder
+    private var glassCircle: some View {
+        if reduceTransparency {
+            Circle()
+                .fill(AppColors.secondaryBackground)
+        } else {
+            Circle()
+                .fill(.ultraThinMaterial)
+        }
     }
 }
 

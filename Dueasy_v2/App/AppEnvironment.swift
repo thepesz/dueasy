@@ -1,11 +1,40 @@
 import Foundation
 import SwiftData
 import Observation
+import os
+
+// MARK: - App Tier
+
+/// Application tier determining available features.
+/// Free tier: Local-only analysis, no cloud features.
+/// Pro tier: Cloud AI analysis, cloud vault, enhanced accuracy.
+enum AppTier: String, Sendable {
+    case free
+    case pro
+
+    var displayName: String {
+        switch self {
+        case .free: return "Free"
+        case .pro: return "Pro"
+        }
+    }
+
+    /// Whether cloud features are available at this tier
+    var hasCloudFeatures: Bool {
+        self == .pro
+    }
+}
+
+// MARK: - App Environment
 
 /// Central dependency container for DuEasy.
 /// All services are protocol-based to enable swapping implementations in Iteration 2 (backend/AI).
 ///
 /// Architecture principle: ViewModels call Use Cases only. Use Cases depend on protocols injected here.
+///
+/// Tier Support:
+/// - Free tier: Local-only analysis with NoOp auth/subscription services
+/// - Pro tier: Cloud AI analysis via Firebase (Iteration 2)
 @MainActor
 @Observable
 final class AppEnvironment {
@@ -14,11 +43,16 @@ final class AppEnvironment {
 
     let modelContext: ModelContext
 
+    // MARK: - App Tier
+
+    /// Current application tier (free or pro)
+    let appTier: AppTier
+
     // MARK: - Repositories
 
     let documentRepository: DocumentRepositoryProtocol
 
-    // MARK: - Services
+    // MARK: - Core Services
 
     let fileStorageService: FileStorageServiceProtocol
     let ocrService: OCRServiceProtocol
@@ -27,10 +61,31 @@ final class AppEnvironment {
     let notificationService: NotificationServiceProtocol
     let syncService: SyncServiceProtocol
     let cryptoService: CryptoServiceProtocol
+
+    // MARK: - Learning Services
+
     let keywordLearningService: KeywordLearningService
     let learningDataService: LearningDataService
     let vendorProfileService: VendorProfileService
     let vendorMigrationService: VendorProfileMigrationService
+    let vendorTemplateService: VendorTemplateService
+
+    // MARK: - Cloud Integration Services (Phase 1 Foundation)
+
+    /// Authentication service for backend access.
+    /// Free tier: NoOpAuthService (always unauthenticated)
+    /// Pro tier: FirebaseAuthService (Iteration 2)
+    let authService: AuthServiceProtocol
+
+    /// Subscription and entitlement service.
+    /// Free tier: NoOpSubscriptionService (always free)
+    /// Pro tier: StoreKitSubscriptionService (Iteration 2)
+    let subscriptionService: SubscriptionServiceProtocol
+
+    /// Document analysis router for provider selection.
+    /// Free tier: LocalOnlyAnalysisRouter (always local)
+    /// Pro tier: HybridAnalysisRouter (Iteration 2)
+    let analysisRouter: DocumentAnalysisRouterProtocol
 
     // MARK: - Settings
 
@@ -42,8 +97,13 @@ final class AppEnvironment {
 
     // MARK: - Initialization
 
-    init(modelContext: ModelContext) {
+    /// Initialize AppEnvironment with all dependencies.
+    /// - Parameters:
+    ///   - modelContext: SwiftData model context
+    ///   - tier: Application tier (default: .free)
+    init(modelContext: ModelContext, tier: AppTier = .free) {
         self.modelContext = modelContext
+        self.appTier = tier
 
         // Initialize settings manager first (other services may depend on it)
         self.settingsManager = SettingsManager()
@@ -80,6 +140,9 @@ final class AppEnvironment {
         // Initialize vendor migration service for version upgrades
         self.vendorMigrationService = VendorProfileMigrationService(modelContext: modelContext)
 
+        // Initialize vendor template service for local learning
+        self.vendorTemplateService = VendorTemplateService(modelContext: modelContext)
+
         // Initialize repositories
         self.documentRepository = SwiftDataDocumentRepository(modelContext: modelContext)
 
@@ -92,7 +155,8 @@ final class AppEnvironment {
         self.ocrService = AppleVisionOCRService()
 
         // Pass keyword learning service and global config to parsing service
-        self.documentAnalysisService = LocalInvoiceParsingService(
+        // Using LayoutFirstInvoiceParser for anchor-based extraction (A3 architecture)
+        self.documentAnalysisService = LayoutFirstInvoiceParser(
             keywordLearningService: keywordLearningService,
             globalKeywordConfig: globalKeywordConfig
         )
@@ -100,6 +164,47 @@ final class AppEnvironment {
         self.calendarService = EventKitCalendarService()
         self.notificationService = LocalNotificationService()
         self.syncService = NoOpSyncService() // No-op for Iteration 1
+
+        // Initialize tier-specific services
+        switch tier {
+        case .pro:
+            // Pro tier - Firebase + cloud features (Phase 3)
+            #if canImport(FirebaseAuth) && canImport(FirebaseFunctions)
+            // Firebase SDK available - use real implementations
+            let firebaseAuth = FirebaseAuthService()
+            self.authService = firebaseAuth
+            self.subscriptionService = FirebaseSubscriptionService(authService: firebaseAuth)
+
+            // Create cloud gateway for OpenAI analysis
+            let cloudGateway = FirebaseCloudExtractionGateway(authService: firebaseAuth)
+
+            // Use hybrid router for intelligent local/cloud routing
+            self.analysisRouter = HybridAnalysisRouter(
+                localService: documentAnalysisService,
+                cloudGateway: cloudGateway,
+                settingsManager: settingsManager,
+                config: .default
+            )
+            PrivacyLogger.app.info("AppEnvironment initialized for tier: Pro (Firebase active)")
+            #else
+            // Firebase SDK not available - fall back to no-op (development/testing)
+            self.authService = NoOpAuthService()
+            self.subscriptionService = NoOpSubscriptionService()
+            self.analysisRouter = LocalOnlyAnalysisRouter(
+                localService: documentAnalysisService
+            )
+            PrivacyLogger.app.warning("AppEnvironment initialized for tier: Pro (Firebase SDK not available, using local-only)")
+            #endif
+
+        case .free:
+            // Free tier - all local, no cloud features
+            self.authService = NoOpAuthService()
+            self.subscriptionService = NoOpSubscriptionService()
+            self.analysisRouter = LocalOnlyAnalysisRouter(
+                localService: documentAnalysisService
+            )
+            PrivacyLogger.app.info("AppEnvironment initialized for tier: Free")
+        }
     }
 
     // MARK: - Use Case Factory Methods
@@ -180,6 +285,11 @@ final class AppEnvironment {
         CountDocumentsByStatusUseCase(repository: documentRepository)
     }
 
+    /// Creates a FetchDocumentsForCalendarUseCase with injected dependencies
+    func makeFetchDocumentsForCalendarUseCase() -> FetchDocumentsForCalendarUseCase {
+        FetchDocumentsForCalendarUseCase(repository: documentRepository)
+    }
+
     // MARK: - Versioning and Migration
 
     /// Run vendor profile migrations on app startup
@@ -226,5 +336,26 @@ final class AppEnvironment {
             correctContext: correctContext,
             incorrectContexts: incorrectContexts
         )
+    }
+
+    // MARK: - Tier Convenience Methods
+
+    /// Check if cloud features are available
+    var hasCloudFeatures: Bool {
+        appTier.hasCloudFeatures
+    }
+
+    /// Check if cloud analysis is currently available
+    /// Requires: Pro tier + signed in + network
+    var isCloudAnalysisAvailable: Bool {
+        get async {
+            guard hasCloudFeatures else { return false }
+            return await analysisRouter.isCloudAvailable
+        }
+    }
+
+    /// Current analysis mode based on tier and settings
+    var currentAnalysisMode: AnalysisMode {
+        analysisRouter.analysisMode
     }
 }

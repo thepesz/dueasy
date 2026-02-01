@@ -131,6 +131,8 @@ enum L10n {
         static let dueDatePast = "review.dueDatePast"
         static let invoiceNumberLabel = "review.invoiceNumberLabel"
         static let invoiceNumberPlaceholder = "review.invoiceNumberPlaceholder"
+        static let nipLabel = "review.nipLabel"
+        static let nipPlaceholder = "review.nipPlaceholder"
         static let bankAccountLabel = "review.bankAccountLabel"
         static let bankAccountPlaceholder = "review.bankAccountPlaceholder"
         static let notesLabel = "review.notesLabel"
@@ -202,6 +204,16 @@ enum L10n {
         static let noDate = "dueDate.noDate"
         static let daysBefore = "dueDate.daysBefore"
         static let dayBefore = "dueDate.dayBefore"
+    }
+
+    // MARK: - Calendar View
+    enum CalendarView {
+        static let title = "calendar.title"
+        static let today = "calendar.today"
+        static let noDocuments = "calendar.noDocuments"
+        static let documentsCount = "calendar.documentsCount"
+        static let documentsDue = "calendar.documentsDue"
+        static let loading = "calendar.loading"
     }
 
     // MARK: - Settings

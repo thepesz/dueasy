@@ -8,6 +8,10 @@ struct DocumentRow: View {
     let onTap: () -> Void
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+    @Environment(\.colorScheme) private var colorScheme
+
+    @State private var isPressed = false
 
     init(document: FinanceDocument, onTap: @escaping () -> Void = {}) {
         self.document = document
@@ -17,7 +21,7 @@ struct DocumentRow: View {
     var body: some View {
         Button(action: onTap) {
             HStack(spacing: Spacing.sm) {
-                // Document type icon
+                // Document type icon with gradient ring
                 documentTypeIcon
 
                 // Main content
@@ -61,16 +65,77 @@ struct DocumentRow: View {
                     }
                 }
 
-                // Chevron
+                // Chevron with subtle animation
                 Image(systemName: "chevron.right")
-                    .font(.caption)
+                    .font(.caption.weight(.semibold))
                     .foregroundStyle(.tertiary)
+                    .offset(x: isPressed ? 2 : 0)
             }
-            .padding(Spacing.sm)
-            .background(AppColors.secondaryBackground)
-            .clipShape(RoundedRectangle(cornerRadius: CornerRadius.md, style: .continuous))
+            .padding(Spacing.md)
+            .background {
+                if reduceTransparency {
+                    RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous)
+                        .fill(AppColors.secondaryBackground)
+                } else {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous)
+                            .fill(.ultraThinMaterial)
+
+                        RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous)
+                            .fill(
+                                LinearGradient(
+                                    colors: [
+                                        Color.white.opacity(colorScheme == .light ? 0.5 : 0.1),
+                                        Color.white.opacity(colorScheme == .light ? 0.2 : 0.02)
+                                    ],
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                )
+                            )
+                    }
+                }
+            }
+            .clipShape(RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous))
+            .overlay {
+                RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous)
+                    .strokeBorder(
+                        LinearGradient(
+                            colors: [
+                                Color.white.opacity(colorScheme == .light ? 0.7 : 0.2),
+                                Color.white.opacity(colorScheme == .light ? 0.2 : 0.05)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ),
+                        lineWidth: 0.5
+                    )
+            }
+            .shadow(
+                color: Color.black.opacity(colorScheme == .light ? 0.06 : 0.2),
+                radius: 8,
+                x: 0,
+                y: 4
+            )
+            .scaleEffect(isPressed ? 0.98 : 1.0)
         }
         .buttonStyle(.plain)
+        .simultaneousGesture(
+            DragGesture(minimumDistance: 0)
+                .onChanged { _ in
+                    if !reduceMotion && !isPressed {
+                        withAnimation(.easeInOut(duration: 0.1)) {
+                            isPressed = true
+                        }
+                    }
+                }
+                .onEnded { _ in
+                    if !reduceMotion {
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                            isPressed = false
+                        }
+                    }
+                }
+        )
         .accessibilityElement(children: .combine)
         .accessibilityLabel(accessibilityLabel)
         .accessibilityHint("Double tap to view details")
@@ -79,12 +144,41 @@ struct DocumentRow: View {
     // MARK: - Subviews
 
     private var documentTypeIcon: some View {
-        Image(systemName: document.type.iconName)
-            .font(.title3)
-            .foregroundStyle(document.status.color)
-            .frame(width: 40, height: 40)
-            .background(document.status.color.opacity(0.12))
-            .clipShape(RoundedRectangle(cornerRadius: CornerRadius.sm, style: .continuous))
+        ZStack {
+            // Gradient ring background
+            Circle()
+                .fill(
+                    LinearGradient(
+                        colors: [
+                            document.status.color.opacity(0.2),
+                            document.status.color.opacity(0.05)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .frame(width: 44, height: 44)
+
+            // Icon
+            Image(systemName: document.type.iconName)
+                .font(.title3.weight(.medium))
+                .foregroundStyle(document.status.color)
+                .symbolRenderingMode(.hierarchical)
+        }
+        .overlay {
+            Circle()
+                .strokeBorder(
+                    LinearGradient(
+                        colors: [
+                            document.status.color.opacity(0.5),
+                            document.status.color.opacity(0.15)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: 1.5
+                )
+        }
     }
 
     // MARK: - Formatting
