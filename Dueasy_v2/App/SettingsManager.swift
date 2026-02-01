@@ -61,7 +61,7 @@ final class SettingsManager: Sendable {
             Keys.enableVendorTemplates: true,
 
             // Cloud analysis defaults (Pro tier)
-            Keys.cloudAnalysisEnabled: false, // Disabled by default, requires Pro
+            Keys.cloudAnalysisEnabled: true,  // Enabled for testing - should be opt-in in production
             Keys.highAccuracyMode: false,     // Use local-with-assist by default
             Keys.cloudVaultEnabled: false     // Cloud backup disabled by default
         ])

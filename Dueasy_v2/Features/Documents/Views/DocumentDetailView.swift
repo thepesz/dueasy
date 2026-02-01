@@ -157,14 +157,29 @@ struct DocumentDetailView: View {
     @ViewBuilder
     private var amountSection: some View {
         PremiumGlassCard(accentColor: document.status.color) {
-            VStack(alignment: .leading, spacing: Spacing.xs) {
-                Text(L10n.Detail.amount.localized)
-                    .font(Typography.caption1.weight(.medium))
-                    .foregroundStyle(.secondary)
+            HStack {
+                VStack(alignment: .leading, spacing: Spacing.xs) {
+                    Text(L10n.Detail.amount.localized)
+                        .font(Typography.caption1.weight(.medium))
+                        .foregroundStyle(.secondary)
 
-                Text(formattedAmount)
-                    .font(.system(size: 32, weight: .bold, design: .rounded).monospacedDigit())
-                    .foregroundStyle(.primary)
+                    Text(formattedAmount)
+                        .font(.system(size: 32, weight: .bold, design: .rounded).monospacedDigit())
+                        .foregroundStyle(.primary)
+                }
+
+                Spacer()
+
+                Button {
+                    #if canImport(UIKit)
+                    UIPasteboard.general.string = formattedAmount
+                    #endif
+                } label: {
+                    Image(systemName: "doc.on.doc")
+                        .font(.body)
+                        .foregroundStyle(.secondary)
+                }
+                .accessibilityLabel("Copy amount")
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
@@ -179,6 +194,12 @@ struct DocumentDetailView: View {
                 // Vendor address
                 if let address = document.vendorAddress, !address.isEmpty {
                     DetailRow(label: L10n.Detail.address.localized, value: address)
+                }
+
+                // Vendor NIP
+                if let nip = document.vendorNIP, !nip.isEmpty {
+                    DetailRow(label: L10n.Detail.nip.localized, value: nip)
+                        .font(.system(.caption, design: .monospaced))
                 }
 
                 // Bank account number
@@ -309,6 +330,7 @@ struct DetailRow: View {
     let label: String
     let value: String
     var valueColor: Color = .primary
+    var showCopyButton: Bool = true
 
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.xxs) {
@@ -316,30 +338,229 @@ struct DetailRow: View {
                 .font(Typography.caption1)
                 .foregroundStyle(.secondary)
 
-            Text(value)
-                .font(Typography.body)
-                .foregroundStyle(valueColor)
+            HStack(alignment: .top, spacing: Spacing.xs) {
+                Text(value)
+                    .font(Typography.body)
+                    .foregroundStyle(valueColor)
+
+                if showCopyButton {
+                    Spacer()
+
+                    Button {
+                        #if canImport(UIKit)
+                        UIPasteboard.general.string = value
+                        #endif
+                    } label: {
+                        Image(systemName: "doc.on.doc")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    .accessibilityLabel("Copy \(label)")
+                }
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 
-// MARK: - Document Edit View (Placeholder)
+// MARK: - Document Edit View
 
 struct DocumentEditView: View {
+    @Environment(AppEnvironment.self) private var environment
     @Environment(\.dismiss) private var dismiss
+
     let document: FinanceDocument
+
+    @State private var vendorName: String
+    @State private var vendorAddress: String
+    @State private var amount: String
+    @State private var currency: String
+    @State private var dueDate: Date
+    @State private var documentNumber: String
+    @State private var vendorNIP: String
+    @State private var bankAccountNumber: String
+    @State private var notes: String
+    @State private var isSaving = false
+    @State private var error: AppError?
+
+    init(document: FinanceDocument) {
+        self.document = document
+
+        // Initialize state with current document values
+        _vendorName = State(initialValue: document.title)
+        _vendorAddress = State(initialValue: document.vendorAddress ?? "")
+        _amount = State(initialValue: String(describing: document.amount))
+        _currency = State(initialValue: document.currency)
+        _dueDate = State(initialValue: document.dueDate ?? Date())
+        _documentNumber = State(initialValue: document.documentNumber ?? "")
+        _vendorNIP = State(initialValue: document.vendorNIP ?? "")
+        _bankAccountNumber = State(initialValue: document.bankAccountNumber ?? "")
+        _notes = State(initialValue: document.notes ?? "")
+    }
 
     var body: some View {
         NavigationStack {
-            Text("Edit view - to be implemented")
-                .navigationTitle(L10n.Detail.editDocument.localized)
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .cancellationAction) {
-                        Button(L10n.Common.cancel.localized) { dismiss() }
+            ZStack {
+                GradientBackground()
+
+                ScrollView {
+                    VStack(spacing: Spacing.lg) {
+                        // Vendor section
+                        Card.glass {
+                            VStack(spacing: Spacing.md) {
+                                FormField(label: L10n.Edit.vendorName.localized, isRequired: true) {
+                                    TextField(L10n.Edit.vendorNamePlaceholder.localized, text: $vendorName)
+                                }
+
+                                FormField(label: L10n.Edit.vendorAddress.localized, isRequired: false) {
+                                    TextField(L10n.Edit.vendorAddressPlaceholder.localized, text: $vendorAddress, axis: .vertical)
+                                        .lineLimit(2...5)
+                                }
+
+                                FormField(label: L10n.Edit.nip.localized, isRequired: false) {
+                                    TextField(L10n.Edit.nipPlaceholder.localized, text: $vendorNIP)
+                                        .font(.system(.body, design: .monospaced))
+                                }
+                            }
+                        }
+
+                        // Amount section
+                        Card.glass {
+                            HStack(spacing: Spacing.sm) {
+                                FormField(label: L10n.Edit.amount.localized, isRequired: true) {
+                                    TextField(L10n.Edit.amountPlaceholder.localized, text: $amount)
+                                        .keyboardType(.decimalPad)
+                                }
+
+                                FormField(label: L10n.Edit.currency.localized) {
+                                    Picker(L10n.Edit.currency.localized, selection: $currency) {
+                                        ForEach(SettingsManager.availableCurrencies, id: \.self) { curr in
+                                            Text(curr).tag(curr)
+                                        }
+                                    }
+                                    .pickerStyle(.menu)
+                                }
+                                .frame(width: 100)
+                            }
+                        }
+
+                        // Date and details section
+                        Card.glass {
+                            VStack(spacing: Spacing.md) {
+                                FormField(label: L10n.Edit.dueDate.localized, isRequired: true) {
+                                    DatePicker(L10n.Edit.dueDate.localized, selection: $dueDate, displayedComponents: .date)
+                                        .datePickerStyle(.compact)
+                                        .labelsHidden()
+                                }
+
+                                FormField(label: L10n.Edit.documentNumber.localized, isRequired: false) {
+                                    TextField(L10n.Edit.documentNumberPlaceholder.localized, text: $documentNumber)
+                                }
+
+                                FormField(label: L10n.Edit.bankAccount.localized, isRequired: false) {
+                                    TextField(L10n.Edit.bankAccountPlaceholder.localized, text: $bankAccountNumber, axis: .vertical)
+                                        .font(.system(.body, design: .monospaced))
+                                        .lineLimit(1...3)
+                                }
+                            }
+                        }
+
+                        // Notes section
+                        Card.glass {
+                            FormField(label: L10n.Edit.notes.localized, isRequired: false) {
+                                TextField(L10n.Edit.notesPlaceholder.localized, text: $notes, axis: .vertical)
+                                    .lineLimit(3...10)
+                            }
+                        }
                     }
+                    .padding(Spacing.md)
+                    .padding(.bottom, Spacing.xl)
                 }
+            }
+            .navigationTitle(L10n.Edit.title.localized)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button(L10n.Common.cancel.localized) { dismiss() }
+                }
+
+                ToolbarItem(placement: .confirmationAction) {
+                    Button(L10n.Common.save.localized) {
+                        Task { await saveChanges() }
+                    }
+                    .disabled(isSaving || !isValid)
+                }
+            }
+            .loadingOverlay(isLoading: isSaving, message: L10n.Edit.saving.localized)
+            .overlay(alignment: .top) {
+                if let error = error {
+                    ErrorBanner(error: error, onDismiss: { self.error = nil })
+                        .padding()
+                }
+            }
+        }
+    }
+
+    private var isValid: Bool {
+        !vendorName.trimmingCharacters(in: .whitespaces).isEmpty &&
+        !amount.trimmingCharacters(in: .whitespaces).isEmpty &&
+        amountDecimal != nil &&
+        amountDecimal! > 0
+    }
+
+    private var amountDecimal: Decimal? {
+        var normalized = amount
+            .replacingOccurrences(of: " ", with: "")
+            .replacingOccurrences(of: "\u{00A0}", with: "")
+
+        if normalized.contains(",") && !normalized.contains(".") {
+            normalized = normalized.replacingOccurrences(of: ",", with: ".")
+        } else if normalized.contains(",") && normalized.contains(".") {
+            if let commaIndex = normalized.lastIndex(of: ","),
+               let dotIndex = normalized.lastIndex(of: "."),
+               commaIndex > dotIndex {
+                normalized = normalized.replacingOccurrences(of: ".", with: "")
+                normalized = normalized.replacingOccurrences(of: ",", with: ".")
+            } else {
+                normalized = normalized.replacingOccurrences(of: ",", with: "")
+            }
+        }
+
+        return Decimal(string: normalized)
+    }
+
+    private func saveChanges() async {
+        guard let finalAmount = amountDecimal else { return }
+
+        isSaving = true
+        error = nil
+
+        do {
+            // Update fields not handled by UpdateDocumentUseCase directly
+            document.vendorAddress = vendorAddress.isEmpty ? nil : vendorAddress
+            document.vendorNIP = vendorNIP.isEmpty ? nil : vendorNIP
+            document.bankAccountNumber = bankAccountNumber.isEmpty ? nil : bankAccountNumber
+
+            let updateUseCase = environment.makeUpdateDocumentUseCase()
+            try await updateUseCase.execute(
+                document: document,
+                title: vendorName,
+                amount: finalAmount,
+                currency: currency,
+                dueDate: dueDate,
+                documentNumber: documentNumber.isEmpty ? nil : documentNumber,
+                notes: notes.isEmpty ? nil : notes,
+                reminderOffsets: document.reminderOffsetsDays
+            )
+
+            isSaving = false
+            dismiss()
+        } catch let appError as AppError {
+            error = appError
+            isSaving = false
+        } catch {
+            self.error = .unknown(error.localizedDescription)
+            isSaving = false
         }
     }
 }

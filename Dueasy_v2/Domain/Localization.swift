@@ -177,6 +177,7 @@ enum L10n {
         static let created = "detail.created"
         static let notSpecified = "detail.notSpecified"
         static let address = "detail.address"
+        static let nip = "detail.nip"
         static let bankAccount = "detail.bankAccount"
         static let added = "detail.added"
         static let notAdded = "detail.notAdded"
@@ -192,6 +193,30 @@ enum L10n {
         static let markAsPaid = "detail.markAsPaid"
         static let deleting = "detail.deleting"
         static let editDocument = "detail.editDocument"
+    }
+
+    // MARK: - Edit Document
+    enum Edit {
+        static let title = "edit.title"
+        static let vendorName = "edit.vendorName"
+        static let vendorNamePlaceholder = "edit.vendorNamePlaceholder"
+        static let vendorAddress = "edit.vendorAddress"
+        static let vendorAddressPlaceholder = "edit.vendorAddressPlaceholder"
+        static let nip = "edit.nip"
+        static let nipPlaceholder = "edit.nipPlaceholder"
+        static let amount = "edit.amount"
+        static let amountPlaceholder = "edit.amountPlaceholder"
+        static let currency = "edit.currency"
+        static let dueDate = "edit.dueDate"
+        static let documentNumber = "edit.documentNumber"
+        static let documentNumberPlaceholder = "edit.documentNumberPlaceholder"
+        static let bankAccount = "edit.bankAccount"
+        static let bankAccountPlaceholder = "edit.bankAccountPlaceholder"
+        static let notes = "edit.notes"
+        static let notesPlaceholder = "edit.notesPlaceholder"
+        static let saving = "edit.saving"
+        static let required = "edit.required"
+        static let optional = "edit.optional"
     }
 
     // MARK: - Due Dates

@@ -131,11 +131,11 @@ struct RoutingConfiguration: Sendable {
 
     /// Minimum local confidence to skip cloud assist
     /// Below this threshold, cloud is consulted (if available)
-    var cloudAssistThreshold: Double = 0.75
+    var cloudAssistThreshold: Double = 0.99  // Set to 0.99 for testing - forces cloud for almost all scans
 
     /// Minimum confidence to consider a result usable
     /// Below this, we try another provider
-    var minimumAcceptableConfidence: Double = 0.50
+    var minimumAcceptableConfidence: Double = 0.99  // Set to 0.99 for testing - forces cloud assist
 
     /// Maximum wait time for cloud analysis before falling back
     var cloudTimeoutSeconds: TimeInterval = 30.0

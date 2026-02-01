@@ -137,6 +137,7 @@
 "detail.created" = "Created";
 "detail.notSpecified" = "Not specified";
 "detail.address" = "Address";
+"detail.nip" = "Tax ID (NIP)";
 "detail.bankAccount" = "Bank Account";
 "detail.added" = "Added";
 "detail.notAdded" = "Not added";
@@ -152,6 +153,29 @@
 "detail.markAsPaid" = "Mark as Paid";
 "detail.deleting" = "Deleting...";
 "detail.editDocument" = "Edit Document";
+
+// MARK: - Edit Document
+
+"edit.title" = "Edit Invoice";
+"edit.vendorName" = "Vendor Name";
+"edit.vendorNamePlaceholder" = "Company name";
+"edit.vendorAddress" = "Vendor Address";
+"edit.vendorAddressPlaceholder" = "Full address";
+"edit.nip" = "Tax ID (NIP)";
+"edit.nipPlaceholder" = "Tax ID number";
+"edit.amount" = "Amount";
+"edit.amountPlaceholder" = "0.00";
+"edit.currency" = "Currency";
+"edit.dueDate" = "Due Date";
+"edit.documentNumber" = "Document Number";
+"edit.documentNumberPlaceholder" = "Invoice number";
+"edit.bankAccount" = "Bank Account";
+"edit.bankAccountPlaceholder" = "Account number";
+"edit.notes" = "Notes";
+"edit.notesPlaceholder" = "Additional notes";
+"edit.saving" = "Saving...";
+"edit.required" = "(required)";
+"edit.optional" = "(optional)";
 
 // MARK: - Due Dates
 

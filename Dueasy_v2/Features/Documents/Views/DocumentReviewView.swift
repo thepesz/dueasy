@@ -11,18 +11,22 @@ struct DocumentReviewView: View {
     @State private var viewModel: DocumentReviewViewModel
     @State private var showPermissionAlert = false
     @State private var appeared = false
+    @State private var documentWasSaved = false
 
     private let logger = Logger(subsystem: "com.dueasy.app", category: "DocumentReview")
 
     let onSave: () -> Void
+    let onDismiss: ((_ saved: Bool) -> Void)?
 
     init(
         document: FinanceDocument,
         images: [UIImage],
         environment: AppEnvironment,
-        onSave: @escaping () -> Void
+        onSave: @escaping () -> Void,
+        onDismiss: ((_ saved: Bool) -> Void)? = nil
     ) {
         self.onSave = onSave
+        self.onDismiss = onDismiss
         _viewModel = State(initialValue: DocumentReviewViewModel(
             document: document,
             images: images,
@@ -44,11 +48,7 @@ struct DocumentReviewView: View {
 
                 ScrollView {
                     VStack(spacing: Spacing.lg) {
-                        // Permission prompt (if needed)
-                        if viewModel.needsPermissions && !viewModel.isProcessingOCR {
-                            permissionPrompt
-                                .transition(.opacity.combined(with: .move(edge: .top)))
-                        }
+                        // Permission prompt removed - permissions are requested during onboarding only
 
                         // Document preview
                         documentPreview
@@ -101,6 +101,8 @@ struct DocumentReviewView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {
+                        // Call onDismiss before dismissing
+                        onDismiss?(false)
                         dismiss()
                     }
                 }
@@ -114,7 +116,6 @@ struct DocumentReviewView: View {
             .loadingOverlay(isLoading: viewModel.isSaving, message: "Saving...")
         }
         .task {
-            await viewModel.checkPermissions()
             await viewModel.processImages()
         }
         .interactiveDismissDisabled(viewModel.isSaving)
@@ -255,9 +256,13 @@ struct DocumentReviewView: View {
 
             // Vendor address (optional - always show for manual entry)
             FormField(label: L10n.Review.vendorAddressLabel.localized, isRequired: false) {
-                TextField(L10n.Review.vendorAddressPlaceholder.localized, text: $viewModel.vendorAddress, axis: .vertical)
-                    .textContentType(.fullStreetAddress)
-                    .lineLimit(2...5)
+                HStack(alignment: .top, spacing: Spacing.xs) {
+                    TextField(L10n.Review.vendorAddressPlaceholder.localized, text: $viewModel.vendorAddress, axis: .vertical)
+                        .textContentType(.fullStreetAddress)
+                        .lineLimit(2...5)
+
+                    copyButton(text: viewModel.vendorAddress, label: "vendor address")
+                }
             }
 
             // Amount with evidence and alternatives
@@ -308,9 +313,13 @@ struct DocumentReviewView: View {
         } else {
             FormField(label: L10n.Review.vendorLabel.localized, isRequired: true) {
                 VStack(alignment: .leading, spacing: Spacing.xs) {
-                    TextField(L10n.Review.vendorPlaceholder.localized, text: $viewModel.vendorName, axis: .vertical)
-                        .textContentType(.organizationName)
-                        .lineLimit(2...4)
+                    HStack(alignment: .top, spacing: Spacing.xs) {
+                        TextField(L10n.Review.vendorPlaceholder.localized, text: $viewModel.vendorName, axis: .vertical)
+                            .textContentType(.organizationName)
+                            .lineLimit(2...4)
+
+                        copyButton(text: viewModel.vendorName, label: "vendor name")
+                    }
 
                     // Show confidence badge if extraction happened
                     if viewModel.showExtractionEvidence && viewModel.vendorConfidence > 0 {
@@ -388,15 +397,19 @@ struct DocumentReviewView: View {
         } else {
             FormField(label: L10n.Review.dueDateLabel.localized, isRequired: true) {
                 VStack(alignment: .leading, spacing: Spacing.xs) {
-                    DatePicker(
-                        "Due Date",
-                        selection: $viewModel.dueDate,
-                        displayedComponents: .date
-                    )
-                    .datePickerStyle(.compact)
-                    .labelsHidden()
-                    .onChange(of: viewModel.dueDate) { _, _ in
-                        viewModel.checkDueDateWarning()
+                    HStack(spacing: Spacing.xs) {
+                        DatePicker(
+                            "Due Date",
+                            selection: $viewModel.dueDate,
+                            displayedComponents: .date
+                        )
+                        .datePickerStyle(.compact)
+                        .labelsHidden()
+                        .onChange(of: viewModel.dueDate) { _, _ in
+                            viewModel.checkDueDateWarning()
+                        }
+
+                        copyButton(text: formatDateForCopy(viewModel.dueDate), label: "due date")
                     }
 
                     // Show confidence badge if extraction happened
@@ -449,8 +462,12 @@ struct DocumentReviewView: View {
         } else {
             FormField(label: L10n.Review.invoiceNumberLabel.localized, isRequired: false) {
                 VStack(alignment: .leading, spacing: Spacing.xs) {
-                    TextField(L10n.Review.invoiceNumberPlaceholder.localized, text: $viewModel.documentNumber, axis: .vertical)
-                        .lineLimit(1...3)
+                    HStack(alignment: .top, spacing: Spacing.xs) {
+                        TextField(L10n.Review.invoiceNumberPlaceholder.localized, text: $viewModel.documentNumber, axis: .vertical)
+                            .lineLimit(1...3)
+
+                        copyButton(text: viewModel.documentNumber, label: "document number")
+                    }
 
                     // Show confidence badge if extraction happened
                     if viewModel.showExtractionEvidence && viewModel.documentNumberConfidence > 0 {
@@ -492,9 +509,13 @@ struct DocumentReviewView: View {
         } else {
             FormField(label: L10n.Review.nipLabel.localized, isRequired: false) {
                 VStack(alignment: .leading, spacing: Spacing.xs) {
-                    TextField(L10n.Review.nipPlaceholder.localized, text: $viewModel.nip, axis: .vertical)
-                        .font(.system(.body, design: .monospaced))
-                        .lineLimit(1)
+                    HStack(alignment: .top, spacing: Spacing.xs) {
+                        TextField(L10n.Review.nipPlaceholder.localized, text: $viewModel.nip, axis: .vertical)
+                            .font(.system(.body, design: .monospaced))
+                            .lineLimit(1)
+
+                        copyButton(text: viewModel.nip, label: "NIP")
+                    }
 
                     // Show confidence badge if extraction happened
                     if viewModel.showExtractionEvidence && viewModel.nipConfidence > 0 {
@@ -536,9 +557,13 @@ struct DocumentReviewView: View {
         } else {
             FormField(label: L10n.Review.bankAccountLabel.localized, isRequired: false) {
                 VStack(alignment: .leading, spacing: Spacing.xs) {
-                    TextField(L10n.Review.bankAccountPlaceholder.localized, text: $viewModel.bankAccountNumber, axis: .vertical)
-                        .font(.system(.body, design: .monospaced))
-                        .lineLimit(1...3)
+                    HStack(alignment: .top, spacing: Spacing.xs) {
+                        TextField(L10n.Review.bankAccountPlaceholder.localized, text: $viewModel.bankAccountNumber, axis: .vertical)
+                            .font(.system(.body, design: .monospaced))
+                            .lineLimit(1...3)
+
+                        copyButton(text: viewModel.bankAccountNumber, label: "bank account")
+                    }
 
                     // Show confidence badge if extraction happened
                     if viewModel.showExtractionEvidence && viewModel.bankAccountConfidence > 0 {
@@ -563,8 +588,12 @@ struct DocumentReviewView: View {
             // Amount and currency row
             HStack(spacing: Spacing.sm) {
                 FormField(label: L10n.Review.amountLabel.localized, isRequired: true) {
-                    TextField("0.00", text: $viewModel.amount)
-                        .keyboardType(.decimalPad)
+                    HStack(spacing: Spacing.xs) {
+                        TextField("0.00", text: $viewModel.amount)
+                            .keyboardType(.decimalPad)
+
+                        copyButton(text: viewModel.amount, label: "amount")
+                    }
                 }
 
                 FormField(label: L10n.Review.currencyLabel.localized) {
@@ -681,6 +710,32 @@ struct DocumentReviewView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
+    // MARK: - Copy Button Helper
+
+    /// Format date for copying to clipboard
+    private func formatDateForCopy(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .none
+        return formatter.string(from: date)
+    }
+
+    /// Create a copy button for a text field
+    private func copyButton(text: String, label: String) -> some View {
+        Button {
+            #if canImport(UIKit)
+            UIPasteboard.general.string = text
+            #endif
+        } label: {
+            Image(systemName: "doc.on.doc")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+        .accessibilityLabel("Copy \(label)")
+        .disabled(text.isEmpty)
+        .opacity(text.isEmpty ? 0.3 : 1.0)
+    }
+
     // MARK: - Save Button
 
     @ViewBuilder
@@ -695,6 +750,8 @@ struct DocumentReviewView: View {
             Task {
                 let success = await viewModel.save()
                 if success {
+                    documentWasSaved = true
+                    onDismiss?(true) // Notify that document was saved
                     onSave()
                     dismiss()
                 }

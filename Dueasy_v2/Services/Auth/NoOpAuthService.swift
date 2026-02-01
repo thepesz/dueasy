@@ -33,6 +33,11 @@ final class NoOpAuthService: AuthServiceProtocol {
         throw AuthError.notSignedIn
     }
 
+    func signInAnonymously() async throws {
+        PrivacyLogger.security.debug("NoOpAuthService: signInAnonymously called - not available in free tier")
+        throw AuthError.notSignedIn
+    }
+
     func signInWithApple() async throws {
         PrivacyLogger.security.debug("NoOpAuthService: signInWithApple called - not available in free tier")
         throw AuthError.notSignedIn

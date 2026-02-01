@@ -29,6 +29,11 @@ protocol AuthServiceProtocol: Sendable {
     /// - Throws: `AuthError` if not signed in or refresh fails
     func getIDToken(forceRefresh: Bool) async throws -> String
 
+    /// Sign in anonymously (for testing and free tier).
+    /// Creates an anonymous Firebase user session.
+    /// - Throws: `AuthError` on failure
+    func signInAnonymously() async throws
+
     /// Sign in with Apple.
     /// Initiates the Apple sign-in flow and creates/links Firebase user.
     /// - Throws: `AuthError` on failure

@@ -119,23 +119,15 @@ struct DocumentRow: View {
             .scaleEffect(isPressed ? 0.98 : 1.0)
         }
         .buttonStyle(.plain)
-        .simultaneousGesture(
-            DragGesture(minimumDistance: 0)
-                .onChanged { _ in
-                    if !reduceMotion && !isPressed {
-                        withAnimation(.easeInOut(duration: 0.1)) {
-                            isPressed = true
-                        }
-                    }
+        .onLongPressGesture(minimumDuration: .infinity, maximumDistance: .infinity) {
+            // Never triggers - just for press state
+        } onPressingChanged: { pressing in
+            if !reduceMotion {
+                withAnimation(pressing ? .easeInOut(duration: 0.1) : .spring(response: 0.3, dampingFraction: 0.6)) {
+                    isPressed = pressing
                 }
-                .onEnded { _ in
-                    if !reduceMotion {
-                        withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
-                            isPressed = false
-                        }
-                    }
-                }
-        )
+            }
+        }
         .accessibilityElement(children: .combine)
         .accessibilityLabel(accessibilityLabel)
         .accessibilityHint("Double tap to view details")

@@ -1,5 +1,6 @@
 import Foundation
 import SwiftData
+import os
 
 #if canImport(UIKit)
 import UIKit
@@ -25,8 +26,8 @@ final class FirebaseCloudExtractionGateway: CloudExtractionGatewayProtocol {
     init(authService: AuthServiceProtocol) {
         self.authService = authService
         #if canImport(FirebaseFunctions)
-        self.functions = Functions.functions()
-        // Use Europe region for GDPR compliance
+        // Use Europe region for GDPR compliance - functions deployed to europe-west1
+        self.functions = Functions.functions(region: "europe-west1")
         // self.functions.useEmulator(withHost: "localhost", port: 5001) // Development only
         #endif
     }
@@ -114,8 +115,17 @@ final class FirebaseCloudExtractionGateway: CloudExtractionGatewayProtocol {
         let vendorName = dict["vendorName"] as? String
         let vendorAddress = dict["vendorAddress"] as? String
         let vendorNIP = dict["vendorNIP"] as? String
+        let vendorREGON = dict["vendorREGON"] as? String
         let documentNumber = dict["documentNumber"] as? String
-        let bankAccount = dict["bankAccount"] as? String
+        let bankAccountNumber = dict["bankAccount"] as? String
+        let currency = dict["currency"] as? String ?? "PLN"
+
+        // Log what OpenAI returned for vendor
+        PrivacyLogger.app.info("🏢 OpenAI vendor: name=\(vendorName ?? "nil", privacy: .public), address=\(vendorAddress ?? "nil", privacy: .public), NIP=\(vendorNIP ?? "nil", privacy: .public)")
+
+        // Extract document type
+        let documentTypeStr = dict["documentType"] as? String ?? "invoice"
+        let documentType = DocumentType(rawValue: documentTypeStr) ?? .invoice
 
         // Parse amount
         var amount: Decimal?
@@ -125,70 +135,127 @@ final class FirebaseCloudExtractionGateway: CloudExtractionGatewayProtocol {
             amount = Decimal(amountDouble)
         }
 
-        // Parse dates
+        // Parse issue date (ISO 8601 format: YYYY-MM-DD)
         var issueDate: Date?
-        var dueDate: Date?
-        if let issueDateStr = dict["issueDate"] as? String {
-            issueDate = ISO8601DateFormatter().date(from: issueDateStr)
-        }
-        if let dueDateStr = dict["dueDate"] as? String {
-            dueDate = ISO8601DateFormatter().date(from: dueDateStr)
+        if let issueDateStr = dict["issueDate"] as? String, !issueDateStr.isEmpty {
+            let isoFormatter = ISO8601DateFormatter()
+            isoFormatter.formatOptions = [.withFullDate, .withDashSeparatorInDate]
+            issueDate = isoFormatter.date(from: issueDateStr)
         }
 
-        // Parse candidates (alternatives)
-        let vendorCandidates = parseCandidates(from: dict["vendorCandidates"])
-        let nipCandidates = parseCandidates(from: dict["nipCandidates"])
-        let amountCandidates = parseCandidates(from: dict["amountCandidates"])
-        let dateCandidates = parseCandidates(from: dict["dateCandidates"])
-        let documentNumberCandidates = parseCandidates(from: dict["documentNumberCandidates"])
-        let bankAccountCandidates = parseCandidates(from: dict["bankAccountCandidates"])
+        // Parse due date (ISO 8601 format: YYYY-MM-DD)
+        var dueDate: Date?
+        if let dueDateStr = dict["dueDate"] as? String, !dueDateStr.isEmpty {
+            PrivacyLogger.app.info("📅 OpenAI returned dueDate: \(dueDateStr, privacy: .public)")
+
+            // Try ISO 8601 format first (YYYY-MM-DD)
+            let isoFormatter = ISO8601DateFormatter()
+            isoFormatter.formatOptions = [.withFullDate, .withDashSeparatorInDate]
+            if let parsed = isoFormatter.date(from: dueDateStr) {
+                dueDate = parsed
+                PrivacyLogger.app.info("✅ Parsed dueDate successfully: \(parsed, privacy: .public)")
+            } else {
+                // Fallback: try standard date formatter with multiple formats
+                let dateFormatter = DateFormatter()
+                dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+
+                for format in ["yyyy-MM-dd", "dd-MM-yyyy", "dd.MM.yyyy", "yyyy/MM/dd"] {
+                    dateFormatter.dateFormat = format
+                    if let parsed = dateFormatter.date(from: dueDateStr) {
+                        dueDate = parsed
+                        PrivacyLogger.app.info("✅ Parsed dueDate with format \(format, privacy: .public): \(parsed, privacy: .public)")
+                        break
+                    }
+                }
+
+                if dueDate == nil {
+                    PrivacyLogger.app.warning("⚠️ Failed to parse dueDate: \(dueDateStr, privacy: .public)")
+                }
+            }
+        } else {
+            PrivacyLogger.app.info("📅 OpenAI returned null/empty dueDate")
+            // Fallback: If no due date, use issue date (invoice might be already paid)
+            if let issueDate = issueDate {
+                dueDate = issueDate
+                PrivacyLogger.app.info("📅 Using issue date as due date fallback")
+            }
+        }
+
+        // Extract candidate arrays from OpenAI
+        let amountCandidatesArray = dict["amountCandidates"] as? [[String: Any]] ?? []
+        let dateCandidatesArray = dict["dateCandidates"] as? [[String: Any]] ?? []
+        let vendorCandidatesArray = dict["vendorCandidates"] as? [[String: Any]] ?? []
+        let nipCandidatesArray = dict["nipCandidates"] as? [[String: Any]] ?? []
+
+        // Build suggestedAmounts from OpenAI amount candidates (without provider text)
+        var suggestedAmounts: [(Decimal, String)] = []
+        for candidate in amountCandidatesArray {
+            if let displayValue = candidate["displayValue"] as? String,
+               let amount = Decimal(string: displayValue) {
+                // Just use empty context - no provider/confidence text needed
+                suggestedAmounts.append((amount, ""))
+            }
+        }
+
+        // If no candidates but we have a main amount, add it
+        if suggestedAmounts.isEmpty, let amount = amount {
+            suggestedAmounts.append((amount, ""))
+        }
+
+        // Calculate field confidences from candidates
+        let vendorConfidence = vendorCandidatesArray.first?["confidence"] as? Double ?? (vendorName != nil ? 0.95 : 0.0)
+        let amountConfidence = amountCandidatesArray.first?["confidence"] as? Double ?? (amount != nil ? 0.95 : 0.0)
+        let dateConfidence = dateCandidatesArray.first?["confidence"] as? Double ?? (dueDate != nil ? 0.95 : 0.0)
+        let nipConfidence = nipCandidatesArray.first?["confidence"] as? Double ?? (vendorNIP != nil ? 0.95 : 0.0)
+
+        let fieldConfidences = FieldConfidences(
+            vendorName: vendorConfidence,
+            amount: amountConfidence,
+            dueDate: dateConfidence,
+            documentNumber: documentNumber != nil ? 0.90 : 0.0,
+            nip: nipConfidence,
+            bankAccount: bankAccountNumber != nil ? 0.85 : 0.0
+        )
+
+        // Calculate overall confidence as average of non-zero field confidences
+        let allConfidences = [vendorConfidence, amountConfidence, dateConfidence, nipConfidence]
+            .filter { $0 > 0.0 }
+        let overallConfidence = allConfidences.isEmpty ? 0.0 : allConfidences.reduce(0.0, +) / Double(allConfidences.count)
 
         return DocumentAnalysisResult(
+            documentType: documentType,
             vendorName: vendorName,
             vendorAddress: vendorAddress,
             vendorNIP: vendorNIP,
+            vendorREGON: vendorREGON,
             amount: amount,
-            issueDate: issueDate,
+            currency: currency,
             dueDate: dueDate,
             documentNumber: documentNumber,
-            bankAccount: bankAccount,
-            vendorCandidates: vendorCandidates,
-            nipCandidates: nipCandidates,
-            amountCandidates: amountCandidates,
-            dateCandidates: dateCandidates,
-            documentNumberCandidates: documentNumberCandidates,
-            bankAccountCandidates: bankAccountCandidates
+            bankAccountNumber: bankAccountNumber,
+            suggestedAmounts: suggestedAmounts,
+            amountCandidates: nil, // Cloud AI doesn't provide full candidate structures
+            dateCandidates: nil,
+            vendorCandidates: nil,
+            nipCandidates: nil,
+            bankAccountCandidates: nil,
+            documentNumberCandidates: nil,
+            vendorEvidence: nil, // No bounding boxes from cloud AI
+            amountEvidence: nil,
+            dueDateEvidence: nil,
+            documentNumberEvidence: nil,
+            nipEvidence: nil,
+            bankAccountEvidence: nil,
+            vendorExtractionMethod: .cloudAI,
+            amountExtractionMethod: .cloudAI,
+            dueDateExtractionMethod: .cloudAI,
+            nipExtractionMethod: .cloudAI,
+            overallConfidence: overallConfidence,
+            fieldConfidences: fieldConfidences,
+            provider: "openai-gpt4o",
+            version: 1,
+            rawOCRText: nil
         )
-    }
-
-    private func parseCandidates(from value: Any?) -> [CandidateData] {
-        guard let array = value as? [[String: Any]] else { return [] }
-
-        return array.compactMap { dict in
-            guard let displayValue = dict["displayValue"] as? String,
-                  let confidence = dict["confidence"] as? Double else {
-                return nil
-            }
-
-            let extractionMethod = (dict["extractionMethod"] as? String).flatMap { CandidateData.ExtractionMethod(rawValue: $0) } ?? .cloudAI
-
-            // Parse evidence bounding box if present
-            var evidenceBBox: BoundingBox?
-            if let bboxDict = dict["evidenceBBox"] as? [String: Double],
-               let x = bboxDict["x"],
-               let y = bboxDict["y"],
-               let width = bboxDict["width"],
-               let height = bboxDict["height"] {
-                evidenceBBox = BoundingBox(x: x, y: y, width: width, height: height)
-            }
-
-            return CandidateData(
-                displayValue: displayValue,
-                confidence: confidence,
-                extractionMethod: extractionMethod,
-                evidenceBBox: evidenceBBox
-            )
-        }
     }
     #endif
 }

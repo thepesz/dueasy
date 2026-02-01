@@ -29,10 +29,9 @@ struct DuEasyApp: App {
     @Environment(\.scenePhase) private var scenePhase
 
     init() {
-        // TODO: Phase 3 - Initialize Firebase for cloud integration
-        // FirebaseApp.configure()
-        // This must be called before any Firebase services are used.
-        // Ensure GoogleService-Info.plist is added to the project.
+        // Initialize Firebase for cloud integration (Pro tier)
+        // Note: This will only configure Firebase if GoogleService-Info.plist is present
+        FirebaseConfigurator.shared.configure(for: .pro)
 
         // Initialize localization early
         LocalizationManager.shared.updateLanguage()
@@ -72,9 +71,25 @@ struct DuEasyApp: App {
             fatalError("Failed to initialize SwiftData ModelContainer: \(error)")
         }
 
-        // Initialize app environment with all services
-        let environment = AppEnvironment(modelContext: modelContainer.mainContext)
+        // Initialize app environment with all services (Pro tier for testing)
+        let environment = AppEnvironment(modelContext: modelContainer.mainContext, tier: .pro)
         _appEnvironment = State(initialValue: environment)
+
+        // TESTING: Force enable cloud analysis for testing
+        environment.settingsManager.cloudAnalysisEnabled = true
+        PrivacyLogger.app.info("🧪 TESTING: Cloud analysis force-enabled")
+
+        // Sign in anonymously for testing (Pro tier)
+        Task { @MainActor in
+            do {
+                try await environment.authService.signInAnonymously()
+                if let userId = await environment.authService.currentUserId {
+                    PrivacyLogger.app.info("✅ Signed in anonymously: \(userId)")
+                }
+            } catch {
+                PrivacyLogger.app.error("Failed to sign in anonymously: \(error.localizedDescription)")
+            }
+        }
 
         PrivacyLogger.app.info("DuEasy app initialized")
     }

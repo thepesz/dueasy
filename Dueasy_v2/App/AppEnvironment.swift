@@ -3,6 +3,14 @@ import SwiftData
 import Observation
 import os
 
+#if canImport(FirebaseAuth)
+import FirebaseAuth
+#endif
+
+#if canImport(FirebaseFunctions)
+import FirebaseFunctions
+#endif
+
 // MARK: - App Tier
 
 /// Application tier determining available features.
@@ -226,7 +234,7 @@ final class AppEnvironment {
     func makeExtractAndSuggestFieldsUseCase() -> ExtractAndSuggestFieldsUseCase {
         ExtractAndSuggestFieldsUseCase(
             ocrService: ocrService,
-            analysisService: documentAnalysisService
+            analysisRouter: analysisRouter
         )
     }
 

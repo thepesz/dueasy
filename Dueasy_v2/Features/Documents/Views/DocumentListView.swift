@@ -152,6 +152,15 @@ struct DocumentListView: View {
                         reduceMotion ? .none : .spring(response: 0.4, dampingFraction: 0.8).delay(Double(index) * 0.05),
                         value: appeared
                     )
+                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                        Button(role: .destructive) {
+                            Task {
+                                await viewModel.deleteDocument(document)
+                            }
+                        } label: {
+                            Label(L10n.Common.delete.localized, systemImage: "trash")
+                        }
+                    }
                     .contextMenu {
                         Button(role: .destructive) {
                             Task {

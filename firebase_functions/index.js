@@ -13,8 +13,13 @@
 
 const {onCall, HttpsError} = require('firebase-functions/v2/https');
 const {setGlobalOptions} = require('firebase-functions/v2');
+const {defineString} = require('firebase-functions/params');
 const admin = require('firebase-admin');
 const OpenAI = require('openai');
+
+// Define parameters for environment config
+const openaiApiKey = defineString('OPENAI_API_KEY');
+const openaiModel = defineString('OPENAI_MODEL', {default: 'gpt-4o'});
 
 // Initialize Firebase Admin
 admin.initializeApp();
@@ -25,12 +30,16 @@ setGlobalOptions({
   maxInstances: 10,
 });
 
-// Initialize OpenAI client
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
-const OPENAI_MODEL = process.env.OPENAI_MODEL || 'gpt-4o';
+// Lazy initialization of OpenAI client
+let openai;
+function getOpenAIClient() {
+  if (!openai) {
+    openai = new OpenAI({
+      apiKey: openaiApiKey.value(),
+    });
+  }
+  return openai;
+}
 
 // Rate limiting cache (in-memory, resets on cold start)
 const rateLimits = new Map();
@@ -85,14 +94,16 @@ exports.analyzeDocument = onCall({
     );
   }
 
-  // Verify user has Pro subscription
-  const hasPro = await checkProSubscription(auth.uid);
-  if (!hasPro) {
-    throw new HttpsError(
-      'permission-denied',
-      'Pro subscription required for AI analysis. Please upgrade to continue.'
-    );
-  }
+  // TESTING: Temporarily skip Pro subscription check
+  // TODO: Re-enable this check after testing
+  // const hasPro = await checkProSubscription(auth.uid);
+  // if (!hasPro) {
+  //   throw new HttpsError(
+  //     'permission-denied',
+  //     'Pro subscription required for AI analysis. Please upgrade to continue.'
+  //   );
+  // }
+  console.log('⚠️ TESTING MODE: Skipping Pro subscription check for user:', auth.uid);
 
   try {
     console.log('Starting AI analysis', {
@@ -109,8 +120,8 @@ exports.analyzeDocument = onCall({
     );
 
     // Call OpenAI
-    const completion = await openai.chat.completions.create({
-      model: OPENAI_MODEL,
+    const completion = await getOpenAIClient().chat.completions.create({
+      model: openaiModel.value(),
       temperature: 0.1, // Low temperature for consistent extraction
       response_format: {type: 'json_object'},
       messages: [
@@ -135,7 +146,7 @@ exports.analyzeDocument = onCall({
       promptTokens: completion.usage.prompt_tokens,
       completionTokens: completion.usage.completion_tokens,
       model: completion.model,
-      estimatedCost: estimateCost(completion.usage.total_tokens, OPENAI_MODEL),
+      estimatedCost: estimateCost(completion.usage.total_tokens, openaiModel.value()),
     });
 
     // Update user usage statistics
@@ -246,7 +257,7 @@ exports.analyzeDocumentWithImages = onCall({
     ];
 
     // Call OpenAI Vision
-    const completion = await openai.chat.completions.create({
+    const completion = await getOpenAIClient().chat.completions.create({
       model: 'gpt-4o', // Vision requires gpt-4o
       temperature: 0.1,
       response_format: {type: 'json_object'},
@@ -427,6 +438,18 @@ Extract these fields with maximum confidence:
 6. due_date: Payment due date (ISO 8601: YYYY-MM-DD)
 7. document_number: Invoice/document number (exact as printed)
 8. bank_account: Bank account for payment (IBAN or Polish 26-digit)
+
+CRITICAL RULES FOR VENDOR INFORMATION:
+- Polish: Look for sections labeled "Sprzedawca", "Sprzedający", "Dostawca"
+- English: Look for sections labeled "Seller", "Vendor", "From", "Supplier"
+- PRIORITIZE vendor info from labeled sections (near "Sprzedawca"/"Seller" label)
+- IGNORE vendor info from:
+  * Stamps or seals (pieczątki)
+  * Footer or signature areas
+  * "Wystawił" (issued by) sections
+  * Header logos or watermarks
+- Vendor address should be complete: street + building number + postal code + city
+- Example: "02-672 Warszawa, ul. Domaniewska 39"
 
 CRITICAL RULES FOR AMOUNTS:
 - Polish: "do zapłaty" = amount due (HIGHEST PRIORITY)

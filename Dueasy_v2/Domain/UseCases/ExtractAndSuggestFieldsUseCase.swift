@@ -7,15 +7,15 @@ import os.log
 struct ExtractAndSuggestFieldsUseCase: Sendable {
 
     private let ocrService: OCRServiceProtocol
-    private let analysisService: DocumentAnalysisServiceProtocol
+    private let analysisRouter: DocumentAnalysisRouterProtocol
     private let logger = Logger(subsystem: "com.dueasy.app", category: "ExtractUseCase")
 
     init(
         ocrService: OCRServiceProtocol,
-        analysisService: DocumentAnalysisServiceProtocol
+        analysisRouter: DocumentAnalysisRouterProtocol
     ) {
         self.ocrService = ocrService
-        self.analysisService = analysisService
+        self.analysisRouter = analysisRouter
     }
 
     /// Extracts text and analyzes document content using 2-pass OCR with confidence weighting.
@@ -53,15 +53,17 @@ struct ExtractAndSuggestFieldsUseCase: Sendable {
             logger.warning("OCR found no text in images")
             return DocumentAnalysisResult(
                 overallConfidence: 0.0,
-                provider: analysisService.providerIdentifier,
-                version: analysisService.analysisVersion
+                provider: "local",
+                version: 1
             )
         }
 
-        // Step 2: Analyze using full OCR result (with lineData for confidence-weighted scoring)
-        let analysisResult = try await analysisService.analyzeDocument(
+        // Step 2: Analyze using router (local first, cloud assist if needed)
+        let analysisResult = try await analysisRouter.analyzeDocument(
             ocrResult: ocrResult,
-            documentType: documentType
+            images: images,
+            documentType: documentType,
+            forceCloud: false
         )
 
         logger.info("Analysis completed: vendor=\(analysisResult.vendorName != nil), amount=\(analysisResult.amount != nil), date=\(analysisResult.dueDate != nil), invoice#=\(analysisResult.documentNumber != nil)")

@@ -54,6 +54,15 @@ final class FirebaseAuthService: AuthServiceProtocol {
         #endif
     }
 
+    func signInAnonymously() async throws {
+        #if canImport(FirebaseAuth)
+        _ = try await Auth.auth().signInAnonymously()
+        print("✅ Firebase: Signed in anonymously")
+        #else
+        throw AppError.featureUnavailable("Firebase SDK not available")
+        #endif
+    }
+
     func signInWithApple() async throws {
         #if canImport(FirebaseAuth)
         // Implementation would use Sign in with Apple flow + Firebase Auth

@@ -161,9 +161,15 @@ final class AppleVisionOCRService: OCRServiceProtocol, @unchecked Sendable {
             throw AppError.ocrFailed("Invalid image format")
         }
 
+        // DEBUG: Log image dimensions
+        PrivacyLogger.ocr.info("📸 Image dimensions: \(cgImage.width)x\(cgImage.height), bitsPerComponent=\(cgImage.bitsPerComponent), colorSpace=\(cgImage.colorSpace?.name as String? ?? "nil")")
+
         // Step 1: Pre-process image for better OCR results
         var stats = PreprocessingStats()
         let processedImage = preprocessImageEnhanced(cgImage, stats: &stats)
+
+        // DEBUG: Log processed image dimensions
+        PrivacyLogger.ocr.info("🔧 Processed image dimensions: \(processedImage.width)x\(processedImage.height)")
 
         logPreprocessingStats(stats)
 
@@ -233,9 +239,12 @@ final class AppleVisionOCRService: OCRServiceProtocol, @unchecked Sendable {
                 }
 
                 guard let observations = request.results as? [VNRecognizedTextObservation] else {
+                    PrivacyLogger.ocr.warning("⚠️ No observations returned from Vision request for \(config.passName) pass")
                     continuation.resume(returning: OCRResult.empty)
                     return
                 }
+
+                PrivacyLogger.ocr.info("👁️ Vision returned \(observations.count) observations for \(config.passName) pass")
 
                 var lines: [String] = []
                 var confidences: [Double] = []

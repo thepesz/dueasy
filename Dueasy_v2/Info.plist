@@ -29,6 +29,8 @@
 	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>DuEasy uses your camera to scan documents like invoices and receipts.</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>DuEasy uses Face ID to securely lock your financial documents and protect your privacy.</string>
 	<key>NSCalendarsUsageDescription</key>
 	<string>DuEasy adds payment due dates to your calendar so you never miss a deadline.</string>
 	<key>NSCalendarsWriteOnlyAccessUsageDescription</key>

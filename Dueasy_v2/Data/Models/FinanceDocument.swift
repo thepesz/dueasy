@@ -50,6 +50,9 @@ final class FinanceDocument {
     /// Vendor address (street, city, postal code)
     var vendorAddress: String?
 
+    /// Vendor NIP (Polish tax ID number)
+    var vendorNIP: String?
+
     /// Bank account number for payment (IBAN or Polish 26-digit)
     var bankAccountNumber: String?
 
@@ -126,6 +129,7 @@ final class FinanceDocument {
         sourceFileURL: String? = nil,
         documentNumber: String? = nil,
         vendorAddress: String? = nil,
+        vendorNIP: String? = nil,
         bankAccountNumber: String? = nil,
         calendarEventId: String? = nil,
         reminderOffsetsDays: [Int] = [7, 1, 0],
@@ -149,6 +153,7 @@ final class FinanceDocument {
         self.sourceFileURL = sourceFileURL
         self.documentNumber = documentNumber
         self.vendorAddress = vendorAddress
+        self.vendorNIP = vendorNIP
         self.bankAccountNumber = bankAccountNumber
         self.calendarEventId = calendarEventId
         self.reminderOffsetsDays = reminderOffsetsDays
@@ -174,6 +179,9 @@ final class FinanceDocument {
         }
         if let vendorAddress = result.vendorAddress, !vendorAddress.isEmpty {
             self.vendorAddress = vendorAddress
+        }
+        if let vendorNIP = result.vendorNIP, !vendorNIP.isEmpty {
+            self.vendorNIP = vendorNIP
         }
         if let amount = result.amount {
             self.amount = amount

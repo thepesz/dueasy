@@ -105,6 +105,14 @@ struct AddDocumentView: View {
                         onSave: {
                             showingReview = false
                             dismiss()
+                        },
+                        onDismiss: { saved in
+                            if !saved {
+                                // Delete unsaved draft to prevent "Untitled" entries
+                                Task {
+                                    await viewModel.deleteUnsavedDraft()
+                                }
+                            }
                         }
                     )
                     .environment(environment)
@@ -307,12 +315,14 @@ final class AddDocumentViewModel {
 
     // MARK: - Dependencies
 
+    private let environment: AppEnvironment
     private let createDocumentUseCase: CreateDocumentUseCase
     private let scanAndAttachUseCase: ScanAndAttachFileUseCase
 
     // MARK: - Initialization
 
     init(environment: AppEnvironment) {
+        self.environment = environment
         self.createDocumentUseCase = environment.makeCreateDocumentUseCase()
         self.scanAndAttachUseCase = environment.makeScanAndAttachFileUseCase()
     }
@@ -353,6 +363,19 @@ final class AddDocumentViewModel {
     /// Clear current error
     func clearError() {
         error = nil
+    }
+
+    /// Delete unsaved draft document
+    func deleteUnsavedDraft() async {
+        guard let document = currentDocument else { return }
+
+        do {
+            let deleteUseCase = environment.makeDeleteDocumentUseCase()
+            try await deleteUseCase.execute(documentId: document.id)
+            currentDocument = nil
+        } catch {
+            // Silently fail - draft cleanup is non-critical
+        }
     }
 
     /// Reset state

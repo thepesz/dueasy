@@ -137,6 +137,7 @@
 "detail.created" = "Utworzono";
 "detail.notSpecified" = "Nie okreslono";
 "detail.address" = "Adres";
+"detail.nip" = "NIP";
 "detail.bankAccount" = "Numer konta";
 "detail.added" = "Dodano";
 "detail.notAdded" = "Nie dodano";
@@ -152,6 +153,29 @@
 "detail.markAsPaid" = "Oznacz jako zaplacone";
 "detail.deleting" = "Usuwanie...";
 "detail.editDocument" = "Edytuj dokument";
+
+// MARK: - Edit Document
+
+"edit.title" = "Edytuj fakture";
+"edit.vendorName" = "Nazwa sprzedawcy";
+"edit.vendorNamePlaceholder" = "Nazwa firmy";
+"edit.vendorAddress" = "Adres sprzedawcy";
+"edit.vendorAddressPlaceholder" = "Pelny adres";
+"edit.nip" = "NIP";
+"edit.nipPlaceholder" = "Numer NIP";
+"edit.amount" = "Kwota";
+"edit.amountPlaceholder" = "0,00";
+"edit.currency" = "Waluta";
+"edit.dueDate" = "Termin platnosci";
+"edit.documentNumber" = "Numer faktury";
+"edit.documentNumberPlaceholder" = "Numer faktury";
+"edit.bankAccount" = "Numer konta";
+"edit.bankAccountPlaceholder" = "Numer konta";
+"edit.notes" = "Notatki";
+"edit.notesPlaceholder" = "Dodatkowe notatki";
+"edit.saving" = "Zapisywanie...";
+"edit.required" = "(wymagane)";
+"edit.optional" = "(opcjonalnie)";
 
 // MARK: - Due Dates
 

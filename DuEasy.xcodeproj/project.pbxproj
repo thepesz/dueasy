@@ -6,6 +6,12 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		CC78B4802F2ED6490048D654 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = CC78B47F2F2ED6490048D654 /* FirebaseAuth */; };
+		CC78B4822F2ED6510048D654 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = CC78B4812F2ED6510048D654 /* FirebaseCore */; };
+		CC78B4842F2ED6590048D654 /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = CC78B4832F2ED6590048D654 /* FirebaseFunctions */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		CCDD80182F2D795400080A4A /* Dueasy_v2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Dueasy_v2.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -36,16 +42,27 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CC78B4842F2ED6590048D654 /* FirebaseFunctions in Frameworks */,
+				CC78B4822F2ED6510048D654 /* FirebaseCore in Frameworks */,
+				CC78B4802F2ED6490048D654 /* FirebaseAuth in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		CC78B47E2F2ED6490048D654 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		CCDD800F2F2D795400080A4A = {
 			isa = PBXGroup;
 			children = (
 				CCDD801A2F2D795400080A4A /* Dueasy_v2 */,
+				CC78B47E2F2ED6490048D654 /* Frameworks */,
 				CCDD80192F2D795400080A4A /* Products */,
 			);
 			sourceTree = "<group>";
@@ -78,6 +95,9 @@
 			);
 			name = Dueasy_v2;
 			packageProductDependencies = (
+				CC78B47F2F2ED6490048D654 /* FirebaseAuth */,
+				CC78B4812F2ED6510048D654 /* FirebaseCore */,
+				CC78B4832F2ED6590048D654 /* FirebaseFunctions */,
 			);
 			productName = Dueasy_v2;
 			productReference = CCDD80182F2D795400080A4A /* Dueasy_v2.app */;
@@ -108,6 +128,9 @@
 			);
 			mainGroup = CCDD800F2F2D795400080A4A;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				CC78B47D2F2ED5AF0048D654 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = CCDD80192F2D795400080A4A /* Products */;
 			projectDirPath = "";
@@ -338,6 +361,35 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		CC78B47D2F2ED5AF0048D654 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.8.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		CC78B47F2F2ED6490048D654 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CC78B47D2F2ED5AF0048D654 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		CC78B4812F2ED6510048D654 /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CC78B47D2F2ED5AF0048D654 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
+		};
+		CC78B4832F2ED6590048D654 /* FirebaseFunctions */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CC78B47D2F2ED5AF0048D654 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFunctions;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = CCDD80102F2D795400080A4A /* Project object */;
 }
