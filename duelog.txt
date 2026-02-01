@@ -1,10 +1,10 @@
-12.8.0 - [FirebaseCore][I-COR000008] The project's Bundle ID is inconsistent with either the Bundle ID in 'GoogleService-Info.plist', or the Bundle ID in the options if you are using a customized options. To ensure that everything can be configured correctly, you may need to make the Bundle IDs consistent. To continue with this plist file, you may change your app's bundle identifier to 'com.dueasy.app'. Or you can download a new configuration file that matches your bundle identifier from https://console.firebase.google.com/ and replace the current one.
 ✅ Firebase configured successfully
-✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/6B9CA1E0-8C73-4B06-897E-95D08361C05E/Dueasy_v2.app/pl.lproj
-✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/6B9CA1E0-8C73-4B06-897E-95D08361C05E/Dueasy_v2.app/pl.lproj
+✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/D955C7FE-7562-43F4-9C60-7EFFA497202E/Dueasy_v2.app/pl.lproj
+✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/D955C7FE-7562-43F4-9C60-7EFFA497202E/Dueasy_v2.app/pl.lproj
+12.8.0 - [FirebaseCore][I-COR000008] The project's Bundle ID is inconsistent with either the Bundle ID in 'GoogleService-Info.plist', or the Bundle ID in the options if you are using a customized options. To ensure that everything can be configured correctly, you may need to make the Bundle IDs consistent. To continue with this plist file, you may change your app's bundle identifier to 'com.dueasy.app'. Or you can download a new configuration file that matches your bundle identifier from https://console.firebase.google.com/ and replace the current one.
 12.8.0 - [GoogleUtilities/AppDelegateSwizzler][I-SWZ001014] App Delegate does not conform to UIApplicationDelegate protocol.
 Applied file protection to 3 database files, excluded 3 from backup
-✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/6B9CA1E0-8C73-4B06-897E-95D08361C05E/Dueasy_v2.app/pl.lproj
+✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/D955C7FE-7562-43F4-9C60-7EFFA497202E/Dueasy_v2.app/pl.lproj
 AppleVisionOCRService initialized with 2-pass recognition
 Recognition languages: pl-PL, en-US
 Standard pass minTextHeight: 0.012000
@@ -13,11 +13,11 @@ numANECores: Unknown aneSubType
 Vision supported languages: 30 languages
 LayoutFirstInvoiceParser initialized
 AppEnvironment initialized for tier: Pro (Firebase active)
-✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/6B9CA1E0-8C73-4B06-897E-95D08361C05E/Dueasy_v2.app/pl.lproj
+✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/D955C7FE-7562-43F4-9C60-7EFFA497202E/Dueasy_v2.app/pl.lproj
 🧪 TESTING: Cloud analysis force-enabled
 DuEasy app initialized
-✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/6B9CA1E0-8C73-4B06-897E-95D08361C05E/Dueasy_v2.app/pl.lproj
-✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/6B9CA1E0-8C73-4B06-897E-95D08361C05E/Dueasy_v2.app/pl.lproj
+✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/D955C7FE-7562-43F4-9C60-7EFFA497202E/Dueasy_v2.app/pl.lproj
+✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/D955C7FE-7562-43F4-9C60-7EFFA497202E/Dueasy_v2.app/pl.lproj
 Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
 Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
 Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
@@ -25,214 +25,28 @@ Requesting visual style in an implementation that has disabled it, returning nil
 Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
 Checking for vendor migrations to global version 1
 No vendors need migration - all up to date
-App became active
-✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/6B9CA1E0-8C73-4B06-897E-95D08361C05E/Dueasy_v2.app/pl.lproj
+✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/D955C7FE-7562-43F4-9C60-7EFFA497202E/Dueasy_v2.app/pl.lproj
 ✅ Firebase: Signed in anonymously
 ✅ Signed in anonymously: wisOjM8nqQd1rzdlHCATrExy8al2
 Security event: biometric_auth, success=true
 Security event: app_unlocked, success=true
+📱 DocumentRow tapped: B7815601-0B4D-4D50-9A88-1A71BDCF2A2D - Weblity Spótka Cywilna Adrian Maciaszek Arkadiusz
+📱 Appending document ID to navigation path: B7815601-0B4D-4D50-9A88-1A71BDCF2A2D
+📱 NavigationDestination triggered for document ID: B7815601-0B4D-4D50-9A88-1A71BDCF2A2D
+📱 DocumentDetailViewWrapper created for ID: B7815601-0B4D-4D50-9A88-1A71BDCF2A2D
+📋 DocumentDetailViewModel.loadDocument() called for ID: B7815601-0B4D-4D50-9A88-1A71BDCF2A2D
+📋 Document fetched successfully: true
+📋 Document details - Title: Weblity Spótka Cywilna Adrian Maciaszek Arkadiusz, NIP: 8522541213
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
 App became active
-📱 DocumentRow tapped: 82FE20EE-9158-4074-8E3E-01EDB631FC89 - Volkswagen Financial Services Polska Sp. z o.o.
-📱 Appending document ID to navigation path: 82FE20EE-9158-4074-8E3E-01EDB631FC89
-📱 NavigationDestination triggered for document ID: 82FE20EE-9158-4074-8E3E-01EDB631FC89
-📱 DocumentDetailViewWrapper created for ID: 82FE20EE-9158-4074-8E3E-01EDB631FC89
-📋 DocumentDetailViewModel.loadDocument() called for ID: 82FE20EE-9158-4074-8E3E-01EDB631FC89
-📋 Document fetched successfully: true
-📋 Document details - Title: Volkswagen Financial Services Polska Sp. z o.o., NIP: 5252800978
+📱 NavigationDestination triggered for document ID: B7815601-0B4D-4D50-9A88-1A71BDCF2A2D
+📱 DocumentDetailViewWrapper created for ID: B7815601-0B4D-4D50-9A88-1A71BDCF2A2D
 Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
 Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
 Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
 Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
 Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/6B9CA1E0-8C73-4B06-897E-95D08361C05E/Dueasy_v2.app/pl.lproj
-Initialized VNDocumentCameraViewController (VisionKit document scanner)
-Scanner provides: edge detection, perspective correction, contrast enhancement
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Unable to simultaneously satisfy constraints.
-	Probably at least one of the constraints in the following list is one you don't want. 
-	Try this: 
-		(1) look at each constraint and try to figure out which you don't expect; 
-		(2) find the code that added the unwanted constraint or constraints and fix it. 
-	(Note: If you're seeing NSAutoresizingMaskLayoutConstraints that you don't understand, refer to the documentation for the UIView property translatesAutoresizingMaskIntoConstraints) 
-(
-    "<NSAutoresizingMaskLayoutConstraint:0x1197a87d0 h=--& v=--& _TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x119780700.width == 0   (active)>",
-    "<NSLayoutConstraint:0x1197a80f0 _TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x119780700.leading == _UIButtonBarButton:0x1194ea080.leading   (active)>",
-    "<NSLayoutConstraint:0x1197a8140 H:[_UIButtonBarButton:0x1194ea080]-(0)-|   (active, names: '|':_TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x119780700 )>",
-    "<NSLayoutConstraint:0x1196c7840 'IB_Leading_Leading' H:|-(2)-[_UIModernBarButton:0x1196f5c00]   (active, names: '|':_UIButtonBarButton:0x1194ea080 )>",
-    "<NSLayoutConstraint:0x118bc5040 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x1196f5c00]-(2)-|   (active, names: '|':_UIButtonBarButton:0x1194ea080 )>"
-)
-
-Will attempt to recover by breaking constraint 
-<NSLayoutConstraint:0x118bc5040 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x1196f5c00]-(2)-|   (active, names: '|':_UIButtonBarButton:0x1194ea080 )>
-
-Make a symbolic breakpoint at UIViewAlertForUnsatisfiableConstraints to catch this in the debugger.
-The methods in the UIConstraintBasedLayoutDebugging category on UIView listed in <UIKitCore/UIView.h> may also be helpful.
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/6B9CA1E0-8C73-4B06-897E-95D08361C05E/Dueasy_v2.app/pl.lproj
-Unable to simultaneously satisfy constraints.
-	Probably at least one of the constraints in the following list is one you don't want. 
-	Try this: 
-		(1) look at each constraint and try to figure out which you don't expect; 
-		(2) find the code that added the unwanted constraint or constraints and fix it. 
-	(Note: If you're seeing NSAutoresizingMaskLayoutConstraints that you don't understand, refer to the documentation for the UIView property translatesAutoresizingMaskIntoConstraints) 
-(
-    "<NSAutoresizingMaskLayoutConstraint:0x1196c5a40 h=--& v=--& _TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x119c96300.width == 0   (active)>",
-    "<NSLayoutConstraint:0x1197a9db0 _TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x119c96300.leading == _UIButtonBarButton:0x11833bc00.leading   (active)>",
-    "<NSLayoutConstraint:0x1197a9e00 H:[_UIButtonBarButton:0x11833bc00]-(0)-|   (active, names: '|':_TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x119c96300 )>",
-    "<NSLayoutConstraint:0x1197a9bd0 'IB_Leading_Leading' H:|-(2)-[_UIModernBarButton:0x1196f4700]   (active, names: '|':_UIButtonBarButton:0x11833bc00 )>",
-    "<NSLayoutConstraint:0x1197a9cc0 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x1196f4700]-(2)-|   (active, names: '|':_UIButtonBarButton:0x11833bc00 )>"
-)
-
-Will attempt to recover by breaking constraint 
-<NSLayoutConstraint:0x1197a9cc0 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x1196f4700]-(2)-|   (active, names: '|':_UIButtonBarButton:0x11833bc00 )>
-
-Make a symbolic breakpoint at UIViewAlertForUnsatisfiableConstraints to catch this in the debugger.
-The methods in the UIConstraintBasedLayoutDebugging category on UIView listed in <UIKitCore/UIView.h> may also be helpful.
-✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/6B9CA1E0-8C73-4B06-897E-95D08361C05E/Dueasy_v2.app/pl.lproj
-✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/6B9CA1E0-8C73-4B06-897E-95D08361C05E/Dueasy_v2.app/pl.lproj
-Document scan completed: 1 page(s) scanned
-Images are pre-processed by VisionKit for optimal OCR quality
-Storage save: pages=1, success=true
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-Processing 1 images for document 215CE72B-2E61-4AF9-AF04-18C16DA46DAE
-📸 Image dimensions: 2046x1991, bitsPerComponent=8, colorSpace=kCGColorSpaceSRGB
-🔧 Processed image dimensions: 2046x1991
-Preprocessing applied: contrast, denoise, sharpen
-Starting 2-pass OCR: Standard + Sensitive passes
-OCR pass Standard configured: minTextHeight=0.012000
-👁️ Vision returned 69 observations for Standard pass
-OCR pass 'Standard': lines=69, avgConfidence=0.993
-OCR pass Sensitive configured: minTextHeight=0.007000
-👁️ Vision returned 69 observations for Sensitive pass
-OCR pass 'Sensitive': lines=69, avgConfidence=0.993
-Merging: Standard=69 lines, Sensitive=69 lines
-Merge complete: 69 duplicates removed, 0 new lines added, 69 total
-OCR completed: lines=69, avgConfidence=0.99, duration=0.00s
-OCR completed: 1126 chars, 69 lines, confidence: 0.993
-OCR line sources: standard=69, sensitive=0, merged=0
-OCR confidence: high=68, medium=0, low=1
-Starting hybrid analysis (local first, cloud assist if needed)
-Analysis started: type=invoice, textLength=1126, lines=69
-Analyzing layout for 69 lines
-Grouped into 26 rows
-Detected 4 columns
-Partitioned into 9 non-empty blocks
-Block bottomCenter: 12 lines
-Block bottomLeft: 8 lines
-Block bottomRight: 19 lines
-Block middleCenter: 8 lines
-Block middleLeft: 2 lines
-Block middleRight: 5 lines
-Block topCenter: 6 lines
-Block topLeft: 7 lines
-Block topRight: 2 lines
-Layout analysis: 26 rows, 4 columns
-Block topLeft: 7 lines
-Block topCenter: 6 lines
-Block topRight: 2 lines
-Block middleLeft: 2 lines
-Block middleCenter: 8 lines
-Block middleRight: 5 lines
-Block bottomLeft: 8 lines
-Block bottomCenter: 12 lines
-Block bottomRight: 19 lines
-Detected 26 anchors in 69 lines
-Anchor: vendorLabel conf=1.00 pattern='sprzedawca'
-Anchor: buyerLabel conf=1.00 pattern='nabywca'
-Anchor: nipLabel conf=1.00 pattern='nip'
-Anchor: nipLabel conf=1.00 pattern='nip'
-Anchor: invoiceNumberLabel conf=1.00 pattern='faktura vat'
-Detected 26 anchors, 9 types
-Found NIP anchor
-Found vendor anchor at Y=0.176
-Vendor accepted with company suffix: 'TOYOTA LEASING POLSKA Sp. z o.o.'
-Vendor block captured: name + 2 address lines
-Vendor rejected: not enough letters 'Konto: 94 2160 0003 0001 0000 0074 2370'
-Vendor rejected: not enough letters 'FAKTURA VAT NR: 22293/11/2025/SP'
-Found amount anchor
-Amount extraction: found 16 candidates
-  Candidate 1: confidence=0.960, y=0.86, source=do-zaplaty: do zapłaty
-  Candidate 2: confidence=0.530, y=0.83, source=region: bottomRight
-  Candidate 3: confidence=0.530, y=0.83, source=region: bottomRight
-  Candidate 4: confidence=0.530, y=0.87, source=region: bottomRight
-  Candidate 5: confidence=0.530, y=0.87, source=region: bottomRight
-Score gap to 2nd place: 0.430
-Selected amount: confidence=0.960, source=do-zaplaty: do zapłaty
-Date ranking: 4 candidates, top score: 70.0
-Date extraction: found 4 candidates
-  Date candidate 1: confidence=0.47, source=date-ranking: old-past-date-penalty, near-due-date-anchor [yyyy-MM-dd]
-  Date candidate 2: confidence=0.27, source=date-ranking: old-past-date-penalty, close-to-anchor [yyyy-MM-dd]
-  Date candidate 3: confidence=0.15, source=date-ranking: too-far-future [yyyy/MM/dd]
-  Date candidate 4: confidence=0.15, source=date-ranking: old-past-date-penalty [yyyy-MM-dd]
-Found invoice number anchor
-Found bank account anchor
-Parsed numeric date '17.11.2025' with format 'dd.MM.yyyy'
-Parsed numeric date '17.11.2025' with format 'dd.MM.yyyy'
-Parsed numeric date '03.11.2025' with format 'dd.MM.yyyy'
-Failed to parse date: '20.11.2293'
-Built candidates: vendor=3, nip=3, amount=3, date=2, docNum=2, bank=1
-Field extracted: type=vendor, method=anchor, confidence=1.00, candidates=3
-Parsing completed: fields=4/4, confidence=1.00
-Local analysis confidence: 0.94
-Low confidence (0.94), requesting cloud assist
-🏢 OpenAI vendor: name=TOYOTA LEASING POLSKA Sp. z o.o., address=Postępu 18B, 02-676 Warszawa, NIP=5213202664
-📅 OpenAI returned dueDate: 2025-11-17
-✅ Parsed dueDate successfully: 2025-11-17 00:00:00 +0000
-Cloud assist successful
-Analysis completed: vendor=true, amount=true, date=true, invoice#=true
-Applied vendor template for NIP: [NIP:***664]
-OCR/Parsing result: hasVendor=true, hasAmount=true, hasDueDate=true, confidence=0.992754
-Set vendor with confidence 1.000000, mode: suggested
-Set amount with confidence 1.000000, mode: suggested
-Found 3 suggested amounts
-Set dueDate with confidence 1.000000, mode: suggested
-Populating ViewModel fields: vendorCandidates=0, amountCandidates=0, dateCandidates=0, nipCandidates=0, docNumCandidates=0, bankCandidates=0
-Saving document - hasVendor: true, hasAmount: true, hasDueDate: true
-Calling finalizeUseCase (amount and date hidden for privacy)
-Recording corrections for adaptive learning
-Correction learning completed
-Feedback recorded successfully for document 215CE72B-2E61-4AF9-AF04-18C16DA46DAE
-Parsing feedback recorded (privacy-safe)
-Finalizing document: hasTitle=true, currency=PLN (amount/date hidden for privacy)
-Document fields updated - NIP: 5213202664, Address: true
-Calendar event creation skipped (skipCalendar=true)
-Saved learning data: amountCorrected=false, dueDateCorrected=false, vendorCorrected=false
-Privacy-safe learning data saved (no PII/financial data)
-Notification authorization: isAuthorized=true, enabled=true
-Cancelled 0 notifications for document: 215CE72B-2E61-4AF9-AF04-18C16DA46DAE
-Updated 0 notification reminders (old ones cancelled)
-Document finalized and saved successfully
-Document saved successfully
-📱 MainTabView: Add document sheet dismissed, triggering refresh
-📱 DocumentListView: External refresh triggered (0 -> 1)
-📱 DocumentRow tapped: 215CE72B-2E61-4AF9-AF04-18C16DA46DAE - TOYOTA LEASING POLSKA Sp. z o.o.
-📱 Appending document ID to navigation path: 215CE72B-2E61-4AF9-AF04-18C16DA46DAE
-📱 NavigationDestination triggered for document ID: 215CE72B-2E61-4AF9-AF04-18C16DA46DAE
-📱 DocumentDetailViewWrapper created for ID: 215CE72B-2E61-4AF9-AF04-18C16DA46DAE
-📋 DocumentDetailViewModel.loadDocument() called for ID: 215CE72B-2E61-4AF9-AF04-18C16DA46DAE
-📋 Document fetched successfully: true
-📋 Document details - Title: TOYOTA LEASING POLSKA Sp. z o.o., NIP: 5213202664

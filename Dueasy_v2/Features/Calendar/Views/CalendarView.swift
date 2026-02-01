@@ -2,9 +2,6 @@ import SwiftUI
 
 /// Calendar view showing documents by due date.
 /// Uses a month grid with day badges indicating document counts and urgency.
-///
-/// ARCHITECTURE NOTE: This view uses stable view identity and proper layout
-/// management to prevent scrolling issues after SwiftData changes.
 struct CalendarView: View {
 
     @Environment(AppEnvironment.self) private var environment
@@ -12,10 +9,6 @@ struct CalendarView: View {
     @Environment(\.colorScheme) private var colorScheme
 
     @State private var viewModel: CalendarViewModel?
-    @State private var appeared = false
-
-    /// Stable identifier for the content view to ensure proper layout after data changes
-    @State private var contentViewID = UUID()
 
     private let weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
 
@@ -32,21 +25,8 @@ struct CalendarView: View {
             .navigationTitle(L10n.CalendarView.title.localized)
         }
         .task {
-            // Reset state for fresh appearance
-            appeared = false
-            contentViewID = UUID()
-
             setupViewModel()
             await viewModel?.loadDocuments()
-
-            // Trigger appearance animation after data loads
-            if !reduceMotion {
-                withAnimation(.easeOut(duration: 0.5)) {
-                    appeared = true
-                }
-            } else {
-                appeared = true
-            }
         }
     }
 
@@ -71,8 +51,6 @@ struct CalendarView: View {
                 // Selected day documents in glass card
                 selectedDaySection(viewModel: viewModel)
             }
-            // Use stable identity to ensure proper layout after data changes
-            .id(contentViewID)
         }
         .refreshable {
             await viewModel.loadDocuments()
@@ -218,12 +196,6 @@ struct CalendarView: View {
                         viewModel.selectDate(date)
                     }
                 }
-                .opacity(appeared ? 1 : 0)
-                .scaleEffect(appeared ? 1 : 0.8)
-                .animation(
-                    reduceMotion ? .none : .spring(response: 0.4, dampingFraction: 0.7).delay(Double(index) * 0.01),
-                    value: appeared
-                )
             }
         }
         .padding(.horizontal, Spacing.md)
