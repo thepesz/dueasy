@@ -36,7 +36,8 @@ struct DocumentListView: View {
                         .gradientBackground(style: .list)
                 }
             }
-            .navigationTitle(L10n.Documents.title.localized)
+            .navigationTitle("")
+            .navigationBarTitleDisplayMode(.inline)
             .sheet(isPresented: $showingAddDocument) {
                 AddDocumentView(environment: environment)
                     .environment(environment)
@@ -51,7 +52,7 @@ struct DocumentListView: View {
             }
             .onChange(of: refreshTrigger) { oldValue, newValue in
                 // External refresh triggered (from MainTabView after adding document)
-                print("📱 DocumentListView: External refresh triggered (\(oldValue) -> \(newValue))")
+                print("DocumentListView: External refresh triggered (\(oldValue) -> \(newValue))")
                 // Clear navigation path to reset NavigationStack state
                 navigationPath = NavigationPath()
                 Task {
@@ -59,7 +60,7 @@ struct DocumentListView: View {
                 }
             }
             .navigationDestination(for: UUID.self) { documentId in
-                let _ = print("📱 NavigationDestination triggered for document ID: \(documentId)")
+                let _ = print("NavigationDestination triggered for document ID: \(documentId)")
                 DocumentDetailViewWrapper(documentId: documentId)
                     .environment(environment)
             }
@@ -82,6 +83,10 @@ struct DocumentListView: View {
 
     // MARK: - Content Views
 
+    private var appHeader: some View {
+        HandwrittenLogo()
+    }
+
     @ViewBuilder
     private func documentListContent(viewModel: DocumentListViewModel) -> some View {
         ZStack {
@@ -90,9 +95,25 @@ struct DocumentListView: View {
                 .ignoresSafeArea()
 
             VStack(spacing: 0) {
+                // App header with handwritten logo
+                appHeader
+                    .padding(.top, Spacing.md)
+                    .padding(.horizontal, Spacing.md)
+
+                // Inline search bar positioned above filters
+                InlineSearchBar(
+                    text: Binding(
+                        get: { viewModel.searchText },
+                        set: { viewModel.searchText = $0 }
+                    ),
+                    placeholder: L10n.Documents.searchPlaceholder.localized
+                )
+                .padding(.horizontal, Spacing.md)
+                .padding(.top, Spacing.sm)
+
                 // Filter bar with glass effect
                 filterBar(viewModel: viewModel)
-                    .padding(.top, Spacing.xs)
+                    .padding(.top, Spacing.sm)
 
                 // Content
                 if viewModel.isLoading && !viewModel.hasDocuments {
@@ -108,14 +129,6 @@ struct DocumentListView: View {
                 }
             }
         }
-        .searchable(
-            text: Binding(
-                get: { viewModel.searchText },
-                set: { viewModel.searchText = $0 }
-            ),
-            placement: .navigationBarDrawer(displayMode: .always),
-            prompt: L10n.Documents.searchPlaceholder.localized
-        )
         .refreshable {
             await viewModel.loadDocuments()
         }
@@ -139,23 +152,47 @@ struct DocumentListView: View {
 
     @ViewBuilder
     private func filterBar(viewModel: DocumentListViewModel) -> some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: Spacing.xs) {
-                ForEach(DocumentFilter.allCases) { filter in
-                    FilterChip(
-                        title: filter.displayName,
-                        icon: filter.iconName,
-                        count: filterCount(for: filter, viewModel: viewModel),
-                        isSelected: viewModel.selectedFilter == filter
-                    ) {
-                        viewModel.setFilter(filter)
+        // Fixed-width glass container with horizontally scrolling content inside
+        // The glass background stays stationary while filter chips scroll within it
+        ZStack {
+            // Glass background (stationary, matches document row styling)
+            RoundedRectangle(cornerRadius: 12)
+                .fill(.ultraThinMaterial)
+                .overlay {
+                    RoundedRectangle(cornerRadius: 12)
+                        .strokeBorder(
+                            LinearGradient(
+                                colors: [
+                                    Color.white.opacity(0.3),
+                                    Color.white.opacity(0.1)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 0.5
+                        )
+                }
+
+            // Scrollable filter chips inside the glass container
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: Spacing.xs) {
+                    ForEach(DocumentFilter.allCases) { filter in
+                        FilterChip(
+                            title: filter.displayName,
+                            icon: filter.iconName,
+                            count: filterCount(for: filter, viewModel: viewModel),
+                            isSelected: viewModel.selectedFilter == filter
+                        ) {
+                            viewModel.setFilter(filter)
+                        }
                     }
                 }
+                .padding(.horizontal, Spacing.sm)
+                .padding(.vertical, Spacing.xs)
             }
-            .padding(.horizontal, Spacing.md)
-            .padding(.vertical, Spacing.sm)
         }
-        .background(.ultraThinMaterial)
+        .frame(height: 44)
+        .padding(.horizontal, Spacing.md)
     }
 
     private func filterCount(for filter: DocumentFilter, viewModel: DocumentListViewModel) -> Int? {
@@ -179,7 +216,7 @@ struct DocumentListView: View {
             LazyVStack(spacing: Spacing.sm) {
                 ForEach(Array(viewModel.filteredDocuments.enumerated()), id: \.element.id) { index, document in
                     DocumentRow(document: document) {
-                        print("📱 Appending document ID to navigation path: \(document.id)")
+                        print("Appending document ID to navigation path: \(document.id)")
                         navigationPath.append(document.id)
                     }
                     .opacity(appeared ? 1 : 0)
@@ -209,7 +246,7 @@ struct DocumentListView: View {
                 }
             }
             .padding(.horizontal, Spacing.md)
-            .padding(.top, Spacing.md)
+            .padding(.top, Spacing.sm)
             .padding(.bottom, Spacing.xxl)
         }
         .scrollIndicators(.hidden)
@@ -236,6 +273,219 @@ struct DocumentListView: View {
     }
 }
 
+// MARK: - Handwritten Logo Component
+
+/// A casual handmade-style logo for DuEasy.
+/// Designed to look friendly and approachable, like handwritten text.
+///
+/// Design rationale:
+/// - Uses rounded italic fonts for a casual, friendly handmade feel
+/// - Subtle rotation and offset give natural handwritten character
+/// - Shadow adds depth without being too formal
+/// - Gradient maintains brand identity
+/// - Centered with descriptive tagline
+///
+/// Accessibility:
+/// - Respects reduceTransparency: disables blur/shadow layers
+/// - Works in both light and dark mode with appropriate colors
+struct HandwrittenLogo: View {
+
+    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+
+    /// Logo gradient colors - sophisticated blue tones
+    private var logoGradient: LinearGradient {
+        LinearGradient(
+            colors: [
+                Color(red: 0.15, green: 0.35, blue: 0.65),  // Deep ink blue
+                AppColors.primary,                          // Brand blue
+                Color(red: 0.25, green: 0.45, blue: 0.75)   // Lighter accent
+            ],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+    }
+
+    /// Ink shadow color for pen effect
+    private var inkShadowColor: Color {
+        colorScheme == .dark
+            ? Color.black.opacity(0.5)
+            : Color(red: 0.1, green: 0.15, blue: 0.3).opacity(0.3)
+    }
+
+    /// Paper highlight for embossed effect
+    private var highlightColor: Color {
+        colorScheme == .dark
+            ? Color.white.opacity(0.08)
+            : Color.white.opacity(0.6)
+    }
+
+    var body: some View {
+        VStack(alignment: .center, spacing: Spacing.xxs) {
+            // Main logo with handwritten styling
+            ZStack {
+                // Layer 1: Soft shadow for depth
+                if !reduceTransparency {
+                    logoText
+                        .foregroundStyle(inkShadowColor)
+                        .blur(radius: 1.5)
+                        .offset(x: 0.5, y: 1.5)
+                }
+
+                // Layer 2: Main text with gradient
+                logoText
+                    .foregroundStyle(logoGradient)
+            }
+            .frame(maxWidth: .infinity, alignment: .center)
+
+            // Tagline
+            Text("Your Finance Assistant")
+                .font(.system(size: 11, weight: .medium, design: .rounded))
+                .foregroundStyle(.secondary)
+                .tracking(1.5)
+                .textCase(.uppercase)
+        }
+    }
+
+    /// The main logo text with casual handmade styling
+    private var logoText: some View {
+        HStack(alignment: .bottom, spacing: 2) {
+            // "Du" with casual friendly style
+            Text("Du")
+                .font(.system(size: 38, weight: .semibold, design: .rounded))
+                .italic()
+                .rotationEffect(.degrees(-3), anchor: .bottom)
+
+            // "Easy" with playful handmade feel
+            Text("Easy")
+                .font(.system(size: 38, weight: .medium, design: .rounded))
+                .italic()
+                .rotationEffect(.degrees(2), anchor: .bottom)
+                .offset(y: 2)
+        }
+        .kerning(-0.5)
+    }
+
+    /// Decorative flourish line below the logo
+    private var flourishLine: some View {
+        GeometryReader { geometry in
+            Path { path in
+                let width = min(geometry.size.width * 0.4, 120)
+                let height: CGFloat = 3
+
+                // Start with a small loop (pen landing)
+                path.move(to: CGPoint(x: 0, y: height * 0.5))
+
+                // Elegant S-curve flourish
+                path.addCurve(
+                    to: CGPoint(x: width * 0.3, y: 0),
+                    control1: CGPoint(x: width * 0.1, y: height * 0.8),
+                    control2: CGPoint(x: width * 0.2, y: height * 0.2)
+                )
+
+                path.addCurve(
+                    to: CGPoint(x: width * 0.7, y: height),
+                    control1: CGPoint(x: width * 0.4, y: -height * 0.3),
+                    control2: CGPoint(x: width * 0.6, y: height * 0.8)
+                )
+
+                // Taper to a point (pen lifting)
+                path.addCurve(
+                    to: CGPoint(x: width, y: height * 0.3),
+                    control1: CGPoint(x: width * 0.85, y: height * 1.2),
+                    control2: CGPoint(x: width * 0.95, y: height * 0.5)
+                )
+            }
+            .stroke(
+                logoGradient,
+                style: StrokeStyle(
+                    lineWidth: 1.5,
+                    lineCap: .round,
+                    lineJoin: .round
+                )
+            )
+            .opacity(0.6)
+        }
+        .frame(height: 6)
+    }
+}
+
+// MARK: - Inline Search Bar
+
+/// A custom inline search bar with glass morphism styling.
+/// Positioned directly above the document list for quick access.
+///
+/// Design rationale:
+/// - Uses ultraThinMaterial for iOS 26 Liquid Glass aesthetic
+/// - Matches the filter bar visual language
+/// - Provides clear visual feedback during focus
+struct InlineSearchBar: View {
+
+    @Binding var text: String
+    let placeholder: String
+
+    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+    @FocusState private var isFocused: Bool
+
+    var body: some View {
+        HStack(spacing: Spacing.xs) {
+            // Search icon
+            Image(systemName: "magnifyingglass")
+                .font(.system(size: 15, weight: .medium))
+                .foregroundStyle(isFocused ? AppColors.primary : .secondary)
+
+            // Text field
+            TextField(placeholder, text: $text)
+                .font(Typography.body)
+                .foregroundStyle(.primary)
+                .focused($isFocused)
+                .submitLabel(.search)
+
+            // Clear button (shown when text is not empty)
+            if !text.isEmpty {
+                Button {
+                    text = ""
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.system(size: 15))
+                        .foregroundStyle(.secondary)
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(.horizontal, Spacing.sm)
+        .padding(.vertical, Spacing.xs + 2)
+        .background {
+            if reduceTransparency {
+                // Solid background for accessibility
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(AppColors.secondaryBackground)
+            } else {
+                // Glass effect background
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(.ultraThinMaterial)
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 10)
+                            .strokeBorder(
+                                LinearGradient(
+                                    colors: [
+                                        isFocused ? AppColors.primary.opacity(0.5) : Color.white.opacity(colorScheme == .light ? 0.6 : 0.2),
+                                        isFocused ? AppColors.primary.opacity(0.3) : Color.white.opacity(0.1)
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ),
+                                lineWidth: isFocused ? 1.5 : 0.5
+                            )
+                    }
+            }
+        }
+        .animation(.easeInOut(duration: 0.2), value: isFocused)
+        .animation(.easeInOut(duration: 0.15), value: text.isEmpty)
+    }
+}
+
 // MARK: - Filter Chip
 
 struct FilterChip: View {
@@ -248,8 +498,6 @@ struct FilterChip: View {
     let count: Int?
     let isSelected: Bool
     let action: () -> Void
-
-    @State private var isPressed = false
 
     var body: some View {
         Button(action: action) {
@@ -308,26 +556,8 @@ struct FilterChip: View {
                         }
                 }
             }
-            .scaleEffect(isPressed ? 0.95 : 1.0)
         }
         .buttonStyle(.plain)
-        .simultaneousGesture(
-            DragGesture(minimumDistance: 0)
-                .onChanged { _ in
-                    if !reduceMotion {
-                        withAnimation(.easeInOut(duration: 0.1)) {
-                            isPressed = true
-                        }
-                    }
-                }
-                .onEnded { _ in
-                    if !reduceMotion {
-                        withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
-                            isPressed = false
-                        }
-                    }
-                }
-        )
     }
 }
 
@@ -341,7 +571,7 @@ struct DocumentDetailViewWrapper: View {
     let documentId: UUID
 
     var body: some View {
-        let _ = print("📱 DocumentDetailViewWrapper created for ID: \(documentId)")
+        let _ = print("DocumentDetailViewWrapper created for ID: \(documentId)")
         DocumentDetailView(documentId: documentId)
             .environment(environment)
     }
