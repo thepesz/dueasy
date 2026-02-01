@@ -83,27 +83,13 @@ enum CardStyle {
 }
 
 /// Glass background using system materials with enhanced styling
+/// PERFORMANCE: Now uses CardMaterial for optimized single-layer blur
 struct GlassBackground: View {
     @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
-        ZStack {
-            // Base material for blur effect
-            RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous)
-                .fill(.ultraThinMaterial)
-
-            // Inner glow for depth
-            RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous)
-                .fill(
-                    LinearGradient(
-                        colors: colorScheme == .light
-                            ? [Color.white.opacity(0.5), Color.white.opacity(0.1)]
-                            : [Color.white.opacity(0.1), Color.white.opacity(0.02)],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                )
-        }
+        // PERFORMANCE: Replaced ZStack with CardMaterial to reduce blur layers
+        CardMaterial(cornerRadius: CornerRadius.lg, addHighlight: true)
     }
 }
 
@@ -125,61 +111,23 @@ struct PremiumGlassCard<Content: View>: View {
     }
 
     var body: some View {
+        // PERFORMANCE: Uses CardMaterial for optimized single-layer blur
         content()
             .cardPadding()
             .background {
-                if reduceTransparency {
-                    RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous)
-                        .fill(AppColors.secondaryBackground)
-                } else {
-                    ZStack {
-                        // Material base
-                        RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous)
-                            .fill(.ultraThinMaterial)
-
-                        // Colored accent glow
-                        RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous)
-                            .fill(
-                                LinearGradient(
-                                    colors: [
-                                        accentColor.opacity(colorScheme == .light ? 0.1 : 0.15),
-                                        accentColor.opacity(0)
-                                    ],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
-                            )
-
-                        // Shimmer highlight
-                        RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous)
-                            .fill(
-                                LinearGradient(
-                                    colors: [
-                                        Color.white.opacity(colorScheme == .light ? 0.4 : 0.15),
-                                        Color.white.opacity(0)
-                                    ],
-                                    startPoint: .top,
-                                    endPoint: .center
-                                )
-                            )
-                    }
-                }
+                CardMaterial(
+                    cornerRadius: CornerRadius.lg,
+                    addHighlight: true,
+                    accentColor: accentColor
+                )
             }
             .clipShape(RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous))
             .overlay {
-                RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous)
-                    .strokeBorder(
-                        LinearGradient(
-                            colors: [
-                                accentColor.opacity(0.4),
-                                Color.white.opacity(colorScheme == .light ? 0.6 : 0.2),
-                                accentColor.opacity(0.2)
-                            ],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        ),
-                        lineWidth: 1
-                    )
+                GlassBorder(
+                    cornerRadius: CornerRadius.lg,
+                    lineWidth: 1,
+                    accentColor: accentColor
+                )
             }
             .shadow(
                 color: accentColor.opacity(colorScheme == .light ? 0.15 : 0.25),

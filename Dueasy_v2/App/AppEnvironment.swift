@@ -298,6 +298,22 @@ final class AppEnvironment {
         FetchDocumentsForCalendarUseCase(repository: documentRepository)
     }
 
+    /// Creates an ImportFromPDFUseCase with injected dependencies
+    func makeImportFromPDFUseCase() -> ImportFromPDFUseCase {
+        ImportFromPDFUseCase(
+            fileStorageService: fileStorageService,
+            repository: documentRepository
+        )
+    }
+
+    /// Creates an ImportFromPhotoUseCase with injected dependencies
+    func makeImportFromPhotoUseCase() -> ImportFromPhotoUseCase {
+        ImportFromPhotoUseCase(
+            fileStorageService: fileStorageService,
+            repository: documentRepository
+        )
+    }
+
     // MARK: - Versioning and Migration
 
     /// Run vendor profile migrations on app startup

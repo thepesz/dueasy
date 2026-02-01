@@ -63,13 +63,8 @@ struct LoadingView: View {
 
     @ViewBuilder
     private var glassCircle: some View {
-        if reduceTransparency {
-            Circle()
-                .fill(AppColors.secondaryBackground)
-        } else {
-            Circle()
-                .fill(.ultraThinMaterial)
-        }
+        // PERFORMANCE: Uses CircleMaterial for optimized single-layer blur
+        CircleMaterial(addHighlight: false)
     }
 }
 
@@ -125,7 +120,7 @@ struct LoadingOverlay: View {
                     }
                 }
                 .padding(Spacing.xl)
-                .background(.ultraThinMaterial)
+                .background { CardMaterial(cornerRadius: CornerRadius.lg, addHighlight: false) }
                 .clipShape(RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous))
             }
         }

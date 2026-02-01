@@ -23,6 +23,10 @@
 "common.getStarted" = "Get Started";
 "common.documents" = "Documents";
 "common.settings" = "Settings";
+"common.add" = "Add";
+"common.statistics" = "Statistics";
+"common.comingSoon" = "Coming Soon";
+"common.comingSoonMessage" = "This feature is currently in development and will be available soon.";
 
 // MARK: - Documents
 
@@ -70,6 +74,27 @@
 "addDocument.documentType" = "Document Type";
 "addDocument.scanDocument" = "Scan Document";
 "addDocument.processing" = "Processing...";
+"addDocument.selectInputMethod" = "How do you want to add it?";
+"addDocument.recommended" = "Best";
+
+// Input methods
+"addDocument.inputMethod.scan" = "Scan";
+"addDocument.inputMethod.scan.description" = "Use camera for best quality";
+"addDocument.inputMethod.importPDF" = "Import PDF";
+"addDocument.inputMethod.importPDF.description" = "Select from Files";
+"addDocument.inputMethod.importPhoto" = "From Photo";
+"addDocument.inputMethod.importPhoto.description" = "Pick from library";
+"addDocument.inputMethod.manualEntry" = "Manual Entry";
+"addDocument.inputMethod.manualEntry.description" = "Type all fields yourself";
+
+// Manual entry
+"addDocument.manualEntry.infoTitle" = "Manual Entry";
+"addDocument.manualEntry.infoDescription" = "Fill in all fields manually without scanning or analysis.";
+
+// Processing states
+"addDocument.processing.extractingPDF" = "Extracting PDF pages...";
+"addDocument.processing.analyzingPhoto" = "Analyzing photo...";
+"addDocument.processing.preparingDocument" = "Preparing document...";
 
 // MARK: - Review Document
 
@@ -348,3 +373,71 @@
 "error.recovery.notificationSettings" = "Go to Settings > DuEasy to enable notifications";
 "error.recovery.manualEntry" = "You can enter the details manually";
 "error.recovery.dueDatePast" = "You can still save with this date if needed";
+
+// MARK: - App Branding
+
+"app.tagline" = "Your Finance Assistant";
+
+// MARK: - Weekdays
+
+"weekdays.monday" = "Mon";
+"weekdays.tuesday" = "Tue";
+"weekdays.wednesday" = "Wed";
+"weekdays.thursday" = "Thu";
+"weekdays.friday" = "Fri";
+"weekdays.saturday" = "Sat";
+"weekdays.sunday" = "Sun";
+
+// MARK: - Security Settings
+
+"security.title" = "Security";
+"security.section" = "Security";
+"security.appLock" = "App Lock";
+"security.appLockFooter" = "When enabled, the app will require authentication to unlock after being in the background.";
+"security.lockTimeout" = "Lock Timeout";
+"security.lockTimeoutSection" = "Lock After";
+"security.lockTimeoutFooter" = "How long the app can be in the background before requiring authentication.";
+"security.biometricStatus" = "Biometric Status";
+"security.dataProtection" = "Data Protection";
+"security.biometricUnavailable" = "Biometric Not Available";
+
+// Biometric types
+"security.requireFaceID" = "Require Face ID";
+"security.requireTouchID" = "Require Touch ID";
+"security.requirePasscode" = "Require Passcode";
+"security.protectFinancialData" = "Protect your financial data";
+"security.faceIDAvailable" = "Face ID is available";
+"security.touchIDAvailable" = "Touch ID is available";
+"security.usingPasscode" = "Using device passcode";
+"security.faceIDEnabled" = "Face ID enabled";
+"security.touchIDEnabled" = "Touch ID enabled";
+"security.passcodeEnabled" = "Passcode enabled";
+"security.appLockDisabled" = "App lock disabled";
+
+// Lock timeout options
+"security.lockImmediately" = "Immediately";
+"security.lockAfter1Min" = "After 1 minute";
+"security.lockAfter5Min" = "After 5 minutes";
+"security.lockAfter15Min" = "After 15 minutes";
+"security.lockAfter30Min" = "After 30 minutes";
+
+// Data protection
+"security.fileProtection" = "File Protection";
+"security.fileProtectionDesc" = "All documents are encrypted when device is locked";
+"security.noCloudBackup" = "No Cloud Backup";
+"security.noCloudBackupDesc" = "Scanned documents are excluded from iCloud backup";
+"security.privacyLogging" = "Privacy Logging";
+"security.privacyLoggingDesc" = "Sensitive data is never logged or transmitted";
+
+// MARK: - Language Settings
+
+"language.appLanguage" = "App Language";
+"language.footer" = "Language setting controls OCR recognition and UI language. Changes take effect on next scan.";
+
+// MARK: - Permission Settings
+
+"permissionSettings.deniedFooter" = "If permissions were previously denied, you may need to enable them in the Settings app.";
+
+// MARK: - Detail View Labels
+
+"detail.remindersEnabled" = "Reminders enabled";

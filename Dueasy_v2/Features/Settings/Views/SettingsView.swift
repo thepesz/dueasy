@@ -84,18 +84,18 @@ struct SettingsView: View {
                         SettingsRow(
                             icon: "lock.shield.fill",
                             iconColor: .purple,
-                            title: "Security",
+                            title: L10n.Security.title.localized,
                             subtitle: securitySummary
                         )
                     }
                 } header: {
-                    Text("Security")
+                    Text(L10n.Security.section.localized)
                 }
 
                 // Language & Currency section
                 Section {
                     // Language picker
-                    Picker("App Language", selection: Binding(
+                    Picker(L10n.Language.appLanguage.localized, selection: Binding(
                         get: { environment.settingsManager.appLanguage },
                         set: { newLanguage in
                             environment.settingsManager.appLanguage = newLanguage
@@ -118,7 +118,7 @@ struct SettingsView: View {
                 } header: {
                     Text(L10n.Settings.defaultsSection.localized)
                 } footer: {
-                    Text("Language setting controls OCR recognition and UI language. Changes take effect on next scan.")
+                    Text(L10n.Language.languageFooter.localized)
                 }
 
                 // About section
@@ -187,14 +187,14 @@ struct SettingsView: View {
             let biometricType = appLockManager.availableBiometricType
             switch biometricType {
             case .faceID:
-                return "Face ID enabled"
+                return L10n.Security.faceIDEnabled.localized
             case .touchID:
-                return "Touch ID enabled"
+                return L10n.Security.touchIDEnabled.localized
             case .none:
-                return "Passcode enabled"
+                return L10n.Security.passcodeEnabled.localized
             }
         }
-        return "App lock disabled"
+        return L10n.Security.appLockDisabled.localized
     }
 
     private var reminderSummary: String {
@@ -560,28 +560,28 @@ struct SecuritySettingsView: View {
                     }
                 }
             } header: {
-                Text("App Lock")
+                Text(L10n.Security.appLock.localized)
             } footer: {
-                Text("When enabled, the app will require authentication to unlock after being in the background.")
+                Text(L10n.Security.appLockFooter.localized)
             }
 
             // Lock Timeout (only show if enabled)
             if appLockManager.isEnabled {
                 Section {
-                    Picker("Lock Timeout", selection: Binding(
+                    Picker(L10n.Security.lockTimeout.localized, selection: Binding(
                         get: { Int(appLockManager.lockTimeout) },
                         set: { appLockManager.lockTimeout = TimeInterval($0) }
                     )) {
-                        Text("Immediately").tag(0)
-                        Text("After 1 minute").tag(60)
-                        Text("After 5 minutes").tag(300)
-                        Text("After 15 minutes").tag(900)
-                        Text("After 30 minutes").tag(1800)
+                        Text(L10n.Security.lockImmediately.localized).tag(0)
+                        Text(L10n.Security.lockAfter1Min.localized).tag(60)
+                        Text(L10n.Security.lockAfter5Min.localized).tag(300)
+                        Text(L10n.Security.lockAfter15Min.localized).tag(900)
+                        Text(L10n.Security.lockAfter30Min.localized).tag(1800)
                     }
                 } header: {
-                    Text("Lock After")
+                    Text(L10n.Security.lockTimeoutSection.localized)
                 } footer: {
-                    Text("How long the app can be in the background before requiring authentication.")
+                    Text(L10n.Security.lockTimeoutFooter.localized)
                 }
             }
 
@@ -589,7 +589,7 @@ struct SecuritySettingsView: View {
             Section {
                 HStack {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("Biometric Status")
+                        Text(L10n.Security.biometricStatus.localized)
                             .font(Typography.body)
 
                         Text(biometricStatusDescription)
@@ -604,7 +604,7 @@ struct SecuritySettingsView: View {
                 }
             } footer: {
                 if !appLockManager.isBiometricAvailable {
-                    Text(appLockManager.biometricUnavailableReason ?? "Biometric authentication is not available on this device.")
+                    Text(appLockManager.biometricUnavailableReason ?? L10n.Security.biometricUnavailable.localized)
                 }
             }
 
@@ -613,33 +613,33 @@ struct SecuritySettingsView: View {
                 VStack(alignment: .leading, spacing: Spacing.sm) {
                     InfoRow(
                         icon: "lock.fill",
-                        title: "File Protection",
-                        description: "All documents are encrypted when device is locked"
+                        title: L10n.Security.fileProtection.localized,
+                        description: L10n.Security.fileProtectionDesc.localized
                     )
 
                     InfoRow(
                         icon: "icloud.slash.fill",
-                        title: "No Cloud Backup",
-                        description: "Scanned documents are excluded from iCloud backup"
+                        title: L10n.Security.noCloudBackup.localized,
+                        description: L10n.Security.noCloudBackupDesc.localized
                     )
 
                     InfoRow(
                         icon: "eye.slash.fill",
-                        title: "Privacy Logging",
-                        description: "Sensitive data is never logged or transmitted"
+                        title: L10n.Security.privacyLogging.localized,
+                        description: L10n.Security.privacyLoggingDesc.localized
                     )
                 }
                 .padding(.vertical, Spacing.xs)
             } header: {
-                Text("Data Protection")
+                Text(L10n.Security.dataProtection.localized)
             }
         }
-        .navigationTitle("Security")
+        .navigationTitle(L10n.Security.title.localized)
         .navigationBarTitleDisplayMode(.inline)
-        .alert("Biometric Not Available", isPresented: $showBiometricUnavailableAlert) {
-            Button("OK", role: .cancel) { }
+        .alert(L10n.Security.biometricUnavailable.localized, isPresented: $showBiometricUnavailableAlert) {
+            Button(L10n.Common.ok.localized, role: .cancel) { }
         } message: {
-            Text(appLockManager.biometricUnavailableReason ?? "Biometric authentication is not available. The app will use device passcode instead.")
+            Text(appLockManager.biometricUnavailableReason ?? L10n.Security.biometricUnavailable.localized)
         }
     }
 
@@ -655,22 +655,22 @@ struct SecuritySettingsView: View {
     private var biometricTitle: String {
         let type = appLockManager.availableBiometricType
         switch type {
-        case .faceID: return "Require Face ID"
-        case .touchID: return "Require Touch ID"
-        case .none: return "Require Passcode"
+        case .faceID: return L10n.Security.requireFaceID.localized
+        case .touchID: return L10n.Security.requireTouchID.localized
+        case .none: return L10n.Security.requirePasscode.localized
         }
     }
 
     private var biometricSubtitle: String {
-        "Protect your financial data"
+        L10n.Security.protectFinancialData.localized
     }
 
     private var biometricStatusDescription: String {
         let type = appLockManager.availableBiometricType
         switch type {
-        case .faceID: return "Face ID is available"
-        case .touchID: return "Touch ID is available"
-        case .none: return "Using device passcode"
+        case .faceID: return L10n.Security.faceIDAvailable.localized
+        case .touchID: return L10n.Security.touchIDAvailable.localized
+        case .none: return L10n.Security.usingPasscode.localized
         }
     }
 }
@@ -787,7 +787,7 @@ struct PermissionSettingsView: View {
                     }
                 }
             } footer: {
-                Text("If permissions were previously denied, you may need to enable them in the Settings app.")
+                Text(L10n.PermissionSettings.permissionsDeniedFooter.localized)
             }
         }
         .navigationTitle(L10n.Settings.permissions.localized)

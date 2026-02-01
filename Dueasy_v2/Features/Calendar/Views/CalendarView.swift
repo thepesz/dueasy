@@ -10,7 +10,18 @@ struct CalendarView: View {
 
     @State private var viewModel: CalendarViewModel?
 
-    private let weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+    /// Localized weekday names - computed to respect language changes
+    private var weekdays: [String] {
+        [
+            L10n.Weekdays.monday.localized,
+            L10n.Weekdays.tuesday.localized,
+            L10n.Weekdays.wednesday.localized,
+            L10n.Weekdays.thursday.localized,
+            L10n.Weekdays.friday.localized,
+            L10n.Weekdays.saturday.localized,
+            L10n.Weekdays.sunday.localized
+        ]
+    }
 
     var body: some View {
         NavigationStack {
@@ -22,7 +33,8 @@ struct CalendarView: View {
                         .gradientBackground(style: .list)
                 }
             }
-            .navigationTitle(L10n.CalendarView.title.localized)
+            .navigationTitle("")
+            .navigationBarTitleDisplayMode(.inline)
         }
         .task {
             setupViewModel()
@@ -85,17 +97,6 @@ struct CalendarView: View {
                     .font(.title3.weight(.semibold))
                     .foregroundStyle(AppColors.primary)
                     .frame(width: 44, height: 44)
-                    .background(
-                        Circle()
-                            .fill(.ultraThinMaterial)
-                    )
-                    .overlay {
-                        Circle()
-                            .strokeBorder(
-                                Color.white.opacity(colorScheme == .light ? 0.5 : 0.1),
-                                lineWidth: 0.5
-                            )
-                    }
             }
 
             Spacer()
@@ -134,17 +135,6 @@ struct CalendarView: View {
                     .font(.title3.weight(.semibold))
                     .foregroundStyle(AppColors.primary)
                     .frame(width: 44, height: 44)
-                    .background(
-                        Circle()
-                            .fill(.ultraThinMaterial)
-                    )
-                    .overlay {
-                        Circle()
-                            .strokeBorder(
-                                Color.white.opacity(colorScheme == .light ? 0.5 : 0.1),
-                                lineWidth: 0.5
-                            )
-                    }
             }
         }
         .padding(.horizontal, Spacing.md)
@@ -276,22 +266,9 @@ struct CalendarView: View {
         }
         .frame(maxHeight: .infinity)
         .background {
-            RoundedRectangle(cornerRadius: CornerRadius.xl, style: .continuous)
-                .fill(.ultraThinMaterial)
-                .overlay {
-                    RoundedRectangle(cornerRadius: CornerRadius.xl, style: .continuous)
-                        .strokeBorder(
-                            LinearGradient(
-                                colors: [
-                                    Color.white.opacity(colorScheme == .light ? 0.6 : 0.2),
-                                    Color.white.opacity(0.1)
-                                ],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            ),
-                            lineWidth: 0.5
-                        )
-                }
+            // PERFORMANCE: Uses CardMaterial for optimized single-layer blur
+            CardMaterial(cornerRadius: CornerRadius.xl)
+                .overlay { GlassBorder(cornerRadius: CornerRadius.xl) }
                 .shadow(color: Color.black.opacity(0.08), radius: 12, y: -4)
         }
         .navigationDestination(for: FinanceDocument.self) { document in
@@ -354,8 +331,10 @@ struct CalendarDayCell: View {
                                 .strokeBorder(AppColors.primary.opacity(0.5), lineWidth: 1.5)
                         }
                 } else if !reduceTransparency {
+                    // PERFORMANCE: Removed .ultraThinMaterial for non-selected cells
+                    // Day cells don't need blur effect - reduces GPU load significantly
                     RoundedRectangle(cornerRadius: CornerRadius.md)
-                        .fill(.ultraThinMaterial.opacity(0.5))
+                        .fill(Color.white.opacity(colorScheme == .light ? 0.3 : 0.05))
                 }
 
                 // Day number and indicator

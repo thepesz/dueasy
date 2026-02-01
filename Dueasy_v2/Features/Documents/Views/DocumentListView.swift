@@ -52,9 +52,11 @@ struct DocumentListView: View {
             }
             .onChange(of: refreshTrigger) { oldValue, newValue in
                 // External refresh triggered (from MainTabView after adding document)
-                print("DocumentListView: External refresh triggered (\(oldValue) -> \(newValue))")
-                // Clear navigation path to reset NavigationStack state
-                navigationPath = NavigationPath()
+                // PERFORMANCE: Only clear navigation if we're currently navigated somewhere
+                // to avoid unnecessary view updates
+                if !navigationPath.isEmpty {
+                    navigationPath = NavigationPath()
+                }
                 Task {
                     await viewModel?.loadDocuments()
                 }
@@ -65,7 +67,9 @@ struct DocumentListView: View {
                     .environment(environment)
             }
         }
-        .id(refreshTrigger)
+        // PERFORMANCE FIX: Removed .id(refreshTrigger) which was causing full NavigationStack
+        // recreation and duplicate NavigationDestination triggers. The navigationPath.removeAll()
+        // in onChange(of: refreshTrigger) is sufficient to reset navigation state.
         .task {
             setupViewModel()
             await viewModel?.loadDocuments()
@@ -154,24 +158,11 @@ struct DocumentListView: View {
     private func filterBar(viewModel: DocumentListViewModel) -> some View {
         // Fixed-width glass container with horizontally scrolling content inside
         // The glass background stays stationary while filter chips scroll within it
+        // PERFORMANCE: Uses CardMaterial for optimized single-layer blur
         ZStack {
             // Glass background (stationary, matches document row styling)
-            RoundedRectangle(cornerRadius: 12)
-                .fill(.ultraThinMaterial)
-                .overlay {
-                    RoundedRectangle(cornerRadius: 12)
-                        .strokeBorder(
-                            LinearGradient(
-                                colors: [
-                                    Color.white.opacity(0.3),
-                                    Color.white.opacity(0.1)
-                                ],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            ),
-                            lineWidth: 0.5
-                        )
-                }
+            CardMaterial(cornerRadius: 12, addHighlight: false)
+                .overlay { GlassBorder(cornerRadius: 12, lineWidth: 0.5) }
 
             // Scrollable filter chips inside the glass container
             ScrollView(.horizontal, showsIndicators: false) {
@@ -292,6 +283,9 @@ struct HandwrittenLogo: View {
 
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    @State private var scanPosition: CGFloat = -1.0
 
     /// Logo gradient colors - sophisticated blue tones
     private var logoGradient: LinearGradient {
@@ -335,11 +329,46 @@ struct HandwrittenLogo: View {
                 // Layer 2: Main text with gradient
                 logoText
                     .foregroundStyle(logoGradient)
+                    .overlay {
+                        // Scanning light effect (green glow)
+                        if !reduceMotion {
+                            GeometryReader { geometry in
+                                Rectangle()
+                                    .fill(
+                                        LinearGradient(
+                                            colors: [
+                                                Color.green.opacity(0),
+                                                Color.green.opacity(0.6),
+                                                Color.green.opacity(0.8),
+                                                Color.green.opacity(0.6),
+                                                Color.green.opacity(0)
+                                            ],
+                                            startPoint: .leading,
+                                            endPoint: .trailing
+                                        )
+                                    )
+                                    .frame(width: geometry.size.width * 0.3)
+                                    .offset(x: geometry.size.width * scanPosition)
+                                    .blendMode(.plusLighter)
+                            }
+                            .mask(logoText)
+                        }
+                    }
             }
             .frame(maxWidth: .infinity, alignment: .center)
+            .onAppear {
+                if !reduceMotion {
+                    withAnimation(
+                        .linear(duration: 2.5)
+                        .repeatForever(autoreverses: true)
+                    ) {
+                        scanPosition = 1.0
+                    }
+                }
+            }
 
             // Tagline
-            Text("Your Finance Assistant")
+            Text(L10n.App.tagline.localized)
                 .font(.system(size: 11, weight: .medium, design: .rounded))
                 .foregroundStyle(.secondary)
                 .tracking(1.5)
@@ -457,29 +486,15 @@ struct InlineSearchBar: View {
         .padding(.horizontal, Spacing.sm)
         .padding(.vertical, Spacing.xs + 2)
         .background {
-            if reduceTransparency {
-                // Solid background for accessibility
-                RoundedRectangle(cornerRadius: 10)
-                    .fill(AppColors.secondaryBackground)
-            } else {
-                // Glass effect background
-                RoundedRectangle(cornerRadius: 10)
-                    .fill(.ultraThinMaterial)
-                    .overlay {
-                        RoundedRectangle(cornerRadius: 10)
-                            .strokeBorder(
-                                LinearGradient(
-                                    colors: [
-                                        isFocused ? AppColors.primary.opacity(0.5) : Color.white.opacity(colorScheme == .light ? 0.6 : 0.2),
-                                        isFocused ? AppColors.primary.opacity(0.3) : Color.white.opacity(0.1)
-                                    ],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                ),
-                                lineWidth: isFocused ? 1.5 : 0.5
-                            )
-                    }
-            }
+            // PERFORMANCE: Uses CardMaterial for optimized single-layer blur
+            CardMaterial(cornerRadius: 10, addHighlight: false)
+        }
+        .overlay {
+            GlassBorder(
+                cornerRadius: 10,
+                lineWidth: isFocused ? 1.5 : 0.5,
+                accentColor: isFocused ? AppColors.primary : nil
+            )
         }
         .animation(.easeInOut(duration: 0.2), value: isFocused)
         .animation(.easeInOut(duration: 0.15), value: text.isEmpty)
@@ -524,6 +539,7 @@ struct FilterChip: View {
             .padding(.horizontal, Spacing.sm)
             .padding(.vertical, Spacing.xs)
             .background {
+                // PERFORMANCE: Uses CapsuleMaterial for optimized single-layer blur
                 if isSelected {
                     Capsule()
                         .fill(
@@ -538,8 +554,7 @@ struct FilterChip: View {
                         )
                         .shadow(color: AppColors.primary.opacity(0.3), radius: 4, y: 2)
                 } else {
-                    Capsule()
-                        .fill(.ultraThinMaterial)
+                    CapsuleMaterial()
                         .overlay {
                             Capsule()
                                 .strokeBorder(

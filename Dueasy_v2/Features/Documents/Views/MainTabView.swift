@@ -35,7 +35,14 @@ struct MainTabView: View {
             Color.clear
                 .tag(Tab.addDocument)
                 .tabItem {
-                    Label(L10n.Documents.addNew.localized, systemImage: "plus.circle.fill")
+                    Label(L10n.Common.add.localized, systemImage: "plus.circle.fill")
+                }
+
+            StatisticsView()
+                .environment(environment)
+                .tag(Tab.statistics)
+                .tabItem {
+                    Label(L10n.Common.statistics.localized, systemImage: "chart.bar.fill")
                 }
 
             SettingsView()
@@ -69,6 +76,7 @@ struct MainTabView: View {
         case documents
         case calendar
         case addDocument
+        case statistics
         case settings
     }
 }

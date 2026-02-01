@@ -56,6 +56,10 @@ enum L10n {
         static let getStarted = "common.getStarted"
         static let documents = "common.documents"
         static let settings = "common.settings"
+        static let add = "common.add"
+        static let statistics = "common.statistics"
+        static let comingSoon = "common.comingSoon"
+        static let comingSoonMessage = "common.comingSoonMessage"
     }
 
     // MARK: - Documents
@@ -108,6 +112,33 @@ enum L10n {
         static let documentType = "addDocument.documentType"
         static let scanDocument = "addDocument.scanDocument"
         static let processing = "addDocument.processing"
+        static let selectInputMethod = "addDocument.selectInputMethod"
+        static let recommended = "addDocument.recommended"
+
+        // Input method names and descriptions
+        enum InputMethod {
+            static let scan = "addDocument.inputMethod.scan"
+            static let scanDescription = "addDocument.inputMethod.scan.description"
+            static let importPDF = "addDocument.inputMethod.importPDF"
+            static let importPDFDescription = "addDocument.inputMethod.importPDF.description"
+            static let importPhoto = "addDocument.inputMethod.importPhoto"
+            static let importPhotoDescription = "addDocument.inputMethod.importPhoto.description"
+            static let manualEntry = "addDocument.inputMethod.manualEntry"
+            static let manualEntryDescription = "addDocument.inputMethod.manualEntry.description"
+        }
+
+        // Manual entry specific
+        enum ManualEntry {
+            static let infoTitle = "addDocument.manualEntry.infoTitle"
+            static let infoDescription = "addDocument.manualEntry.infoDescription"
+        }
+
+        // Processing states
+        enum Processing {
+            static let extractingPDF = "addDocument.processing.extractingPDF"
+            static let analyzingPhoto = "addDocument.processing.analyzingPhoto"
+            static let preparingDocument = "addDocument.processing.preparingDocument"
+        }
     }
 
     // MARK: - Review Document
@@ -323,6 +354,80 @@ enum L10n {
         static let notificationPermissionSubtitle = "onboarding.permissions.notificationSubtitle"
         static let allPermissionsGranted = "onboarding.permissions.allGranted"
         static let permissionsOptional = "onboarding.permissions.optional"
+    }
+
+    // MARK: - App Branding
+    enum App {
+        static let tagline = "app.tagline"
+    }
+
+    // MARK: - Weekdays
+    enum Weekdays {
+        static let monday = "weekdays.monday"
+        static let tuesday = "weekdays.tuesday"
+        static let wednesday = "weekdays.wednesday"
+        static let thursday = "weekdays.thursday"
+        static let friday = "weekdays.friday"
+        static let saturday = "weekdays.saturday"
+        static let sunday = "weekdays.sunday"
+    }
+
+    // MARK: - Security Settings
+    enum Security {
+        static let title = "security.title"
+        static let section = "security.section"
+        static let appLock = "security.appLock"
+        static let appLockFooter = "security.appLockFooter"
+        static let lockTimeout = "security.lockTimeout"
+        static let lockTimeoutSection = "security.lockTimeoutSection"
+        static let lockTimeoutFooter = "security.lockTimeoutFooter"
+        static let biometricStatus = "security.biometricStatus"
+        static let dataProtection = "security.dataProtection"
+        static let biometricUnavailable = "security.biometricUnavailable"
+
+        // Biometric types
+        static let requireFaceID = "security.requireFaceID"
+        static let requireTouchID = "security.requireTouchID"
+        static let requirePasscode = "security.requirePasscode"
+        static let protectFinancialData = "security.protectFinancialData"
+        static let faceIDAvailable = "security.faceIDAvailable"
+        static let touchIDAvailable = "security.touchIDAvailable"
+        static let usingPasscode = "security.usingPasscode"
+        static let faceIDEnabled = "security.faceIDEnabled"
+        static let touchIDEnabled = "security.touchIDEnabled"
+        static let passcodeEnabled = "security.passcodeEnabled"
+        static let appLockDisabled = "security.appLockDisabled"
+
+        // Lock timeout options
+        static let lockImmediately = "security.lockImmediately"
+        static let lockAfter1Min = "security.lockAfter1Min"
+        static let lockAfter5Min = "security.lockAfter5Min"
+        static let lockAfter15Min = "security.lockAfter15Min"
+        static let lockAfter30Min = "security.lockAfter30Min"
+
+        // Data protection
+        static let fileProtection = "security.fileProtection"
+        static let fileProtectionDesc = "security.fileProtectionDesc"
+        static let noCloudBackup = "security.noCloudBackup"
+        static let noCloudBackupDesc = "security.noCloudBackupDesc"
+        static let privacyLogging = "security.privacyLogging"
+        static let privacyLoggingDesc = "security.privacyLoggingDesc"
+    }
+
+    // MARK: - Language Settings
+    enum Language {
+        static let appLanguage = "language.appLanguage"
+        static let languageFooter = "language.footer"
+    }
+
+    // MARK: - Permission Settings
+    enum PermissionSettings {
+        static let permissionsDeniedFooter = "permissionSettings.deniedFooter"
+    }
+
+    // MARK: - Detail View Labels
+    enum DetailLabels {
+        static let remindersEnabled = "detail.remindersEnabled"
     }
 
     // MARK: - Errors

@@ -42,7 +42,7 @@ struct DocumentDetailView: View {
             } else {
                 VStack {
                     ProgressView()
-                    Text("Loading...")
+                    Text(L10n.Common.loading.localized)
                         .foregroundStyle(.secondary)
                 }
                 .frame(maxWidth: .infinity, minHeight: 200)
@@ -53,7 +53,7 @@ struct DocumentDetailView: View {
             setupViewModel()
             await viewModel?.loadDocument()
         }
-        .navigationTitle(viewModel?.document?.title ?? "Document")
+        .navigationTitle(viewModel?.document?.title ?? L10n.Detail.title.localized)
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(.visible, for: .navigationBar)
         .toolbarBackground(.ultraThinMaterial, for: .navigationBar)
@@ -63,14 +63,14 @@ struct DocumentDetailView: View {
                     Button {
                         showingEditSheet = true
                     } label: {
-                        Label("Edit", systemImage: "pencil")
+                        Label(L10n.Common.edit.localized, systemImage: "pencil")
                     }
 
                     if viewModel?.document?.status == .scheduled {
                         Button {
                             Task { await viewModel?.markAsPaid() }
                         } label: {
-                            Label("Mark as Paid", systemImage: "checkmark.circle")
+                            Label(L10n.Detail.markAsPaid.localized, systemImage: "checkmark.circle")
                         }
                     }
 
@@ -79,7 +79,7 @@ struct DocumentDetailView: View {
                     Button(role: .destructive) {
                         Task { await viewModel?.deleteDocument() }
                     } label: {
-                        Label("Delete", systemImage: "trash")
+                        Label(L10n.Common.delete.localized, systemImage: "trash")
                     }
                 } label: {
                     Image(systemName: "ellipsis.circle")
@@ -108,7 +108,7 @@ struct DocumentDetailView: View {
                     .foregroundStyle(.secondary)
 
                 if let number = document.documentNumber, !number.isEmpty {
-                    Text("No. \(number)")
+                    Text(L10n.Detail.documentNumber.localized(with: number))
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
@@ -123,7 +123,7 @@ struct DocumentDetailView: View {
     @ViewBuilder
     private func amountSection(document: FinanceDocument) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Amount")
+            Text(L10n.Detail.amount.localized)
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
@@ -140,35 +140,35 @@ struct DocumentDetailView: View {
     private func detailsSection(document: FinanceDocument) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             // Vendor
-            detailRow(label: "Vendor", value: document.title.isEmpty ? "Not specified" : document.title)
+            detailRow(label: L10n.Detail.vendor.localized, value: document.title.isEmpty ? L10n.Detail.notSpecified.localized : document.title)
 
             // Address
             if let address = document.vendorAddress, !address.isEmpty {
-                detailRow(label: "Address", value: address)
+                detailRow(label: L10n.Detail.address.localized, value: address)
             }
 
             // NIP
             if let nip = document.vendorNIP, !nip.isEmpty {
-                detailRow(label: "NIP", value: nip)
+                detailRow(label: L10n.Detail.nip.localized, value: nip)
             }
 
             // Bank Account
             if let bankAccount = document.bankAccountNumber, !bankAccount.isEmpty {
-                detailRow(label: "Bank Account", value: bankAccount)
+                detailRow(label: L10n.Detail.bankAccount.localized, value: bankAccount)
             }
 
             // Due Date
             if let dueDate = document.dueDate {
-                detailRow(label: "Due Date", value: formattedDate(dueDate))
+                detailRow(label: L10n.Detail.dueDate.localized, value: formattedDate(dueDate))
             }
 
             // Notes
             if let notes = document.notes, !notes.isEmpty {
-                detailRow(label: "Notes", value: notes)
+                detailRow(label: L10n.Detail.notes.localized, value: notes)
             }
 
             // Created
-            detailRow(label: "Created", value: formattedDate(document.createdAt))
+            detailRow(label: L10n.Detail.created.localized, value: formattedDate(document.createdAt))
         }
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -183,17 +183,17 @@ struct DocumentDetailView: View {
                 Image(systemName: "calendar")
                     .foregroundStyle(.blue)
 
-                Text("Calendar")
+                Text(L10n.Detail.calendar.localized)
                     .font(.headline)
 
                 Spacer()
 
                 if document.calendarEventId != nil {
-                    Text("Added")
+                    Text(L10n.Detail.calendarAdded.localized)
                         .font(.caption)
                         .foregroundStyle(.green)
                 } else {
-                    Text("Not added")
+                    Text(L10n.Detail.calendarNotAdded.localized)
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -204,7 +204,7 @@ struct DocumentDetailView: View {
                     Image(systemName: "bell.fill")
                         .foregroundStyle(.blue)
 
-                    Text("Reminders enabled")
+                    Text(L10n.DetailLabels.remindersEnabled.localized)
                         .font(.subheadline)
                 }
             }
@@ -220,7 +220,7 @@ struct DocumentDetailView: View {
         Button {
             Task { await viewModel.markAsPaid() }
         } label: {
-            Label("Mark as Paid", systemImage: "checkmark.circle.fill")
+            Label(L10n.Detail.markAsPaid.localized, systemImage: "checkmark.circle.fill")
                 .font(.headline)
                 .frame(maxWidth: .infinity)
                 .padding()
@@ -309,18 +309,18 @@ struct DocumentEditView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Vendor") {
-                    TextField("Vendor Name", text: $vendorName)
-                    TextField("Address", text: $vendorAddress, axis: .vertical)
-                    TextField("NIP", text: $vendorNIP)
+                Section(L10n.Detail.vendor.localized) {
+                    TextField(L10n.Edit.vendorNamePlaceholder.localized, text: $vendorName)
+                    TextField(L10n.Detail.address.localized, text: $vendorAddress, axis: .vertical)
+                    TextField(L10n.Detail.nip.localized, text: $vendorNIP)
                 }
 
-                Section("Amount") {
+                Section(L10n.Detail.amount.localized) {
                     HStack {
-                        TextField("Amount", text: $amount)
+                        TextField(L10n.Edit.amountPlaceholder.localized, text: $amount)
                             .keyboardType(.decimalPad)
 
-                        Picker("Currency", selection: $currency) {
+                        Picker(L10n.Edit.currency.localized, selection: $currency) {
                             ForEach(SettingsManager.availableCurrencies, id: \.self) { curr in
                                 Text(curr).tag(curr)
                             }
@@ -329,26 +329,26 @@ struct DocumentEditView: View {
                     }
                 }
 
-                Section("Details") {
-                    DatePicker("Due Date", selection: $dueDate, displayedComponents: .date)
-                    TextField("Document Number", text: $documentNumber)
-                    TextField("Bank Account", text: $bankAccountNumber)
+                Section(L10n.Edit.documentNumber.localized) {
+                    DatePicker(L10n.Detail.dueDate.localized, selection: $dueDate, displayedComponents: .date)
+                    TextField(L10n.Edit.documentNumberPlaceholder.localized, text: $documentNumber)
+                    TextField(L10n.Detail.bankAccount.localized, text: $bankAccountNumber)
                 }
 
-                Section("Notes") {
-                    TextField("Notes", text: $notes, axis: .vertical)
+                Section(L10n.Detail.notes.localized) {
+                    TextField(L10n.Edit.notesPlaceholder.localized, text: $notes, axis: .vertical)
                         .lineLimit(3...10)
                 }
             }
-            .navigationTitle("Edit Document")
+            .navigationTitle(L10n.Detail.editDocument.localized)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
+                    Button(L10n.Common.cancel.localized) { dismiss() }
                 }
 
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
+                    Button(L10n.Common.save.localized) {
                         Task { await saveChanges() }
                     }
                     .disabled(isSaving || !isValid)
@@ -359,7 +359,7 @@ struct DocumentEditView: View {
                     Color.black.opacity(0.3)
                         .ignoresSafeArea()
                         .overlay {
-                            ProgressView("Saving...")
+                            ProgressView(L10n.Edit.saving.localized)
                                 .padding()
                                 .background(.regularMaterial)
                                 .clipShape(RoundedRectangle(cornerRadius: 12))

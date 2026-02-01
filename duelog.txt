@@ -1,10 +1,10 @@
-✅ Firebase configured successfully
-✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/D955C7FE-7562-43F4-9C60-7EFFA497202E/Dueasy_v2.app/pl.lproj
-✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/D955C7FE-7562-43F4-9C60-7EFFA497202E/Dueasy_v2.app/pl.lproj
 12.8.0 - [FirebaseCore][I-COR000008] The project's Bundle ID is inconsistent with either the Bundle ID in 'GoogleService-Info.plist', or the Bundle ID in the options if you are using a customized options. To ensure that everything can be configured correctly, you may need to make the Bundle IDs consistent. To continue with this plist file, you may change your app's bundle identifier to 'com.dueasy.app'. Or you can download a new configuration file that matches your bundle identifier from https://console.firebase.google.com/ and replace the current one.
 12.8.0 - [GoogleUtilities/AppDelegateSwizzler][I-SWZ001014] App Delegate does not conform to UIApplicationDelegate protocol.
+✅ Firebase configured successfully
+✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/2DB63956-E88B-423D-B4CA-F49D8C0142D5/Dueasy_v2.app/pl.lproj
+✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/2DB63956-E88B-423D-B4CA-F49D8C0142D5/Dueasy_v2.app/pl.lproj
 Applied file protection to 3 database files, excluded 3 from backup
-✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/D955C7FE-7562-43F4-9C60-7EFFA497202E/Dueasy_v2.app/pl.lproj
+✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/2DB63956-E88B-423D-B4CA-F49D8C0142D5/Dueasy_v2.app/pl.lproj
 AppleVisionOCRService initialized with 2-pass recognition
 Recognition languages: pl-PL, en-US
 Standard pass minTextHeight: 0.012000
@@ -13,11 +13,10 @@ numANECores: Unknown aneSubType
 Vision supported languages: 30 languages
 LayoutFirstInvoiceParser initialized
 AppEnvironment initialized for tier: Pro (Firebase active)
-✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/D955C7FE-7562-43F4-9C60-7EFFA497202E/Dueasy_v2.app/pl.lproj
+✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/2DB63956-E88B-423D-B4CA-F49D8C0142D5/Dueasy_v2.app/pl.lproj
 🧪 TESTING: Cloud analysis force-enabled
 DuEasy app initialized
-✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/D955C7FE-7562-43F4-9C60-7EFFA497202E/Dueasy_v2.app/pl.lproj
-✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/D955C7FE-7562-43F4-9C60-7EFFA497202E/Dueasy_v2.app/pl.lproj
+✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/2DB63956-E88B-423D-B4CA-F49D8C0142D5/Dueasy_v2.app/pl.lproj
 Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
 Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
 Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
@@ -25,28 +24,415 @@ Requesting visual style in an implementation that has disabled it, returning nil
 Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
 Checking for vendor migrations to global version 1
 No vendors need migration - all up to date
-✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/D955C7FE-7562-43F4-9C60-7EFFA497202E/Dueasy_v2.app/pl.lproj
+✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/2DB63956-E88B-423D-B4CA-F49D8C0142D5/Dueasy_v2.app/pl.lproj
 ✅ Firebase: Signed in anonymously
 ✅ Signed in anonymously: wisOjM8nqQd1rzdlHCATrExy8al2
 Security event: biometric_auth, success=true
 Security event: app_unlocked, success=true
+App became active
+✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/2DB63956-E88B-423D-B4CA-F49D8C0142D5/Dueasy_v2.app/pl.lproj
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Unable to simultaneously satisfy constraints.
+	Probably at least one of the constraints in the following list is one you don't want. 
+	Try this: 
+		(1) look at each constraint and try to figure out which you don't expect; 
+		(2) find the code that added the unwanted constraint or constraints and fix it. 
+	(Note: If you're seeing NSAutoresizingMaskLayoutConstraints that you don't understand, refer to the documentation for the UIView property translatesAutoresizingMaskIntoConstraints) 
+(
+    "<NSAutoresizingMaskLayoutConstraint:0x1413056d0 h=--& v=--& _TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x1416e0e00.width == 0   (active)>",
+    "<NSLayoutConstraint:0x141304d70 _TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x1416e0e00.leading == _UIButtonBarButton:0x141ad3480.leading   (active)>",
+    "<NSLayoutConstraint:0x141304e10 H:[_UIButtonBarButton:0x141ad3480]-(0)-|   (active, names: '|':_TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x1416e0e00 )>",
+    "<NSLayoutConstraint:0x141304b90 'IB_Leading_Leading' H:|-(2)-[_UIModernBarButton:0x1417cdc00]   (active, names: '|':_UIButtonBarButton:0x141ad3480 )>",
+    "<NSLayoutConstraint:0x141304a00 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x1417cdc00]-(2)-|   (active, names: '|':_UIButtonBarButton:0x141ad3480 )>"
+)
+
+Will attempt to recover by breaking constraint 
+<NSLayoutConstraint:0x141304a00 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x1417cdc00]-(2)-|   (active, names: '|':_UIButtonBarButton:0x141ad3480 )>
+
+Make a symbolic breakpoint at UIViewAlertForUnsatisfiableConstraints to catch this in the debugger.
+The methods in the UIConstraintBasedLayoutDebugging category on UIView listed in <UIKitCore/UIView.h> may also be helpful.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+59638328 Plugin query method called
+(501) Invalidation handler invoked, clearing connection
+(501) personaAttributesForPersonaType for type:0 failed with error Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.mobile.usermanagerd.xpc was invalidated from this process." UserInfo={NSDebugDescription=The connection to service named com.apple.mobile.usermanagerd.xpc was invalidated from this process.}
+LaunchServices: store (null) or url (null) was nil: Error Domain=NSOSStatusErrorDomain Code=-54 "process may not map database" UserInfo={_LSLine=72, _LSFunction=_LSServer_GetServerStoreForConnectionWithCompletionHandler, _LSFile=LSDReadService.mm, NSDebugDescription=process may not map database}
+Attempt to map database failed: permission was denied. This attempt will not be retried.
+Failed to initialize client context with error Error Domain=NSOSStatusErrorDomain Code=-54 "process may not map database" UserInfo={_LSLine=72, _LSFunction=_LSServer_GetServerStoreForConnectionWithCompletionHandler, _LSFile=LSDReadService.mm, NSDebugDescription=process may not map database}
+App entered background
+App entered background
+App became active
+Storage save: pages=1, success=true
+Storage save: pages=1, success=true
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Processing 1 images for document 77016BAE-EF7D-447D-B7E9-79463A34C28B
+📸 Image dimensions: 5712x4284, bitsPerComponent=8, colorSpace=kCGColorSpaceDisplayP3
+Deskew applied: -6.35 degrees
+🔧 Processed image dimensions: 6151x4890
+Preprocessing applied: deskew(-6.35deg), contrast, denoise, sharpen
+Starting 2-pass OCR: Standard + Sensitive passes
+OCR pass Standard configured: minTextHeight=0.012000
+👁️ Vision returned 96 observations for Standard pass
+OCR pass 'Standard': lines=96, avgConfidence=0.885
+OCR pass Sensitive configured: minTextHeight=0.007000
+👁️ Vision returned 98 observations for Sensitive pass
+OCR pass 'Sensitive': lines=98, avgConfidence=0.883
+Merging: Standard=96 lines, Sensitive=98 lines
+Merge complete: 85 duplicates removed, 13 new lines added, 109 total
+OCR completed: lines=109, avgConfidence=0.88, duration=0.00s
+OCR completed: 1334 chars, 109 lines, confidence: 0.881
+OCR line sources: standard=96, sensitive=13, merged=0
+OCR confidence: high=83, medium=0, low=26
+Starting hybrid analysis (local first, cloud assist if needed)
+Analysis started: type=invoice, textLength=1334, lines=109
+Analyzing layout for 109 lines
+Grouped into 27 rows
+Detected 2 columns
+Partitioned into 9 non-empty blocks
+Block bottomCenter: 10 lines
+Block bottomLeft: 6 lines
+Block bottomRight: 15 lines
+Block middleCenter: 21 lines
+Block middleLeft: 11 lines
+Block middleRight: 19 lines
+Block topCenter: 11 lines
+Block topLeft: 5 lines
+Block topRight: 11 lines
+Layout analysis: 27 rows, 2 columns
+Block topLeft: 5 lines
+Block topCenter: 11 lines
+Block topRight: 11 lines
+Block middleLeft: 11 lines
+Block middleCenter: 21 lines
+Block middleRight: 19 lines
+Block bottomLeft: 6 lines
+Block bottomCenter: 10 lines
+Block bottomRight: 15 lines
+Detected 28 anchors in 109 lines
+Anchor: invoiceNumberLabel conf=1.00 pattern='faktura vat'
+Anchor: amountLabel conf=1.00 pattern='do zapłaty'
+Anchor: nipLabel conf=1.00 pattern='nip'
+Anchor: dateLabel conf=1.00 pattern='data wystawienia'
+Anchor: paymentTermsLabel conf=1.00 pattern='metoda płatności'
+Detected 28 anchors, 8 types
+Found NIP anchor
+Found vendor anchor at Y=0.800
+Vendor rejected: too short '53%'
+Vendor rejected: not enough letters 'Faktura VAT nr PL183484/10/2025'
+Vendor rejected: too short 'PL'
+Vendor rejected: not enough letters '605230017571804111090294'
+Vendor rejected: too short 'EL'
+Vendor rejected: not enough letters '2025-10-17'
+Found amount anchor
+Amount extraction: found 30 candidates
+  Candidate 1: confidence=0.960, y=0.33, source=do-zaplaty: do zapłaty
+  Candidate 2: confidence=0.450, y=0.74, source=region: bottomRight
+  Candidate 3: confidence=0.270, y=0.28, source=pattern: amount
+  Candidate 4: confidence=0.270, y=0.28, source=pattern: amount
+  Candidate 5: confidence=0.270, y=0.27, source=pattern: amount
+Score gap to 2nd place: 0.510
+Selected amount: confidence=0.960, source=do-zaplaty: do zapłaty
+Date ranking: 4 candidates, top score: 10.0
+Date extraction: found 4 candidates
+  Date candidate 1: confidence=0.15, source=date-ranking: old-past-date-penalty [yyyy-MM-dd]
+  Date candidate 2: confidence=0.15, source=date-ranking: old-past-date-penalty [yyyy-MM-dd]
+  Date candidate 3: confidence=0.15, source=date-ranking: old-past-date-penalty [yyyy-MM-dd]
+  Date candidate 4: confidence=0.15, source=date-ranking: top-section-penalty, too-far-future [yyyy/MM/dd]
+Found invoice number anchor
+Parsed numeric date '17.10.2025' with format 'dd.MM.yyyy'
+Parsed numeric date '17.10.2025' with format 'dd.MM.yyyy'
+Parsed numeric date '17.10.2025' with format 'dd.MM.yyyy'
+Parsed numeric date '17.10.2025' with format 'dd.MM.yyyy'
+Built candidates: vendor=3, nip=3, amount=3, date=3, docNum=0, bank=1
+Field extracted: type=vendor, method=anchor, confidence=0.85, candidates=3
+Parsing completed: fields=3/4, confidence=0.75
+Local analysis confidence: 0.69
+Low confidence (0.69), requesting cloud assist
+🏢 OpenAI vendor: name=Weblity Spółka Cywilna Adrian Maciaszek Arkadiusz, address=71-804 Szczecin, Kameliowa 3/1, NIP=8522541213
+📅 OpenAI returned null/empty dueDate
+📅 Using issue date as due date fallback
+Cloud assist successful
+Analysis completed: vendor=true, amount=true, date=true, invoice#=true
+Applied vendor template for NIP: [NIP:***213]
+OCR/Parsing result: hasVendor=true, hasAmount=true, hasDueDate=true, confidence=0.880734
+Set vendor with confidence 0.950000, mode: suggested
+Set amount with confidence 0.950000, mode: suggested
+Found 2 suggested amounts
+Set dueDate with confidence 0.950000, mode: suggested
+Populating ViewModel fields: vendorCandidates=0, amountCandidates=0, dateCandidates=0, nipCandidates=0, docNumCandidates=0, bankCandidates=0
+<0x1401f2f80> Gesture: System gesture gate timed out.
+Saving document - hasVendor: true, hasAmount: true, hasDueDate: true
+Calling finalizeUseCase (amount and date hidden for privacy)
+Recording corrections for adaptive learning
+Correction learning completed
+Feedback recorded successfully for document 77016BAE-EF7D-447D-B7E9-79463A34C28B
+Parsing feedback recorded (privacy-safe)
+Finalizing document: hasTitle=true, currency=PLN (amount/date hidden for privacy)
+Document fields updated - NIP: 8522541213, Address: true
+Calendar event creation skipped (skipCalendar=true)
+Saved learning data: amountCorrected=false, dueDateCorrected=false, vendorCorrected=false
+Privacy-safe learning data saved (no PII/financial data)
+Notification authorization: isAuthorized=true, enabled=true
+Cancelled 0 notifications for document: 77016BAE-EF7D-447D-B7E9-79463A34C28B
+Updated 0 notification reminders (old ones cancelled)
+Document finalized and saved successfully
+Document saved successfully
+📱 MainTabView: Add document sheet dismissed, triggering refresh
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
 📱 DocumentRow tapped: B7815601-0B4D-4D50-9A88-1A71BDCF2A2D - Weblity Spótka Cywilna Adrian Maciaszek Arkadiusz
-📱 Appending document ID to navigation path: B7815601-0B4D-4D50-9A88-1A71BDCF2A2D
-📱 NavigationDestination triggered for document ID: B7815601-0B4D-4D50-9A88-1A71BDCF2A2D
-📱 DocumentDetailViewWrapper created for ID: B7815601-0B4D-4D50-9A88-1A71BDCF2A2D
+Appending document ID to navigation path: B7815601-0B4D-4D50-9A88-1A71BDCF2A2D
+NavigationDestination triggered for document ID: B7815601-0B4D-4D50-9A88-1A71BDCF2A2D
+DocumentDetailViewWrapper created for ID: B7815601-0B4D-4D50-9A88-1A71BDCF2A2D
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
 📋 DocumentDetailViewModel.loadDocument() called for ID: B7815601-0B4D-4D50-9A88-1A71BDCF2A2D
 📋 Document fetched successfully: true
 📋 Document details - Title: Weblity Spótka Cywilna Adrian Maciaszek Arkadiusz, NIP: 8522541213
+Got a keyboard will change frame notification, but keyboard was not even present.
+Got a keyboard will hide notification, but keyboard was not even present.
+Called -[UIContextMenuInteraction updateVisibleMenuWithBlock:] while no context menu is visible. This won't do anything.
+<0x1401f2f80> Gesture: System gesture gate timed out.
+Deleting document: 70E574F1-DA74-4713-8E74-F86CB5118C91
+Extracted values - calendarEventId: nil, fileURL: /var/mobile/Containers/Data/Application/CAADC770-4B86-48F1-8D6D-1B54F361CCF0/Documents/ScannedDocuments/35895B6E-0C85-4444-9B2A-D0613F72E324
+Cancelled 0 notifications for document: 70E574F1-DA74-4713-8E74-F86CB5118C91
+Cancelled notifications for document
+Storage delete: pages=0, success=true
+Deleted document file: /var/mobile/Containers/Data/Application/CAADC770-4B86-48F1-8D6D-1B54F361CCF0/Documents/ScannedDocuments/35895B6E-0C85-4444-9B2A-D0613F72E324
+Document 70E574F1-DA74-4713-8E74-F86CB5118C91 deleted from SwiftData
+Document deleted successfully: 70E574F1-DA74-4713-8E74-F86CB5118C91
+📱 DocumentRow tapped: 77016BAE-EF7D-447D-B7E9-79463A34C28B - Weblity Spółka Cywilna Adrian Maciaszek Arkadiusz
+Appending document ID to navigation path: 77016BAE-EF7D-447D-B7E9-79463A34C28B
+NavigationDestination triggered for document ID: 77016BAE-EF7D-447D-B7E9-79463A34C28B
+DocumentDetailViewWrapper created for ID: 77016BAE-EF7D-447D-B7E9-79463A34C28B
 Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
 Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
 Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
 Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
 Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+📋 DocumentDetailViewModel.loadDocument() called for ID: 77016BAE-EF7D-447D-B7E9-79463A34C28B
+📋 Document fetched successfully: true
+📋 Document details - Title: Weblity Spółka Cywilna Adrian Maciaszek Arkadiusz, NIP: 8522541213
 App became active
-📱 NavigationDestination triggered for document ID: B7815601-0B4D-4D50-9A88-1A71BDCF2A2D
-📱 DocumentDetailViewWrapper created for ID: B7815601-0B4D-4D50-9A88-1A71BDCF2A2D
 Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
 Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
 Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
 Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
 Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+LaunchServices: store (null) or url (null) was nil: Error Domain=NSOSStatusErrorDomain Code=-54 "process may not map database" UserInfo={_LSLine=72, _LSFunction=_LSServer_GetServerStoreForConnectionWithCompletionHandler, _LSFile=LSDReadService.mm, NSDebugDescription=process may not map database}
+Attempt to map database failed: permission was denied. This attempt will not be retried.
+Failed to initialize client context with error Error Domain=NSOSStatusErrorDomain Code=-54 "process may not map database" UserInfo={_LSLine=72, _LSFunction=_LSServer_GetServerStoreForConnectionWithCompletionHandler, _LSFile=LSDReadService.mm, NSDebugDescription=process may not map database}
+Storage save_file: pages=1, success=true
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Processing 1 images for document C0E6EA7E-DE8A-48D7-A04E-B9D8E5EAE6FD
+📸 Image dimensions: 3570x5052, bitsPerComponent=8, colorSpace=kCGColorSpaceSRGB
+🔧 Processed image dimensions: 3570x5052
+Preprocessing applied: contrast, denoise, sharpen
+Starting 2-pass OCR: Standard + Sensitive passes
+OCR pass Standard configured: minTextHeight=0.012000
+👁️ Vision returned 55 observations for Standard pass
+OCR pass 'Standard': lines=55, avgConfidence=0.982
+OCR pass Sensitive configured: minTextHeight=0.007000
+👁️ Vision returned 55 observations for Sensitive pass
+OCR pass 'Sensitive': lines=55, avgConfidence=0.982
+Merging: Standard=55 lines, Sensitive=55 lines
+Merge complete: 54 duplicates removed, 1 new lines added, 56 total
+OCR completed: lines=56, avgConfidence=0.98, duration=0.00s
+OCR completed: 1074 chars, 56 lines, confidence: 0.982
+OCR line sources: standard=55, sensitive=1, merged=0
+OCR confidence: high=54, medium=0, low=2
+Starting hybrid analysis (local first, cloud assist if needed)
+Analysis started: type=invoice, textLength=1074, lines=56
+Analyzing layout for 56 lines
+Grouped into 15 rows
+Detected 3 columns
+Partitioned into 9 non-empty blocks
+Block bottomLeft: 1 lines
+Block bottomRight: 1 lines
+Block middleCenter: 1 lines
+Block middleLeft: 6 lines
+Block middleRight: 6 lines
+Block topCenter: 13 lines
+Block topLeft: 12 lines
+Block topRight: 16 lines
+Layout analysis: 15 rows, 3 columns
+Block topLeft: 12 lines
+Block topCenter: 13 lines
+Block topRight: 16 lines
+Block middleLeft: 6 lines
+Block middleCenter: 1 lines
+Block middleRight: 6 lines
+Block bottomLeft: 1 lines
+Block bottomRight: 1 lines
+Detected 21 anchors in 56 lines
+Anchor: dateLabel conf=1.00 pattern='data wystawienia'
+Anchor: vendorLabel conf=1.00 pattern='sprzedawca'
+Anchor: buyerLabel conf=1.00 pattern='nabywca'
+Anchor: nipLabel conf=1.00 pattern='nip'
+Anchor: nipLabel conf=1.00 pattern='nip'
+Detected 21 anchors, 9 types
+Found NIP anchor
+Found vendor anchor at Y=0.147
+Vendor rejected: looks like tax ID 'Numer telefonu: 696337566'
+Vendor rejected: looks like date 'Sposób płatności: Przelew Termin płatności: 2025-07-07'
+Vendor rejected: too short 'Nazwa'
+Vendor accepted with company suffix: 'Nabywca: SPYROSOFT SYNERGY SPÓŁKA AKCYJNA'
+Found amount anchor
+Amount extraction: found 12 candidates
+  Candidate 1: confidence=0.980, y=0.37, source=do-zaplaty: do zapłaty
+  Candidate 2: confidence=0.960, y=0.41, source=do-zaplaty: do zapłaty
+  Candidate 3: confidence=0.880, y=0.42, source=pattern-do-zaplaty: amount
+  Candidate 4: confidence=0.270, y=0.27, source=pattern: amount
+  Candidate 5: confidence=0.270, y=0.27, source=pattern: amount
+Score gap to 2nd place: 0.020
+Low score gap - returning multiple amount candidates
+Selected amount: confidence=0.980, source=do-zaplaty: do zapłaty
+Date ranking: 4 candidates, top score: 50.0
+Date extraction: found 4 candidates
+  Date candidate 1: confidence=0.33, source=date-ranking: top-section-penalty, old-past-date-penalty, near-due-date-anchor [yyyy-MM-dd]
+  Date candidate 2: confidence=0.15, source=date-ranking: top-section-penalty, old-past-date-penalty [d/MM/yyyy]
+  Date candidate 3: confidence=0.15, source=date-ranking: top-section-penalty, old-past-date-penalty [yyyy-MM-dd]
+  Date candidate 4: confidence=0.15, source=date-ranking: top-section-penalty, old-past-date-penalty [yyyy-MM-dd]
+Found invoice number anchor
+Found bank account anchor
+Parsed numeric date '07.07.2025' with format 'dd.MM.yyyy'
+Parsed numeric date '07.07.2025' with format 'dd.MM.yyyy'
+Parsed numeric date '01.06.2025' with format 'dd.MM.yyyy'
+Parsed numeric date '30.06.2025' with format 'dd.MM.yyyy'
+Built candidates: vendor=3, nip=3, amount=3, date=3, docNum=2, bank=1
+Field extracted: type=vendor, method=anchor, confidence=0.95, candidates=3
+Parsing completed: fields=4/4, confidence=1.00
+Local analysis confidence: 0.88
+Low confidence (0.88), requesting cloud assist
+nw_path_necp_check_for_updates Failed to copy updated result (22)
+🏢 OpenAI vendor: name=B+ BARTŁOMIEJ ŁONIEWSKI, address=KAMELIOWA 3/1, 71-804 SZCZECIN, NIP=8522541213
+📅 OpenAI returned dueDate: 2025-07-07
+✅ Parsed dueDate successfully: 2025-07-07 00:00:00 +0000
+Cloud assist successful
+Analysis completed: vendor=true, amount=true, date=true, invoice#=true
+Applied vendor template for NIP: [NIP:***213]
+OCR/Parsing result: hasVendor=true, hasAmount=true, hasDueDate=true, confidence=0.962500
+Set vendor with confidence 0.950000, mode: suggested
+Set amount with confidence 1.000000, mode: suggested
+Found 2 suggested amounts
+Set dueDate with confidence 0.950000, mode: suggested
+Populating ViewModel fields: vendorCandidates=0, amountCandidates=0, dateCandidates=0, nipCandidates=0, docNumCandidates=0, bankCandidates=0
+Saving document - hasVendor: true, hasAmount: true, hasDueDate: true
+Calling finalizeUseCase (amount and date hidden for privacy)
+Recording corrections for adaptive learning
+Correction learning completed
+Feedback recorded successfully for document C0E6EA7E-DE8A-48D7-A04E-B9D8E5EAE6FD
+Parsing feedback recorded (privacy-safe)
+Finalizing document: hasTitle=true, currency=PLN (amount/date hidden for privacy)
+Document fields updated - NIP: 8522541213, Address: true
+Calendar event creation skipped (skipCalendar=true)
+Saved learning data: amountCorrected=false, dueDateCorrected=false, vendorCorrected=false
+Privacy-safe learning data saved (no PII/financial data)
+Notification authorization: isAuthorized=true, enabled=true
+Cancelled 0 notifications for document: C0E6EA7E-DE8A-48D7-A04E-B9D8E5EAE6FD
+Updated 0 notification reminders (old ones cancelled)
+Document finalized and saved successfully
+Document saved successfully
+📱 MainTabView: Add document sheet dismissed, triggering refresh
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+📱 DocumentRow tapped: C0E6EA7E-DE8A-48D7-A04E-B9D8E5EAE6FD - B+ BARTŁOMIEJ ŁONIEWSKI
+Appending document ID to navigation path: C0E6EA7E-DE8A-48D7-A04E-B9D8E5EAE6FD
+NavigationDestination triggered for document ID: C0E6EA7E-DE8A-48D7-A04E-B9D8E5EAE6FD
+DocumentDetailViewWrapper created for ID: C0E6EA7E-DE8A-48D7-A04E-B9D8E5EAE6FD
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+📋 DocumentDetailViewModel.loadDocument() called for ID: C0E6EA7E-DE8A-48D7-A04E-B9D8E5EAE6FD
+📋 Document fetched successfully: true
+📋 Document details - Title: B+ BARTŁOMIEJ ŁONIEWSKI, NIP: 8522541213
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+📱 MainTabView: Add document sheet dismissed, triggering refresh
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Result accumulator timeout: 3.000000, exceeded.
+📱 DocumentRow tapped: CB80D17B-42BE-4A9F-9511-50EA7079E4AF - INPOST SP. Z O.O.
+Appending document ID to navigation path: CB80D17B-42BE-4A9F-9511-50EA7079E4AF
+NavigationDestination triggered for document ID: CB80D17B-42BE-4A9F-9511-50EA7079E4AF
+DocumentDetailViewWrapper created for ID: CB80D17B-42BE-4A9F-9511-50EA7079E4AF
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+📋 DocumentDetailViewModel.loadDocument() called for ID: CB80D17B-42BE-4A9F-9511-50EA7079E4AF
+📋 Document fetched successfully: true
+📋 Document details - Title: INPOST SP. Z O.O., NIP: 6793108059
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+📱 MainTabView: Add document sheet dismissed, triggering refresh
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Permission calendar: granted=true
+Permission notifications: granted=true
+NavigationDestination triggered for document ID: CB80D17B-42BE-4A9F-9511-50EA7079E4AF
+DocumentDetailViewWrapper created for ID: CB80D17B-42BE-4A9F-9511-50EA7079E4AF
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+📋 DocumentDetailViewModel.loadDocument() called for ID: CB80D17B-42BE-4A9F-9511-50EA7079E4AF
+📋 Document fetched successfully: true
+📋 Document details - Title: INPOST SP. Z O.O., NIP: 6793108059
+NavigationDestination triggered for document ID: CB80D17B-42BE-4A9F-9511-50EA7079E4AF
+DocumentDetailViewWrapper created for ID: CB80D17B-42BE-4A9F-9511-50EA7079E4AF

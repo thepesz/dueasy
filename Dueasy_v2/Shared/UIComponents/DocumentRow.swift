@@ -75,44 +75,9 @@ struct DocumentRow: View {
                     .offset(x: isPressed ? 2 : 0)
             }
             .padding(Spacing.md)
-            .background {
-                if reduceTransparency {
-                    RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous)
-                        .fill(AppColors.secondaryBackground)
-                } else {
-                    ZStack {
-                        RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous)
-                            .fill(.ultraThinMaterial)
-
-                        RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous)
-                            .fill(
-                                LinearGradient(
-                                    colors: [
-                                        Color.white.opacity(colorScheme == .light ? 0.5 : 0.1),
-                                        Color.white.opacity(colorScheme == .light ? 0.2 : 0.02)
-                                    ],
-                                    startPoint: .top,
-                                    endPoint: .bottom
-                                )
-                            )
-                    }
-                }
-            }
+            .background { CardMaterial() }
             .clipShape(RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous))
-            .overlay {
-                RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous)
-                    .strokeBorder(
-                        LinearGradient(
-                            colors: [
-                                Color.white.opacity(colorScheme == .light ? 0.7 : 0.2),
-                                Color.white.opacity(colorScheme == .light ? 0.2 : 0.05)
-                            ],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        ),
-                        lineWidth: 0.5
-                    )
-            }
+            .overlay { GlassBorder() }
             .shadow(
                 color: Color.black.opacity(colorScheme == .light ? 0.06 : 0.2),
                 radius: 8,
