@@ -2,6 +2,9 @@ import SwiftUI
 import os.log
 
 /// Document review screen for editing extracted fields and finalizing the document.
+///
+/// ARCHITECTURE NOTE: This view is presented as a sheet after document scanning.
+/// It uses stable ScrollView identity to prevent layout issues during state changes.
 struct DocumentReviewView: View {
 
     @Environment(AppEnvironment.self) private var environment
@@ -42,61 +45,59 @@ struct DocumentReviewView: View {
 
     var body: some View {
         NavigationStack {
-            ZStack {
-                // Modern gradient background
-                GradientBackground()
+            // ARCHITECTURE FIX: Use .background() pattern instead of ZStack.
+            // ZStack with ignoresSafeArea() inside can cause layout issues with ScrollView.
+            ScrollView {
+                VStack(spacing: Spacing.lg) {
+                    // Permission prompt removed - permissions are requested during onboarding only
 
-                ScrollView {
-                    VStack(spacing: Spacing.lg) {
-                        // Permission prompt removed - permissions are requested during onboarding only
+                    // Document preview
+                    // CRITICAL FIX: Use ONLY opacity animations, NO offset animations.
+                    // Offset animations inside ScrollView interfere with content positioning.
+                    documentPreview
+                        .opacity(appeared ? 1 : 0)
+                        .animation(reduceMotion ? .none : .easeOut(duration: 0.3), value: appeared)
 
-                        // Document preview
-                        documentPreview
-                            .opacity(appeared ? 1 : 0)
-                            .offset(y: appeared ? 0 : 15)
-                            .animation(reduceMotion ? .none : .spring(response: 0.4, dampingFraction: 0.8), value: appeared)
-
-                        // OCR status
-                        if viewModel.isProcessingOCR {
-                            ocrProcessingView
-                        } else if viewModel.hasLowConfidence {
-                            lowConfidenceWarning
-                        }
-
-                        // Form fields
-                        formFields
-                            .opacity(appeared ? 1 : 0)
-                            .offset(y: appeared ? 0 : 15)
-                            .animation(reduceMotion ? .none : .spring(response: 0.4, dampingFraction: 0.8).delay(0.1), value: appeared)
-
-                        // Calendar settings
-                        calendarSettings
-                            .opacity(appeared ? 1 : 0)
-                            .offset(y: appeared ? 0 : 15)
-                            .animation(reduceMotion ? .none : .spring(response: 0.4, dampingFraction: 0.8).delay(0.15), value: appeared)
-
-                        // Reminder settings
-                        reminderSettings
-                            .opacity(appeared ? 1 : 0)
-                            .offset(y: appeared ? 0 : 15)
-                            .animation(reduceMotion ? .none : .spring(response: 0.4, dampingFraction: 0.8).delay(0.2), value: appeared)
-
-                        // Validation errors
-                        if !viewModel.validationErrors.isEmpty {
-                            validationErrorsView
-                        }
-
-                        // Save button
-                        saveButton
-                            .opacity(appeared ? 1 : 0)
-                            .offset(y: appeared ? 0 : 20)
-                            .animation(reduceMotion ? .none : .spring(response: 0.5, dampingFraction: 0.8).delay(0.25), value: appeared)
+                    // OCR status
+                    if viewModel.isProcessingOCR {
+                        ocrProcessingView
+                    } else if viewModel.hasLowConfidence {
+                        lowConfidenceWarning
                     }
-                    .padding(.horizontal, Spacing.md)
-                    .padding(.top, Spacing.md)
-                    .padding(.bottom, Spacing.xxl)
+
+                    // Form fields
+                    formFields
+                        .opacity(appeared ? 1 : 0)
+                        .animation(reduceMotion ? .none : .easeOut(duration: 0.3).delay(0.1), value: appeared)
+
+                    // Calendar settings
+                    calendarSettings
+                        .opacity(appeared ? 1 : 0)
+                        .animation(reduceMotion ? .none : .easeOut(duration: 0.3).delay(0.15), value: appeared)
+
+                    // Reminder settings
+                    reminderSettings
+                        .opacity(appeared ? 1 : 0)
+                        .animation(reduceMotion ? .none : .easeOut(duration: 0.3).delay(0.2), value: appeared)
+
+                    // Validation errors
+                    if !viewModel.validationErrors.isEmpty {
+                        validationErrorsView
+                    }
+
+                    // Save button
+                    saveButton
+                        .opacity(appeared ? 1 : 0)
+                        .animation(reduceMotion ? .none : .easeOut(duration: 0.3).delay(0.25), value: appeared)
                 }
-                .scrollIndicators(.hidden)
+                .padding(.horizontal, Spacing.md)
+                .padding(.top, Spacing.md)
+                .padding(.bottom, Spacing.xxl)
+            }
+            .scrollIndicators(.hidden)
+            .scrollContentBackground(.hidden)
+            .background {
+                GradientBackgroundFixed()
             }
             .navigationTitle(L10n.Review.title.localized)
             .navigationBarTitleDisplayMode(.inline)

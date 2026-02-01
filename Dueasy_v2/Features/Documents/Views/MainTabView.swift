@@ -2,15 +2,23 @@ import SwiftUI
 
 /// Main tab navigation for the app.
 /// Contains Home (Documents), Calendar, and Settings tabs.
+///
+/// ARCHITECTURE NOTE: This view manages the add-document sheet presentation.
+/// The documentListRefreshTrigger is used to notify DocumentListView to refresh
+/// after a document is added, ensuring proper layout recalculation.
 struct MainTabView: View {
 
     @Environment(AppEnvironment.self) private var environment
     @State private var selectedTab: Tab = .documents
     @State private var showingAddDocument = false
 
+    /// Counter to trigger document list refresh after adding a document.
+    /// This ensures the list reloads and any NavigationStack state is reset.
+    @State private var documentListRefreshTrigger = 0
+
     var body: some View {
         TabView(selection: $selectedTab) {
-            DocumentListView()
+            DocumentListView(refreshTrigger: documentListRefreshTrigger)
                 .environment(environment)
                 .tag(Tab.documents)
                 .tabItem {
@@ -47,6 +55,13 @@ struct MainTabView: View {
         .sheet(isPresented: $showingAddDocument) {
             AddDocumentView(environment: environment)
                 .environment(environment)
+        }
+        .onChange(of: showingAddDocument) { oldValue, newValue in
+            // When sheet dismisses (was true, now false), trigger list refresh
+            if oldValue && !newValue {
+                print("📱 MainTabView: Add document sheet dismissed, triggering refresh")
+                documentListRefreshTrigger += 1
+            }
         }
     }
 

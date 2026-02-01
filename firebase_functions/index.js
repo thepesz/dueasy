@@ -19,7 +19,7 @@ const OpenAI = require('openai');
 
 // Define parameters for environment config
 const openaiApiKey = defineString('OPENAI_API_KEY');
-const openaiModel = defineString('OPENAI_MODEL', {default: 'gpt-4o'});
+const openaiModel = defineString('OPENAI_MODEL', {default: 'gpt-5-mini'});
 
 // Initialize Firebase Admin
 admin.initializeApp();
@@ -258,7 +258,7 @@ exports.analyzeDocumentWithImages = onCall({
 
     // Call OpenAI Vision
     const completion = await getOpenAIClient().chat.completions.create({
-      model: 'gpt-4o', // Vision requires gpt-4o
+      model: 'gpt-5-mini', // Using gpt-5-mini
       temperature: 0.1,
       response_format: {type: 'json_object'},
       messages: messages,

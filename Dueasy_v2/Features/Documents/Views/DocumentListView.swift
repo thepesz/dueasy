@@ -3,6 +3,13 @@ import SwiftData
 
 /// Main document list screen (Home).
 /// Displays all documents with filtering, search, and swipe-to-delete.
+///
+/// ARCHITECTURE NOTE: Uses UUID-based navigation to avoid SwiftData object invalidation.
+/// The navigation path is managed with UUIDs rather than FinanceDocument objects to
+/// ensure stable navigation after documents are added or modified.
+///
+/// LAYOUT FIX: Accepts a refreshTrigger from MainTabView to properly reset
+/// NavigationStack state after sheet dismissals, preventing safe area corruption.
 struct DocumentListView: View {
 
     @Environment(AppEnvironment.self) private var environment
@@ -11,6 +18,13 @@ struct DocumentListView: View {
     @State private var showingAddDocument = false
     @State private var navigationPath = NavigationPath()
     @State private var appeared = false
+
+    /// External trigger from MainTabView to refresh after adding documents
+    let refreshTrigger: Int
+
+    init(refreshTrigger: Int = 0) {
+        self.refreshTrigger = refreshTrigger
+    }
 
     var body: some View {
         NavigationStack(path: $navigationPath) {
@@ -35,17 +49,27 @@ struct DocumentListView: View {
                     }
                 }
             }
+            .onChange(of: refreshTrigger) { oldValue, newValue in
+                // External refresh triggered (from MainTabView after adding document)
+                print("📱 DocumentListView: External refresh triggered (\(oldValue) -> \(newValue))")
+                // Clear navigation path to reset NavigationStack state
+                navigationPath = NavigationPath()
+                Task {
+                    await viewModel?.loadDocuments()
+                }
+            }
             .navigationDestination(for: UUID.self) { documentId in
                 let _ = print("📱 NavigationDestination triggered for document ID: \(documentId)")
                 DocumentDetailViewWrapper(documentId: documentId)
                     .environment(environment)
             }
         }
+        .id(refreshTrigger)
         .task {
             setupViewModel()
             await viewModel?.loadDocuments()
-        }
-        .onAppear {
+
+            // Trigger appearance animation after data loads
             if !reduceMotion {
                 withAnimation(.easeOut(duration: 0.4)) {
                     appeared = true
@@ -63,10 +87,12 @@ struct DocumentListView: View {
         ZStack {
             // Modern gradient background
             ListGradientBackground()
+                .ignoresSafeArea()
 
             VStack(spacing: 0) {
                 // Filter bar with glass effect
                 filterBar(viewModel: viewModel)
+                    .padding(.top, Spacing.xs)
 
                 // Content
                 if viewModel.isLoading && !viewModel.hasDocuments {

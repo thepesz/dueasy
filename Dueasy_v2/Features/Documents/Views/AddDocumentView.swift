@@ -21,55 +21,53 @@ struct AddDocumentView: View {
 
     var body: some View {
         NavigationStack {
-            ZStack {
-                // Modern gradient background
-                GradientBackground()
+            // FIXED: Use .background() pattern for consistency with other views
+            VStack(spacing: Spacing.lg) {
+                // Document type selection
+                VStack(alignment: .leading, spacing: Spacing.md) {
+                    Text(L10n.AddDocument.documentType.localized)
+                        .font(Typography.headline)
+                        .foregroundStyle(.secondary)
+                        .padding(.horizontal, Spacing.xxs)
 
-                VStack(spacing: Spacing.lg) {
-                    // Document type selection
-                    VStack(alignment: .leading, spacing: Spacing.md) {
-                        Text(L10n.AddDocument.documentType.localized)
-                            .font(Typography.headline)
-                            .foregroundStyle(.secondary)
-                            .padding(.horizontal, Spacing.xxs)
-
-                        ForEach(Array(DocumentType.allCases.enumerated()), id: \.element) { index, type in
-                            DocumentTypeRow(
-                                type: type,
-                                isSelected: selectedType == type,
-                                isEnabled: type.isEnabledInMVP
-                            ) {
-                                if type.isEnabledInMVP {
-                                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                                        selectedType = type
-                                    }
+                    ForEach(Array(DocumentType.allCases.enumerated()), id: \.element) { index, type in
+                        DocumentTypeRow(
+                            type: type,
+                            isSelected: selectedType == type,
+                            isEnabled: type.isEnabledInMVP
+                        ) {
+                            if type.isEnabledInMVP {
+                                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                    selectedType = type
                                 }
                             }
-                            .opacity(appeared ? 1 : 0)
-                            .offset(y: appeared ? 0 : 15)
-                            .animation(
-                                reduceMotion ? .none : .spring(response: 0.4, dampingFraction: 0.8).delay(Double(index) * 0.08),
-                                value: appeared
-                            )
                         }
-                    }
-
-                    Spacer()
-
-                    // Action buttons
-                    VStack(spacing: Spacing.sm) {
-                        PrimaryButton(L10n.AddDocument.scanDocument.localized, icon: "camera.fill") {
-                            showingScanner = true
-                        }
+                        // FIXED: Use opacity-only animations for consistency
                         .opacity(appeared ? 1 : 0)
-                        .offset(y: appeared ? 0 : 20)
                         .animation(
-                            reduceMotion ? .none : .spring(response: 0.5, dampingFraction: 0.8).delay(0.3),
+                            reduceMotion ? .none : .easeOut(duration: 0.3).delay(Double(index) * 0.08),
                             value: appeared
                         )
                     }
                 }
-                .padding(Spacing.md)
+
+                Spacer()
+
+                // Action buttons
+                VStack(spacing: Spacing.sm) {
+                    PrimaryButton(L10n.AddDocument.scanDocument.localized, icon: "camera.fill") {
+                        showingScanner = true
+                    }
+                    .opacity(appeared ? 1 : 0)
+                    .animation(
+                        reduceMotion ? .none : .easeOut(duration: 0.3).delay(0.3),
+                        value: appeared
+                    )
+                }
+            }
+            .padding(Spacing.md)
+            .background {
+                GradientBackgroundFixed()
             }
             .navigationTitle(L10n.AddDocument.title.localized)
             .navigationBarTitleDisplayMode(.inline)

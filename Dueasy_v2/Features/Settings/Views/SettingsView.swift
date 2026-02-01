@@ -388,6 +388,7 @@ struct PrivacyInfoView: View {
     var body: some View {
         ZStack {
             ListGradientBackground()
+                .ignoresSafeArea()
 
             ScrollView {
                 VStack(alignment: .leading, spacing: Spacing.md) {
@@ -407,10 +408,11 @@ struct PrivacyInfoView: View {
                     }
                 }
                 .padding(.horizontal, Spacing.md)
-                .padding(.top, Spacing.md)
-                .padding(.bottom, Spacing.xxl)
             }
             .scrollIndicators(.hidden)
+            .scrollContentBackground(.hidden)
+            .contentMargins(.top, Spacing.md, for: .scrollContent)
+            .contentMargins(.bottom, Spacing.xxl, for: .scrollContent)
         }
         .navigationTitle(L10n.Privacy.title.localized)
         .navigationBarTitleDisplayMode(.inline)

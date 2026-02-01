@@ -1,160 +1,115 @@
 import SwiftUI
 
-/// Document detail view showing all fields and actions.
+/// Document detail view showing full document information.
+///
+/// ARCHITECTURE: This view is presented via NavigationStack from DocumentListView.
+/// The parent NavigationStack is recreated after sheet dismissals to prevent
+/// safe area corruption issues.
 struct DocumentDetailView: View {
 
     @Environment(AppEnvironment.self) private var environment
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     let documentId: UUID
 
     @State private var viewModel: DocumentDetailViewModel?
     @State private var showingEditSheet = false
-    @State private var appeared = false
 
     var body: some View {
-        let _ = print("📋 DocumentDetailView body evaluated - documentId: \(documentId)")
-        Group {
+        ScrollView {
             if let viewModel = viewModel, let doc = viewModel.document {
-                let _ = print("📋 Showing content view with loaded document")
-                contentView(viewModel: viewModel, document: doc)
+                VStack(alignment: .leading, spacing: 16) {
+                    // Header
+                    headerSection(document: doc)
+
+                    // Amount
+                    amountSection(document: doc)
+
+                    // Details
+                    detailsSection(document: doc)
+
+                    // Calendar
+                    calendarSection(document: doc)
+
+                    // Actions
+                    if doc.status == .scheduled {
+                        actionsSection(viewModel: viewModel)
+                    }
+                }
+                .padding(.horizontal, 16)
+                .padding(.top, 16)
+                .padding(.bottom, 32)
             } else {
-                let _ = print("📋 Showing loading view - viewModel: \(viewModel != nil), document: \(viewModel?.document != nil)")
-                LoadingView(L10n.Common.loading.localized)
-                    .gradientBackground(style: .list)
+                VStack {
+                    ProgressView()
+                    Text("Loading...")
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity, minHeight: 200)
             }
         }
-        .navigationTitle(viewModel?.document?.title.isEmpty ?? true ? L10n.Detail.title.localized : (viewModel?.document?.title ?? L10n.Detail.title.localized))
-        .navigationBarTitleDisplayMode(.inline)
+        .background(Color(UIColor.systemGroupedBackground))
         .task {
-            print("📋 DocumentDetailView .task started for documentId: \(documentId)")
             setupViewModel()
-            print("📋 Calling loadDocument...")
             await viewModel?.loadDocument()
-            print("📋 loadDocument completed - document loaded: \(viewModel?.document != nil)")
         }
-        .onChange(of: viewModel?.shouldDismiss ?? false) { _, shouldDismiss in
-            if shouldDismiss {
-                dismiss()
-            }
-        }
-        .onAppear {
-            if !reduceMotion {
-                withAnimation(.easeOut(duration: 0.4)) {
-                    appeared = true
-                }
-            } else {
-                appeared = true
-            }
-        }
-    }
-
-    @ViewBuilder
-    private func contentView(viewModel: DocumentDetailViewModel, document: FinanceDocument) -> some View {
-        ZStack {
-            // Modern gradient background
-            GradientBackground()
-
-            ScrollView {
-                VStack(alignment: .leading, spacing: Spacing.lg) {
-                    // Header with status
-                    headerSection(document: document)
-                        .opacity(appeared ? 1 : 0)
-                        .offset(y: appeared ? 0 : 10)
-                        .animation(reduceMotion ? .none : .spring(response: 0.4, dampingFraction: 0.8), value: appeared)
-
-                    // Amount section
-                    amountSection(document: document)
-                        .opacity(appeared ? 1 : 0)
-                        .offset(y: appeared ? 0 : 15)
-                        .animation(reduceMotion ? .none : .spring(response: 0.4, dampingFraction: 0.8).delay(0.05), value: appeared)
-
-                    // Details section
-                    detailsSection(document: document)
-                        .opacity(appeared ? 1 : 0)
-                        .offset(y: appeared ? 0 : 15)
-                        .animation(reduceMotion ? .none : .spring(response: 0.4, dampingFraction: 0.8).delay(0.1), value: appeared)
-
-                    // Calendar section
-                    calendarSection(document: document)
-                        .opacity(appeared ? 1 : 0)
-                        .offset(y: appeared ? 0 : 15)
-                        .animation(reduceMotion ? .none : .spring(response: 0.4, dampingFraction: 0.8).delay(0.15), value: appeared)
-
-                    // Actions section
-                    actionsSection(viewModel: viewModel, document: document)
-                        .opacity(appeared ? 1 : 0)
-                        .offset(y: appeared ? 0 : 15)
-                        .animation(reduceMotion ? .none : .spring(response: 0.4, dampingFraction: 0.8).delay(0.2), value: appeared)
-                }
-                .padding(.horizontal, Spacing.md)
-                .padding(.top, Spacing.md)
-                .padding(.bottom, Spacing.xxl)
-            }
-            .scrollIndicators(.hidden)
-        }
+        .navigationTitle(viewModel?.document?.title ?? "Document")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbarBackground(.visible, for: .navigationBar)
+        .toolbarBackground(.ultraThinMaterial, for: .navigationBar)
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Menu {
                     Button {
                         showingEditSheet = true
                     } label: {
-                        Label(L10n.Common.edit.localized, systemImage: "pencil")
+                        Label("Edit", systemImage: "pencil")
                     }
 
-                    if document.status == .scheduled {
+                    if viewModel?.document?.status == .scheduled {
                         Button {
-                            Task {
-                                await viewModel.markAsPaid()
-                            }
+                            Task { await viewModel?.markAsPaid() }
                         } label: {
-                            Label(L10n.Detail.markAsPaid.localized, systemImage: "checkmark.circle")
+                            Label("Mark as Paid", systemImage: "checkmark.circle")
                         }
                     }
 
                     Divider()
 
                     Button(role: .destructive) {
-                        Task {
-                            await viewModel.deleteDocument()
-                        }
+                        Task { await viewModel?.deleteDocument() }
                     } label: {
-                        Label(L10n.Common.delete.localized, systemImage: "trash")
+                        Label("Delete", systemImage: "trash")
                     }
                 } label: {
                     Image(systemName: "ellipsis.circle")
                 }
             }
         }
+        .onChange(of: viewModel?.shouldDismiss ?? false) { _, shouldDismiss in
+            if shouldDismiss { dismiss() }
+        }
         .sheet(isPresented: $showingEditSheet) {
-            if let doc = viewModel.document {
+            if let doc = viewModel?.document {
                 DocumentEditView(document: doc)
                     .environment(environment)
             }
         }
-        .overlay(alignment: .top) {
-            if let error = viewModel.error {
-                ErrorBanner(error: error, onDismiss: { viewModel.clearError() })
-                    .padding()
-            }
-        }
-        .loadingOverlay(isLoading: viewModel.isLoading, message: L10n.Detail.deleting.localized)
     }
 
-    // MARK: - Sections
+    // MARK: - Sections (Minimal Styling)
 
     @ViewBuilder
     private func headerSection(document: FinanceDocument) -> some View {
         HStack {
-            VStack(alignment: .leading, spacing: Spacing.xxs) {
+            VStack(alignment: .leading, spacing: 4) {
                 Text(document.type.displayName)
-                    .font(Typography.caption1.weight(.medium))
+                    .font(.caption)
                     .foregroundStyle(.secondary)
 
                 if let number = document.documentNumber, !number.isEmpty {
                     Text("No. \(number)")
-                        .font(Typography.subheadline)
+                        .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
             }
@@ -167,134 +122,127 @@ struct DocumentDetailView: View {
 
     @ViewBuilder
     private func amountSection(document: FinanceDocument) -> some View {
-        PremiumGlassCard(accentColor: document.status.color) {
-            HStack {
-                VStack(alignment: .leading, spacing: Spacing.xs) {
-                    Text(L10n.Detail.amount.localized)
-                        .font(Typography.caption1.weight(.medium))
-                        .foregroundStyle(.secondary)
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Amount")
+                .font(.caption)
+                .foregroundStyle(.secondary)
 
-                    Text(formattedAmount(for: document))
-                        .font(.system(size: 32, weight: .bold, design: .rounded).monospacedDigit())
-                        .foregroundStyle(.primary)
-                }
-
-                Spacer()
-
-                Button {
-                    #if canImport(UIKit)
-                    UIPasteboard.general.string = formattedAmount(for: document)
-                    #endif
-                } label: {
-                    Image(systemName: "doc.on.doc")
-                        .font(.body)
-                        .foregroundStyle(.secondary)
-                }
-                .accessibilityLabel("Copy amount")
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
+            Text(formattedAmount(for: document))
+                .font(.system(size: 32, weight: .bold, design: .rounded))
         }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color(UIColor.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 
     @ViewBuilder
     private func detailsSection(document: FinanceDocument) -> some View {
-        Card.glass {
-            VStack(spacing: Spacing.md) {
-                DetailRow(label: L10n.Detail.vendor.localized, value: document.title.isEmpty ? L10n.Detail.notSpecified.localized : document.title)
+        VStack(alignment: .leading, spacing: 12) {
+            // Vendor
+            detailRow(label: "Vendor", value: document.title.isEmpty ? "Not specified" : document.title)
 
-                // Vendor address
-                if let address = document.vendorAddress, !address.isEmpty {
-                    DetailRow(label: L10n.Detail.address.localized, value: address)
-                }
-
-                // Vendor NIP
-                if let nip = document.vendorNIP, !nip.isEmpty {
-                    DetailRow(label: L10n.Detail.nip.localized, value: nip)
-                        .font(.system(.caption, design: .monospaced))
-                }
-
-                // Bank account number
-                if let bankAccount = document.bankAccountNumber, !bankAccount.isEmpty {
-                    DetailRow(label: L10n.Detail.bankAccount.localized, value: bankAccount)
-                        .font(.system(.caption, design: .monospaced))
-                }
-
-                if let dueDate = document.dueDate {
-                    DetailRow(
-                        label: L10n.Detail.dueDate.localized,
-                        value: formattedDate(dueDate),
-                        valueColor: AppColors.dueDateColor(daysUntilDue: document.daysUntilDue)
-                    )
-
-                    if let days = document.daysUntilDue {
-                        DueDateBadge(daysUntilDue: days)
-                    }
-                }
-
-                if let notes = document.notes, !notes.isEmpty {
-                    DetailRow(label: L10n.Detail.notes.localized, value: notes)
-                }
-
-                DetailRow(label: L10n.Detail.created.localized, value: formattedDate(document.createdAt))
+            // Address
+            if let address = document.vendorAddress, !address.isEmpty {
+                detailRow(label: "Address", value: address)
             }
+
+            // NIP
+            if let nip = document.vendorNIP, !nip.isEmpty {
+                detailRow(label: "NIP", value: nip)
+            }
+
+            // Bank Account
+            if let bankAccount = document.bankAccountNumber, !bankAccount.isEmpty {
+                detailRow(label: "Bank Account", value: bankAccount)
+            }
+
+            // Due Date
+            if let dueDate = document.dueDate {
+                detailRow(label: "Due Date", value: formattedDate(dueDate))
+            }
+
+            // Notes
+            if let notes = document.notes, !notes.isEmpty {
+                detailRow(label: "Notes", value: notes)
+            }
+
+            // Created
+            detailRow(label: "Created", value: formattedDate(document.createdAt))
         }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color(UIColor.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 
     @ViewBuilder
     private func calendarSection(document: FinanceDocument) -> some View {
-        Card.glass {
-            VStack(alignment: .leading, spacing: Spacing.sm) {
-                HStack {
-                    Image(systemName: "calendar")
-                        .foregroundStyle(AppColors.primary)
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Image(systemName: "calendar")
+                    .foregroundStyle(.blue)
 
-                    Text(L10n.Detail.calendar.localized)
-                        .font(Typography.headline)
+                Text("Calendar")
+                    .font(.headline)
 
-                    Spacer()
+                Spacer()
 
-                    if document.calendarEventId != nil {
-                        Text(L10n.Detail.added.localized)
-                            .font(Typography.caption1)
-                            .foregroundStyle(AppColors.success)
-                    } else {
-                        Text(L10n.Detail.notAdded.localized)
-                            .font(Typography.caption1)
-                            .foregroundStyle(.secondary)
-                    }
+                if document.calendarEventId != nil {
+                    Text("Added")
+                        .font(.caption)
+                        .foregroundStyle(.green)
+                } else {
+                    Text("Not added")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                 }
+            }
 
-                if document.notificationsEnabled {
-                    HStack {
-                        Image(systemName: "bell.fill")
-                            .foregroundStyle(AppColors.primary)
+            if document.notificationsEnabled {
+                HStack {
+                    Image(systemName: "bell.fill")
+                        .foregroundStyle(.blue)
 
-                        Text(L10n.Detail.reminders.localized)
-                            .font(Typography.subheadline)
-
-                        Spacer()
-
-                        Text(reminderOffsetsText(for: document))
-                            .font(Typography.caption1)
-                            .foregroundStyle(.secondary)
-                    }
+                    Text("Reminders enabled")
+                        .font(.subheadline)
                 }
             }
         }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color(UIColor.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 
     @ViewBuilder
-    private func actionsSection(viewModel: DocumentDetailViewModel, document: FinanceDocument) -> some View {
-        if document.status == .scheduled {
-            PrimaryButton(L10n.Detail.markAsPaid.localized, icon: "checkmark.circle.fill") {
-                Task {
-                    await viewModel.markAsPaid()
-                }
-            }
+    private func actionsSection(viewModel: DocumentDetailViewModel) -> some View {
+        Button {
+            Task { await viewModel.markAsPaid() }
+        } label: {
+            Label("Mark as Paid", systemImage: "checkmark.circle.fill")
+                .font(.headline)
+                .frame(maxWidth: .infinity)
+                .padding()
+                .background(Color.green)
+                .foregroundStyle(.white)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
         }
     }
 
-    // MARK: - Formatting
+    // MARK: - Helpers
+
+    @ViewBuilder
+    private func detailRow(label: String, value: String) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(label)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+            Text(value)
+                .font(.body)
+        }
+    }
 
     private func formattedAmount(for document: FinanceDocument) -> String {
         let formatter = NumberFormatter()
@@ -311,18 +259,6 @@ struct DocumentDetailView: View {
         return formatter.string(from: date)
     }
 
-    private func reminderOffsetsText(for document: FinanceDocument) -> String {
-        document.reminderOffsetsDays.map { days in
-            if days == 0 {
-                return L10n.Review.reminderDueDate.localized
-            } else if days == 1 {
-                return L10n.Review.reminderOneDay.localized
-            } else {
-                return String.localized(L10n.Review.reminderDays, with: days)
-            }
-        }.joined(separator: ", ")
-    }
-
     // MARK: - Setup
 
     private func setupViewModel() {
@@ -337,46 +273,7 @@ struct DocumentDetailView: View {
     }
 }
 
-// MARK: - Detail Row
-
-struct DetailRow: View {
-    let label: String
-    let value: String
-    var valueColor: Color = .primary
-    var showCopyButton: Bool = true
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: Spacing.xxs) {
-            Text(label)
-                .font(Typography.caption1)
-                .foregroundStyle(.secondary)
-
-            HStack(alignment: .top, spacing: Spacing.xs) {
-                Text(value)
-                    .font(Typography.body)
-                    .foregroundStyle(valueColor)
-
-                if showCopyButton {
-                    Spacer()
-
-                    Button {
-                        #if canImport(UIKit)
-                        UIPasteboard.general.string = value
-                        #endif
-                    } label: {
-                        Image(systemName: "doc.on.doc")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                    .accessibilityLabel("Copy \(label)")
-                }
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-    }
-}
-
-// MARK: - Document Edit View
+// MARK: - Document Edit View (Minimal Version)
 
 struct DocumentEditView: View {
     @Environment(AppEnvironment.self) private var environment
@@ -398,8 +295,6 @@ struct DocumentEditView: View {
 
     init(document: FinanceDocument) {
         self.document = document
-
-        // Initialize state with current document values
         _vendorName = State(initialValue: document.title)
         _vendorAddress = State(initialValue: document.vendorAddress ?? "")
         _amount = State(initialValue: String(describing: document.amount))
@@ -413,102 +308,62 @@ struct DocumentEditView: View {
 
     var body: some View {
         NavigationStack {
-            ZStack {
-                GradientBackground()
+            Form {
+                Section("Vendor") {
+                    TextField("Vendor Name", text: $vendorName)
+                    TextField("Address", text: $vendorAddress, axis: .vertical)
+                    TextField("NIP", text: $vendorNIP)
+                }
 
-                ScrollView {
-                    VStack(spacing: Spacing.lg) {
-                        // Vendor section
-                        Card.glass {
-                            VStack(spacing: Spacing.md) {
-                                FormField(label: L10n.Edit.vendorName.localized, isRequired: true) {
-                                    TextField(L10n.Edit.vendorNamePlaceholder.localized, text: $vendorName)
-                                }
+                Section("Amount") {
+                    HStack {
+                        TextField("Amount", text: $amount)
+                            .keyboardType(.decimalPad)
 
-                                FormField(label: L10n.Edit.vendorAddress.localized, isRequired: false) {
-                                    TextField(L10n.Edit.vendorAddressPlaceholder.localized, text: $vendorAddress, axis: .vertical)
-                                        .lineLimit(2...5)
-                                }
-
-                                FormField(label: L10n.Edit.nip.localized, isRequired: false) {
-                                    TextField(L10n.Edit.nipPlaceholder.localized, text: $vendorNIP)
-                                        .font(.system(.body, design: .monospaced))
-                                }
+                        Picker("Currency", selection: $currency) {
+                            ForEach(SettingsManager.availableCurrencies, id: \.self) { curr in
+                                Text(curr).tag(curr)
                             }
                         }
-
-                        // Amount section
-                        Card.glass {
-                            HStack(spacing: Spacing.sm) {
-                                FormField(label: L10n.Edit.amount.localized, isRequired: true) {
-                                    TextField(L10n.Edit.amountPlaceholder.localized, text: $amount)
-                                        .keyboardType(.decimalPad)
-                                }
-
-                                FormField(label: L10n.Edit.currency.localized) {
-                                    Picker(L10n.Edit.currency.localized, selection: $currency) {
-                                        ForEach(SettingsManager.availableCurrencies, id: \.self) { curr in
-                                            Text(curr).tag(curr)
-                                        }
-                                    }
-                                    .pickerStyle(.menu)
-                                }
-                                .frame(width: 100)
-                            }
-                        }
-
-                        // Date and details section
-                        Card.glass {
-                            VStack(spacing: Spacing.md) {
-                                FormField(label: L10n.Edit.dueDate.localized, isRequired: true) {
-                                    DatePicker(L10n.Edit.dueDate.localized, selection: $dueDate, displayedComponents: .date)
-                                        .datePickerStyle(.compact)
-                                        .labelsHidden()
-                                }
-
-                                FormField(label: L10n.Edit.documentNumber.localized, isRequired: false) {
-                                    TextField(L10n.Edit.documentNumberPlaceholder.localized, text: $documentNumber)
-                                }
-
-                                FormField(label: L10n.Edit.bankAccount.localized, isRequired: false) {
-                                    TextField(L10n.Edit.bankAccountPlaceholder.localized, text: $bankAccountNumber, axis: .vertical)
-                                        .font(.system(.body, design: .monospaced))
-                                        .lineLimit(1...3)
-                                }
-                            }
-                        }
-
-                        // Notes section
-                        Card.glass {
-                            FormField(label: L10n.Edit.notes.localized, isRequired: false) {
-                                TextField(L10n.Edit.notesPlaceholder.localized, text: $notes, axis: .vertical)
-                                    .lineLimit(3...10)
-                            }
-                        }
+                        .pickerStyle(.menu)
                     }
-                    .padding(Spacing.md)
-                    .padding(.bottom, Spacing.xl)
+                }
+
+                Section("Details") {
+                    DatePicker("Due Date", selection: $dueDate, displayedComponents: .date)
+                    TextField("Document Number", text: $documentNumber)
+                    TextField("Bank Account", text: $bankAccountNumber)
+                }
+
+                Section("Notes") {
+                    TextField("Notes", text: $notes, axis: .vertical)
+                        .lineLimit(3...10)
                 }
             }
-            .navigationTitle(L10n.Edit.title.localized)
+            .navigationTitle("Edit Document")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button(L10n.Common.cancel.localized) { dismiss() }
+                    Button("Cancel") { dismiss() }
                 }
 
                 ToolbarItem(placement: .confirmationAction) {
-                    Button(L10n.Common.save.localized) {
+                    Button("Save") {
                         Task { await saveChanges() }
                     }
                     .disabled(isSaving || !isValid)
                 }
             }
-            .loadingOverlay(isLoading: isSaving, message: L10n.Edit.saving.localized)
-            .overlay(alignment: .top) {
-                if let error = error {
-                    ErrorBanner(error: error, onDismiss: { self.error = nil })
-                        .padding()
+            .overlay {
+                if isSaving {
+                    Color.black.opacity(0.3)
+                        .ignoresSafeArea()
+                        .overlay {
+                            ProgressView("Saving...")
+                                .padding()
+                                .background(.regularMaterial)
+                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                        }
                 }
             }
         }
@@ -549,7 +404,6 @@ struct DocumentEditView: View {
         error = nil
 
         do {
-            // Update fields not handled by UpdateDocumentUseCase directly
             document.vendorAddress = vendorAddress.isEmpty ? nil : vendorAddress
             document.vendorNIP = vendorNIP.isEmpty ? nil : vendorNIP
             document.bankAccountNumber = bankAccountNumber.isEmpty ? nil : bankAccountNumber
@@ -581,21 +435,8 @@ struct DocumentEditView: View {
 // MARK: - Preview
 
 #Preview {
-    let mockDoc = FinanceDocument(
-        type: .invoice,
-        title: "Acme Corporation",
-        amount: 1250.00,
-        currency: "PLN",
-        dueDate: Calendar.current.date(byAdding: .day, value: 7, to: Date()),
-        status: .scheduled,
-        documentNumber: "INV-2024-001",
-        calendarEventId: "mock-event-id",
-        reminderOffsetsDays: [7, 1, 0],
-        notificationsEnabled: true
-    )
-
-    return NavigationStack {
-        DocumentDetailView(documentId: mockDoc.id)
+    NavigationStack {
+        DocumentDetailView(documentId: UUID())
             .environment(AppEnvironment.preview)
     }
 }

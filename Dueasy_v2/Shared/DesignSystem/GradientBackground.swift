@@ -2,6 +2,10 @@ import SwiftUI
 
 /// Modern gradient background with floating orbs for depth.
 /// Automatically adapts to light/dark mode and respects accessibility settings.
+///
+/// IMPORTANT: This background is designed to be used with `.background()` modifier
+/// and does NOT use GeometryReader to avoid interfering with ScrollView layout.
+/// The orbs use fixed positions relative to screen bounds instead.
 struct GradientBackground: View {
 
     @Environment(\.colorScheme) private var colorScheme
@@ -12,20 +16,19 @@ struct GradientBackground: View {
     @State private var animateOrbs = false
 
     var body: some View {
-        GeometryReader { geometry in
-            ZStack {
-                // Base gradient
-                baseGradient
+        ZStack {
+            // Base gradient - fills entire available space
+            baseGradient
 
-                // Floating orbs for depth (only if transparency is enabled)
-                if !reduceTransparency {
-                    orbsLayer(in: geometry.size)
-                }
+            // Floating orbs for depth (only if transparency is enabled)
+            // Uses fixed sizes based on typical screen dimensions to avoid GeometryReader
+            if !reduceTransparency {
+                orbsLayer
             }
         }
         .ignoresSafeArea()
         .onAppear {
-            if !reduceMotion {
+            if !reduceMotion && !animateOrbs {
                 withAnimation(.easeInOut(duration: 8).repeatForever(autoreverses: true)) {
                     animateOrbs = true
                 }
@@ -43,55 +46,80 @@ struct GradientBackground: View {
         )
     }
 
-    private func orbsLayer(in size: CGSize) -> some View {
+    /// Orbs layer using fixed positioning to avoid GeometryReader layout interference.
+    /// Uses frame alignment and offset for positioning instead of geometry-based calculations.
+    private var orbsLayer: some View {
         ZStack {
-            // Primary orb - top right
+            // Primary orb - top right area
             Circle()
                 .fill(
                     RadialGradient(
                         colors: [AppColors.orbPrimary, AppColors.orbPrimary.opacity(0)],
                         center: .center,
                         startRadius: 0,
-                        endRadius: size.width * 0.4
+                        endRadius: 160
                     )
                 )
-                .frame(width: size.width * 0.8, height: size.width * 0.8)
-                .offset(
-                    x: size.width * 0.3 + (animateOrbs ? 20 : 0),
-                    y: -size.height * 0.15 + (animateOrbs ? 10 : 0)
-                )
+                .frame(width: 320, height: 320)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
+                .offset(x: 80 + (animateOrbs ? 20 : 0), y: -60 + (animateOrbs ? 10 : 0))
 
-            // Secondary orb - bottom left
+            // Secondary orb - bottom left area
             Circle()
                 .fill(
                     RadialGradient(
                         colors: [AppColors.orbSecondary, AppColors.orbSecondary.opacity(0)],
                         center: .center,
                         startRadius: 0,
-                        endRadius: size.width * 0.35
+                        endRadius: 140
                     )
                 )
-                .frame(width: size.width * 0.7, height: size.width * 0.7)
-                .offset(
-                    x: -size.width * 0.35 + (animateOrbs ? -15 : 0),
-                    y: size.height * 0.25 + (animateOrbs ? -10 : 0)
-                )
+                .frame(width: 280, height: 280)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
+                .offset(x: -100 + (animateOrbs ? -15 : 0), y: 80 + (animateOrbs ? -10 : 0))
 
-            // Tertiary orb - center
+            // Tertiary orb - center area
             Circle()
                 .fill(
                     RadialGradient(
                         colors: [AppColors.orbTertiary, AppColors.orbTertiary.opacity(0)],
                         center: .center,
                         startRadius: 0,
-                        endRadius: size.width * 0.25
+                        endRadius: 100
                     )
                 )
-                .frame(width: size.width * 0.5, height: size.width * 0.5)
-                .offset(
-                    x: size.width * 0.1 + (animateOrbs ? 10 : 0),
-                    y: size.height * 0.4 + (animateOrbs ? 15 : 0)
-                )
+                .frame(width: 200, height: 200)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                .offset(x: 40 + (animateOrbs ? 10 : 0), y: 120 + (animateOrbs ? 15 : 0))
+        }
+    }
+}
+
+/// Fixed gradient background specifically for ScrollView backgrounds.
+/// Unlike GradientBackground, this does NOT use ignoresSafeArea() which can
+/// interfere with ScrollView layout calculations in NavigationStack.
+///
+/// USAGE: Apply via .background { GradientBackgroundFixed() } on ScrollView
+/// IMPORTANT: Use with .scrollContentBackground(.hidden) on the ScrollView
+struct GradientBackgroundFixed: View {
+
+    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+
+    var body: some View {
+        if reduceTransparency {
+            AppColors.background
+                .ignoresSafeArea()
+        } else {
+            // Simple gradient without orbs for better performance and layout stability
+            LinearGradient(
+                colors: colorScheme == .light
+                    ? [AppColors.gradientStartLight, AppColors.gradientEndLight]
+                    : [AppColors.gradientStartDark, AppColors.gradientEndDark],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .ignoresSafeArea()
         }
     }
 }
