@@ -1,10 +1,10 @@
 12.8.0 - [FirebaseCore][I-COR000008] The project's Bundle ID is inconsistent with either the Bundle ID in 'GoogleService-Info.plist', or the Bundle ID in the options if you are using a customized options. To ensure that everything can be configured correctly, you may need to make the Bundle IDs consistent. To continue with this plist file, you may change your app's bundle identifier to 'com.dueasy.app'. Or you can download a new configuration file that matches your bundle identifier from https://console.firebase.google.com/ and replace the current one.
 12.8.0 - [GoogleUtilities/AppDelegateSwizzler][I-SWZ001014] App Delegate does not conform to UIApplicationDelegate protocol.
 ✅ Firebase configured successfully
-✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/A85BDF37-26BC-45B5-8832-A90933B0D5EE/Dueasy_v2.app/pl.lproj
-✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/A85BDF37-26BC-45B5-8832-A90933B0D5EE/Dueasy_v2.app/pl.lproj
+✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/990C2E86-CC0C-44F9-9E92-41CF3C65C4E1/Dueasy_v2.app/pl.lproj
+✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/990C2E86-CC0C-44F9-9E92-41CF3C65C4E1/Dueasy_v2.app/pl.lproj
 Applied file protection to 3 database files, excluded 3 from backup
-✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/A85BDF37-26BC-45B5-8832-A90933B0D5EE/Dueasy_v2.app/pl.lproj
+✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/990C2E86-CC0C-44F9-9E92-41CF3C65C4E1/Dueasy_v2.app/pl.lproj
 AppleVisionOCRService initialized with 2-pass recognition
 Recognition languages: pl-PL, en-US
 Standard pass minTextHeight: 0.012000
@@ -13,11 +13,11 @@ numANECores: Unknown aneSubType
 Vision supported languages: 30 languages
 LayoutFirstInvoiceParser initialized
 AppEnvironment initialized for tier: Pro (Firebase active)
-✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/A85BDF37-26BC-45B5-8832-A90933B0D5EE/Dueasy_v2.app/pl.lproj
+✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/990C2E86-CC0C-44F9-9E92-41CF3C65C4E1/Dueasy_v2.app/pl.lproj
 🧪 TESTING: Cloud analysis force-enabled
 DuEasy app initialized
-✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/A85BDF37-26BC-45B5-8832-A90933B0D5EE/Dueasy_v2.app/pl.lproj
-✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/A85BDF37-26BC-45B5-8832-A90933B0D5EE/Dueasy_v2.app/pl.lproj
+✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/990C2E86-CC0C-44F9-9E92-41CF3C65C4E1/Dueasy_v2.app/pl.lproj
+✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/990C2E86-CC0C-44F9-9E92-41CF3C65C4E1/Dueasy_v2.app/pl.lproj
 Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
 Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
 Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
@@ -26,18 +26,133 @@ Requesting visual style in an implementation that has disabled it, returning nil
 Checking for vendor migrations to global version 1
 No vendors need migration - all up to date
 App became active
-✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/A85BDF37-26BC-45B5-8832-A90933B0D5EE/Dueasy_v2.app/pl.lproj
+✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/990C2E86-CC0C-44F9-9E92-41CF3C65C4E1/Dueasy_v2.app/pl.lproj
 ✅ Firebase: Signed in anonymously
 ✅ Signed in anonymously: wisOjM8nqQd1rzdlHCATrExy8al2
 Security event: biometric_auth, success=true
 Security event: app_unlocked, success=true
+📱 DocumentRow tapped: 287819A3-0787-4B3C-988B-F39F1BFBDBDD - TOYOTA LEASING POLSKA Sp. z o.o.
+📱 selectedDocumentId changed: nil → 287819A3-0787-4B3C-988B-F39F1BFBDBDD
+📱 NavigationDestination triggered for document ID: 287819A3-0787-4B3C-988B-F39F1BFBDBDD
+📱 DocumentDetailViewWrapper created for ID: 287819A3-0787-4B3C-988B-F39F1BFBDBDD
+📋 DocumentDetailView body evaluated - documentId: 287819A3-0787-4B3C-988B-F39F1BFBDBDD
+📋 Showing loading view - viewModel: false, document: false
+📱 NavigationDestination triggered for document ID: 287819A3-0787-4B3C-988B-F39F1BFBDBDD
+📱 NavigationDestination triggered for document ID: 287819A3-0787-4B3C-988B-F39F1BFBDBDD
+📋 DocumentDetailView body evaluated - documentId: 287819A3-0787-4B3C-988B-F39F1BFBDBDD
+📋 Showing loading view - viewModel: false, document: false
+📱 DocumentDetailViewWrapper created for ID: 287819A3-0787-4B3C-988B-F39F1BFBDBDD
+📋 DocumentDetailView body evaluated - documentId: 287819A3-0787-4B3C-988B-F39F1BFBDBDD
+📋 Showing loading view - viewModel: false, document: false
+📱 NavigationDestination triggered for document ID: 287819A3-0787-4B3C-988B-F39F1BFBDBDD
+📱 NavigationDestination triggered for document ID: 287819A3-0787-4B3C-988B-F39F1BFBDBDD
+📋 DocumentDetailView .task started for documentId: 287819A3-0787-4B3C-988B-F39F1BFBDBDD
+📋 Calling loadDocument...
+📋 DocumentDetailViewModel.loadDocument() called for ID: 287819A3-0787-4B3C-988B-F39F1BFBDBDD
+📋 Document fetched successfully: true
+📋 Document details - Title: TOYOTA LEASING POLSKA Sp. z o.o., NIP: 5213202664
+📋 loadDocument completed - document loaded: true
+📋 DocumentDetailView body evaluated - documentId: 287819A3-0787-4B3C-988B-F39F1BFBDBDD
+📋 Showing content view with loaded document
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+📋 DocumentDetailView body evaluated - documentId: 287819A3-0787-4B3C-988B-F39F1BFBDBDD
+📋 Showing content view with loaded document
+📱 NavigationDestination triggered for document ID: 287819A3-0787-4B3C-988B-F39F1BFBDBDD
 App became active
+📋 DocumentDetailView body evaluated - documentId: 287819A3-0787-4B3C-988B-F39F1BFBDBDD
+📋 Showing content view with loaded document
+📋 DocumentDetailView body evaluated - documentId: 287819A3-0787-4B3C-988B-F39F1BFBDBDD
+📋 Showing content view with loaded document
+📱 NavigationDestination triggered for document ID: 287819A3-0787-4B3C-988B-F39F1BFBDBDD
+📋 DocumentDetailView body evaluated - documentId: 287819A3-0787-4B3C-988B-F39F1BFBDBDD
+📋 Showing content view with loaded document
+📱 NavigationDestination triggered for document ID: 287819A3-0787-4B3C-988B-F39F1BFBDBDD
+📱 NavigationDestination triggered for document ID: 287819A3-0787-4B3C-988B-F39F1BFBDBDD
+📋 DocumentDetailView body evaluated - documentId: 287819A3-0787-4B3C-988B-F39F1BFBDBDD
+📋 Showing content view with loaded document
+📋 DocumentDetailView body evaluated - documentId: 287819A3-0787-4B3C-988B-F39F1BFBDBDD
+📋 Showing content view with loaded document
+📱 selectedDocumentId changed: 287819A3-0787-4B3C-988B-F39F1BFBDBDD → nil
+📋 DocumentDetailView body evaluated - documentId: 287819A3-0787-4B3C-988B-F39F1BFBDBDD
+📋 Showing content view with loaded document
+📱 DocumentRow tapped: D8651A2E-7A93-41E8-B31A-055E13312035 - Volkswagen Financial Services Polska Sp. z o.o.
+📱 selectedDocumentId changed: nil → D8651A2E-7A93-41E8-B31A-055E13312035
+📱 NavigationDestination triggered for document ID: D8651A2E-7A93-41E8-B31A-055E13312035
+📱 DocumentDetailViewWrapper created for ID: D8651A2E-7A93-41E8-B31A-055E13312035
+📋 DocumentDetailView body evaluated - documentId: D8651A2E-7A93-41E8-B31A-055E13312035
+📋 Showing loading view - viewModel: false, document: false
+📋 DocumentDetailView body evaluated - documentId: D8651A2E-7A93-41E8-B31A-055E13312035
+📋 Showing loading view - viewModel: false, document: false
+📋 DocumentDetailView body evaluated - documentId: D8651A2E-7A93-41E8-B31A-055E13312035
+📋 Showing loading view - viewModel: false, document: false
+📱 NavigationDestination triggered for document ID: D8651A2E-7A93-41E8-B31A-055E13312035
+📱 NavigationDestination triggered for document ID: D8651A2E-7A93-41E8-B31A-055E13312035
+📋 DocumentDetailView body evaluated - documentId: D8651A2E-7A93-41E8-B31A-055E13312035
+📋 Showing loading view - viewModel: false, document: false
+📱 NavigationDestination triggered for document ID: D8651A2E-7A93-41E8-B31A-055E13312035
+📋 DocumentDetailView body evaluated - documentId: D8651A2E-7A93-41E8-B31A-055E13312035
+📋 Showing loading view - viewModel: false, document: false
+📱 NavigationDestination triggered for document ID: D8651A2E-7A93-41E8-B31A-055E13312035
+📋 DocumentDetailView .task started for documentId: D8651A2E-7A93-41E8-B31A-055E13312035
+📋 Calling loadDocument...
+📋 DocumentDetailViewModel.loadDocument() called for ID: D8651A2E-7A93-41E8-B31A-055E13312035
+📋 Document fetched successfully: true
+📋 Document details - Title: Volkswagen Financial Services Polska Sp. z o.o., NIP: 5252800978
+📋 loadDocument completed - document loaded: true
+📋 DocumentDetailView body evaluated - documentId: D8651A2E-7A93-41E8-B31A-055E13312035
+📋 Showing content view with loaded document
+📱 NavigationDestination triggered for document ID: D8651A2E-7A93-41E8-B31A-055E13312035
+📋 DocumentDetailView body evaluated - documentId: D8651A2E-7A93-41E8-B31A-055E13312035
+📋 Showing content view with loaded document
+📋 DocumentDetailView body evaluated - documentId: D8651A2E-7A93-41E8-B31A-055E13312035
+📋 Showing content view with loaded document
+📱 selectedDocumentId changed: D8651A2E-7A93-41E8-B31A-055E13312035 → nil
+📋 DocumentDetailView body evaluated - documentId: D8651A2E-7A93-41E8-B31A-055E13312035
+📋 Showing content view with loaded document
+📱 DocumentRow tapped: F7F2E262-DA6C-467A-A1C9-DE082AF371CD - Pijalnia Czekolady E. Wedel
+📱 selectedDocumentId changed: nil → F7F2E262-DA6C-467A-A1C9-DE082AF371CD
+📱 NavigationDestination triggered for document ID: F7F2E262-DA6C-467A-A1C9-DE082AF371CD
+📱 DocumentDetailViewWrapper created for ID: F7F2E262-DA6C-467A-A1C9-DE082AF371CD
+📋 DocumentDetailView body evaluated - documentId: F7F2E262-DA6C-467A-A1C9-DE082AF371CD
+📋 Showing loading view - viewModel: false, document: false
+📋 DocumentDetailView body evaluated - documentId: F7F2E262-DA6C-467A-A1C9-DE082AF371CD
+📋 Showing loading view - viewModel: false, document: false
+📋 DocumentDetailView body evaluated - documentId: F7F2E262-DA6C-467A-A1C9-DE082AF371CD
+📋 Showing loading view - viewModel: false, document: false
+📱 NavigationDestination triggered for document ID: F7F2E262-DA6C-467A-A1C9-DE082AF371CD
+📱 NavigationDestination triggered for document ID: F7F2E262-DA6C-467A-A1C9-DE082AF371CD
+📋 DocumentDetailView body evaluated - documentId: F7F2E262-DA6C-467A-A1C9-DE082AF371CD
+📋 Showing loading view - viewModel: false, document: false
+📱 NavigationDestination triggered for document ID: F7F2E262-DA6C-467A-A1C9-DE082AF371CD
+📋 DocumentDetailView body evaluated - documentId: F7F2E262-DA6C-467A-A1C9-DE082AF371CD
+📋 Showing loading view - viewModel: false, document: false
+📱 NavigationDestination triggered for document ID: F7F2E262-DA6C-467A-A1C9-DE082AF371CD
+📋 DocumentDetailView .task started for documentId: F7F2E262-DA6C-467A-A1C9-DE082AF371CD
+📋 Calling loadDocument...
+📋 DocumentDetailViewModel.loadDocument() called for ID: F7F2E262-DA6C-467A-A1C9-DE082AF371CD
+📋 Document fetched successfully: true
+📋 Document details - Title: Pijalnia Czekolady E. Wedel, NIP: 8513075993
+📋 loadDocument completed - document loaded: true
+📋 DocumentDetailView body evaluated - documentId: F7F2E262-DA6C-467A-A1C9-DE082AF371CD
+📋 Showing content view with loaded document
+📱 NavigationDestination triggered for document ID: F7F2E262-DA6C-467A-A1C9-DE082AF371CD
+📋 DocumentDetailView body evaluated - documentId: F7F2E262-DA6C-467A-A1C9-DE082AF371CD
+📋 Showing content view with loaded document
+📋 DocumentDetailView body evaluated - documentId: F7F2E262-DA6C-467A-A1C9-DE082AF371CD
+📋 Showing content view with loaded document
+📱 selectedDocumentId changed: F7F2E262-DA6C-467A-A1C9-DE082AF371CD → nil
+📋 DocumentDetailView body evaluated - documentId: F7F2E262-DA6C-467A-A1C9-DE082AF371CD
+📋 Showing content view with loaded document
 Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
 Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
 Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
 Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
 Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/A85BDF37-26BC-45B5-8832-A90933B0D5EE/Dueasy_v2.app/pl.lproj
+✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/990C2E86-CC0C-44F9-9E92-41CF3C65C4E1/Dueasy_v2.app/pl.lproj
 Initialized VNDocumentCameraViewController (VisionKit document scanner)
 Scanner provides: edge detection, perspective correction, contrast enhancement
 Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
@@ -57,15 +172,15 @@ Unable to simultaneously satisfy constraints.
 		(2) find the code that added the unwanted constraint or constraints and fix it. 
 	(Note: If you're seeing NSAutoresizingMaskLayoutConstraints that you don't understand, refer to the documentation for the UIView property translatesAutoresizingMaskIntoConstraints) 
 (
-    "<NSAutoresizingMaskLayoutConstraint:0x13c472440 h=--& v=--& _TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x13c455880.width == 0   (active)>",
-    "<NSLayoutConstraint:0x13c471d60 _TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x13c455880.leading == _UIButtonBarButton:0x13b7c7c00.leading   (active)>",
-    "<NSLayoutConstraint:0x13c471db0 H:[_UIButtonBarButton:0x13b7c7c00]-(0)-|   (active, names: '|':_TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x13c455880 )>",
-    "<NSLayoutConstraint:0x13c471b80 'IB_Leading_Leading' H:|-(2)-[_UIModernBarButton:0x13c3d0700]   (active, names: '|':_UIButtonBarButton:0x13b7c7c00 )>",
-    "<NSLayoutConstraint:0x13c471bd0 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x13c3d0700]-(2)-|   (active, names: '|':_UIButtonBarButton:0x13b7c7c00 )>"
+    "<NSAutoresizingMaskLayoutConstraint:0x11d3e5b30 h=--& v=--& _TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x11d3fcc40.width == 0   (active)>",
+    "<NSLayoutConstraint:0x11d3e5270 _TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x11d3fcc40.leading == _UIButtonBarButton:0x11d0f8000.leading   (active)>",
+    "<NSLayoutConstraint:0x11d3e54a0 H:[_UIButtonBarButton:0x11d0f8000]-(0)-|   (active, names: '|':_TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x11d3fcc40 )>",
+    "<NSLayoutConstraint:0x11d3e5040 'IB_Leading_Leading' H:|-(2)-[_UIModernBarButton:0x11d330000]   (active, names: '|':_UIButtonBarButton:0x11d0f8000 )>",
+    "<NSLayoutConstraint:0x11d3e4f50 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x11d330000]-(2)-|   (active, names: '|':_UIButtonBarButton:0x11d0f8000 )>"
 )
 
 Will attempt to recover by breaking constraint 
-<NSLayoutConstraint:0x13c471bd0 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x13c3d0700]-(2)-|   (active, names: '|':_UIButtonBarButton:0x13b7c7c00 )>
+<NSLayoutConstraint:0x11d3e4f50 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x11d330000]-(2)-|   (active, names: '|':_UIButtonBarButton:0x11d0f8000 )>
 
 Make a symbolic breakpoint at UIViewAlertForUnsatisfiableConstraints to catch this in the debugger.
 The methods in the UIConstraintBasedLayoutDebugging category on UIView listed in <UIKitCore/UIView.h> may also be helpful.
@@ -79,7 +194,7 @@ The methods in the UIConstraintBasedLayoutDebugging category on UIView listed in
 <<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
 <<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
 <<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/A85BDF37-26BC-45B5-8832-A90933B0D5EE/Dueasy_v2.app/pl.lproj
+✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/990C2E86-CC0C-44F9-9E92-41CF3C65C4E1/Dueasy_v2.app/pl.lproj
 Unable to simultaneously satisfy constraints.
 	Probably at least one of the constraints in the following list is one you don't want. 
 	Try this: 
@@ -87,399 +202,21 @@ Unable to simultaneously satisfy constraints.
 		(2) find the code that added the unwanted constraint or constraints and fix it. 
 	(Note: If you're seeing NSAutoresizingMaskLayoutConstraints that you don't understand, refer to the documentation for the UIView property translatesAutoresizingMaskIntoConstraints) 
 (
-    "<NSAutoresizingMaskLayoutConstraint:0x13c4720d0 h=--& v=--& _TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x13c529180.width == 0   (active)>",
-    "<NSLayoutConstraint:0x13c471130 _TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x13c529180.leading == _UIButtonBarButton:0x13b7c5e00.leading   (active)>",
-    "<NSLayoutConstraint:0x13c470ff0 H:[_UIButtonBarButton:0x13b7c5e00]-(0)-|   (active, names: '|':_TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x13c529180 )>",
-    "<NSLayoutConstraint:0x13c470cd0 'IB_Leading_Leading' H:|-(2)-[_UIModernBarButton:0x13c3d1500]   (active, names: '|':_UIButtonBarButton:0x13b7c5e00 )>",
-    "<NSLayoutConstraint:0x13c470dc0 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x13c3d1500]-(2)-|   (active, names: '|':_UIButtonBarButton:0x13b7c5e00 )>"
+    "<NSAutoresizingMaskLayoutConstraint:0x11d180320 h=--& v=--& _TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x11d494540.width == 0   (active)>",
+    "<NSLayoutConstraint:0x11d35ea30 _TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x11d494540.leading == _UIButtonBarButton:0x11aae6f80.leading   (active)>",
+    "<NSLayoutConstraint:0x11d35e990 H:[_UIButtonBarButton:0x11aae6f80]-(0)-|   (active, names: '|':_TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x11d494540 )>",
+    "<NSLayoutConstraint:0x11d35f660 'IB_Leading_Leading' H:|-(2)-[_UIModernBarButton:0x11d331500]   (active, names: '|':_UIButtonBarButton:0x11aae6f80 )>",
+    "<NSLayoutConstraint:0x11d35d860 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x11d331500]-(2)-|   (active, names: '|':_UIButtonBarButton:0x11aae6f80 )>"
 )
 
 Will attempt to recover by breaking constraint 
-<NSLayoutConstraint:0x13c470dc0 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x13c3d1500]-(2)-|   (active, names: '|':_UIButtonBarButton:0x13b7c5e00 )>
+<NSLayoutConstraint:0x11d35d860 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x11d331500]-(2)-|   (active, names: '|':_UIButtonBarButton:0x11aae6f80 )>
 
 Make a symbolic breakpoint at UIViewAlertForUnsatisfiableConstraints to catch this in the debugger.
 The methods in the UIConstraintBasedLayoutDebugging category on UIView listed in <UIKitCore/UIView.h> may also be helpful.
-✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/A85BDF37-26BC-45B5-8832-A90933B0D5EE/Dueasy_v2.app/pl.lproj
+✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/990C2E86-CC0C-44F9-9E92-41CF3C65C4E1/Dueasy_v2.app/pl.lproj
+✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/990C2E86-CC0C-44F9-9E92-41CF3C65C4E1/Dueasy_v2.app/pl.lproj
 UIColor created with component values far outside the expected range. Set a breakpoint on UIColorBreakForOutOfRangeColorComponents to debug. This message will only be logged once.
-✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/A85BDF37-26BC-45B5-8832-A90933B0D5EE/Dueasy_v2.app/pl.lproj
-Document scan completed: 1 page(s) scanned
-Images are pre-processed by VisionKit for optimal OCR quality
-Storage save: pages=1, success=true
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-Processing 1 images for document AEC89102-2000-4597-B6A3-5F335FF96F51
-📸 Image dimensions: 1422x2756, bitsPerComponent=8, colorSpace=kCGColorSpaceSRGB
-Deskew applied: 1.37 degrees
-🔧 Processed image dimensions: 1488x2791
-Preprocessing applied: deskew(1.37deg), contrast, denoise, sharpen
-Starting 2-pass OCR: Standard + Sensitive passes
-OCR pass Standard configured: minTextHeight=0.012000
-👁️ Vision returned 33 observations for Standard pass
-OCR pass 'Standard': lines=33, avgConfidence=1.000
-OCR pass Sensitive configured: minTextHeight=0.007000
-👁️ Vision returned 33 observations for Sensitive pass
-OCR pass 'Sensitive': lines=33, avgConfidence=1.000
-Merging: Standard=33 lines, Sensitive=33 lines
-Merge complete: 27 duplicates removed, 6 new lines added, 39 total
-OCR completed: lines=39, avgConfidence=1.00, duration=0.00s
-OCR completed: 769 chars, 39 lines, confidence: 1.000
-OCR line sources: standard=33, sensitive=6, merged=0
-OCR confidence: high=39, medium=0, low=0
-Starting hybrid analysis (local first, cloud assist if needed)
-Analysis started: type=invoice, textLength=769, lines=39
-Analyzing layout for 39 lines
-Grouped into 26 rows
-Detected 3 columns
-Partitioned into 9 non-empty blocks
-Block bottomCenter: 6 lines
-Block bottomLeft: 5 lines
-Block bottomRight: 4 lines
-Block middleCenter: 3 lines
-Block middleLeft: 5 lines
-Block middleRight: 7 lines
-Block topCenter: 7 lines
-Block topRight: 2 lines
-Layout analysis: 26 rows, 3 columns
-Block topCenter: 7 lines
-Block topRight: 2 lines
-Block middleLeft: 5 lines
-Block middleCenter: 3 lines
-Block middleRight: 7 lines
-Block bottomLeft: 5 lines
-Block bottomCenter: 6 lines
-Block bottomRight: 4 lines
-Detected 6 anchors in 39 lines
-Anchor: nipLabel conf=1.00 pattern='nip'
-Anchor: paymentTermsLabel conf=0.85 pattern='gotowka'
-Anchor: amountLabel conf=0.75 pattern='suma'
-Anchor: amountLabel conf=0.75 pattern='suma'
-Anchor: amountLabel conf=0.75 pattern='suma'
-Detected 6 anchors, 4 types
-Found NIP anchor
-Found vendor anchor at Y=0.452
-Found amount anchor
-Amount extraction: found 14 candidates
-  Candidate 1: confidence=0.600, y=0.66, source=anchor-right: suma
-  Candidate 2: confidence=0.450, y=0.66, source=region: bottomRight
-  Candidate 3: confidence=0.450, y=0.69, source=region: bottomRight
-  Candidate 4: confidence=0.450, y=0.77, source=region: bottomRight
-  Candidate 5: confidence=0.410, y=0.80, source=pattern: amount
-Score gap to 2nd place: 0.150
-Selected amount: confidence=0.600, source=anchor-right: suma
-Date ranking: 1 candidates, top score: 70.0
-Date extraction: found 1 candidates
-  Date candidate 1: confidence=0.47, source=date-ranking: bottom-section, recent-past-date [dd.MM.yyyy]
-Parsed numeric date '01.02.2026' with format 'dd.MM.yyyy'
-Parsed numeric date '01.02.2026' with format 'dd.MM.yyyy'
-Built candidates: vendor=2, nip=3, amount=3, date=1, docNum=2, bank=0
-Field extracted: type=vendor, method=anchor, confidence=0.80, candidates=2
-Parsing completed: fields=4/4, confidence=1.00
-Local analysis confidence: 0.76
-Low confidence (0.76), requesting cloud assist
-Skipping duplicate OCR processing - already processed or in progress
-Processing 1 images for document AEC89102-2000-4597-B6A3-5F335FF96F51
-📸 Image dimensions: 1422x2756, bitsPerComponent=8, colorSpace=kCGColorSpaceSRGB
-Deskew applied: 1.37 degrees
-🔧 Processed image dimensions: 1488x2791
-Preprocessing applied: deskew(1.37deg), contrast, denoise, sharpen
-Starting 2-pass OCR: Standard + Sensitive passes
-OCR pass Standard configured: minTextHeight=0.012000
-👁️ Vision returned 33 observations for Standard pass
-OCR pass 'Standard': lines=33, avgConfidence=1.000
-OCR pass Sensitive configured: minTextHeight=0.007000
-👁️ Vision returned 33 observations for Sensitive pass
-OCR pass 'Sensitive': lines=33, avgConfidence=1.000
-Merging: Standard=33 lines, Sensitive=33 lines
-Merge complete: 27 duplicates removed, 6 new lines added, 39 total
-OCR completed: lines=39, avgConfidence=1.00, duration=0.00s
-OCR completed: 769 chars, 39 lines, confidence: 1.000
-OCR line sources: standard=33, sensitive=6, merged=0
-OCR confidence: high=39, medium=0, low=0
-Starting hybrid analysis (local first, cloud assist if needed)
-Analysis started: type=invoice, textLength=769, lines=39
-Analyzing layout for 39 lines
-Grouped into 26 rows
-Detected 3 columns
-Partitioned into 9 non-empty blocks
-Block bottomCenter: 6 lines
-Block bottomLeft: 5 lines
-Block bottomRight: 4 lines
-Block middleCenter: 3 lines
-Block middleLeft: 5 lines
-Block middleRight: 7 lines
-Block topCenter: 7 lines
-Block topRight: 2 lines
-Layout analysis: 26 rows, 3 columns
-Block topCenter: 7 lines
-Block topRight: 2 lines
-Block middleLeft: 5 lines
-Block middleCenter: 3 lines
-Block middleRight: 7 lines
-Block bottomLeft: 5 lines
-Block bottomCenter: 6 lines
-Block bottomRight: 4 lines
-Detected 6 anchors in 39 lines
-Anchor: nipLabel conf=1.00 pattern='nip'
-Anchor: paymentTermsLabel conf=0.85 pattern='gotowka'
-Anchor: amountLabel conf=0.75 pattern='suma'
-Anchor: amountLabel conf=0.75 pattern='suma'
-Anchor: amountLabel conf=0.75 pattern='suma'
-Detected 6 anchors, 4 types
-Found NIP anchor
-Found vendor anchor at Y=0.452
-Found amount anchor
-Amount extraction: found 14 candidates
-  Candidate 1: confidence=0.600, y=0.66, source=anchor-right: suma
-  Candidate 2: confidence=0.450, y=0.66, source=region: bottomRight
-  Candidate 3: confidence=0.450, y=0.69, source=region: bottomRight
-  Candidate 4: confidence=0.450, y=0.77, source=region: bottomRight
-  Candidate 5: confidence=0.410, y=0.80, source=pattern: amount
-Score gap to 2nd place: 0.150
-Selected amount: confidence=0.600, source=anchor-right: suma
-Date ranking: 1 candidates, top score: 70.0
-Date extraction: found 1 candidates
-  Date candidate 1: confidence=0.47, source=date-ranking: bottom-section, recent-past-date [dd.MM.yyyy]
-Parsed numeric date '01.02.2026' with format 'dd.MM.yyyy'
-Parsed numeric date '01.02.2026' with format 'dd.MM.yyyy'
-Built candidates: vendor=2, nip=3, amount=3, date=1, docNum=2, bank=0
-Field extracted: type=vendor, method=anchor, confidence=0.80, candidates=2
-Parsing completed: fields=4/4, confidence=1.00
-Local analysis confidence: 0.76
-Low confidence (0.76), requesting cloud assist
-Processing 1 images for document AEC89102-2000-4597-B6A3-5F335FF96F51
-📸 Image dimensions: 1422x2756, bitsPerComponent=8, colorSpace=kCGColorSpaceSRGB
-Deskew applied: 1.37 degrees
-🔧 Processed image dimensions: 1488x2791
-Preprocessing applied: deskew(1.37deg), contrast, denoise, sharpen
-Starting 2-pass OCR: Standard + Sensitive passes
-OCR pass Standard configured: minTextHeight=0.012000
-👁️ Vision returned 33 observations for Standard pass
-OCR pass 'Standard': lines=33, avgConfidence=1.000
-OCR pass Sensitive configured: minTextHeight=0.007000
-👁️ Vision returned 33 observations for Sensitive pass
-OCR pass 'Sensitive': lines=33, avgConfidence=1.000
-Merging: Standard=33 lines, Sensitive=33 lines
-Merge complete: 27 duplicates removed, 6 new lines added, 39 total
-OCR completed: lines=39, avgConfidence=1.00, duration=0.00s
-OCR completed: 769 chars, 39 lines, confidence: 1.000
-OCR line sources: standard=33, sensitive=6, merged=0
-OCR confidence: high=39, medium=0, low=0
-Starting hybrid analysis (local first, cloud assist if needed)
-Analysis started: type=invoice, textLength=769, lines=39
-Analyzing layout for 39 lines
-Grouped into 26 rows
-Detected 3 columns
-Partitioned into 9 non-empty blocks
-Block bottomCenter: 6 lines
-Block bottomLeft: 5 lines
-Block bottomRight: 4 lines
-Block middleCenter: 3 lines
-Block middleLeft: 5 lines
-Block middleRight: 7 lines
-Block topCenter: 7 lines
-Block topRight: 2 lines
-Layout analysis: 26 rows, 3 columns
-Block topCenter: 7 lines
-Block topRight: 2 lines
-Block middleLeft: 5 lines
-Block middleCenter: 3 lines
-Block middleRight: 7 lines
-Block bottomLeft: 5 lines
-Block bottomCenter: 6 lines
-Block bottomRight: 4 lines
-Detected 6 anchors in 39 lines
-Anchor: nipLabel conf=1.00 pattern='nip'
-Anchor: paymentTermsLabel conf=0.85 pattern='gotowka'
-Anchor: amountLabel conf=0.75 pattern='suma'
-Anchor: amountLabel conf=0.75 pattern='suma'
-Anchor: amountLabel conf=0.75 pattern='suma'
-Detected 6 anchors, 4 types
-Found NIP anchor
-Found vendor anchor at Y=0.452
-Found amount anchor
-Amount extraction: found 14 candidates
-  Candidate 1: confidence=0.600, y=0.66, source=anchor-right: suma
-  Candidate 2: confidence=0.450, y=0.66, source=region: bottomRight
-  Candidate 3: confidence=0.450, y=0.69, source=region: bottomRight
-  Candidate 4: confidence=0.450, y=0.77, source=region: bottomRight
-  Candidate 5: confidence=0.410, y=0.80, source=pattern: amount
-Score gap to 2nd place: 0.150
-Selected amount: confidence=0.600, source=anchor-right: suma
-Date ranking: 1 candidates, top score: 70.0
-Date extraction: found 1 candidates
-  Date candidate 1: confidence=0.47, source=date-ranking: bottom-section, recent-past-date [dd.MM.yyyy]
-Parsed numeric date '01.02.2026' with format 'dd.MM.yyyy'
-Parsed numeric date '01.02.2026' with format 'dd.MM.yyyy'
-Built candidates: vendor=2, nip=3, amount=3, date=1, docNum=2, bank=0
-Field extracted: type=vendor, method=anchor, confidence=0.80, candidates=2
-Parsing completed: fields=4/4, confidence=1.00
-Local analysis confidence: 0.76
-Low confidence (0.76), requesting cloud assist
-🏢 OpenAI vendor: name=Pijalnia Czekolady E. Wedel, address=pl. Hołdu Pruskiego 1, 70-550 Szczecin, NIP=8513075993
-📅 OpenAI returned null/empty dueDate
-📅 Using issue date as due date fallback
-Cloud assist successful
-Analysis completed: vendor=true, amount=true, date=true, invoice#=true
-Applied vendor template for NIP: [NIP:***993]
-OCR/Parsing result: hasVendor=true, hasAmount=true, hasDueDate=true, confidence=0.950000
-Set vendor with confidence 0.950000, mode: suggested
-Set amount with confidence 0.950000, mode: suggested
-Found 1 suggested amounts
-Set dueDate with confidence 0.950000, mode: suggested
-Populating ViewModel fields: vendorCandidates=0, amountCandidates=0, dateCandidates=0, nipCandidates=0, docNumCandidates=0, bankCandidates=0
-🏢 OpenAI vendor: name=Pijalnia Czekolady E. Wedel, address=pl. Hołdu Pruskiego 1, 70-550 Szczecin, NIP=8513075993
-📅 OpenAI returned null/empty dueDate
-📅 Using issue date as due date fallback
-Cloud assist successful
-Analysis completed: vendor=true, amount=true, date=true, invoice#=true
-Applied vendor template for NIP: [NIP:***993]
-OCR/Parsing result: hasVendor=true, hasAmount=true, hasDueDate=true, confidence=0.950000
-Set vendor with confidence 0.950000, mode: suggested
-Set amount with confidence 0.950000, mode: suggested
-Found 1 suggested amounts
-Set dueDate with confidence 0.950000, mode: suggested
-Populating ViewModel fields: vendorCandidates=0, amountCandidates=0, dateCandidates=0, nipCandidates=0, docNumCandidates=0, bankCandidates=0
-🏢 OpenAI vendor: name=Pijalnia Czekolady E. Wedel, address=pl. Hołdu Pruskiego 1, 70-550 Szczecin, NIP=8513075993
-📅 OpenAI returned null/empty dueDate
-📅 Using issue date as due date fallback
-Cloud assist successful
-Analysis completed: vendor=true, amount=true, date=true, invoice#=true
-Applied vendor template for NIP: [NIP:***993]
-OCR/Parsing result: hasVendor=true, hasAmount=true, hasDueDate=true, confidence=0.950000
-Set vendor with confidence 0.950000, mode: suggested
-Set amount with confidence 0.950000, mode: suggested
-Found 1 suggested amounts
-Set dueDate with confidence 0.950000, mode: suggested
-Populating ViewModel fields: vendorCandidates=0, amountCandidates=0, dateCandidates=0, nipCandidates=0, docNumCandidates=0, bankCandidates=0
-Saving document - hasVendor: true, hasAmount: true, hasDueDate: true
-Calling finalizeUseCase (amount and date hidden for privacy)
-Recording corrections for adaptive learning
-Due date was corrected (values hidden for privacy)
-Learning from user correction for dueDate: '02.02.2026'
-Could not find corrected value '02.02.2026' in OCR text
-Correction learning completed
-Feedback recorded successfully for document AEC89102-2000-4597-B6A3-5F335FF96F51
-Parsing feedback recorded (privacy-safe)
-Recording correction for vendor Pijalnia Czekolady E. Wedel, field: dueDate
-Created new vendor template for: Pijalnia Czekolady E. Wedel (NIP: 8513075993)
-Template updated successfully. Corrections count: 1, Active: false
-Vendor template learning recorded for NIP: [NIP:***993]
-Finalizing document: hasTitle=true, currency=PLN (amount/date hidden for privacy)
-Document fields updated
-Calendar event creation skipped (skipCalendar=true)
-Saved learning data: amountCorrected=false, dueDateCorrected=true, vendorCorrected=false
-Privacy-safe learning data saved (no PII/financial data)
-Notification authorization: isAuthorized=true, enabled=true
-Cancelled 0 notifications for document: AEC89102-2000-4597-B6A3-5F335FF96F51
-Scheduled notification: AEC89102-2000-4597-B6A3-5F335FF96F51_0 for year: 2026 month: 2 day: 2 hour: 9 minute: 0 isLeapMonth: false
-Updated 1 notification reminders (old ones cancelled)
-Document finalized and saved successfully
-Document saved successfully
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Initialized VNDocumentCameraViewController (VisionKit document scanner)
-Scanner provides: edge detection, perspective correction, contrast enhancement
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Unable to simultaneously satisfy constraints.
-	Probably at least one of the constraints in the following list is one you don't want. 
-	Try this: 
-		(1) look at each constraint and try to figure out which you don't expect; 
-		(2) find the code that added the unwanted constraint or constraints and fix it. 
-	(Note: If you're seeing NSAutoresizingMaskLayoutConstraints that you don't understand, refer to the documentation for the UIView property translatesAutoresizingMaskIntoConstraints) 
-(
-    "<NSAutoresizingMaskLayoutConstraint:0x13b2099a0 h=--& v=--& _TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x13cea5c00.width == 0   (active)>",
-    "<NSLayoutConstraint:0x13b209130 _TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x13cea5c00.leading == _UIButtonBarButton:0x144ed4500.leading   (active)>",
-    "<NSLayoutConstraint:0x13b2091d0 H:[_UIButtonBarButton:0x144ed4500]-(0)-|   (active, names: '|':_TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x13cea5c00 )>",
-    "<NSLayoutConstraint:0x13b208be0 'IB_Leading_Leading' H:|-(2)-[_UIModernBarButton:0x13b84df80]   (active, names: '|':_UIButtonBarButton:0x144ed4500 )>",
-    "<NSLayoutConstraint:0x13b208fa0 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x13b84df80]-(2)-|   (active, names: '|':_UIButtonBarButton:0x144ed4500 )>"
-)
-
-Will attempt to recover by breaking constraint 
-<NSLayoutConstraint:0x13b208fa0 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x13b84df80]-(2)-|   (active, names: '|':_UIButtonBarButton:0x144ed4500 )>
-
-Make a symbolic breakpoint at UIViewAlertForUnsatisfiableConstraints to catch this in the debugger.
-The methods in the UIConstraintBasedLayoutDebugging category on UIView listed in <UIKitCore/UIView.h> may also be helpful.
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/A85BDF37-26BC-45B5-8832-A90933B0D5EE/Dueasy_v2.app/pl.lproj
-Unable to simultaneously satisfy constraints.
-	Probably at least one of the constraints in the following list is one you don't want. 
-	Try this: 
-		(1) look at each constraint and try to figure out which you don't expect; 
-		(2) find the code that added the unwanted constraint or constraints and fix it. 
-	(Note: If you're seeing NSAutoresizingMaskLayoutConstraints that you don't understand, refer to the documentation for the UIView property translatesAutoresizingMaskIntoConstraints) 
-(
-    "<NSAutoresizingMaskLayoutConstraint:0x13b209540 h=--& v=--& _TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x13c4548c0.width == 0   (active)>",
-    "<NSLayoutConstraint:0x13cc73c50 _TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x13c4548c0.leading == _UIButtonBarButton:0x13cd0f700.leading   (active)>",
-    "<NSLayoutConstraint:0x13cd9b840 H:[_UIButtonBarButton:0x13cd0f700]-(0)-|   (active, names: '|':_TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x13c4548c0 )>",
-    "<NSLayoutConstraint:0x13cc72300 'IB_Leading_Leading' H:|-(2)-[_UIModernBarButton:0x13b84d880]   (active, names: '|':_UIButtonBarButton:0x13cd0f700 )>",
-    "<NSLayoutConstraint:0x13cc72350 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x13b84d880]-(2)-|   (active, names: '|':_UIButtonBarButton:0x13cd0f700 )>"
-)
-
-Will attempt to recover by breaking constraint 
-<NSLayoutConstraint:0x13cc72350 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x13b84d880]-(2)-|   (active, names: '|':_UIButtonBarButton:0x13cd0f700 )>
-
-Make a symbolic breakpoint at UIViewAlertForUnsatisfiableConstraints to catch this in the debugger.
-The methods in the UIConstraintBasedLayoutDebugging category on UIView listed in <UIKitCore/UIView.h> may also be helpful.
-✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/A85BDF37-26BC-45B5-8832-A90933B0D5EE/Dueasy_v2.app/pl.lproj
-✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/A85BDF37-26BC-45B5-8832-A90933B0D5EE/Dueasy_v2.app/pl.lproj
 Document scan completed: 1 page(s) scanned
 Images are pre-processed by VisionKit for optimal OCR quality
 Storage save: pages=1, success=true
@@ -490,344 +227,174 @@ Requesting visual style in an implementation that has disabled it, returning nil
 Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
 <<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
 <<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-Processing 1 images for document 5ACDE7D9-0A85-4681-959F-B2B8B87FBC34
-📸 Image dimensions: 2638x3918, bitsPerComponent=8, colorSpace=kCGColorSpaceSRGB
-🔧 Processed image dimensions: 2638x3918
+Processing 1 images for document 65666737-BE19-4B36-8FA2-240AE445EFAE
+📸 Image dimensions: 2141x2045, bitsPerComponent=8, colorSpace=kCGColorSpaceSRGB
+🔧 Processed image dimensions: 2141x2045
 Preprocessing applied: contrast, denoise, sharpen
 Starting 2-pass OCR: Standard + Sensitive passes
 OCR pass Standard configured: minTextHeight=0.012000
-👁️ Vision returned 96 observations for Standard pass
-OCR pass 'Standard': lines=96, avgConfidence=0.975
+👁️ Vision returned 75 observations for Standard pass
+OCR pass 'Standard': lines=75, avgConfidence=1.000
 OCR pass Sensitive configured: minTextHeight=0.007000
-👁️ Vision returned 98 observations for Sensitive pass
-OCR pass 'Sensitive': lines=98, avgConfidence=0.981
-Merging: Standard=96 lines, Sensitive=98 lines
-Merge complete: 84 duplicates removed, 14 new lines added, 110 total
-OCR completed: lines=110, avgConfidence=0.97, duration=0.00s
-OCR completed: 2167 chars, 110 lines, confidence: 0.972
-OCR line sources: standard=96, sensitive=14, merged=0
-OCR confidence: high=105, medium=0, low=5
+👁️ Vision returned 75 observations for Sensitive pass
+OCR pass 'Sensitive': lines=75, avgConfidence=1.000
+Merging: Standard=75 lines, Sensitive=75 lines
+Merge complete: 75 duplicates removed, 0 new lines added, 75 total
+OCR completed: lines=75, avgConfidence=1.00, duration=0.00s
+OCR completed: 920 chars, 75 lines, confidence: 1.000
+OCR line sources: standard=75, sensitive=0, merged=0
+OCR confidence: high=75, medium=0, low=0
 Starting hybrid analysis (local first, cloud assist if needed)
-Analysis started: type=invoice, textLength=2167, lines=110
-Analyzing layout for 110 lines
-Grouped into 25 rows
+Analysis started: type=invoice, textLength=920, lines=75
+Analyzing layout for 75 lines
+Grouped into 23 rows
 Detected 3 columns
 Partitioned into 9 non-empty blocks
-Block bottomLeft: 3 lines
-Block middleCenter: 18 lines
-Block middleLeft: 22 lines
-Block middleRight: 29 lines
-Block topCenter: 15 lines
-Block topLeft: 9 lines
-Block topRight: 14 lines
-Layout analysis: 25 rows, 3 columns
-Block topLeft: 9 lines
-Block topCenter: 15 lines
-Block topRight: 14 lines
-Block middleLeft: 22 lines
-Block middleCenter: 18 lines
-Block middleRight: 29 lines
-Block bottomLeft: 3 lines
-Detected 40 anchors in 110 lines
-Anchor: dateLabel conf=1.00 pattern='data wystawienia'
-Anchor: vendorLabel conf=1.00 pattern='sprzedawca'
-Anchor: buyerLabel conf=1.00 pattern='nabywca'
-Anchor: nipLabel conf=1.00 pattern='nip'
-Anchor: nipLabel conf=1.00 pattern='nip'
-Detected 40 anchors, 8 types
-Found NIP anchor
-Found vendor anchor at Y=0.114
-Found amount anchor
-Amount extraction: found 35 candidates
-  Candidate 1: confidence=0.960, y=0.49, source=do-zaplaty: do zapłaty
-  Candidate 2: confidence=0.350, y=0.42, source=pattern: amount
-  Candidate 3: confidence=0.350, y=0.42, source=pattern: amount
-  Candidate 4: confidence=0.350, y=0.42, source=pattern: amount
-  Candidate 5: confidence=0.350, y=0.42, source=pattern: amount
-Score gap to 2nd place: 0.610
-Selected amount: confidence=0.960, source=do-zaplaty: do zapłaty
-Date ranking: 7 candidates, top score: 80.0
-Date extraction: found 5 candidates
-  Date candidate 1: confidence=0.53, source=date-ranking: top-section-penalty, recent-past-date, near-due-date-anchor [dd.MM.yyyy]
-  Date candidate 2: confidence=0.53, source=date-ranking: top-section-penalty, recent-past-date, near-due-date-anchor [dd.MM.yyyy]
-  Date candidate 3: confidence=0.53, source=date-ranking: top-section-penalty, recent-past-date, near-due-date-anchor [dd.MM.yyyy]
-  Date candidate 4: confidence=0.47, source=date-ranking: recent-past-date, close-to-anchor [dd.MM.yyyy]
-  Date candidate 5: confidence=0.33, source=date-ranking: top-section-penalty, recent-past-date, close-to-anchor [dd.MM.yyyy]
-Found invoice number anchor
-Parsed numeric date '31.01.2026' with format 'dd.MM.yyyy'
-Parsed numeric date '31.01.2026' with format 'dd.MM.yyyy'
-Parsed numeric date '24.01.2026' with format 'dd.MM.yyyy'
-Parsed numeric date '24.01.2026' with format 'dd.MM.yyyy'
-Built candidates: vendor=3, nip=3, amount=3, date=3, docNum=3, bank=0
-Field extracted: type=vendor, method=anchor, confidence=0.85, candidates=3
-Parsing completed: fields=4/4, confidence=1.00
-Local analysis confidence: 0.92
-Low confidence (0.92), requesting cloud assist
-Skipping duplicate OCR processing - already processed or in progress
-🏢 OpenAI vendor: name=VISION EXPRESS SP Sp. z o.o., address=02-672 Warszawa, ul. Domaniewska 39, NIP=9511972542
-📅 OpenAI returned null/empty dueDate
-📅 Using issue date as due date fallback
-Cloud assist successful
-Analysis completed: vendor=true, amount=true, date=true, invoice#=true
-Applied vendor template for NIP: [NIP:***542]
-OCR/Parsing result: hasVendor=true, hasAmount=true, hasDueDate=true, confidence=0.950000
-Set vendor with confidence 0.950000, mode: suggested
-Set amount with confidence 0.950000, mode: suggested
-Found 4 suggested amounts
-Set dueDate with confidence 0.950000, mode: suggested
-Populating ViewModel fields: vendorCandidates=0, amountCandidates=0, dateCandidates=0, nipCandidates=0, docNumCandidates=0, bankCandidates=0
-Saving document - hasVendor: true, hasAmount: true, hasDueDate: true
-Calling finalizeUseCase (amount and date hidden for privacy)
-Recording corrections for adaptive learning
-Correction learning completed
-Feedback recorded successfully for document 5ACDE7D9-0A85-4681-959F-B2B8B87FBC34
-Parsing feedback recorded (privacy-safe)
-Finalizing document: hasTitle=true, currency=PLN (amount/date hidden for privacy)
-Document fields updated
-Calendar event creation skipped (skipCalendar=true)
-Saved learning data: amountCorrected=false, dueDateCorrected=false, vendorCorrected=false
-Privacy-safe learning data saved (no PII/financial data)
-Notification authorization: isAuthorized=true, enabled=true
-Cancelled 0 notifications for document: 5ACDE7D9-0A85-4681-959F-B2B8B87FBC34
-Updated 0 notification reminders (old ones cancelled)
-Document finalized and saved successfully
-Document saved successfully
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Initialized VNDocumentCameraViewController (VisionKit document scanner)
-Scanner provides: edge detection, perspective correction, contrast enhancement
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Unable to simultaneously satisfy constraints.
-	Probably at least one of the constraints in the following list is one you don't want. 
-	Try this: 
-		(1) look at each constraint and try to figure out which you don't expect; 
-		(2) find the code that added the unwanted constraint or constraints and fix it. 
-	(Note: If you're seeing NSAutoresizingMaskLayoutConstraints that you don't understand, refer to the documentation for the UIView property translatesAutoresizingMaskIntoConstraints) 
-(
-    "<NSAutoresizingMaskLayoutConstraint:0x144f27a70 h=--& v=--& _TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x13eb23640.width == 0   (active)>",
-    "<NSLayoutConstraint:0x144f27ac0 _TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x13eb23640.leading == _UIButtonBarButton:0x144ed4c80.leading   (active)>",
-    "<NSLayoutConstraint:0x144f26e90 H:[_UIButtonBarButton:0x144ed4c80]-(0)-|   (active, names: '|':_TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x13eb23640 )>",
-    "<NSLayoutConstraint:0x144f26530 'IB_Leading_Leading' H:|-(2)-[_UIModernBarButton:0x13c75f100]   (active, names: '|':_UIButtonBarButton:0x144ed4c80 )>",
-    "<NSLayoutConstraint:0x144f26490 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x13c75f100]-(2)-|   (active, names: '|':_UIButtonBarButton:0x144ed4c80 )>"
-)
-
-Will attempt to recover by breaking constraint 
-<NSLayoutConstraint:0x144f26490 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x13c75f100]-(2)-|   (active, names: '|':_UIButtonBarButton:0x144ed4c80 )>
-
-Make a symbolic breakpoint at UIViewAlertForUnsatisfiableConstraints to catch this in the debugger.
-The methods in the UIConstraintBasedLayoutDebugging category on UIView listed in <UIKitCore/UIView.h> may also be helpful.
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/A85BDF37-26BC-45B5-8832-A90933B0D5EE/Dueasy_v2.app/pl.lproj
-Unable to simultaneously satisfy constraints.
-	Probably at least one of the constraints in the following list is one you don't want. 
-	Try this: 
-		(1) look at each constraint and try to figure out which you don't expect; 
-		(2) find the code that added the unwanted constraint or constraints and fix it. 
-	(Note: If you're seeing NSAutoresizingMaskLayoutConstraints that you don't understand, refer to the documentation for the UIView property translatesAutoresizingMaskIntoConstraints) 
-(
-    "<NSAutoresizingMaskLayoutConstraint:0x144fc57c0 h=--& v=--& _TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x13d494380.width == 0   (active)>",
-    "<NSLayoutConstraint:0x13cebb480 _TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x13d494380.leading == _UIButtonBarButton:0x13b45b480.leading   (active)>",
-    "<NSLayoutConstraint:0x13ceb8500 H:[_UIButtonBarButton:0x13b45b480]-(0)-|   (active, names: '|':_TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x13d494380 )>",
-    "<NSLayoutConstraint:0x13c4dc640 'IB_Leading_Leading' H:|-(2)-[_UIModernBarButton:0x13c75f800]   (active, names: '|':_UIButtonBarButton:0x13b45b480 )>",
-    "<NSLayoutConstraint:0x13cebb840 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x13c75f800]-(2)-|   (active, names: '|':_UIButtonBarButton:0x13b45b480 )>"
-)
-
-Will attempt to recover by breaking constraint 
-<NSLayoutConstraint:0x13cebb840 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x13c75f800]-(2)-|   (active, names: '|':_UIButtonBarButton:0x13b45b480 )>
-
-Make a symbolic breakpoint at UIViewAlertForUnsatisfiableConstraints to catch this in the debugger.
-The methods in the UIConstraintBasedLayoutDebugging category on UIView listed in <UIKitCore/UIView.h> may also be helpful.
-✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/A85BDF37-26BC-45B5-8832-A90933B0D5EE/Dueasy_v2.app/pl.lproj
-✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/A85BDF37-26BC-45B5-8832-A90933B0D5EE/Dueasy_v2.app/pl.lproj
-Document scan completed: 1 page(s) scanned
-Images are pre-processed by VisionKit for optimal OCR quality
-Storage save: pages=1, success=true
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-Processing 1 images for document C125D567-1629-4AB4-BFAC-FD18B23A2381
-📸 Image dimensions: 2613x2593, bitsPerComponent=8, colorSpace=kCGColorSpaceSRGB
-🔧 Processed image dimensions: 2613x2593
-Preprocessing applied: contrast, denoise, sharpen
-Starting 2-pass OCR: Standard + Sensitive passes
-OCR pass Standard configured: minTextHeight=0.012000
-👁️ Vision returned 80 observations for Standard pass
-OCR pass 'Standard': lines=80, avgConfidence=0.981
-OCR pass Sensitive configured: minTextHeight=0.007000
-👁️ Vision returned 80 observations for Sensitive pass
-OCR pass 'Sensitive': lines=80, avgConfidence=0.981
-Merging: Standard=80 lines, Sensitive=80 lines
-Merge complete: 78 duplicates removed, 2 new lines added, 82 total
-OCR completed: lines=82, avgConfidence=0.98, duration=0.00s
-OCR completed: 1183 chars, 82 lines, confidence: 0.982
-OCR line sources: standard=80, sensitive=2, merged=0
-OCR confidence: high=79, medium=0, low=3
-Starting hybrid analysis (local first, cloud assist if needed)
-Analysis started: type=invoice, textLength=1183, lines=82
-Analyzing layout for 82 lines
-Grouped into 27 rows
-Detected 3 columns
-Partitioned into 9 non-empty blocks
-Block bottomCenter: 14 lines
+Block bottomCenter: 3 lines
 Block bottomLeft: 8 lines
-Block bottomRight: 9 lines
-Block middleCenter: 13 lines
-Block middleLeft: 11 lines
-Block middleRight: 13 lines
-Block topCenter: 3 lines
-Block topLeft: 6 lines
+Block bottomRight: 4 lines
+Block middleCenter: 16 lines
+Block middleLeft: 9 lines
+Block middleRight: 22 lines
+Block topCenter: 5 lines
+Block topLeft: 3 lines
 Block topRight: 5 lines
-Layout analysis: 27 rows, 3 columns
-Block topLeft: 6 lines
-Block topCenter: 3 lines
+Layout analysis: 23 rows, 3 columns
+Block topLeft: 3 lines
+Block topCenter: 5 lines
 Block topRight: 5 lines
-Block middleLeft: 11 lines
-Block middleCenter: 13 lines
-Block middleRight: 13 lines
+Block middleLeft: 9 lines
+Block middleCenter: 16 lines
+Block middleRight: 22 lines
 Block bottomLeft: 8 lines
-Block bottomCenter: 14 lines
-Block bottomRight: 9 lines
-Detected 26 anchors in 82 lines
-Anchor: vendorLabel conf=1.00 pattern='sprzedawca'
-Anchor: nipLabel conf=1.00 pattern='nip'
+Block bottomCenter: 3 lines
+Block bottomRight: 4 lines
+Detected 27 anchors in 75 lines
 Anchor: invoiceNumberLabel conf=1.00 pattern='faktura nr'
-Anchor: buyerLabel conf=1.00 pattern='nabywca'
 Anchor: dateLabel conf=1.00 pattern='data wystawienia'
-Detected 26 anchors, 9 types
+Anchor: vendorLabel conf=1.00 pattern='sprzedawca'
+Anchor: buyerLabel conf=1.00 pattern='nabywca'
+Anchor: nipLabel conf=1.00 pattern='nip'
+Detected 27 anchors, 9 types
 Found NIP anchor
-Found vendor anchor at Y=0.130
-Vendor block captured: name + 2 address lines
-Vendor accepted with company suffix: 'Volkswagen Financial Services Polska Sp. z o.o.'
-Vendor rejected: not enough letters 'Faktura nr: 45347/1225/RM'
+Found vendor anchor at Y=0.274
+Vendor accepted with company suffix: 'Autopay Spółka Akcyjna'
+Vendor block captured: name + 5 address lines
+Vendor rejected: not enough letters '81-718 Sopot'
 Found amount anchor
-Amount extraction: found 16 candidates
-  Candidate 1: confidence=0.960, y=0.75, source=do-zaplaty: do zapłaty
-  Candidate 2: confidence=0.960, y=0.75, source=do-zaplaty: do zapłaty
-  Candidate 3: confidence=0.450, y=0.68, source=region: bottomRight
-  Candidate 4: confidence=0.450, y=0.68, source=region: bottomRight
-  Candidate 5: confidence=0.450, y=0.73, source=region: bottomRight
-Score gap to 2nd place: 0.000
-Low score gap - returning multiple amount candidates
+Amount extraction: found 14 candidates
+  Candidate 1: confidence=0.960, y=0.69, source=do-zaplaty: do zapłaty
+  Candidate 2: confidence=0.450, y=0.66, source=region: bottomRight
+  Candidate 3: confidence=0.450, y=0.69, source=region: bottomRight
+  Candidate 4: confidence=0.350, y=0.47, source=pattern: amount
+  Candidate 5: confidence=0.350, y=0.47, source=pattern: amount
+Score gap to 2nd place: 0.510
 Selected amount: confidence=0.960, source=do-zaplaty: do zapłaty
-Date ranking: 3 candidates, top score: 70.0
-Date extraction: found 3 candidates
-  Date candidate 1: confidence=0.47, source=date-ranking: old-past-date-penalty, near-due-date-anchor [yyyy-MM-dd]
-  Date candidate 2: confidence=0.47, source=date-ranking: old-past-date-penalty, near-due-date-anchor [yyyy-MM-dd]
-  Date candidate 3: confidence=0.27, source=date-ranking: old-past-date-penalty, close-to-anchor [yyyy-MM-dd]
+Date ranking: 4 candidates, top score: 100.0
+Date extraction: found 4 candidates
+  Date candidate 1: confidence=0.67, source=date-ranking: bottom-section, old-past-date-penalty, near-due-date-anchor [dd-MM-yyyy]
+  Date candidate 2: confidence=0.15, source=date-ranking: top-section-penalty, old-past-date-penalty [dd/MM/yyyy]
+  Date candidate 3: confidence=0.15, source=date-ranking: top-section-penalty, old-past-date-penalty [dd-MM-yyyy]
+  Date candidate 4: confidence=0.15, source=date-ranking: top-section-penalty, old-past-date-penalty [dd-MM-yyyy]
 Found invoice number anchor
 Found bank account anchor
-Parsed numeric date '26.12.2025' with format 'dd.MM.yyyy'
-Parsed numeric date '26.12.2025' with format 'dd.MM.yyyy'
-Parsed numeric date '26.12.2025' with format 'dd.MM.yyyy'
-Parsed numeric date '01.12.2025' with format 'dd.MM.yyyy'
-Built candidates: vendor=3, nip=3, amount=3, date=3, docNum=3, bank=1
-Field extracted: type=vendor, method=anchor, confidence=0.95, candidates=3
+Parsed numeric date '03.11.2025' with format 'dd.MM.yyyy'
+Parsed numeric date '03.11.2025' with format 'dd.MM.yyyy'
+Parsed numeric date '18.11.2025' with format 'dd.MM.yyyy'
+Parsed numeric date '04.11.2025' with format 'dd.MM.yyyy'
+Built candidates: vendor=3, nip=3, amount=3, date=3, docNum=1, bank=0
+Field extracted: type=vendor, method=anchor, confidence=1.00, candidates=3
 Parsing completed: fields=4/4, confidence=1.00
-Local analysis confidence: 0.94
-Low confidence (0.94), requesting cloud assist
+Local analysis confidence: 0.95
+Low confidence (0.95), requesting cloud assist
 Skipping duplicate OCR processing - already processed or in progress
-🏢 OpenAI vendor: name=Volkswagen Financial Services Polska Sp. z o.o., address=Rondo ONZ 1 00-124 Warszawa, NIP=5252800978
-📅 OpenAI returned dueDate: 2025-12-26
-✅ Parsed dueDate successfully: 2025-12-26 00:00:00 +0000
+🏢 OpenAI vendor: name=Autopay Spółka Akcyjna, address=ul. Powstańców Warszawy 6, 81-718 Sopot, PL Polska, NIP=5851351185
+📅 OpenAI returned dueDate: 2025-11-03
+✅ Parsed dueDate successfully: 2025-11-03 00:00:00 +0000
 Cloud assist successful
-Analysis completed: vendor=true, amount=true, date=true, invoice#=true
-Applied vendor template for NIP: [NIP:***978]
-OCR/Parsing result: hasVendor=true, hasAmount=true, hasDueDate=true, confidence=0.950000
+Analysis completed: vendor=true, amount=false, date=true, invoice#=true
+Applied vendor template for NIP: [NIP:***185]
+OCR/Parsing result: hasVendor=true, hasAmount=false, hasDueDate=true, confidence=0.912500
 Set vendor with confidence 0.950000, mode: suggested
-Set amount with confidence 0.950000, mode: suggested
 Found 2 suggested amounts
 Set dueDate with confidence 0.950000, mode: suggested
 Populating ViewModel fields: vendorCandidates=0, amountCandidates=0, dateCandidates=0, nipCandidates=0, docNumCandidates=0, bankCandidates=0
+Selected amount candidate #0 (value hidden for privacy)
+Selected amount candidate #1 (value hidden for privacy)
+<0x104252f80> Gesture: System gesture gate timed out.
+<0x104252f80> Gesture: System gesture gate timed out.
 Saving document - hasVendor: true, hasAmount: true, hasDueDate: true
 Calling finalizeUseCase (amount and date hidden for privacy)
 Recording corrections for adaptive learning
+Amount was added manually (value hidden for privacy)
+Learning from user correction for amount: '0,01'
+Generated 8 search variants for amount '0.01'
+Could not find amount '0,01' in any normalized form
+Could not find corrected value '0,01' in OCR text
 Correction learning completed
-Feedback recorded successfully for document C125D567-1629-4AB4-BFAC-FD18B23A2381
+Feedback recorded successfully for document 65666737-BE19-4B36-8FA2-240AE445EFAE
 Parsing feedback recorded (privacy-safe)
 Finalizing document: hasTitle=true, currency=PLN (amount/date hidden for privacy)
-Document fields updated
+Document fields updated - NIP: 5851351185, Address: true
 Calendar event creation skipped (skipCalendar=true)
-Saved learning data: amountCorrected=false, dueDateCorrected=false, vendorCorrected=false
+Saved learning data: amountCorrected=true, dueDateCorrected=false, vendorCorrected=false
 Privacy-safe learning data saved (no PII/financial data)
 Notification authorization: isAuthorized=true, enabled=true
-Cancelled 0 notifications for document: C125D567-1629-4AB4-BFAC-FD18B23A2381
+Cancelled 0 notifications for document: 65666737-BE19-4B36-8FA2-240AE445EFAE
 Updated 0 notification reminders (old ones cancelled)
 Document finalized and saved successfully
 Document saved successfully
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Permission calendar: granted=true
-Permission notifications: granted=true
+📱 DocumentRow tapped: 65666737-BE19-4B36-8FA2-240AE445EFAE - Autopay Spółka Akcyjna
+📱 selectedDocumentId changed: nil → 65666737-BE19-4B36-8FA2-240AE445EFAE
+📱 NavigationDestination triggered for document ID: 65666737-BE19-4B36-8FA2-240AE445EFAE
+📱 DocumentDetailViewWrapper created for ID: 65666737-BE19-4B36-8FA2-240AE445EFAE
+📋 DocumentDetailView body evaluated - documentId: 65666737-BE19-4B36-8FA2-240AE445EFAE
+📋 Showing loading view - viewModel: false, document: false
+📋 DocumentDetailView body evaluated - documentId: 65666737-BE19-4B36-8FA2-240AE445EFAE
+📋 Showing loading view - viewModel: false, document: false
+📋 DocumentDetailView body evaluated - documentId: 65666737-BE19-4B36-8FA2-240AE445EFAE
+📋 Showing loading view - viewModel: false, document: false
+📱 NavigationDestination triggered for document ID: 65666737-BE19-4B36-8FA2-240AE445EFAE
+📱 NavigationDestination triggered for document ID: 65666737-BE19-4B36-8FA2-240AE445EFAE
+📋 DocumentDetailView body evaluated - documentId: 65666737-BE19-4B36-8FA2-240AE445EFAE
+📋 Showing loading view - viewModel: false, document: false
+📱 NavigationDestination triggered for document ID: 65666737-BE19-4B36-8FA2-240AE445EFAE
+📋 DocumentDetailView .task started for documentId: 65666737-BE19-4B36-8FA2-240AE445EFAE
+📋 Calling loadDocument...
+📋 DocumentDetailViewModel.loadDocument() called for ID: 65666737-BE19-4B36-8FA2-240AE445EFAE
+📋 Document fetched successfully: true
+📋 Document details - Title: Autopay Spółka Akcyjna, NIP: 5851351185
+📋 loadDocument completed - document loaded: true
+📋 DocumentDetailView body evaluated - documentId: 65666737-BE19-4B36-8FA2-240AE445EFAE
+📋 Showing content view with loaded document
+📋 DocumentDetailView body evaluated - documentId: 65666737-BE19-4B36-8FA2-240AE445EFAE
+📋 Showing content view with loaded document
+📱 NavigationDestination triggered for document ID: 65666737-BE19-4B36-8FA2-240AE445EFAE
+📱 DocumentRow tapped: 287819A3-0787-4B3C-988B-F39F1BFBDBDD - TOYOTA LEASING POLSKA Sp. z o.o.
+📱 selectedDocumentId changed: 65666737-BE19-4B36-8FA2-240AE445EFAE → 287819A3-0787-4B3C-988B-F39F1BFBDBDD
+📱 NavigationDestination triggered for document ID: 287819A3-0787-4B3C-988B-F39F1BFBDBDD
+📱 NavigationDestination triggered for document ID: 287819A3-0787-4B3C-988B-F39F1BFBDBDD
+📱 DocumentRow tapped: 287819A3-0787-4B3C-988B-F39F1BFBDBDD - TOYOTA LEASING POLSKA Sp. z o.o.
+📱 DocumentRow tapped: 287819A3-0787-4B3C-988B-F39F1BFBDBDD - TOYOTA LEASING POLSKA Sp. z o.o.
+📱 DocumentRow tapped: 287819A3-0787-4B3C-988B-F39F1BFBDBDD - TOYOTA LEASING POLSKA Sp. z o.o.
+📱 DocumentRow tapped: 65666737-BE19-4B36-8FA2-240AE445EFAE - Autopay Spółka Akcyjna
+📱 selectedDocumentId changed: 287819A3-0787-4B3C-988B-F39F1BFBDBDD → 65666737-BE19-4B36-8FA2-240AE445EFAE
+📱 NavigationDestination triggered for document ID: 65666737-BE19-4B36-8FA2-240AE445EFAE
+📱 NavigationDestination triggered for document ID: 65666737-BE19-4B36-8FA2-240AE445EFAE
+📱 DocumentRow tapped: 65666737-BE19-4B36-8FA2-240AE445EFAE - Autopay Spółka Akcyjna
+📱 DocumentRow tapped: 65666737-BE19-4B36-8FA2-240AE445EFAE - Autopay Spółka Akcyjna
+📱 DocumentRow tapped: 65666737-BE19-4B36-8FA2-240AE445EFAE - Autopay Spółka Akcyjna
+📱 DocumentRow tapped: 65666737-BE19-4B36-8FA2-240AE445EFAE - Autopay Spółka Akcyjna
+📱 DocumentRow tapped: 65666737-BE19-4B36-8FA2-240AE445EFAE - Autopay Spółka Akcyjna
+📱 DocumentRow tapped: 65666737-BE19-4B36-8FA2-240AE445EFAE - Autopay Spółka Akcyjna
+📱 DocumentRow tapped: 65666737-BE19-4B36-8FA2-240AE445EFAE - Autopay Spółka Akcyjna
+📱 DocumentRow tapped: 287819A3-0787-4B3C-988B-F39F1BFBDBDD - TOYOTA LEASING POLSKA Sp. z o.o.
+📱 selectedDocumentId changed: 65666737-BE19-4B36-8FA2-240AE445EFAE → 287819A3-0787-4B3C-988B-F39F1BFBDBDD
+📱 NavigationDestination triggered for document ID: 287819A3-0787-4B3C-988B-F39F1BFBDBDD
+📱 NavigationDestination triggered for document ID: 287819A3-0787-4B3C-988B-F39F1BFBDBDD
+📱 DocumentRow tapped: 287819A3-0787-4B3C-988B-F39F1BFBDBDD - TOYOTA LEASING POLSKA Sp. z o.o.
+📱 DocumentRow tapped: 65666737-BE19-4B36-8FA2-240AE445EFAE - Autopay Spółka Akcyjna
+📱 selectedDocumentId changed: 287819A3-0787-4B3C-988B-F39F1BFBDBDD → 65666737-BE19-4B36-8FA2-240AE445EFAE
+📱 NavigationDestination triggered for document ID: 65666737-BE19-4B36-8FA2-240AE445EFAE
+📱 NavigationDestination triggered for document ID: 65666737-BE19-4B36-8FA2-240AE445EFAE
+📱 DocumentRow tapped: 65666737-BE19-4B36-8FA2-240AE445EFAE - Autopay Spółka Akcyjna

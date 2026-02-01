@@ -196,6 +196,11 @@ final class SwiftDataDocumentRepository: DocumentRepositoryProtocol, @unchecked 
         _ = document.sourceFileURL
         _ = document.documentNumber
 
+        // Vendor details
+        _ = document.vendorAddress
+        _ = document.vendorNIP
+        _ = document.bankAccountNumber
+
         // Calendar & Notifications
         _ = document.calendarEventId
         _ = document.reminderOffsetsDays  // Array - important to fault

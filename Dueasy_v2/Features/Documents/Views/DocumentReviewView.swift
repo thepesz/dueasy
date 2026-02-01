@@ -92,9 +92,11 @@ struct DocumentReviewView: View {
                             .offset(y: appeared ? 0 : 20)
                             .animation(reduceMotion ? .none : .spring(response: 0.5, dampingFraction: 0.8).delay(0.25), value: appeared)
                     }
-                    .padding(Spacing.md)
-                    .padding(.bottom, Spacing.xl)
+                    .padding(.horizontal, Spacing.md)
+                    .padding(.top, Spacing.md)
+                    .padding(.bottom, Spacing.xxl)
                 }
+                .scrollIndicators(.hidden)
             }
             .navigationTitle(L10n.Review.title.localized)
             .navigationBarTitleDisplayMode(.inline)

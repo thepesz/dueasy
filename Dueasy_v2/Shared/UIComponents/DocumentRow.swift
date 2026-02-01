@@ -19,7 +19,10 @@ struct DocumentRow: View {
     }
 
     var body: some View {
-        Button(action: onTap) {
+        Button(action: {
+            print("📱 DocumentRow tapped: \(document.id) - \(document.title)")
+            onTap()
+        }) {
             HStack(spacing: Spacing.sm) {
                 // Document type icon with gradient ring
                 documentTypeIcon

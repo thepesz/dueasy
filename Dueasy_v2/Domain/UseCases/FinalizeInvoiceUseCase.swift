@@ -28,6 +28,7 @@ struct FinalizeInvoiceUseCase: Sendable {
     ///   - document: Document to finalize
     ///   - title: Vendor/title (required)
     ///   - vendorAddress: Optional vendor address
+    ///   - vendorNIP: Optional vendor NIP (tax ID)
     ///   - amount: Amount (must be > 0)
     ///   - currency: Currency code
     ///   - dueDate: Due date (required)
@@ -41,6 +42,7 @@ struct FinalizeInvoiceUseCase: Sendable {
         document: FinanceDocument,
         title: String,
         vendorAddress: String? = nil,
+        vendorNIP: String? = nil,
         amount: Decimal,
         currency: String,
         dueDate: Date,
@@ -62,6 +64,7 @@ struct FinalizeInvoiceUseCase: Sendable {
         // Update document fields
         document.title = title
         document.vendorAddress = vendorAddress
+        document.vendorNIP = vendorNIP
         document.amount = amount
         document.currency = currency
         document.dueDate = dueDate
@@ -71,7 +74,7 @@ struct FinalizeInvoiceUseCase: Sendable {
         document.reminderOffsetsDays = reminderOffsets ?? settingsManager.defaultReminderOffsets
         document.notificationsEnabled = true
 
-        logger.debug("Document fields updated")
+        logger.debug("Document fields updated - NIP: \(vendorNIP ?? "nil"), Address: \(vendorAddress != nil)")
 
         // Create calendar event if not skipped
         if !skipCalendar {

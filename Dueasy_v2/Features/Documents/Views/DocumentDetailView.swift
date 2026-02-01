@@ -7,25 +7,32 @@ struct DocumentDetailView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    let document: FinanceDocument
+    let documentId: UUID
 
     @State private var viewModel: DocumentDetailViewModel?
     @State private var showingEditSheet = false
     @State private var appeared = false
 
     var body: some View {
+        let _ = print("📋 DocumentDetailView body evaluated - documentId: \(documentId)")
         Group {
-            if let viewModel = viewModel {
-                contentView(viewModel: viewModel)
+            if let viewModel = viewModel, let doc = viewModel.document {
+                let _ = print("📋 Showing content view with loaded document")
+                contentView(viewModel: viewModel, document: doc)
             } else {
+                let _ = print("📋 Showing loading view - viewModel: \(viewModel != nil), document: \(viewModel?.document != nil)")
                 LoadingView(L10n.Common.loading.localized)
                     .gradientBackground(style: .list)
             }
         }
-        .navigationTitle(document.title.isEmpty ? L10n.Detail.title.localized : document.title)
+        .navigationTitle(viewModel?.document?.title.isEmpty ?? true ? L10n.Detail.title.localized : (viewModel?.document?.title ?? L10n.Detail.title.localized))
         .navigationBarTitleDisplayMode(.inline)
         .task {
+            print("📋 DocumentDetailView .task started for documentId: \(documentId)")
             setupViewModel()
+            print("📋 Calling loadDocument...")
+            await viewModel?.loadDocument()
+            print("📋 loadDocument completed - document loaded: \(viewModel?.document != nil)")
         }
         .onChange(of: viewModel?.shouldDismiss ?? false) { _, shouldDismiss in
             if shouldDismiss {
@@ -44,7 +51,7 @@ struct DocumentDetailView: View {
     }
 
     @ViewBuilder
-    private func contentView(viewModel: DocumentDetailViewModel) -> some View {
+    private func contentView(viewModel: DocumentDetailViewModel, document: FinanceDocument) -> some View {
         ZStack {
             // Modern gradient background
             GradientBackground()
@@ -52,38 +59,40 @@ struct DocumentDetailView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: Spacing.lg) {
                     // Header with status
-                    headerSection
+                    headerSection(document: document)
                         .opacity(appeared ? 1 : 0)
                         .offset(y: appeared ? 0 : 10)
                         .animation(reduceMotion ? .none : .spring(response: 0.4, dampingFraction: 0.8), value: appeared)
 
                     // Amount section
-                    amountSection
+                    amountSection(document: document)
                         .opacity(appeared ? 1 : 0)
                         .offset(y: appeared ? 0 : 15)
                         .animation(reduceMotion ? .none : .spring(response: 0.4, dampingFraction: 0.8).delay(0.05), value: appeared)
 
                     // Details section
-                    detailsSection
+                    detailsSection(document: document)
                         .opacity(appeared ? 1 : 0)
                         .offset(y: appeared ? 0 : 15)
                         .animation(reduceMotion ? .none : .spring(response: 0.4, dampingFraction: 0.8).delay(0.1), value: appeared)
 
                     // Calendar section
-                    calendarSection
+                    calendarSection(document: document)
                         .opacity(appeared ? 1 : 0)
                         .offset(y: appeared ? 0 : 15)
                         .animation(reduceMotion ? .none : .spring(response: 0.4, dampingFraction: 0.8).delay(0.15), value: appeared)
 
                     // Actions section
-                    actionsSection(viewModel: viewModel)
+                    actionsSection(viewModel: viewModel, document: document)
                         .opacity(appeared ? 1 : 0)
                         .offset(y: appeared ? 0 : 15)
                         .animation(reduceMotion ? .none : .spring(response: 0.4, dampingFraction: 0.8).delay(0.2), value: appeared)
                 }
-                .padding(Spacing.md)
-                .padding(.bottom, Spacing.xl)
+                .padding(.horizontal, Spacing.md)
+                .padding(.top, Spacing.md)
+                .padding(.bottom, Spacing.xxl)
             }
+            .scrollIndicators(.hidden)
         }
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
@@ -119,8 +128,10 @@ struct DocumentDetailView: View {
             }
         }
         .sheet(isPresented: $showingEditSheet) {
-            DocumentEditView(document: document)
-                .environment(environment)
+            if let doc = viewModel.document {
+                DocumentEditView(document: doc)
+                    .environment(environment)
+            }
         }
         .overlay(alignment: .top) {
             if let error = viewModel.error {
@@ -134,7 +145,7 @@ struct DocumentDetailView: View {
     // MARK: - Sections
 
     @ViewBuilder
-    private var headerSection: some View {
+    private func headerSection(document: FinanceDocument) -> some View {
         HStack {
             VStack(alignment: .leading, spacing: Spacing.xxs) {
                 Text(document.type.displayName)
@@ -155,7 +166,7 @@ struct DocumentDetailView: View {
     }
 
     @ViewBuilder
-    private var amountSection: some View {
+    private func amountSection(document: FinanceDocument) -> some View {
         PremiumGlassCard(accentColor: document.status.color) {
             HStack {
                 VStack(alignment: .leading, spacing: Spacing.xs) {
@@ -163,7 +174,7 @@ struct DocumentDetailView: View {
                         .font(Typography.caption1.weight(.medium))
                         .foregroundStyle(.secondary)
 
-                    Text(formattedAmount)
+                    Text(formattedAmount(for: document))
                         .font(.system(size: 32, weight: .bold, design: .rounded).monospacedDigit())
                         .foregroundStyle(.primary)
                 }
@@ -172,7 +183,7 @@ struct DocumentDetailView: View {
 
                 Button {
                     #if canImport(UIKit)
-                    UIPasteboard.general.string = formattedAmount
+                    UIPasteboard.general.string = formattedAmount(for: document)
                     #endif
                 } label: {
                     Image(systemName: "doc.on.doc")
@@ -186,7 +197,7 @@ struct DocumentDetailView: View {
     }
 
     @ViewBuilder
-    private var detailsSection: some View {
+    private func detailsSection(document: FinanceDocument) -> some View {
         Card.glass {
             VStack(spacing: Spacing.md) {
                 DetailRow(label: L10n.Detail.vendor.localized, value: document.title.isEmpty ? L10n.Detail.notSpecified.localized : document.title)
@@ -230,7 +241,7 @@ struct DocumentDetailView: View {
     }
 
     @ViewBuilder
-    private var calendarSection: some View {
+    private func calendarSection(document: FinanceDocument) -> some View {
         Card.glass {
             VStack(alignment: .leading, spacing: Spacing.sm) {
                 HStack {
@@ -263,7 +274,7 @@ struct DocumentDetailView: View {
 
                         Spacer()
 
-                        Text(reminderOffsetsText)
+                        Text(reminderOffsetsText(for: document))
                             .font(Typography.caption1)
                             .foregroundStyle(.secondary)
                     }
@@ -273,7 +284,7 @@ struct DocumentDetailView: View {
     }
 
     @ViewBuilder
-    private func actionsSection(viewModel: DocumentDetailViewModel) -> some View {
+    private func actionsSection(viewModel: DocumentDetailViewModel, document: FinanceDocument) -> some View {
         if document.status == .scheduled {
             PrimaryButton(L10n.Detail.markAsPaid.localized, icon: "checkmark.circle.fill") {
                 Task {
@@ -285,7 +296,7 @@ struct DocumentDetailView: View {
 
     // MARK: - Formatting
 
-    private var formattedAmount: String {
+    private func formattedAmount(for document: FinanceDocument) -> String {
         let formatter = NumberFormatter()
         formatter.numberStyle = .currency
         formatter.currencyCode = document.currency
@@ -300,7 +311,7 @@ struct DocumentDetailView: View {
         return formatter.string(from: date)
     }
 
-    private var reminderOffsetsText: String {
+    private func reminderOffsetsText(for document: FinanceDocument) -> String {
         document.reminderOffsetsDays.map { days in
             if days == 0 {
                 return L10n.Review.reminderDueDate.localized
@@ -316,8 +327,10 @@ struct DocumentDetailView: View {
 
     private func setupViewModel() {
         guard viewModel == nil else { return }
+
         viewModel = DocumentDetailViewModel(
-            documentId: document.id,
+            documentId: documentId,
+            repository: environment.documentRepository,
             markAsPaidUseCase: environment.makeMarkAsPaidUseCase(),
             deleteUseCase: environment.makeDeleteDocumentUseCase()
         )
@@ -568,21 +581,21 @@ struct DocumentEditView: View {
 // MARK: - Preview
 
 #Preview {
-    NavigationStack {
-        DocumentDetailView(
-            document: FinanceDocument(
-                type: .invoice,
-                title: "Acme Corporation",
-                amount: 1250.00,
-                currency: "PLN",
-                dueDate: Calendar.current.date(byAdding: .day, value: 7, to: Date()),
-                status: .scheduled,
-                documentNumber: "INV-2024-001",
-                calendarEventId: "mock-event-id",
-                reminderOffsetsDays: [7, 1, 0],
-                notificationsEnabled: true
-            )
-        )
-        .environment(AppEnvironment.preview)
+    let mockDoc = FinanceDocument(
+        type: .invoice,
+        title: "Acme Corporation",
+        amount: 1250.00,
+        currency: "PLN",
+        dueDate: Calendar.current.date(byAdding: .day, value: 7, to: Date()),
+        status: .scheduled,
+        documentNumber: "INV-2024-001",
+        calendarEventId: "mock-event-id",
+        reminderOffsetsDays: [7, 1, 0],
+        notificationsEnabled: true
+    )
+
+    return NavigationStack {
+        DocumentDetailView(documentId: mockDoc.id)
+            .environment(AppEnvironment.preview)
     }
 }

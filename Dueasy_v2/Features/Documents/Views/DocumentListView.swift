@@ -9,11 +9,11 @@ struct DocumentListView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var viewModel: DocumentListViewModel?
     @State private var showingAddDocument = false
-    @State private var selectedDocument: FinanceDocument?
+    @State private var navigationPath = NavigationPath()
     @State private var appeared = false
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $navigationPath) {
             Group {
                 if let viewModel = viewModel {
                     documentListContent(viewModel: viewModel)
@@ -27,8 +27,17 @@ struct DocumentListView: View {
                 AddDocumentView(environment: environment)
                     .environment(environment)
             }
-            .navigationDestination(item: $selectedDocument) { document in
-                DocumentDetailView(document: document)
+            .onChange(of: showingAddDocument) { oldValue, newValue in
+                // Reload documents when sheet is dismissed (false after being true)
+                if oldValue && !newValue {
+                    Task {
+                        await viewModel?.loadDocuments()
+                    }
+                }
+            }
+            .navigationDestination(for: UUID.self) { documentId in
+                let _ = print("📱 NavigationDestination triggered for document ID: \(documentId)")
+                DocumentDetailViewWrapper(documentId: documentId)
                     .environment(environment)
             }
         }
@@ -144,7 +153,8 @@ struct DocumentListView: View {
             LazyVStack(spacing: Spacing.sm) {
                 ForEach(Array(viewModel.filteredDocuments.enumerated()), id: \.element.id) { index, document in
                     DocumentRow(document: document) {
-                        selectedDocument = document
+                        print("📱 Appending document ID to navigation path: \(document.id)")
+                        navigationPath.append(document.id)
                     }
                     .opacity(appeared ? 1 : 0)
                     .offset(y: appeared ? 0 : 20)
@@ -173,9 +183,10 @@ struct DocumentListView: View {
                 }
             }
             .padding(.horizontal, Spacing.md)
-            .padding(.top, Spacing.sm)
-            .padding(.bottom, Spacing.xl)
+            .padding(.top, Spacing.md)
+            .padding(.bottom, Spacing.xxl)
         }
+        .scrollIndicators(.hidden)
     }
 
     @ViewBuilder
@@ -291,6 +302,22 @@ struct FilterChip: View {
                     }
                 }
         )
+    }
+}
+
+// MARK: - Document Detail Wrapper
+
+/// Wrapper view that passes document ID to detail view.
+/// This ensures navigation always works even after adding new documents.
+struct DocumentDetailViewWrapper: View {
+
+    @Environment(AppEnvironment.self) private var environment
+    let documentId: UUID
+
+    var body: some View {
+        let _ = print("📱 DocumentDetailViewWrapper created for ID: \(documentId)")
+        DocumentDetailView(documentId: documentId)
+            .environment(environment)
     }
 }
 

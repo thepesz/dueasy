@@ -406,9 +406,11 @@ struct PrivacyInfoView: View {
                         )
                     }
                 }
-                .padding(Spacing.md)
-                .padding(.bottom, Spacing.xl)
+                .padding(.horizontal, Spacing.md)
+                .padding(.top, Spacing.md)
+                .padding(.bottom, Spacing.xxl)
             }
+            .scrollIndicators(.hidden)
         }
         .navigationTitle(L10n.Privacy.title.localized)
         .navigationBarTitleDisplayMode(.inline)

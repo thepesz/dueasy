@@ -271,8 +271,10 @@ struct CalendarView: View {
                             }
                         }
                         .padding(.horizontal, Spacing.md)
-                        .padding(.bottom, Spacing.md)
+                        .padding(.top, Spacing.md)
+                        .padding(.bottom, Spacing.xxl)
                     }
+                    .scrollIndicators(.hidden)
                 }
             } else {
                 VStack(spacing: Spacing.sm) {
@@ -310,7 +312,7 @@ struct CalendarView: View {
                 .shadow(color: Color.black.opacity(0.08), radius: 12, y: -4)
         }
         .navigationDestination(for: FinanceDocument.self) { document in
-            DocumentDetailView(document: document)
+            DocumentDetailView(documentId: document.id)
                 .environment(environment)
         }
     }

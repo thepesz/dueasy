@@ -465,6 +465,7 @@ final class DocumentReviewViewModel {
                 document: document,
                 title: vendorName,
                 vendorAddress: vendorAddress.isEmpty ? nil : vendorAddress,
+                vendorNIP: nip.isEmpty ? nil : nip,
                 amount: finalAmount,
                 currency: currency,
                 dueDate: finalDueDate,
