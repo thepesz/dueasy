@@ -31,66 +31,50 @@ final class LinkExistingDocumentsUseCase: @unchecked Sendable {
     /// - Returns: Number of documents successfully linked
     @MainActor
     func execute(template: RecurringTemplate, toleranceDays: Int = 3) async throws -> Int {
+        // PRIVACY: Don't log vendor name or full fingerprint
         logger.info("=== LINK EXISTING DOCUMENTS USE CASE ===")
-        logger.info("Template: \(template.vendorDisplayName) (ID: \(template.id))")
-        logger.info("Vendor Fingerprint: \(template.vendorFingerprint)")
-        logger.info("Tolerance Days: \(toleranceDays)")
-
-        // DIAGNOSTIC: Log the fingerprint we're searching for
-        let searchFingerprint = template.vendorFingerprint
-        logger.info("SEARCHING for fingerprint: '\(searchFingerprint)'")
-        logger.info("Fingerprint length: \(searchFingerprint.count)")
-        logger.info("Fingerprint first 32 chars: '\(String(searchFingerprint.prefix(32)))'")
+        logger.info("Template ID: \(template.id), toleranceDays: \(toleranceDays)")
+        logger.debug("Fingerprint prefix: \(PrivacyLogger.sanitizeFingerprint(template.vendorFingerprint))")
 
         // Find all documents matching the vendor fingerprint
         let matchingDocuments = try await documentRepository.fetch(
             byVendorFingerprint: template.vendorFingerprint
         )
-        logger.info("Found \(matchingDocuments.count) documents for vendor fingerprint")
+        logger.info("Found \(matchingDocuments.count) documents matching fingerprint")
 
-        // DIAGNOSTIC: If no documents found, log all documents to see what's there
+        // DIAGNOSTIC: If no documents found, log counts only (no PII)
         if matchingDocuments.isEmpty {
-            logger.error("NO DOCUMENTS FOUND! Fetching ALL documents to diagnose...")
+            logger.error("NO DOCUMENTS FOUND! Checking document count...")
             let allDocs = try await documentRepository.fetchAll()
             logger.error("Total documents in database: \(allDocs.count)")
-            for doc in allDocs {
-                let docFP = doc.vendorFingerprint ?? "nil"
-                let fpMatch = docFP == searchFingerprint
-                logger.error("  Doc: '\(doc.title)' fp='\(docFP.prefix(32))...' match=\(fpMatch)")
-            }
+            let withFingerprint = allDocs.filter { $0.vendorFingerprint != nil }.count
+            logger.error("Documents with fingerprint: \(withFingerprint)")
         }
 
-        // Log each document found
-        for (index, doc) in matchingDocuments.enumerated() {
-            logger.info("  Document[\(index)]: id=\(doc.id), title=\(doc.title), dueDate=\(doc.dueDate?.description ?? "nil"), recurringInstanceId=\(doc.recurringInstanceId?.uuidString ?? "nil")")
-        }
+        // PRIVACY: Log count only, not titles or dates
+        logger.info("Found \(matchingDocuments.count) documents to process")
 
         // Fetch all instances for this template
         let instances = try await schedulerService.fetchInstances(forTemplateId: template.id)
         logger.info("Found \(instances.count) instances for template")
 
-        // Log each instance
-        for (index, instance) in instances.enumerated() {
-            logger.info("  Instance[\(index)]: id=\(instance.id), period=\(instance.periodKey), expectedDue=\(instance.expectedDueDate), status=\(instance.status.rawValue)")
-        }
-
         var linkedCount = 0
+        var skippedAlreadyLinked = 0
+        var skippedNoDueDate = 0
         var linkedDocuments: [FinanceDocument] = []
 
         for document in matchingDocuments {
             // Skip documents already linked to recurring
             if document.recurringInstanceId != nil || document.recurringTemplateId != nil {
-                logger.info("SKIP: Document \(document.id) already linked (instanceId=\(document.recurringInstanceId?.uuidString ?? "nil"), templateId=\(document.recurringTemplateId?.uuidString ?? "nil"))")
+                skippedAlreadyLinked += 1
                 continue
             }
 
             // Skip documents without a due date
             guard let documentDueDate = document.dueDate else {
-                logger.info("SKIP: Document \(document.id) has no due date")
+                skippedNoDueDate += 1
                 continue
             }
-
-            logger.info("PROCESSING: Document \(document.id) with due date \(documentDueDate)")
 
             // Find matching instance by due date (within tolerance)
             var matchingInstance = findMatchingInstance(
@@ -103,27 +87,21 @@ final class LinkExistingDocumentsUseCase: @unchecked Sendable {
             // create a historical instance for it.
             // This handles the case where template was just created but documents are from past months.
             if matchingInstance == nil {
-                logger.info("NO EXISTING INSTANCE: Creating historical instance for this document's period...")
-
                 // Get the period key for this document's due date
                 let periodKey = RecurringInstance.periodKey(for: documentDueDate)
-                logger.info("Document period key: \(periodKey)")
 
                 // Check if an instance already exists for this period (might have been skipped in tolerance check)
                 let existingForPeriod = instances.first { $0.periodKey == periodKey }
                 if let existing = existingForPeriod {
-                    logger.info("Instance exists for period \(periodKey) but due date didn't match within tolerance - using it anyway")
                     matchingInstance = existing
                 } else {
                     // Create a historical instance using the scheduler service
-                    logger.info("No instance exists for period \(periodKey) - creating historical instance via scheduler")
                     do {
                         let historicalInstance = try await schedulerService.createHistoricalInstance(
                             for: template,
                             periodKey: periodKey,
                             expectedDueDate: documentDueDate
                         )
-                        logger.info("Created historical instance: \(historicalInstance.id) for period \(periodKey)")
                         matchingInstance = historicalInstance
                     } catch {
                         logger.error("Failed to create historical instance: \(error.localizedDescription)")
@@ -132,26 +110,19 @@ final class LinkExistingDocumentsUseCase: @unchecked Sendable {
                         document.markUpdated()
                         linkedDocuments.append(document)
                         linkedCount += 1
-                        logger.info("LINKED TO TEMPLATE ONLY (no instance): Document \(document.id) -> Template \(template.id)")
                         continue
                     }
                 }
             }
 
             guard let matchingInstance = matchingInstance else {
-                logger.info("NO MATCH: Could not find or create instance for document \(document.id) with due date \(documentDueDate)")
                 continue
             }
-
-            logger.info("MATCH FOUND: Instance \(matchingInstance.id) (expected: \(matchingInstance.expectedDueDate))")
 
             // Link document to instance
             document.recurringInstanceId = matchingInstance.id
             document.recurringTemplateId = template.id
             document.markUpdated()
-
-            logger.info("SET document.recurringInstanceId = \(matchingInstance.id)")
-            logger.info("SET document.recurringTemplateId = \(template.id)")
 
             // Match the document to the instance
             matchingInstance.matchDocument(
@@ -161,41 +132,32 @@ final class LinkExistingDocumentsUseCase: @unchecked Sendable {
                 invoiceNumber: document.documentNumber
             )
 
-            logger.info("Instance \(matchingInstance.id) status after matchDocument: \(matchingInstance.status.rawValue)")
-
             // If document is already paid, mark instance as paid
             if document.status == .paid {
                 matchingInstance.markAsPaid()
-                logger.info("Document was paid, marked instance as paid: \(matchingInstance.status.rawValue)")
             }
 
             linkedDocuments.append(document)
             linkedCount += 1
-            logger.info("LINKED: Document \(document.id) -> Instance \(matchingInstance.id) (total linked: \(linkedCount))")
+        }
+
+        // Log summary of skipped documents
+        if skippedAlreadyLinked > 0 || skippedNoDueDate > 0 {
+            logger.debug("Skipped: alreadyLinked=\(skippedAlreadyLinked), noDueDate=\(skippedNoDueDate)")
         }
 
         // CRITICAL: Save all changes to persist the linkage
         if linkedCount > 0 {
-            logger.info("SAVING: Persisting \(linkedCount) linked documents to database...")
             do {
                 try await documentRepository.save()
-                logger.info("SAVE SUCCESS: All document linkages persisted")
-
-                // Verify the save worked by logging the document state
-                // NOTE: SwiftData caches objects, so subsequent fetches by ViewModels
-                // should use fetchFresh() to get the latest data from the database.
-                for doc in linkedDocuments {
-                    logger.info("VERIFY: Document \(doc.id) - recurringInstanceId=\(doc.recurringInstanceId?.uuidString ?? "nil"), recurringTemplateId=\(doc.recurringTemplateId?.uuidString ?? "nil")")
-                }
+                logger.info("Linked and saved \(linkedCount) documents to template")
             } catch {
-                logger.error("SAVE FAILED: \(error.localizedDescription)")
+                logger.error("Save failed: \(error.localizedDescription)")
                 throw error
             }
-        } else {
-            logger.info("NO SAVE NEEDED: No documents were linked")
         }
 
-        logger.info("=== LINK COMPLETE: \(linkedCount) documents linked to template ===")
+        logger.info("Link complete: \(linkedCount) documents linked")
         return linkedCount
     }
 

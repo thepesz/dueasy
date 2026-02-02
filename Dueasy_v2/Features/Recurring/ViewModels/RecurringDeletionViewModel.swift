@@ -194,31 +194,29 @@ final class RecurringDeletionViewModel {
                 )
 
             case .cancelRecurringPayments:
-                print("🔴 CANCEL_RECURRING: Starting deletion for document \(document.id)")
-                print("🔴 CANCEL_RECURRING: Document title: '\(document.title)'")
-                print("🔴 CANCEL_RECURRING: Document due date: \(document.dueDate?.description ?? "nil")")
+                // PRIVACY: Only log IDs, not titles or dates
+                #if DEBUG
+                print("CANCEL_RECURRING: Starting deletion for document \(document.id)")
+                #endif
 
                 // First unlink the document
                 _ = try await unlinkDocumentUseCase.execute(document: document, deleteDocument: false)
-                print("🔴 CANCEL_RECURRING: Document unlinked from recurring")
 
                 // Deactivate template and cancel all future instances
                 // This also deletes all calendar events for the instances
                 let cancelledCount: Int
                 if let templateId = template?.id {
-                    print("🔴 CANCEL_RECURRING: Deactivating template \(templateId)")
                     cancelledCount = try await deactivateTemplateUseCase.execute(templateId: templateId)
-                    print("🔴 CANCEL_RECURRING: Template deactivated, deleted \(cancelledCount) future instances")
+                    #if DEBUG
+                    print("CANCEL_RECURRING: Template deactivated, deleted \(cancelledCount) future instances")
+                    #endif
                 } else {
                     cancelledCount = 0
-                    print("🔴 CANCEL_RECURRING: No template ID found")
                 }
 
                 // Always delete the current document when user chooses "Delete This Invoice and All Future"
                 // User wants to delete the invoice they're looking at, regardless of its due date
-                print("🔴 CANCEL_RECURRING: DELETING document \(document.id) from database")
                 try await deleteDocumentUseCase.execute(documentId: document.id)
-                print("🔴 CANCEL_RECURRING: Document deleted successfully")
 
                 lastResult = RecurringDeletionResult(
                     success: true,
@@ -227,7 +225,9 @@ final class RecurringDeletionViewModel {
                     templateDeactivated: true,
                     documentDeleted: true
                 )
-                print("🔴 CANCEL_RECURRING: Result: success=true, documentDeleted=true, deletedInstances=\(cancelledCount)")
+                #if DEBUG
+                print("CANCEL_RECURRING: Result: success=true, deletedInstances=\(cancelledCount)")
+                #endif
             }
 
             isLoading = false

@@ -64,7 +64,8 @@ struct FinalizeInvoiceUseCase: Sendable {
 
         // Validate amount
         guard amount > 0 else {
-            logger.error("Validation failed: amount must be > 0, got \(amount)")
+            // PRIVACY: Don't log actual amount
+            logger.error("Validation failed: amount must be > 0")
             throw AppError.validationAmountInvalid
         }
 
@@ -81,7 +82,8 @@ struct FinalizeInvoiceUseCase: Sendable {
         document.reminderOffsetsDays = reminderOffsets ?? settingsManager.defaultReminderOffsets
         document.notificationsEnabled = true
 
-        logger.debug("Document fields updated - NIP: \(vendorNIP ?? "nil"), Address: \(vendorAddress != nil)")
+        // PRIVACY: Don't log NIP or address details
+        logger.debug("Document fields updated - hasNIP: \(vendorNIP != nil), hasAddress: \(vendorAddress != nil)")
 
         // CRITICAL: Set vendor fingerprint for recurring payment detection
         // This must be done for ALL documents, not just recurring ones

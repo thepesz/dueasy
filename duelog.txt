@@ -1,257 +1,10 @@
-✅ Firebase configured successfully
-✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/B84A7030-C057-4033-8E03-F0ECCD801614/Dueasy_v2.app/pl.lproj
-✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/B84A7030-C057-4033-8E03-F0ECCD801614/Dueasy_v2.app/pl.lproj
 12.8.0 - [FirebaseCore][I-COR000008] The project's Bundle ID is inconsistent with either the Bundle ID in 'GoogleService-Info.plist', or the Bundle ID in the options if you are using a customized options. To ensure that everything can be configured correctly, you may need to make the Bundle IDs consistent. To continue with this plist file, you may change your app's bundle identifier to 'com.dueasy.app'. Or you can download a new configuration file that matches your bundle identifier from https://console.firebase.google.com/ and replace the current one.
 12.8.0 - [GoogleUtilities/AppDelegateSwizzler][I-SWZ001014] App Delegate does not conform to UIApplicationDelegate protocol.
-CoreData: error: Failed to stat path '/var/mobile/Containers/Data/Application/921C4226-A4A2-456C-BB0C-EC168E43B21C/Library/Application Support/default.store', errno 2 / No such file or directory.
-CoreData: error: Failed to stat path '/var/mobile/Containers/Data/Application/921C4226-A4A2-456C-BB0C-EC168E43B21C/Library/Application Support/default.store', errno 2 / No such file or directory.
-CoreData: error: Executing as effective user 501
-CoreData: error: Executing as effective user 501
-CoreData: error: Failed to statfs file; errno 2 / No such file or directory.
-CoreData: error: Failed to statfs file; errno 2 / No such file or directory.
-CoreData: error: Logging status information for directory path: /var/mobile/Containers/Data/Application/921C4226-A4A2-456C-BB0C-EC168E43B21C/Library/Application Support
-CoreData: error: Logging status information for directory path: /var/mobile/Containers/Data/Application/921C4226-A4A2-456C-BB0C-EC168E43B21C/Library/Application Support
-CoreData: error: Executing as effective user 501
-CoreData: error: Executing as effective user 501
-CoreData: error: Information for /
-CoreData: error: Information for /
-CoreData: error:   File Device ID: 	0
-CoreData: error:   File Device ID: 	0
-CoreData: error:   Device ID: 		838860801
-CoreData: error:   Device ID: 		838860801
-CoreData: error:   File Size: 		608 bytes
-CoreData: error:   File Size: 		608 bytes
-CoreData: error:   File inode: 		2
-CoreData: error:   File inode: 		2
-CoreData: error:   File user ID: 		0
-CoreData: error:   File user ID: 		0
-CoreData: error:   File group ID: 		0
-CoreData: error:   File group ID: 		0
-CoreData: error:   File Permissions:
-CoreData: error:   File Permissions: 	
-CoreData: error: d
-CoreData: error: d
-CoreData: error:   755
-CoreData: error:   755
-CoreData: error:   component is not a symbolic link
-CoreData: error:   component is not a symbolic link
-CoreData: error:   component is readable
-CoreData: error:   component is readable
-CoreData: error:   component is not writeable with errno 1
-CoreData: error:   component is not writeable with errno 1
-CoreData: error: Information for /var
-CoreData: error: Information for /var
-CoreData: error:   File Device ID: 	0
-CoreData: error:   File Device ID: 	0
-CoreData: error:   Device ID: 		16777223
-CoreData: error:   Device ID: 		16777223
-CoreData: error:   File Size: 		1152 bytes
-CoreData: error:   File Size: 		1152 bytes
-CoreData: error:   File inode: 		2
-CoreData: error:   File inode: 		2
-CoreData: error:   File user ID: 		0
-CoreData: error:   File user ID: 		0
-CoreData: error:   File group ID: 		0
-CoreData: error:   File group ID: 		0
-CoreData: error:   File Permissions:
-CoreData: error:   File Permissions: 	
-CoreData: error: d
-CoreData: error: d
-CoreData: error:   755
-CoreData: error:   755
-CoreData: error:   component is not a symbolic link
-CoreData: error:   component is not a symbolic link
-CoreData: error:   component is not readable with errno 1
-CoreData: error:   component is not readable with errno 1
-CoreData: error:   component is not writeable with errno 1
-CoreData: error:   component is not writeable with errno 1
-CoreData: error: Information for /var/mobile
-CoreData: error: Information for /var/mobile
-CoreData: error:   File Device ID: 	0
-CoreData: error:   File Device ID: 	0
-CoreData: error:   Device ID: 		16777224
-CoreData: error:   Device ID: 		16777224
-CoreData: error:   File Size: 		544 bytes
-CoreData: error:   File Size: 		544 bytes
-CoreData: error:   File inode: 		2
-CoreData: error:   File inode: 		2
-CoreData: error:   File user ID: 		501
-CoreData: error:   File user ID: 		501
-CoreData: error:   File group ID: 		501
-CoreData: error:   File group ID: 		501
-CoreData: error:   File Permissions:
-CoreData: error:   File Permissions: 	
-CoreData: error: d
-CoreData: error: d
-CoreData: error:   711
-CoreData: error:   711
-CoreData: error:   component is not a symbolic link
-CoreData: error:   component is not a symbolic link
-CoreData: error:   component is not readable with errno 1
-CoreData: error:   component is not readable with errno 1
-CoreData: error:   component is not writeable with errno 1
-CoreData: error:   component is not writeable with errno 1
-CoreData: error: Information for /var/mobile/Containers
-CoreData: error: Information for /var/mobile/Containers
-CoreData: error:   File Device ID: 	0
-CoreData: error:   File Device ID: 	0
-CoreData: error:   Device ID: 		16777224
-CoreData: error:   Device ID: 		16777224
-CoreData: error:   File Size: 		160 bytes
-CoreData: error:   File Size: 		160 bytes
-CoreData: error:   File inode: 		41
-CoreData: error:   File inode: 		41
-CoreData: error:   File user ID: 		501
-CoreData: error:   File user ID: 		501
-CoreData: error:   File group ID: 		501
-CoreData: error:   File group ID: 		501
-CoreData: error:   File Permissions:
-CoreData: error:   File Permissions: 	
-CoreData: error: d
-CoreData: error: d
-CoreData: error:   755
-CoreData: error:   755
-CoreData: error:   component is not a symbolic link
-CoreData: error:   component is not a symbolic link
-CoreData: error:   component is not readable with errno 1
-CoreData: error:   component is not readable with errno 1
-CoreData: error:   component is not writeable with errno 1
-CoreData: error:   component is not writeable with errno 1
-CoreData: error: Information for /var/mobile/Containers/Data
-CoreData: error: Information for /var/mobile/Containers/Data
-CoreData: error:   File Device ID: 	0
-CoreData: error:   File Device ID: 	0
-CoreData: error:   Device ID: 		16777224
-CoreData: error:   Device ID: 		16777224
-CoreData: error:   File Size: 		160 bytes
-CoreData: error:   File Size: 		160 bytes
-CoreData: error:   File inode: 		104
-CoreData: error:   File inode: 		104
-CoreData: error:   File user ID: 		0
-CoreData: error:   File user ID: 		0
-CoreData: error:   File group ID: 		501
-CoreData: error:   File group ID: 		501
-CoreData: error:   File Permissions:
-CoreData: error:   File Permissions: 	
-CoreData: error: d
-CoreData: error: d
-CoreData: error:   755
-CoreData: error:   755
-CoreData: error:   component is not a symbolic link
-CoreData: error:   component is not a symbolic link
-CoreData: error:   component is not readable with errno 1
-CoreData: error:   component is not readable with errno 1
-CoreData: error:   component is not writeable with errno 1
-CoreData: error:   component is not writeable with errno 1
-CoreData: error: Information for /var/mobile/Containers/Data/Application
-CoreData: error: Information for /var/mobile/Containers/Data/Application
-CoreData: error:   File Device ID: 	0
-CoreData: error:   File Device ID: 	0
-CoreData: error:   Device ID: 		16777224
-CoreData: error:   Device ID: 		16777224
-CoreData: error:   File Size: 		11392 bytes
-CoreData: error:   File Size: 		11392 bytes
-CoreData: error:   File inode: 		105
-CoreData: error:   File inode: 		105
-CoreData: error:   File user ID: 		501
-CoreData: error:   File user ID: 		501
-CoreData: error:   File group ID: 		501
-CoreData: error:   File group ID: 		501
-CoreData: error:   File Permissions:
-CoreData: error:   File Permissions: 	
-CoreData: error: d
-CoreData: error: d
-CoreData: error:   755
-CoreData: error:   755
-CoreData: error:   component is not a symbolic link
-CoreData: error:   component is not a symbolic link
-CoreData: error:   component is not readable with errno 1
-CoreData: error:   component is not readable with errno 1
-CoreData: error:   component is not writeable with errno 1
-CoreData: error:   component is not writeable with errno 1
-CoreData: error: Information for /var/mobile/Containers/Data/Application/921C4226-A4A2-456C-BB0C-EC168E43B21C
-CoreData: error: Information for /var/mobile/Containers/Data/Application/921C4226-A4A2-456C-BB0C-EC168E43B21C
-CoreData: error:   File Device ID: 	0
-CoreData: error:   File Device ID: 	0
-CoreData: error:   Device ID: 		16777224
-CoreData: error:   Device ID: 		16777224
-CoreData: error:   File Size: 		224 bytes
-CoreData: error:   File Size: 		224 bytes
-CoreData: error:   File inode: 		9541400
-CoreData: error:   File inode: 		9541400
-CoreData: error:   File user ID: 		501
-CoreData: error:   File user ID: 		501
-CoreData: error:   File group ID: 		501
-CoreData: error:   File group ID: 		501
-CoreData: error:   File Permissions:
-CoreData: error:   File Permissions: 	
-CoreData: error: d
-CoreData: error: d
-CoreData: error:   755
-CoreData: error:   755
-CoreData: error:   component is not a symbolic link
-CoreData: error:   component is not a symbolic link
-CoreData: error:   component is readable
-CoreData: error:   component is readable
-CoreData: error:   component is not writeable with errno 1
-CoreData: error:   component is not writeable with errno 1
-CoreData: error: Information for /var/mobile/Containers/Data/Application/921C4226-A4A2-456C-BB0C-EC168E43B21C/Library
-CoreData: error: Information for /var/mobile/Containers/Data/Application/921C4226-A4A2-456C-BB0C-EC168E43B21C/Library
-CoreData: error:   File Device ID: 	0
-CoreData: error:   File Device ID: 	0
-CoreData: error:   Device ID: 		16777224
-CoreData: error:   Device ID: 		16777224
-CoreData: error:   File Size: 		160 bytes
-CoreData: error:   File Size: 		160 bytes
-CoreData: error:   File inode: 		9541402
-CoreData: error:   File inode: 		9541402
-CoreData: error:   File user ID: 		501
-CoreData: error:   File user ID: 		501
-CoreData: error:   File group ID: 		501
-CoreData: error:   File group ID: 		501
-CoreData: error:   File Permissions:
-CoreData: error:   File Permissions: 	
-CoreData: error: d
-CoreData: error: d
-CoreData: error:   755
-CoreData: error:   755
-CoreData: error:   component is not a symbolic link
-CoreData: error:   component is not a symbolic link
-CoreData: error:   component is readable
-CoreData: error:   component is readable
-CoreData: error:   component is writeable
-CoreData: error:   component is writeable
-CoreData: error: Failed to stat path '/var/mobile/Containers/Data/Application/921C4226-A4A2-456C-BB0C-EC168E43B21C/Library/Application Support', errno 2 / No such file or directory.
-CoreData: error: Failed to stat path '/var/mobile/Containers/Data/Application/921C4226-A4A2-456C-BB0C-EC168E43B21C/Library/Application Support', errno 2 / No such file or directory.
-CoreData: error:   Sandbox access to file-write-create denied
-CoreData: error:   Sandbox access to file-write-create denied
-CoreData: error: addPersistentStoreWithType:configuration:URL:options:error: returned error NSCocoaErrorDomain (512)
-CoreData: error: addPersistentStoreWithType:configuration:URL:options:error: returned error NSCocoaErrorDomain (512)
-CoreData: error: userInfo:
-CoreData: error: userInfo:
-CoreData: error: 	reason : Failed to create file; code = 2
-CoreData: error: 	reason : Failed to create file; code = 2
-CoreData: error: storeType: SQLite
-CoreData: error: storeType: SQLite
-CoreData: error: configuration: default
-CoreData: error: configuration: default
-CoreData: error: URL: file:///var/mobile/Containers/Data/Application/921C4226-A4A2-456C-BB0C-EC168E43B21C/Library/Application%20Support/default.store
-CoreData: error: URL: file:///var/mobile/Containers/Data/Application/921C4226-A4A2-456C-BB0C-EC168E43B21C/Library/Application%20Support/default.store
-CoreData: annotation: options:
-CoreData: annotation: 	NSMigratePersistentStoresAutomaticallyOption : 1
-CoreData: annotation: 	NSInferMappingModelAutomaticallyOption : 1
-CoreData: annotation: 	NSPersistentStoreRemoteChangeNotificationOptionKey : 1
-CoreData: annotation: 	NSPersistentHistoryTrackingKey : 1
-CoreData: error: <NSPersistentStoreCoordinator: 0x138055880>: Attempting recovery from error encountered during addPersistentStore: 0x138039470 Error Domain=NSCocoaErrorDomain Code=512 "Nie można zachować pliku." UserInfo={reason=Failed to create file; code = 2}
-CoreData: error: <NSPersistentStoreCoordinator: 0x138055880>: Attempting recovery from error encountered during addPersistentStore: 0x138039470 Error Domain=NSCocoaErrorDomain Code=512 "Nie można zachować pliku." UserInfo={reason=Failed to create file; code = 2}
-CoreData: error: During recovery, parent directory path reported as missing
-CoreData: error: During recovery, parent directory path reported as missing
-CoreData: error: Recovery attempt while adding <NSPersistentStoreDescription: 0x138039470> (type: SQLite, url: file:///var/mobile/Containers/Data/Application/921C4226-A4A2-456C-BB0C-EC168E43B21C/Library/Application%20Support/default.store) was successful!
-CoreData: error: Recovery attempt while adding <NSPersistentStoreDescription: 0x138039470> (type: SQLite, url: file:///var/mobile/Containers/Data/Application/921C4226-A4A2-456C-BB0C-EC168E43B21C/Library/Application%20Support/default.store) was successful!
+✅ Firebase configured successfully
+✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/AF7F2E38-BD1D-458F-A8B5-B51237B2F058/Dueasy_v2.app/pl.lproj
+✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/AF7F2E38-BD1D-458F-A8B5-B51237B2F058/Dueasy_v2.app/pl.lproj
 Applied file protection to 3 database files, excluded 3 from backup
-✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/B84A7030-C057-4033-8E03-F0ECCD801614/Dueasy_v2.app/pl.lproj
-Migrating keyword learning data from version 0 to 1
-✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/B84A7030-C057-4033-8E03-F0ECCD801614/Dueasy_v2.app/pl.lproj
+✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/AF7F2E38-BD1D-458F-A8B5-B51237B2F058/Dueasy_v2.app/pl.lproj
 AppleVisionOCRService initialized with 2-pass recognition
 Recognition languages: pl-PL, en-US
 Standard pass minTextHeight: 0.012000
@@ -260,73 +13,35 @@ numANECores: Unknown aneSubType
 Vision supported languages: 30 languages
 LayoutFirstInvoiceParser initialized
 AppEnvironment initialized for tier: Pro (Firebase active)
-✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/B84A7030-C057-4033-8E03-F0ECCD801614/Dueasy_v2.app/pl.lproj
+✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/AF7F2E38-BD1D-458F-A8B5-B51237B2F058/Dueasy_v2.app/pl.lproj
 🧪 TESTING: Cloud analysis force-enabled
 DuEasy app initialized
-✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/B84A7030-C057-4033-8E03-F0ECCD801614/Dueasy_v2.app/pl.lproj
-Current calendar permission: notDetermined, hasWriteAccess: false
+✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/AF7F2E38-BD1D-458F-A8B5-B51237B2F058/Dueasy_v2.app/pl.lproj
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/AF7F2E38-BD1D-458F-A8B5-B51237B2F058/Dueasy_v2.app/pl.lproj
 Checking for vendor migrations to global version 1
 No vendors need migration - all up to date
 No documents need fingerprint backfill
+HomeViewModel.loadMetrics() called
+Computing Home metrics
+Home metrics computed: upcoming7=0, overdue=0, recurring=0
+Home metrics loaded successfully
 App became active
-Current notification permission: notDetermined, isAuthorized: false
 ✅ Firebase: Signed in anonymously
 ✅ Signed in anonymously: wisOjM8nqQd1rzdlHCATrExy8al2
-Requesting calendar permission...
-Calendar access request result: true
-Calendar permission result: true
-fopen failed for data file: errno = 2 (No such file or directory)
-Errors found! Invalidating cache...
-fopen failed for data file: errno = 2 (No such file or directory)
-Errors found! Invalidating cache...
+App entered background
 App became active
-Requesting notification permission...
-Notification authorization result: true
-Notification permission result: true
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
 App became active
-Completing onboarding - calendar: true, notifications: true
-✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/B84A7030-C057-4033-8E03-F0ECCD801614/Dueasy_v2.app/pl.lproj
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Starting recurring payment auto-detection
-Running recurring detection analysis
-=== RECURRING DETECTION ANALYSIS START ===
-Finding vendors for analysis...
-Total documents with vendorFingerprint: 0
-Unique vendors found: 0
-Vendors with 2+ documents (eligible for analysis): 0
-Found 0 vendors with 2+ documents for analysis
-=== RECURRING DETECTION ANALYSIS COMPLETE ===
-Summary:
-  - Vendors analyzed: 0
-  - Candidates updated: 0
-  - Skipped (template exists): 0
-  - Skipped (no pattern): 0
-Detection updated 0 candidates
-Fetching suggestion candidates (threshold: 0.750000)
-📊 DIAGNOSTIC: Total candidates in database: 0
-Found 0 candidates meeting confidence threshold (>= 0.750000)
-After filtering: 0 candidates (filtered out 0)
-Found 0 candidates to suggest
-Auto-detection complete: found 0 suggestions
-✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/B84A7030-C057-4033-8E03-F0ECCD801614/Dueasy_v2.app/pl.lproj
-✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/B84A7030-C057-4033-8E03-F0ECCD801614/Dueasy_v2.app/pl.lproj
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/B84A7030-C057-4033-8E03-F0ECCD801614/Dueasy_v2.app/pl.lproj
-Initialized VNDocumentCameraViewController (VisionKit document scanner)
-Scanner provides: edge detection, perspective correction, contrast enhancement
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+MainTabView: Add document sheet dismissed, triggering refresh
 Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
 Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
 Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
@@ -339,952 +54,340 @@ Unable to simultaneously satisfy constraints.
 		(2) find the code that added the unwanted constraint or constraints and fix it. 
 	(Note: If you're seeing NSAutoresizingMaskLayoutConstraints that you don't understand, refer to the documentation for the UIView property translatesAutoresizingMaskIntoConstraints) 
 (
-    "<NSAutoresizingMaskLayoutConstraint:0x13a411f90 h=--& v=--& _TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x13a438fc0.width == 0   (active)>",
-    "<NSLayoutConstraint:0x13a4118b0 _TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x13a438fc0.leading == _UIButtonBarButton:0x139a2b700.leading   (active)>",
-    "<NSLayoutConstraint:0x13a411900 H:[_UIButtonBarButton:0x139a2b700]-(0)-|   (active, names: '|':_TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x13a438fc0 )>",
-    "<NSLayoutConstraint:0x13a4116d0 'IB_Leading_Leading' H:|-(2)-[_UIModernBarButton:0x13a28f480]   (active, names: '|':_UIButtonBarButton:0x139a2b700 )>",
-    "<NSLayoutConstraint:0x13a411720 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x13a28f480]-(2)-|   (active, names: '|':_UIButtonBarButton:0x139a2b700 )>"
+    "<NSAutoresizingMaskLayoutConstraint:0x1197a2da0 h=--& v=--& _TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x1191d3b80.width == 0   (active)>",
+    "<NSLayoutConstraint:0x118c13c00 _TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x1191d3b80.leading == _UIButtonBarButton:0x119be2800.leading   (active)>",
+    "<NSLayoutConstraint:0x118c13980 H:[_UIButtonBarButton:0x119be2800]-(0)-|   (active, names: '|':_TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x1191d3b80 )>",
+    "<NSLayoutConstraint:0x118c13bb0 'IB_Leading_Leading' H:|-(2)-[_UIModernBarButton:0x119a94e00]   (active, names: '|':_UIButtonBarButton:0x119be2800 )>",
+    "<NSLayoutConstraint:0x118c13ac0 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x119a94e00]-(2)-|   (active, names: '|':_UIButtonBarButton:0x119be2800 )>"
 )
 
 Will attempt to recover by breaking constraint 
-<NSLayoutConstraint:0x13a411720 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x13a28f480]-(2)-|   (active, names: '|':_UIButtonBarButton:0x139a2b700 )>
+<NSLayoutConstraint:0x118c13ac0 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x119a94e00]-(2)-|   (active, names: '|':_UIButtonBarButton:0x119be2800 )>
 
 Make a symbolic breakpoint at UIViewAlertForUnsatisfiableConstraints to catch this in the debugger.
 The methods in the UIConstraintBasedLayoutDebugging category on UIView listed in <UIKitCore/UIView.h> may also be helpful.
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-App became active
-Initialized VNDocumentCameraViewController (VisionKit document scanner)
-Scanner provides: edge detection, perspective correction, contrast enhancement
 Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
 Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
 Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
 Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
 Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Unable to simultaneously satisfy constraints.
-	Probably at least one of the constraints in the following list is one you don't want. 
-	Try this: 
-		(1) look at each constraint and try to figure out which you don't expect; 
-		(2) find the code that added the unwanted constraint or constraints and fix it. 
-	(Note: If you're seeing NSAutoresizingMaskLayoutConstraints that you don't understand, refer to the documentation for the UIView property translatesAutoresizingMaskIntoConstraints) 
-(
-    "<NSAutoresizingMaskLayoutConstraint:0x13a83ab20 h=--& v=--& _TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x13a873100.width == 0   (active)>",
-    "<NSLayoutConstraint:0x13a83a440 _TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x13a873100.leading == _UIButtonBarButton:0x139a2a580.leading   (active)>",
-    "<NSLayoutConstraint:0x13a83a490 H:[_UIButtonBarButton:0x139a2a580]-(0)-|   (active, names: '|':_TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x13a873100 )>",
-    "<NSLayoutConstraint:0x13a83a260 'IB_Leading_Leading' H:|-(2)-[_UIModernBarButton:0x13a6bce00]   (active, names: '|':_UIButtonBarButton:0x139a2a580 )>",
-    "<NSLayoutConstraint:0x13a83a2b0 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x13a6bce00]-(2)-|   (active, names: '|':_UIButtonBarButton:0x139a2a580 )>"
-)
-
-Will attempt to recover by breaking constraint 
-<NSLayoutConstraint:0x13a83a2b0 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x13a6bce00]-(2)-|   (active, names: '|':_UIButtonBarButton:0x139a2a580 )>
-
-Make a symbolic breakpoint at UIViewAlertForUnsatisfiableConstraints to catch this in the debugger.
-The methods in the UIConstraintBasedLayoutDebugging category on UIView listed in <UIKitCore/UIView.h> may also be helpful.
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/B84A7030-C057-4033-8E03-F0ECCD801614/Dueasy_v2.app/pl.lproj
-Unable to simultaneously satisfy constraints.
-	Probably at least one of the constraints in the following list is one you don't want. 
-	Try this: 
-		(1) look at each constraint and try to figure out which you don't expect; 
-		(2) find the code that added the unwanted constraint or constraints and fix it. 
-	(Note: If you're seeing NSAutoresizingMaskLayoutConstraints that you don't understand, refer to the documentation for the UIView property translatesAutoresizingMaskIntoConstraints) 
-(
-    "<NSAutoresizingMaskLayoutConstraint:0x13a8c5040 h=--& v=--& _TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x139947800.width == 0   (active)>",
-    "<NSLayoutConstraint:0x13a2d7a20 _TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x139947800.leading == _UIButtonBarButton:0x139a28a00.leading   (active)>",
-    "<NSLayoutConstraint:0x13a2d7840 H:[_UIButtonBarButton:0x139a28a00]-(0)-|   (active, names: '|':_TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x139947800 )>",
-    "<NSLayoutConstraint:0x13a2d75c0 'IB_Leading_Leading' H:|-(2)-[_UIModernBarButton:0x13a6bd500]   (active, names: '|':_UIButtonBarButton:0x139a28a00 )>",
-    "<NSLayoutConstraint:0x13a2d7660 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x13a6bd500]-(2)-|   (active, names: '|':_UIButtonBarButton:0x139a28a00 )>"
-)
-
-Will attempt to recover by breaking constraint 
-<NSLayoutConstraint:0x13a2d7660 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x13a6bd500]-(2)-|   (active, names: '|':_UIButtonBarButton:0x139a28a00 )>
-
-Make a symbolic breakpoint at UIViewAlertForUnsatisfiableConstraints to catch this in the debugger.
-The methods in the UIConstraintBasedLayoutDebugging category on UIView listed in <UIKitCore/UIView.h> may also be helpful.
-✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/B84A7030-C057-4033-8E03-F0ECCD801614/Dueasy_v2.app/pl.lproj
-UIColor created with component values far outside the expected range. Set a breakpoint on UIColorBreakForOutOfRangeColorComponents to debug. This message will only be logged once.
-✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/B84A7030-C057-4033-8E03-F0ECCD801614/Dueasy_v2.app/pl.lproj
-Document scan completed: 1 page(s) scanned
-Images are pre-processed by VisionKit for optimal OCR quality
-Created draft document without title - fingerprint will be set on finalize
-Storage create_directory: pages=0, success=true
-Storage save: pages=1, success=true
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-Processing 1 images for document 4EAF54B1-FFA6-4683-A4B2-BE1E0DD7BBBB
-📸 Image dimensions: 2125x3011, bitsPerComponent=8, colorSpace=kCGColorSpaceSRGB
-🔧 Processed image dimensions: 2125x3011
-Preprocessing applied: contrast, denoise, sharpen
-Starting 2-pass OCR: Standard + Sensitive passes
-OCR pass Standard configured: minTextHeight=0.012000
-👁️ Vision returned 74 observations for Standard pass
-OCR pass 'Standard': lines=74, avgConfidence=0.973
-OCR pass Sensitive configured: minTextHeight=0.007000
-👁️ Vision returned 74 observations for Sensitive pass
-OCR pass 'Sensitive': lines=74, avgConfidence=0.980
-Merging: Standard=74 lines, Sensitive=74 lines
-Merge complete: 72 duplicates removed, 2 new lines added, 76 total
-OCR completed: lines=76, avgConfidence=0.97, duration=0.00s
-OCR completed: 1330 chars, 76 lines, confidence: 0.974
-OCR line sources: standard=74, sensitive=2, merged=0
-OCR confidence: high=72, medium=0, low=4
-Starting hybrid analysis (local first, cloud assist if needed)
-Analysis started: type=invoice, textLength=1330, lines=76
-Analyzing layout for 76 lines
-Grouped into 22 rows
-Detected 4 columns
-Partitioned into 9 non-empty blocks
-Block bottomCenter: 4 lines
-Block bottomLeft: 3 lines
-Block bottomRight: 1 lines
-Block middleCenter: 18 lines
-Block middleLeft: 7 lines
-Block middleRight: 23 lines
-Block topCenter: 8 lines
-Block topLeft: 10 lines
-Block topRight: 2 lines
-Layout analysis: 22 rows, 4 columns
-Block topLeft: 10 lines
-Block topCenter: 8 lines
-Block topRight: 2 lines
-Block middleLeft: 7 lines
-Block middleCenter: 18 lines
-Block middleRight: 23 lines
-Block bottomLeft: 3 lines
-Block bottomCenter: 4 lines
-Block bottomRight: 1 lines
-Detected 28 anchors in 76 lines
-Anchor: vendorLabel conf=1.00 pattern='sprzedawca'
-Anchor: buyerLabel conf=1.00 pattern='nabywca'
-Anchor: nipLabel conf=1.00 pattern='nip'
-Anchor: nipLabel conf=1.00 pattern='nip'
-Anchor: invoiceNumberLabel conf=1.00 pattern='faktura vat'
-Detected 28 anchors, 9 types
-Found NIP anchor
-Found vendor anchor at Y=0.153
-Vendor accepted with company suffix: 'TOYOTA LEASING POLSKA Sp. z o.o.'
-Vendor block captured: name + 2 address lines
-Found amount anchor
-Amount extraction: found 18 candidates
-  Candidate 1: confidence=0.960, y=0.62, source=do-zaplaty: do zapłaty
-  Candidate 2: confidence=0.350, y=0.53, source=pattern: amount
-  Candidate 3: confidence=0.350, y=0.53, source=pattern: amount
-  Candidate 4: confidence=0.350, y=0.53, source=pattern: amount
-  Candidate 5: confidence=0.350, y=0.53, source=pattern: amount
-Score gap to 2nd place: 0.610
-Selected amount: confidence=0.960, source=do-zaplaty: do zapłaty
-Date ranking: 4 candidates, top score: 70.0
-Date extraction: found 4 candidates
-  Date candidate 1: confidence=0.47, source=date-ranking: old-past-date-penalty, near-due-date-anchor [yyyy-MM-dd]
-  Date candidate 2: confidence=0.27, source=date-ranking: old-past-date-penalty, close-to-anchor [yyyy-MM-dd]
-  Date candidate 3: confidence=0.15, source=date-ranking: old-past-date-penalty [yyyy-MM-dd]
-  Date candidate 4: confidence=0.15, source=date-ranking: top-section-penalty, too-far-future [yyyy/MM/dd]
-Found invoice number anchor
-Found bank account anchor
-Parsed numeric date '15.08.2025' with format 'dd.MM.yyyy'
-Parsed numeric date '15.08.2025' with format 'dd.MM.yyyy'
-Parsed numeric date '01.08.2025' with format 'dd.MM.yyyy'
-Parsed numeric date '01.08.2025' with format 'dd.MM.yyyy'
-Built candidates: vendor=3, nip=3, amount=3, date=3, docNum=2, bank=0
-Field extracted: type=vendor, method=anchor, confidence=1.00, candidates=3
-Parsing completed: fields=4/4, confidence=1.00
-Local analysis confidence: 0.94
-Low confidence (0.94), requesting cloud assist
-Skipping duplicate OCR processing - already processed or in progress
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Processing 1 images for document 4EAF54B1-FFA6-4683-A4B2-BE1E0DD7BBBB
-📸 Image dimensions: 2125x3011, bitsPerComponent=8, colorSpace=kCGColorSpaceSRGB
-🔧 Processed image dimensions: 2125x3011
-Preprocessing applied: contrast, denoise, sharpen
-Starting 2-pass OCR: Standard + Sensitive passes
-OCR pass Standard configured: minTextHeight=0.012000
-👁️ Vision returned 74 observations for Standard pass
-OCR pass 'Standard': lines=74, avgConfidence=0.973
-OCR pass Sensitive configured: minTextHeight=0.007000
-👁️ Vision returned 74 observations for Sensitive pass
-OCR pass 'Sensitive': lines=74, avgConfidence=0.980
-Merging: Standard=74 lines, Sensitive=74 lines
-Merge complete: 72 duplicates removed, 2 new lines added, 76 total
-OCR completed: lines=76, avgConfidence=0.97, duration=0.00s
-OCR completed: 1330 chars, 76 lines, confidence: 0.974
-OCR line sources: standard=74, sensitive=2, merged=0
-OCR confidence: high=72, medium=0, low=4
-Starting hybrid analysis (local first, cloud assist if needed)
-Analysis started: type=invoice, textLength=1330, lines=76
-Analyzing layout for 76 lines
-Grouped into 22 rows
-Detected 4 columns
-Partitioned into 9 non-empty blocks
-Block bottomCenter: 4 lines
-Block bottomLeft: 3 lines
-Block bottomRight: 1 lines
-Block middleCenter: 18 lines
-Block middleLeft: 7 lines
-Block middleRight: 23 lines
-Block topCenter: 8 lines
-Block topLeft: 10 lines
-Block topRight: 2 lines
-Layout analysis: 22 rows, 4 columns
-Block topLeft: 10 lines
-Block topCenter: 8 lines
-Block topRight: 2 lines
-Block middleLeft: 7 lines
-Block middleCenter: 18 lines
-Block middleRight: 23 lines
-Block bottomLeft: 3 lines
-Block bottomCenter: 4 lines
-Block bottomRight: 1 lines
-Detected 28 anchors in 76 lines
-Anchor: vendorLabel conf=1.00 pattern='sprzedawca'
-Anchor: buyerLabel conf=1.00 pattern='nabywca'
-Anchor: nipLabel conf=1.00 pattern='nip'
-Anchor: nipLabel conf=1.00 pattern='nip'
-Anchor: invoiceNumberLabel conf=1.00 pattern='faktura vat'
-Detected 28 anchors, 9 types
-Found NIP anchor
-Found vendor anchor at Y=0.153
-Vendor accepted with company suffix: 'TOYOTA LEASING POLSKA Sp. z o.o.'
-Vendor block captured: name + 2 address lines
-Found amount anchor
-Amount extraction: found 18 candidates
-  Candidate 1: confidence=0.960, y=0.62, source=do-zaplaty: do zapłaty
-  Candidate 2: confidence=0.350, y=0.53, source=pattern: amount
-  Candidate 3: confidence=0.350, y=0.53, source=pattern: amount
-  Candidate 4: confidence=0.350, y=0.53, source=pattern: amount
-  Candidate 5: confidence=0.350, y=0.53, source=pattern: amount
-Score gap to 2nd place: 0.610
-Selected amount: confidence=0.960, source=do-zaplaty: do zapłaty
-Date ranking: 4 candidates, top score: 70.0
-Date extraction: found 4 candidates
-  Date candidate 1: confidence=0.47, source=date-ranking: old-past-date-penalty, near-due-date-anchor [yyyy-MM-dd]
-  Date candidate 2: confidence=0.27, source=date-ranking: old-past-date-penalty, close-to-anchor [yyyy-MM-dd]
-  Date candidate 3: confidence=0.15, source=date-ranking: old-past-date-penalty [yyyy-MM-dd]
-  Date candidate 4: confidence=0.15, source=date-ranking: top-section-penalty, too-far-future [yyyy/MM/dd]
-Found invoice number anchor
-Found bank account anchor
-Parsed numeric date '15.08.2025' with format 'dd.MM.yyyy'
-Parsed numeric date '15.08.2025' with format 'dd.MM.yyyy'
-Parsed numeric date '01.08.2025' with format 'dd.MM.yyyy'
-Parsed numeric date '01.08.2025' with format 'dd.MM.yyyy'
-Built candidates: vendor=3, nip=3, amount=3, date=3, docNum=2, bank=0
-Field extracted: type=vendor, method=anchor, confidence=1.00, candidates=3
-Parsing completed: fields=4/4, confidence=1.00
-Local analysis confidence: 0.94
-Low confidence (0.94), requesting cloud assist
-App became active
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Processing 1 images for document 4EAF54B1-FFA6-4683-A4B2-BE1E0DD7BBBB
-📸 Image dimensions: 2125x3011, bitsPerComponent=8, colorSpace=kCGColorSpaceSRGB
-🔧 Processed image dimensions: 2125x3011
-Preprocessing applied: contrast, denoise, sharpen
-Starting 2-pass OCR: Standard + Sensitive passes
-OCR pass Standard configured: minTextHeight=0.012000
-👁️ Vision returned 74 observations for Standard pass
-OCR pass 'Standard': lines=74, avgConfidence=0.973
-OCR pass Sensitive configured: minTextHeight=0.007000
-👁️ Vision returned 74 observations for Sensitive pass
-OCR pass 'Sensitive': lines=74, avgConfidence=0.980
-Merging: Standard=74 lines, Sensitive=74 lines
-Merge complete: 72 duplicates removed, 2 new lines added, 76 total
-OCR completed: lines=76, avgConfidence=0.97, duration=0.00s
-OCR completed: 1330 chars, 76 lines, confidence: 0.974
-OCR line sources: standard=74, sensitive=2, merged=0
-OCR confidence: high=72, medium=0, low=4
-Starting hybrid analysis (local first, cloud assist if needed)
-Analysis started: type=invoice, textLength=1330, lines=76
-Analyzing layout for 76 lines
-Grouped into 22 rows
-Detected 4 columns
-Partitioned into 9 non-empty blocks
-Block bottomCenter: 4 lines
-Block bottomLeft: 3 lines
-Block bottomRight: 1 lines
-Block middleCenter: 18 lines
-Block middleLeft: 7 lines
-Block middleRight: 23 lines
-Block topCenter: 8 lines
-Block topLeft: 10 lines
-Block topRight: 2 lines
-Layout analysis: 22 rows, 4 columns
-Block topLeft: 10 lines
-Block topCenter: 8 lines
-Block topRight: 2 lines
-Block middleLeft: 7 lines
-Block middleCenter: 18 lines
-Block middleRight: 23 lines
-Block bottomLeft: 3 lines
-Block bottomCenter: 4 lines
-Block bottomRight: 1 lines
-Detected 28 anchors in 76 lines
-Anchor: vendorLabel conf=1.00 pattern='sprzedawca'
-Anchor: buyerLabel conf=1.00 pattern='nabywca'
-Anchor: nipLabel conf=1.00 pattern='nip'
-Anchor: nipLabel conf=1.00 pattern='nip'
-Anchor: invoiceNumberLabel conf=1.00 pattern='faktura vat'
-Detected 28 anchors, 9 types
-Found NIP anchor
-Found vendor anchor at Y=0.153
-Vendor accepted with company suffix: 'TOYOTA LEASING POLSKA Sp. z o.o.'
-Vendor block captured: name + 2 address lines
-Found amount anchor
-Amount extraction: found 18 candidates
-  Candidate 1: confidence=0.960, y=0.62, source=do-zaplaty: do zapłaty
-  Candidate 2: confidence=0.350, y=0.53, source=pattern: amount
-  Candidate 3: confidence=0.350, y=0.53, source=pattern: amount
-  Candidate 4: confidence=0.350, y=0.53, source=pattern: amount
-  Candidate 5: confidence=0.350, y=0.53, source=pattern: amount
-Score gap to 2nd place: 0.610
-Selected amount: confidence=0.960, source=do-zaplaty: do zapłaty
-Date ranking: 4 candidates, top score: 70.0
-Date extraction: found 4 candidates
-  Date candidate 1: confidence=0.47, source=date-ranking: old-past-date-penalty, near-due-date-anchor [yyyy-MM-dd]
-  Date candidate 2: confidence=0.27, source=date-ranking: old-past-date-penalty, close-to-anchor [yyyy-MM-dd]
-  Date candidate 3: confidence=0.15, source=date-ranking: old-past-date-penalty [yyyy-MM-dd]
-  Date candidate 4: confidence=0.15, source=date-ranking: top-section-penalty, too-far-future [yyyy/MM/dd]
-Found invoice number anchor
-Found bank account anchor
-Parsed numeric date '15.08.2025' with format 'dd.MM.yyyy'
-Parsed numeric date '15.08.2025' with format 'dd.MM.yyyy'
-Parsed numeric date '01.08.2025' with format 'dd.MM.yyyy'
-Parsed numeric date '01.08.2025' with format 'dd.MM.yyyy'
-Built candidates: vendor=3, nip=3, amount=3, date=3, docNum=2, bank=0
-Field extracted: type=vendor, method=anchor, confidence=1.00, candidates=3
-Parsing completed: fields=4/4, confidence=1.00
-Local analysis confidence: 0.94
-Low confidence (0.94), requesting cloud assist
-🏢 OpenAI vendor: name=TOYOTA LEASING POLSKA Sp. z o.o., address=Postepu 18B, 02-676 Warszawa, NIP=5213202664
-📅 OpenAI returned dueDate: 2025-08-15
-✅ Parsed dueDate successfully: 2025-08-15 00:00:00 +0000
-Cloud assist successful
-Analysis completed: vendor=true, amount=true, date=true, invoice#=true
-Applied vendor template for NIP: [NIP:***664]
-OCR/Parsing result: hasVendor=true, hasAmount=true, hasDueDate=true, confidence=0.962500
-Set vendor with confidence 0.950000, mode: suggested
-Set amount with confidence 1.000000, mode: suggested
-Found 2 suggested amounts
-Set dueDate with confidence 0.950000, mode: suggested
-Populating ViewModel fields: vendorCandidates=0, amountCandidates=0, dateCandidates=0, nipCandidates=0, docNumCandidates=0, bankCandidates=0
-🏢 OpenAI vendor: name=TOYOTA LEASING POLSKA Sp. z o.o., address=Postepu 18B, 02-676 Warszawa, NIP=5213202664
-📅 OpenAI returned dueDate: 2025-08-15
-✅ Parsed dueDate successfully: 2025-08-15 00:00:00 +0000
-Cloud assist successful
-Analysis completed: vendor=true, amount=true, date=true, invoice#=true
-Applied vendor template for NIP: [NIP:***664]
-OCR/Parsing result: hasVendor=true, hasAmount=true, hasDueDate=true, confidence=0.962500
-Set vendor with confidence 0.950000, mode: suggested
-Set amount with confidence 1.000000, mode: suggested
-Found 3 suggested amounts
-Set dueDate with confidence 0.950000, mode: suggested
-Populating ViewModel fields: vendorCandidates=0, amountCandidates=0, dateCandidates=0, nipCandidates=0, docNumCandidates=0, bankCandidates=0
-🏢 OpenAI vendor: name=TOYOTA LEASING POLSKA Sp. z o.o., address=Postepu 18B, 02-676 Warszawa, NIP=5213202664
-📅 OpenAI returned dueDate: 2025-08-15
-✅ Parsed dueDate successfully: 2025-08-15 00:00:00 +0000
-Cloud assist successful
-Analysis completed: vendor=true, amount=true, date=true, invoice#=true
-Applied vendor template for NIP: [NIP:***664]
-OCR/Parsing result: hasVendor=true, hasAmount=true, hasDueDate=true, confidence=0.973684
-Set vendor with confidence 1.000000, mode: suggested
-Set amount with confidence 1.000000, mode: suggested
-Found 3 suggested amounts
-Set dueDate with confidence 1.000000, mode: suggested
-Populating ViewModel fields: vendorCandidates=0, amountCandidates=0, dateCandidates=0, nipCandidates=0, docNumCandidates=0, bankCandidates=0
-<0x13826f5c0> Gesture: System gesture gate timed out.
-Saving document - hasVendor: true, hasAmount: true, hasDueDate: true
-Calling finalizeUseCase (amount and date hidden for privacy)
-Recording corrections for adaptive learning
-Correction learning completed
-Feedback recorded successfully for document 4EAF54B1-FFA6-4683-A4B2-BE1E0DD7BBBB
-Parsing feedback recorded (privacy-safe)
-Finalizing document: hasTitle=true, currency=PLN (amount/date hidden for privacy)
-Document fields updated - NIP: 5213202664, Address: true
-Generating fingerprint with NIP for vendor: TOYOTA LEASING POLSKA Sp. z o....
-Set vendor fingerprint: 99f75e7f4336aa61... for vendor (name hidden for privacy)
-Classified document as category: unknown, confidence: 0.00
-Attempting to create calendar event (skipCalendar=false)
-Calendar authorization status: hasWriteAccess=true
-Using dedicated Invoices calendar
-✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/B84A7030-C057-4033-8E03-F0ECCD801614/Dueasy_v2.app/pl.lproj
-Got/created Invoices calendar: 32C7FF42-D19D-416D-9C55-8975CEE891C8
-No existing calendar event, creating new one
-Creating calendar event: title='Invoice Due', dueDate=2025-08-15 00:00:00 +0000, calendarId=32C7FF42-D19D-416D-9C55-8975CEE891C8
-Calendar authorization status: fullAccess
-Found calendar by ID: Invoices
-Using calendar: Invoices (ID: 32C7FF42-D19D-416D-9C55-8975CEE891C8)
-Successfully created calendar event with ID: 66DC3666-2528-487D-91CC-56A30BF604FA:1A0E4C0C-9B80-449C-8EE5-8148F04304F4
-Calendar event created with ID: 66DC3666-2528-487D-91CC-56A30BF604FA:1A0E4C0C-9B80-449C-8EE5-8148F04304F4
-Saved learning data: amountCorrected=false, dueDateCorrected=false, vendorCorrected=false
-Privacy-safe learning data saved (no PII/financial data)
-Notification authorization: isAuthorized=true, enabled=true
-Cancelled 0 notifications for document: 4EAF54B1-FFA6-4683-A4B2-BE1E0DD7BBBB
-Updated 0 notification reminders (old ones cancelled)
-Document finalized and saved successfully
-Document marked as paid
-Document saved successfully
-Starting recurring payment auto-detection
-Running recurring detection analysis
-=== RECURRING DETECTION ANALYSIS START ===
-Finding vendors for analysis...
-Total documents with vendorFingerprint: 1
-Unique vendors found: 1
-Vendor 'TOYOTA LEASING POLSKA Sp. z o.o.' (fp: 99f75e7f4336aa61...): 1 docs
-Vendors with 2+ documents (eligible for analysis): 0
-Found 0 vendors with 2+ documents for analysis
-=== RECURRING DETECTION ANALYSIS COMPLETE ===
-Summary:
-  - Vendors analyzed: 0
-  - Candidates updated: 0
-  - Skipped (template exists): 0
-  - Skipped (no pattern): 0
-Detection updated 0 candidates
-Fetching suggestion candidates (threshold: 0.750000)
-📊 DIAGNOSTIC: Total candidates in database: 0
-Found 0 candidates meeting confidence threshold (>= 0.750000)
-After filtering: 0 candidates (filtered out 0)
-Found 0 candidates to suggest
-Auto-detection complete: found 0 suggestions
-App became active
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Initialized VNDocumentCameraViewController (VisionKit document scanner)
-Scanner provides: edge detection, perspective correction, contrast enhancement
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Unable to simultaneously satisfy constraints.
-	Probably at least one of the constraints in the following list is one you don't want. 
-	Try this: 
-		(1) look at each constraint and try to figure out which you don't expect; 
-		(2) find the code that added the unwanted constraint or constraints and fix it. 
-	(Note: If you're seeing NSAutoresizingMaskLayoutConstraints that you don't understand, refer to the documentation for the UIView property translatesAutoresizingMaskIntoConstraints) 
-(
-    "<NSAutoresizingMaskLayoutConstraint:0x1278200a0 h=--& v=--& _TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x14355f100.width == 0   (active)>",
-    "<NSLayoutConstraint:0x127820f50 _TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x14355f100.leading == _UIButtonBarButton:0x139a2af80.leading   (active)>",
-    "<NSLayoutConstraint:0x127821310 H:[_UIButtonBarButton:0x139a2af80]-(0)-|   (active, names: '|':_TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x14355f100 )>",
-    "<NSLayoutConstraint:0x1278213b0 'IB_Leading_Leading' H:|-(2)-[_UIModernBarButton:0x13aaa4e00]   (active, names: '|':_UIButtonBarButton:0x139a2af80 )>",
-    "<NSLayoutConstraint:0x127823a20 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x13aaa4e00]-(2)-|   (active, names: '|':_UIButtonBarButton:0x139a2af80 )>"
-)
-
-Will attempt to recover by breaking constraint 
-<NSLayoutConstraint:0x127823a20 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x13aaa4e00]-(2)-|   (active, names: '|':_UIButtonBarButton:0x139a2af80 )>
-
-Make a symbolic breakpoint at UIViewAlertForUnsatisfiableConstraints to catch this in the debugger.
-The methods in the UIConstraintBasedLayoutDebugging category on UIView listed in <UIKitCore/UIView.h> may also be helpful.
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/B84A7030-C057-4033-8E03-F0ECCD801614/Dueasy_v2.app/pl.lproj
-Unable to simultaneously satisfy constraints.
-	Probably at least one of the constraints in the following list is one you don't want. 
-	Try this: 
-		(1) look at each constraint and try to figure out which you don't expect; 
-		(2) find the code that added the unwanted constraint or constraints and fix it. 
-	(Note: If you're seeing NSAutoresizingMaskLayoutConstraints that you don't understand, refer to the documentation for the UIView property translatesAutoresizingMaskIntoConstraints) 
-(
-    "<NSAutoresizingMaskLayoutConstraint:0x13a2d7980 h=--& v=--& _TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x14359d500.width == 0   (active)>",
-    "<NSLayoutConstraint:0x13abd7cf0 _TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x14359d500.leading == _UIButtonBarButton:0x13a4de800.leading   (active)>",
-    "<NSLayoutConstraint:0x13abd57c0 H:[_UIButtonBarButton:0x13a4de800]-(0)-|   (active, names: '|':_TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x14359d500 )>",
-    "<NSLayoutConstraint:0x1435ab2f0 'IB_Leading_Leading' H:|-(2)-[_UIModernBarButton:0x13aaa5500]   (active, names: '|':_UIButtonBarButton:0x13a4de800 )>",
-    "<NSLayoutConstraint:0x1435a91d0 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x13aaa5500]-(2)-|   (active, names: '|':_UIButtonBarButton:0x13a4de800 )>"
-)
-
-Will attempt to recover by breaking constraint 
-<NSLayoutConstraint:0x1435a91d0 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x13aaa5500]-(2)-|   (active, names: '|':_UIButtonBarButton:0x13a4de800 )>
-
-Make a symbolic breakpoint at UIViewAlertForUnsatisfiableConstraints to catch this in the debugger.
-The methods in the UIConstraintBasedLayoutDebugging category on UIView listed in <UIKitCore/UIView.h> may also be helpful.
-✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/B84A7030-C057-4033-8E03-F0ECCD801614/Dueasy_v2.app/pl.lproj
-✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/B84A7030-C057-4033-8E03-F0ECCD801614/Dueasy_v2.app/pl.lproj
-Document scan completed: 1 page(s) scanned
-Images are pre-processed by VisionKit for optimal OCR quality
+59638328 Plugin query method called
+(501) Invalidation handler invoked, clearing connection
+(501) personaAttributesForPersonaType for type:0 failed with error Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.mobile.usermanagerd.xpc was invalidated: Connection init failed at lookup with error 159 - Sandbox restriction." UserInfo={NSDebugDescription=The connection to service named com.apple.mobile.usermanagerd.xpc was invalidated: Connection init failed at lookup with error 159 - Sandbox restriction.}
+LaunchServices: store (null) or url (null) was nil: Error Domain=NSOSStatusErrorDomain Code=-54 "process may not map database" UserInfo={_LSLine=72, _LSFunction=_LSServer_GetServerStoreForConnectionWithCompletionHandler, _LSFile=LSDReadService.mm, NSDebugDescription=process may not map database}
+Attempt to map database failed: permission was denied. This attempt will not be retried.
+Failed to initialize client context with error Error Domain=NSOSStatusErrorDomain Code=-54 "process may not map database" UserInfo={_LSLine=72, _LSFunction=_LSServer_GetServerStoreForConnectionWithCompletionHandler, _LSFile=LSDReadService.mm, NSDebugDescription=process may not map database}
 Created draft document without title - fingerprint will be set on finalize
 Storage save: pages=1, success=true
+✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/AF7F2E38-BD1D-458F-A8B5-B51237B2F058/Dueasy_v2.app/pl.lproj
 Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
 Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
 Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
 Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
 Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
-<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
-Processing 1 images for document 78802855-023D-4D9C-91A2-508BAE7B9AAC
-📸 Image dimensions: 2249x3316, bitsPerComponent=8, colorSpace=kCGColorSpaceSRGB
-Deskew applied: -0.90 degrees
-🔧 Processed image dimensions: 2302x3351
-Preprocessing applied: deskew(-0.90deg), contrast, denoise, sharpen
+Processing 1 images for document 901EAE93-6A68-4EA2-BE76-3E8E1FF9FB8D
+📸 Image dimensions: 1206x2622, bitsPerComponent=16, colorSpace=kCGColorSpaceDisplayP3
+Deskew applied: -10.98 degrees
+🔧 Processed image dimensions: 1684x2804
+Preprocessing applied: deskew(-10.98deg), contrast, denoise, sharpen
 Starting 2-pass OCR: Standard + Sensitive passes
 OCR pass Standard configured: minTextHeight=0.012000
-👁️ Vision returned 75 observations for Standard pass
-OCR pass 'Standard': lines=75, avgConfidence=0.973
+Locale not supported: pl
+👁️ Vision returned 63 observations for Standard pass
+OCR pass 'Standard': lines=63, avgConfidence=0.954
 OCR pass Sensitive configured: minTextHeight=0.007000
-👁️ Vision returned 76 observations for Sensitive pass
-OCR pass 'Sensitive': lines=76, avgConfidence=0.980
-Merging: Standard=75 lines, Sensitive=76 lines
-Merge complete: 69 duplicates removed, 7 new lines added, 82 total
-OCR completed: lines=82, avgConfidence=0.98, duration=0.00s
-OCR completed: 1391 chars, 82 lines, confidence: 0.976
-OCR line sources: standard=75, sensitive=7, merged=0
-OCR confidence: high=78, medium=0, low=4
+👁️ Vision returned 59 observations for Sensitive pass
+OCR pass 'Sensitive': lines=59, avgConfidence=0.917
+Merging: Standard=63 lines, Sensitive=59 lines
+Merge complete: 44 duplicates removed, 15 new lines added, 78 total
+OCR completed: lines=78, avgConfidence=0.91, duration=0.00s
+OCR completed: 2043 chars, 78 lines, confidence: 0.906
+OCR line sources: standard=63, sensitive=15, merged=0
+OCR confidence: high=65, medium=0, low=13
 Starting hybrid analysis (local first, cloud assist if needed)
-Analysis started: type=invoice, textLength=1391, lines=82
-Analyzing layout for 82 lines
+Analysis started: type=invoice, textLength=2043, lines=78
+Analyzing layout for 78 lines
 Grouped into 23 rows
 Detected 4 columns
 Partitioned into 9 non-empty blocks
-Block bottomCenter: 4 lines
-Block bottomLeft: 3 lines
-Block bottomRight: 1 lines
-Block middleCenter: 20 lines
-Block middleLeft: 10 lines
-Block middleRight: 24 lines
-Block topCenter: 7 lines
-Block topLeft: 11 lines
-Block topRight: 2 lines
+Block bottomCenter: 11 lines
+Block bottomLeft: 2 lines
+Block bottomRight: 2 lines
+Block middleCenter: 16 lines
+Block middleLeft: 18 lines
+Block middleRight: 15 lines
+Block topCenter: 10 lines
+Block topLeft: 3 lines
+Block topRight: 1 lines
 Layout analysis: 23 rows, 4 columns
-Block topLeft: 11 lines
-Block topCenter: 7 lines
-Block topRight: 2 lines
-Block middleLeft: 10 lines
-Block middleCenter: 20 lines
-Block middleRight: 24 lines
-Block bottomLeft: 3 lines
-Block bottomCenter: 4 lines
-Block bottomRight: 1 lines
-Detected 33 anchors in 82 lines
-Anchor: vendorLabel conf=1.00 pattern='sprzedawca'
-Anchor: buyerLabel conf=1.00 pattern='nabywca'
-Anchor: nipLabel conf=1.00 pattern='nip'
-Anchor: nipLabel conf=1.00 pattern='nip'
+Block topLeft: 3 lines
+Block topCenter: 10 lines
+Block topRight: 1 lines
+Block middleLeft: 18 lines
+Block middleCenter: 16 lines
+Block middleRight: 15 lines
+Block bottomLeft: 2 lines
+Block bottomCenter: 11 lines
+Block bottomRight: 2 lines
+Detected 30 anchors in 78 lines
 Anchor: invoiceNumberLabel conf=1.00 pattern='faktura vat'
-Detected 33 anchors, 9 types
+Anchor: vendorLabel conf=1.00 pattern='sprzedawca'
+Anchor: nipLabel conf=1.00 pattern='nip'
+Anchor: buyerLabel conf=1.00 pattern='nabywca'
+Anchor: amountLabel conf=1.00 pattern='do zapłaty'
+Detected 30 anchors, 9 types
 Found NIP anchor
-Found vendor anchor at Y=0.155
-Vendor block captured: name + 2 address lines
+Found vendor anchor at Y=0.342
+Vendor rejected: not enough letters 'NIP: 5272706082'
+Vendor block captured: name + 4 address lines
 Found amount anchor
 Amount extraction: found 17 candidates
-  Candidate 1: confidence=0.960, y=0.61, source=do-zaplaty: do zapłaty
-  Candidate 2: confidence=0.350, y=0.52, source=pattern: amount
-  Candidate 3: confidence=0.350, y=0.52, source=pattern: amount
-  Candidate 4: confidence=0.350, y=0.52, source=pattern: amount
-  Candidate 5: confidence=0.350, y=0.55, source=pattern: amount
-Score gap to 2nd place: 0.610
+  Candidate 1: confidence=0.960, y=0.46, source=do-zaplaty: do zapłaty
+  Candidate 2: confidence=0.880, y=0.49, source=pattern-do-zaplaty: amount
+  Candidate 3: confidence=0.880, y=0.71, source=pattern-do-zaplaty: amount
+  Candidate 4: confidence=0.880, y=0.71, source=pattern-do-zaplaty: amount
+  Candidate 5: confidence=0.350, y=0.43, source=pattern: amount
+Score gap to 2nd place: 0.080
+Low score gap - returning multiple amount candidates
 Selected amount: confidence=0.960, source=do-zaplaty: do zapłaty
-Date ranking: 4 candidates, top score: 70.0
-Date extraction: found 4 candidates
-  Date candidate 1: confidence=0.47, source=date-ranking: old-past-date-penalty, near-due-date-anchor [yyyy-MM-dd]
-  Date candidate 2: confidence=0.27, source=date-ranking: old-past-date-penalty, close-to-anchor [yyyy-MM-dd]
-  Date candidate 3: confidence=0.15, source=date-ranking: old-past-date-penalty [yyyy-MM-dd]
-  Date candidate 4: confidence=0.15, source=date-ranking: top-section-penalty, too-far-future [yyyy/MM/dd]
+Date ranking: 8 candidates, top score: 225.0
+Date extraction: found 5 candidates
+  Date candidate 1: confidence=0.95, source=date-ranking: due-date-keyword, recent-past-date, near-due-date-anchor, payment-context [dd.MM.yyyy]
+  Date candidate 2: confidence=0.95, source=date-ranking: due-date-keyword, bottom-section, recent-past-date, payment-context [dd.MM.yyyy]
+  Date candidate 3: confidence=0.67, source=date-ranking: recent-past-date, near-due-date-anchor [dd.MM.yyyy]
+  Date candidate 4: confidence=0.67, source=date-ranking: recent-past-date, near-due-date-anchor [dd.MM.yyyy]
+  Date candidate 5: confidence=0.63, source=date-ranking: bottom-section, recent-past-date, payment-context [dd.MM.yyyy]
 Found invoice number anchor
 Found bank account anchor
-Parsed numeric date '15.09.2025' with format 'dd.MM.yyyy'
-Parsed numeric date '15.09.2025' with format 'dd.MM.yyyy'
-Parsed numeric date '01.09.2025' with format 'dd.MM.yyyy'
-Parsed numeric date '01.09.2025' with format 'dd.MM.yyyy'
-Built candidates: vendor=3, nip=3, amount=3, date=3, docNum=2, bank=1
+Parsed numeric date '22.01.2026' with format 'dd.MM.yyyy'
+Parsed numeric date '22.01.2026' with format 'dd.MM.yyyy'
+Parsed numeric date '22.01.2026' with format 'dd.MM.yyyy'
+Parsed numeric date '22.01.2026' with format 'dd.MM.yyyy'
+Built candidates: vendor=3, nip=3, amount=3, date=3, docNum=3, bank=1
 Field extracted: type=vendor, method=anchor, confidence=0.95, candidates=3
 Parsing completed: fields=4/4, confidence=1.00
-Local analysis confidence: 0.93
-Low confidence (0.93), requesting cloud assist
-Skipping duplicate OCR processing - already processed or in progress
-🏢 OpenAI vendor: name=TOYOTA LEASING POLSKA Sp. z o.o., address=Postępu 18B, 02-676 Warszawa, NIP=5213202664
-📅 OpenAI returned dueDate: 2025-09-15
-✅ Parsed dueDate successfully: 2025-09-15 00:00:00 +0000
+Local analysis confidence: 0.97
+Low confidence (0.97), requesting cloud assist
+🏢 OpenAI vendor: name=PGNiG, address=null, NIP=5272706082
+📅 OpenAI returned dueDate: 2026-01-22
+✅ Parsed dueDate successfully: 2026-01-22 00:00:00 +0000
 Cloud assist successful
 Analysis completed: vendor=true, amount=true, date=true, invoice#=true
-Applied vendor template for NIP: [NIP:***664]
-OCR/Parsing result: hasVendor=true, hasAmount=true, hasDueDate=true, confidence=0.975610
+Applied vendor template for NIP: [NIP:***082]
+OCR/Parsing result: hasVendor=true, hasAmount=true, hasDueDate=true, confidence=0.906410
+Set vendor with confidence 0.950000, mode: suggested
+Set amount with confidence 0.950000, mode: suggested
+Found 1 suggested amounts
+Set dueDate with confidence 0.950000, mode: suggested
+Populating ViewModel fields: vendorCandidates=0, amountCandidates=0, dateCandidates=0, nipCandidates=0, docNumCandidates=0, bankCandidates=0
+Deleting document: 901EAE93-6A68-4EA2-BE76-3E8E1FF9FB8D
+Extracted values - calendarEventId: nil, fileURL: /var/mobile/Containers/Data/Application/6072B1E4-FDB6-4931-8DA8-8552CCB0D769/Documents/ScannedDocuments/832DE55A-1DAE-465E-83C6-FC6467660317
+Cancelled 0 notifications for document: 901EAE93-6A68-4EA2-BE76-3E8E1FF9FB8D
+Cancelled notifications for document
+Storage delete: pages=0, success=true
+Deleted document file: /var/mobile/Containers/Data/Application/6072B1E4-FDB6-4931-8DA8-8552CCB0D769/Documents/ScannedDocuments/832DE55A-1DAE-465E-83C6-FC6467660317
+Document 901EAE93-6A68-4EA2-BE76-3E8E1FF9FB8D deleted from SwiftData
+Document deleted successfully: 901EAE93-6A68-4EA2-BE76-3E8E1FF9FB8D
+MainTabView: Add document sheet dismissed, triggering refresh
+App entered background
+App became active
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Unable to simultaneously satisfy constraints.
+	Probably at least one of the constraints in the following list is one you don't want. 
+	Try this: 
+		(1) look at each constraint and try to figure out which you don't expect; 
+		(2) find the code that added the unwanted constraint or constraints and fix it. 
+	(Note: If you're seeing NSAutoresizingMaskLayoutConstraints that you don't understand, refer to the documentation for the UIView property translatesAutoresizingMaskIntoConstraints) 
+(
+    "<NSAutoresizingMaskLayoutConstraint:0x11945e5d0 h=--& v=--& _TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x119573d40.width == 0   (active)>",
+    "<NSLayoutConstraint:0x11978c0a0 _TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x119573d40.leading == _UIButtonBarButton:0x1195b4f00.leading   (active)>",
+    "<NSLayoutConstraint:0x11978ead0 H:[_UIButtonBarButton:0x1195b4f00]-(0)-|   (active, names: '|':_TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x119573d40 )>",
+    "<NSLayoutConstraint:0x11978df40 'IB_Leading_Leading' H:|-(2)-[_UIModernBarButton:0x126982680]   (active, names: '|':_UIButtonBarButton:0x1195b4f00 )>",
+    "<NSLayoutConstraint:0x11978def0 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x126982680]-(2)-|   (active, names: '|':_UIButtonBarButton:0x1195b4f00 )>"
+)
+
+Will attempt to recover by breaking constraint 
+<NSLayoutConstraint:0x11978def0 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x126982680]-(2)-|   (active, names: '|':_UIButtonBarButton:0x1195b4f00 )>
+
+Make a symbolic breakpoint at UIViewAlertForUnsatisfiableConstraints to catch this in the debugger.
+The methods in the UIConstraintBasedLayoutDebugging category on UIView listed in <UIKitCore/UIView.h> may also be helpful.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+LaunchServices: store (null) or url (null) was nil: Error Domain=NSOSStatusErrorDomain Code=-54 "process may not map database" UserInfo={_LSLine=72, _LSFunction=_LSServer_GetServerStoreForConnectionWithCompletionHandler, _LSFile=LSDReadService.mm, NSDebugDescription=process may not map database}
+Attempt to map database failed: permission was denied. This attempt will not be retried.
+Failed to initialize client context with error Error Domain=NSOSStatusErrorDomain Code=-54 "process may not map database" UserInfo={_LSLine=72, _LSFunction=_LSServer_GetServerStoreForConnectionWithCompletionHandler, _LSFile=LSDReadService.mm, NSDebugDescription=process may not map database}
+Created draft document without title - fingerprint will be set on finalize
+Storage save: pages=1, success=true
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Processing 1 images for document 50444EB3-7DDA-4C85-947A-9CA6FA72BD30
+📸 Image dimensions: 1206x1074, bitsPerComponent=8, colorSpace=kCGColorSpaceDisplayP3
+🔧 Processed image dimensions: 1206x1074
+Preprocessing applied: contrast, denoise, sharpen
+Starting 2-pass OCR: Standard + Sensitive passes
+OCR pass Standard configured: minTextHeight=0.012000
+👁️ Vision returned 51 observations for Standard pass
+OCR pass 'Standard': lines=51, avgConfidence=0.980
+OCR pass Sensitive configured: minTextHeight=0.007000
+👁️ Vision returned 51 observations for Sensitive pass
+OCR pass 'Sensitive': lines=51, avgConfidence=0.980
+Merging: Standard=51 lines, Sensitive=51 lines
+Merge complete: 51 duplicates removed, 0 new lines added, 51 total
+OCR completed: lines=51, avgConfidence=0.98, duration=0.00s
+OCR completed: 1220 chars, 51 lines, confidence: 0.980
+OCR line sources: standard=51, sensitive=0, merged=0
+OCR confidence: high=49, medium=0, low=2
+Starting hybrid analysis (local first, cloud assist if needed)
+Analysis started: type=invoice, textLength=1220, lines=51
+Analyzing layout for 51 lines
+Grouped into 23 rows
+Detected 4 columns
+Partitioned into 9 non-empty blocks
+Block bottomCenter: 3 lines
+Block bottomLeft: 5 lines
+Block bottomRight: 7 lines
+Block middleCenter: 5 lines
+Block middleLeft: 8 lines
+Block middleRight: 2 lines
+Block topCenter: 7 lines
+Block topLeft: 13 lines
+Block topRight: 1 lines
+Layout analysis: 23 rows, 4 columns
+Block topLeft: 13 lines
+Block topCenter: 7 lines
+Block topRight: 1 lines
+Block middleLeft: 8 lines
+Block middleCenter: 5 lines
+Block middleRight: 2 lines
+Block bottomLeft: 5 lines
+Block bottomCenter: 3 lines
+Block bottomRight: 7 lines
+Detected 19 anchors in 51 lines
+Anchor: invoiceNumberLabel conf=1.00 pattern='faktura vat'
+Anchor: vendorLabel conf=1.00 pattern='wystawca'
+Anchor: vendorLabel conf=1.00 pattern='sprzedawca'
+Anchor: nipLabel conf=1.00 pattern='nip'
+Anchor: buyerLabel conf=1.00 pattern='nabywca'
+Detected 19 anchors, 9 types
+Found NIP anchor
+Found vendor anchor at Y=0.164
+Vendor accepted with company suffix: 'PGNiG Obrót Detaliczny sp. z o.o.'
+Vendor block captured: name + 4 address lines
+Vendor accepted with company suffix: 'PGNiG Obrót Detaliczny sp. z o.o.'
+Found amount anchor
+Amount extraction: found 9 candidates
+  Candidate 1: confidence=0.960, y=0.63, source=do-zaplaty: do zapłaty
+  Candidate 2: confidence=0.880, y=0.67, source=pattern-do-zaplaty: amount
+  Candidate 3: confidence=0.450, y=0.71, source=region: bottomRight
+  Candidate 4: confidence=0.410, y=0.85, source=pattern: amount
+  Candidate 5: confidence=0.350, y=0.61, source=pattern: amount
+Score gap to 2nd place: 0.080
+Low score gap - returning multiple amount candidates
+Selected amount: confidence=0.960, source=do-zaplaty: do zapłaty
+Date ranking: 4 candidates, top score: 130.0
+Date extraction: found 4 candidates
+  Date candidate 1: confidence=0.87, source=date-ranking: bottom-section, recent-past-date, near-due-date-anchor [dd.MM.yyyy]
+  Date candidate 2: confidence=0.87, source=date-ranking: bottom-section, recent-past-date, near-due-date-anchor [dd.MM.yyyy]
+  Date candidate 3: confidence=0.15, source=date-ranking: top-section-penalty, recent-past-date [dd.MM.yyyy]
+  Date candidate 4: confidence=0.15, source=date-ranking: top-section-penalty, recent-past-date [dd.MM.yyyy]
+Found invoice number anchor
+Found bank account anchor
+Parsed numeric date '08.01.2026' with format 'dd.MM.yyyy'
+Parsed numeric date '08.01.2026' with format 'dd.MM.yyyy'
+Parsed numeric date '22.01.2026' with format 'dd.MM.yyyy'
+Parsed numeric date '08.01.2026' with format 'dd.MM.yyyy'
+Built candidates: vendor=3, nip=3, amount=3, date=3, docNum=3, bank=1
+Field extracted: type=vendor, method=anchor, confidence=1.00, candidates=3
+Parsing completed: fields=4/4, confidence=1.00
+Local analysis confidence: 0.98
+Low confidence (0.98), requesting cloud assist
+🏢 OpenAI vendor: name=PGNiG Obrót Detaliczny sp. z o.o., address=ul. Jana Kazimierza 3, 01-248 Warszawa, NIP=5272706082
+📅 OpenAI returned dueDate: 2026-01-22
+✅ Parsed dueDate successfully: 2026-01-22 00:00:00 +0000
+Cloud assist successful
+Analysis completed: vendor=true, amount=true, date=true, invoice#=true
+Applied vendor template for NIP: [NIP:***082]
+OCR/Parsing result: hasVendor=true, hasAmount=true, hasDueDate=true, confidence=0.980392
 Set vendor with confidence 1.000000, mode: suggested
 Set amount with confidence 1.000000, mode: suggested
-Found 3 suggested amounts
-Set dueDate with confidence 1.000000, mode: suggested
+Found 1 suggested amounts
+Set dueDate with confidence 0.950000, mode: suggested
 Populating ViewModel fields: vendorCandidates=0, amountCandidates=0, dateCandidates=0, nipCandidates=0, docNumCandidates=0, bankCandidates=0
+App entered background
+App became active
+App entered background
+App became active
+App entered background
+App became active
 Saving document - hasVendor: true, hasAmount: true, hasDueDate: true
 Calling finalizeUseCase (amount and date hidden for privacy)
 Recording corrections for adaptive learning
 Correction learning completed
-Feedback recorded successfully for document 78802855-023D-4D9C-91A2-508BAE7B9AAC
+Feedback recorded successfully for document 50444EB3-7DDA-4C85-947A-9CA6FA72BD30
 Parsing feedback recorded (privacy-safe)
 Finalizing document: hasTitle=true, currency=PLN (amount/date hidden for privacy)
-Document fields updated - NIP: 5213202664, Address: true
-Generating fingerprint with NIP for vendor: TOYOTA LEASING POLSKA Sp. z o....
-Set vendor fingerprint: 99f75e7f4336aa61... for vendor (name hidden for privacy)
-Classified document as category: unknown, confidence: 0.00
+Document fields updated - NIP: 5272706082, Address: true
+Generating fingerprint with NIP for vendor: PGNiG Obrót Detaliczny sp. z o...
+Set vendor fingerprint: b48350412890aa50... for vendor (name hidden for privacy)
+Classified document as category: retail, confidence: 0.30
 Attempting to create calendar event (skipCalendar=false)
 Calendar authorization status: hasWriteAccess=true
 Using dedicated Invoices calendar
-✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/B84A7030-C057-4033-8E03-F0ECCD801614/Dueasy_v2.app/pl.lproj
+✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/AF7F2E38-BD1D-458F-A8B5-B51237B2F058/Dueasy_v2.app/pl.lproj
 Got/created Invoices calendar: 32C7FF42-D19D-416D-9C55-8975CEE891C8
 No existing calendar event, creating new one
-Creating calendar event: title='Invoice Due', dueDate=2025-09-15 00:00:00 +0000, calendarId=32C7FF42-D19D-416D-9C55-8975CEE891C8
+Creating calendar event: title='Invoice Due', dueDate=2026-01-22 00:00:00 +0000, calendarId=32C7FF42-D19D-416D-9C55-8975CEE891C8
 Calendar authorization status: fullAccess
 Found calendar by ID: Invoices
 Using calendar: Invoices (ID: 32C7FF42-D19D-416D-9C55-8975CEE891C8)
-Successfully created calendar event with ID: 66DC3666-2528-487D-91CC-56A30BF604FA:FE7E53A2-81F2-4B39-B8B4-A582E0976D07
-Calendar event created with ID: 66DC3666-2528-487D-91CC-56A30BF604FA:FE7E53A2-81F2-4B39-B8B4-A582E0976D07
+Successfully created calendar event with ID: 66DC3666-2528-487D-91CC-56A30BF604FA:FA7617AB-BC75-4837-9EA3-DCA9D4290F50
+Calendar event created with ID: 66DC3666-2528-487D-91CC-56A30BF604FA:FA7617AB-BC75-4837-9EA3-DCA9D4290F50
 Saved learning data: amountCorrected=false, dueDateCorrected=false, vendorCorrected=false
 Privacy-safe learning data saved (no PII/financial data)
 Notification authorization: isAuthorized=true, enabled=true
-Cancelled 0 notifications for document: 78802855-023D-4D9C-91A2-508BAE7B9AAC
+Cancelled 0 notifications for document: 50444EB3-7DDA-4C85-947A-9CA6FA72BD30
 Updated 0 notification reminders (old ones cancelled)
 Document finalized and saved successfully
-Document marked as paid
 Document saved successfully
-📱 MainTabView: Add document sheet dismissed, triggering refresh
+MainTabView: Add document sheet dismissed, triggering refresh
+HomeViewModel.loadMetrics() called
+Computing Home metrics
+Home metrics computed: upcoming7=0, overdue=1, recurring=0
+Home metrics loaded successfully
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+🔵 LOAD_DOCUMENTS: Starting...
+🔵 LOAD_DOCUMENTS: Fetching documents from use case...
+🔵 LOAD_DOCUMENTS: Fetched 3 documents
+🔵 LOAD_DOCUMENTS: Counting documents by status...
+🔵 LOAD_DOCUMENTS: Status counts: [Dueasy_v2.DocumentStatus.draft: 0, Dueasy_v2.DocumentStatus.scheduled: 2, Dueasy_v2.DocumentStatus.paid: 1, Dueasy_v2.DocumentStatus.archived: 0]
+🔵 LOAD_DOCUMENTS: Running recurring detection...
 Starting recurring payment auto-detection
 Running recurring detection analysis
 === RECURRING DETECTION ANALYSIS START ===
 Finding vendors for analysis...
-Total documents with vendorFingerprint: 2
-Unique vendors found: 1
+Total documents with vendorFingerprint: 3
+Unique vendors found: 2
+Vendor 'PGNiG Obrót Detaliczny sp. z o.o.' (fp: b48350412890aa50...): 1 docs
 Vendor 'TOYOTA LEASING POLSKA Sp. z o.o.' (fp: 99f75e7f4336aa61...): 2 docs
 Vendors with 2+ documents (eligible for analysis): 1
 Found 1 vendors with 2+ documents for analysis
 Analyzing vendor: TOYOTA LEASING POLSKA Sp. z o.o. (fingerprint: 99f75e7f4336aa61...)
   - Document count: 2
-  - Due dates: ["15.08.2025", "15.09.2025"]
-  Statistics update for TOYOTA LEASING POLSKA Sp. z o.o.:
-    - First doc dueDate: Optional(2025-08-15 00:00:00 +0000)
-    - First doc createdAt: 2026-02-02 14:59:20 +0000
-    - Calculated firstDate: 2025-08-15 00:00:00 +0000
-    - Last doc dueDate: Optional(2025-09-15 00:00:00 +0000)
-    - Calculated lastDate: 2025-09-15 00:00:00 +0000
-      - Bucket calculation: dominantDay=15, inBucket=2/2, ratio=1.00
-    - Due date analysis:
-      - dueDays: [15, 15]
-      - dominantDay: 15
-      - dominantPercentage: 1.00
-      - stdDev: 0.00
-      - bucketStabilityRatio (+/-3d): 1.00
-    - IBAN analysis:
-      - ibans found: 2
-      - unique IBANs: 1
-      - hasStableIBAN: true
-    - Fallback fingerprint: NO (2/2 docs have NIP)
-    - Days since first: 171 (need >= 60 for eligibility)
-    - Day span: 31 days (from 2025-08-15 00:00:00 +0000 to 2025-09-15 00:00:00 +0000)
-    - Doc count: 2, Day span: 31 (need >= 3 docs AND >= 45 span)
-  Strong signal gate PASSED for unknown: IBAN=true, amount=true, keywords=false
-=== SCORE BREAKDOWN: TOYOTA LEASING POLSKA Sp. z o.o. ===
-  category: 0.050 (unknown, weight=0.5)
-  dueDate: 0.350 (bucketRatio=1.00, stdDev=0.0, dominantDay=15)
-  count: 0.050 (docs=2, span=31d)
-  amount: 0.150 (CoV=0.000)
-  iban: 0.150 (stable=true)
-  keywords: 0.000 (found=false)
-  -----------------------------------------
-  TOTAL: 0.750 (threshold: 0.750000)
-  DECISION: SUGGEST
-===============================================
-Analyzed vendor TOYOTA LEASING POLSKA Sp. z o.o.: confidence=0.750000, documents=2
-📊 DIAGNOSTIC After save:
-📊   - Confidence: 0.750000
-📊   - State: none
-📊   - ID: C705CB92-F892-49EF-8119-41193B931799
-📊   - Fingerprint: 99f75e7f4336aa61...
-  - Candidate created/updated:
-    - Confidence: 0.75
-    - Time eligible: true
-    - Dominant due day: 15
-    - Day span: 31 days (first: 2025-08-15 00:00:00 +0000, last: 2025-09-15 00:00:00 +0000)
-    - Suggestion state: none
-    - Category: unknown (hard-reject: false)
-    - Should show: true
-=== RECURRING DETECTION ANALYSIS COMPLETE ===
-Summary:
-  - Vendors analyzed: 1
-  - Candidates updated: 1
-  - Skipped (template exists): 0
-  - Skipped (no pattern): 0
-Detection updated 1 candidates
-Fetching suggestion candidates (threshold: 0.750000)
-📊 DIAGNOSTIC: Total candidates in database: 1
-📊   - TOYOTA LEASING POLSKA Sp. z o.o.
-📊     Confidence: 0.750000
-📊     State: none
-📊     Meets threshold? true
-📊     State OK? true
-Found 1 candidates meeting confidence threshold (>= 0.750000)
-Candidate: TOYOTA LEASING POLSKA Sp. z o.o.
-  - Confidence: 0.75
-  - State: none
-  - Day span: 31 days
-  - Time eligible: true
-After filtering: 1 candidates (filtered out 0)
-Found 1 candidates to suggest
-Auto-detection complete: found 1 suggestions
-  - TOYOTA LEASING POLSKA Sp. z o.o.: confidence=0.750000, docs=2
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-=== ACCEPT SUGGESTION START ===
-Vendor: TOYOTA LEASING POLSKA Sp. z o.o.
-Fingerprint: 99f75e7f4336aa613315a7a4887dc3a5a3060e76f2d2e3dcfc7c695f69511e09
-Document Count: 2
-Reminders: [7, 1, 0]
-Duration: 12 months
-STEP 1: Creating template from candidate...
-Accepting recurring candidate: TOYOTA LEASING POLSKA Sp. z o.o.
-Created recurring template from candidate for vendor: TOYOTA LEASING POLSKA Sp. z o.o.
-Template created: id=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9, vendorFingerprint=99f75e7f4336aa613315a7a4887dc3a5a3060e76f2d2e3dcfc7c695f69511e09
-STEP 2: Generating instances...
-Generated recurring instance for TOYOTA LEASING POLSKA Sp. z o.o.: 2026-02
-Generated recurring instance for TOYOTA LEASING POLSKA Sp. z o.o.: 2026-03
-Generated recurring instance for TOYOTA LEASING POLSKA Sp. z o.o.: 2026-04
-Generated recurring instance for TOYOTA LEASING POLSKA Sp. z o.o.: 2026-05
-Generated recurring instance for TOYOTA LEASING POLSKA Sp. z o.o.: 2026-06
-Generated recurring instance for TOYOTA LEASING POLSKA Sp. z o.o.: 2026-07
-Generated recurring instance for TOYOTA LEASING POLSKA Sp. z o.o.: 2026-08
-Generated recurring instance for TOYOTA LEASING POLSKA Sp. z o.o.: 2026-09
-Generated recurring instance for TOYOTA LEASING POLSKA Sp. z o.o.: 2026-10
-Generated recurring instance for TOYOTA LEASING POLSKA Sp. z o.o.: 2026-11
-Generated recurring instance for TOYOTA LEASING POLSKA Sp. z o.o.: 2026-12
-Generated recurring instance for TOYOTA LEASING POLSKA Sp. z o.o.: 2027-01
-Generated recurring instance for TOYOTA LEASING POLSKA Sp. z o.o.: 2027-02
-📅 Saved 13 recurring instances to SwiftData
-Scheduled notification: recurring_4FE7A598-C0C4-43CD-95E9-FB79759ABE7A_7 for year: 2026 month: 2 day: 8 hour: 9 minute: 0 isLeapMonth: false
-Scheduled notification: recurring_4FE7A598-C0C4-43CD-95E9-FB79759ABE7A_1 for year: 2026 month: 2 day: 14 hour: 9 minute: 0 isLeapMonth: false
-Scheduled notification: recurring_4FE7A598-C0C4-43CD-95E9-FB79759ABE7A_0 for year: 2026 month: 2 day: 15 hour: 9 minute: 0 isLeapMonth: false
-Scheduled 3 notifications for recurring instance: 2026-02
-Scheduled notification: recurring_874216CA-958F-4008-BEA8-371094B0A8CB_7 for year: 2026 month: 3 day: 8 hour: 9 minute: 0 isLeapMonth: false
-Scheduled notification: recurring_874216CA-958F-4008-BEA8-371094B0A8CB_1 for year: 2026 month: 3 day: 14 hour: 9 minute: 0 isLeapMonth: false
-Scheduled notification: recurring_874216CA-958F-4008-BEA8-371094B0A8CB_0 for year: 2026 month: 3 day: 15 hour: 9 minute: 0 isLeapMonth: false
-Scheduled 3 notifications for recurring instance: 2026-03
-Scheduled notification: recurring_30A0D815-E586-45D3-93AD-56D34367EFE1_7 for year: 2026 month: 4 day: 8 hour: 9 minute: 0 isLeapMonth: false
-Scheduled notification: recurring_30A0D815-E586-45D3-93AD-56D34367EFE1_1 for year: 2026 month: 4 day: 14 hour: 9 minute: 0 isLeapMonth: false
-Scheduled notification: recurring_30A0D815-E586-45D3-93AD-56D34367EFE1_0 for year: 2026 month: 4 day: 15 hour: 9 minute: 0 isLeapMonth: false
-Scheduled 3 notifications for recurring instance: 2026-04
-Scheduled notification: recurring_C2B02DFE-5018-4C95-8684-6ABB71955B9F_7 for year: 2026 month: 5 day: 8 hour: 9 minute: 0 isLeapMonth: false
-Scheduled notification: recurring_C2B02DFE-5018-4C95-8684-6ABB71955B9F_1 for year: 2026 month: 5 day: 14 hour: 9 minute: 0 isLeapMonth: false
-Scheduled notification: recurring_C2B02DFE-5018-4C95-8684-6ABB71955B9F_0 for year: 2026 month: 5 day: 15 hour: 9 minute: 0 isLeapMonth: false
-Scheduled 3 notifications for recurring instance: 2026-05
-Scheduled notification: recurring_7B3AAAD4-66AB-4990-89B4-AA96712619B1_7 for year: 2026 month: 6 day: 8 hour: 9 minute: 0 isLeapMonth: false
-Scheduled notification: recurring_7B3AAAD4-66AB-4990-89B4-AA96712619B1_1 for year: 2026 month: 6 day: 14 hour: 9 minute: 0 isLeapMonth: false
-Scheduled notification: recurring_7B3AAAD4-66AB-4990-89B4-AA96712619B1_0 for year: 2026 month: 6 day: 15 hour: 9 minute: 0 isLeapMonth: false
-Scheduled 3 notifications for recurring instance: 2026-06
-Scheduled notification: recurring_E0F0B26C-E8B2-4096-B892-485F96234C2B_7 for year: 2026 month: 7 day: 8 hour: 9 minute: 0 isLeapMonth: false
-Scheduled notification: recurring_E0F0B26C-E8B2-4096-B892-485F96234C2B_1 for year: 2026 month: 7 day: 14 hour: 9 minute: 0 isLeapMonth: false
-Scheduled notification: recurring_E0F0B26C-E8B2-4096-B892-485F96234C2B_0 for year: 2026 month: 7 day: 15 hour: 9 minute: 0 isLeapMonth: false
-Scheduled 3 notifications for recurring instance: 2026-07
-Scheduled notification: recurring_73AB7244-8891-4DDC-90EE-E911C69E1F16_7 for year: 2026 month: 8 day: 8 hour: 9 minute: 0 isLeapMonth: false
-Scheduled notification: recurring_73AB7244-8891-4DDC-90EE-E911C69E1F16_1 for year: 2026 month: 8 day: 14 hour: 9 minute: 0 isLeapMonth: false
-Scheduled notification: recurring_73AB7244-8891-4DDC-90EE-E911C69E1F16_0 for year: 2026 month: 8 day: 15 hour: 9 minute: 0 isLeapMonth: false
-Scheduled 3 notifications for recurring instance: 2026-08
-Scheduled notification: recurring_8612579E-DB8B-442C-8F9E-6F11DB840E15_7 for year: 2026 month: 9 day: 8 hour: 9 minute: 0 isLeapMonth: false
-Scheduled notification: recurring_8612579E-DB8B-442C-8F9E-6F11DB840E15_1 for year: 2026 month: 9 day: 14 hour: 9 minute: 0 isLeapMonth: false
-Scheduled notification: recurring_8612579E-DB8B-442C-8F9E-6F11DB840E15_0 for year: 2026 month: 9 day: 15 hour: 9 minute: 0 isLeapMonth: false
-Scheduled 3 notifications for recurring instance: 2026-09
-Scheduled notification: recurring_B5F82512-0F7A-436A-9D00-43BB6E47944A_7 for year: 2026 month: 10 day: 8 hour: 9 minute: 0 isLeapMonth: false
-Scheduled notification: recurring_B5F82512-0F7A-436A-9D00-43BB6E47944A_1 for year: 2026 month: 10 day: 14 hour: 9 minute: 0 isLeapMonth: false
-Scheduled notification: recurring_B5F82512-0F7A-436A-9D00-43BB6E47944A_0 for year: 2026 month: 10 day: 15 hour: 9 minute: 0 isLeapMonth: false
-Scheduled 3 notifications for recurring instance: 2026-10
-Scheduled notification: recurring_4F534F8A-6453-413D-A3A0-941367A97D64_7 for year: 2026 month: 11 day: 8 hour: 9 minute: 0 isLeapMonth: false
-Scheduled notification: recurring_4F534F8A-6453-413D-A3A0-941367A97D64_1 for year: 2026 month: 11 day: 14 hour: 9 minute: 0 isLeapMonth: false
-Scheduled notification: recurring_4F534F8A-6453-413D-A3A0-941367A97D64_0 for year: 2026 month: 11 day: 15 hour: 9 minute: 0 isLeapMonth: false
-Scheduled 3 notifications for recurring instance: 2026-11
-Scheduled notification: recurring_EBFF8CE3-F0C6-4351-A843-CA06DDC6E4E9_7 for year: 2026 month: 12 day: 8 hour: 9 minute: 0 isLeapMonth: false
-Scheduled notification: recurring_EBFF8CE3-F0C6-4351-A843-CA06DDC6E4E9_1 for year: 2026 month: 12 day: 14 hour: 9 minute: 0 isLeapMonth: false
-Scheduled notification: recurring_EBFF8CE3-F0C6-4351-A843-CA06DDC6E4E9_0 for year: 2026 month: 12 day: 15 hour: 9 minute: 0 isLeapMonth: false
-Scheduled 3 notifications for recurring instance: 2026-12
-Scheduled notification: recurring_99FB9DF5-0E5D-473D-B242-0E1709658825_7 for year: 2027 month: 1 day: 8 hour: 9 minute: 0 isLeapMonth: false
-Scheduled notification: recurring_99FB9DF5-0E5D-473D-B242-0E1709658825_1 for year: 2027 month: 1 day: 14 hour: 9 minute: 0 isLeapMonth: false
-Scheduled notification: recurring_99FB9DF5-0E5D-473D-B242-0E1709658825_0 for year: 2027 month: 1 day: 15 hour: 9 minute: 0 isLeapMonth: false
-Scheduled 3 notifications for recurring instance: 2027-01
-Scheduled notification: recurring_C04CF247-D54A-4B61-93BF-5DD7F0B18B46_7 for year: 2027 month: 2 day: 8 hour: 9 minute: 0 isLeapMonth: false
-Scheduled notification: recurring_C04CF247-D54A-4B61-93BF-5DD7F0B18B46_1 for year: 2027 month: 2 day: 14 hour: 9 minute: 0 isLeapMonth: false
-Scheduled notification: recurring_C04CF247-D54A-4B61-93BF-5DD7F0B18B46_0 for year: 2027 month: 2 day: 15 hour: 9 minute: 0 isLeapMonth: false
-Scheduled 3 notifications for recurring instance: 2027-02
-Generated 13 recurring instances
-STEP 3: Linking existing documents...
-LinkExistingDocumentsUseCase is available, executing...
-=== LINK EXISTING DOCUMENTS USE CASE ===
-Template: TOYOTA LEASING POLSKA Sp. z o.o. (ID: AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9)
-Vendor Fingerprint: 99f75e7f4336aa613315a7a4887dc3a5a3060e76f2d2e3dcfc7c695f69511e09
-Tolerance Days: 3
-SEARCHING for fingerprint: '99f75e7f4336aa613315a7a4887dc3a5a3060e76f2d2e3dcfc7c695f69511e09'
-Fingerprint length: 64
-Fingerprint first 32 chars: '99f75e7f4336aa613315a7a4887dc3a5'
-=== FETCH BY VENDOR FINGERPRINT ===
-Searching for fingerprint: '99f75e7f4336aa613315a7a4887dc3a5...'
-Full fingerprint length: 64
-Fetch returned 2 documents
-Found 2 documents for vendor fingerprint
-  Document[0]: id=4EAF54B1-FFA6-4683-A4B2-BE1E0DD7BBBB, title=TOYOTA LEASING POLSKA Sp. z o.o., dueDate=2025-08-15 00:00:00 +0000, recurringInstanceId=nil
-  Document[1]: id=78802855-023D-4D9C-91A2-508BAE7B9AAC, title=TOYOTA LEASING POLSKA Sp. z o.o., dueDate=2025-09-15 00:00:00 +0000, recurringInstanceId=nil
-Found 13 instances for template
-  Instance[0]: id=4FE7A598-C0C4-43CD-95E9-FB79759ABE7A, period=2026-02, expectedDue=2026-02-14 23:00:00 +0000, status=expected
-  Instance[1]: id=874216CA-958F-4008-BEA8-371094B0A8CB, period=2026-03, expectedDue=2026-03-14 23:00:00 +0000, status=expected
-  Instance[2]: id=30A0D815-E586-45D3-93AD-56D34367EFE1, period=2026-04, expectedDue=2026-04-14 22:00:00 +0000, status=expected
-  Instance[3]: id=C2B02DFE-5018-4C95-8684-6ABB71955B9F, period=2026-05, expectedDue=2026-05-14 22:00:00 +0000, status=expected
-  Instance[4]: id=7B3AAAD4-66AB-4990-89B4-AA96712619B1, period=2026-06, expectedDue=2026-06-14 22:00:00 +0000, status=expected
-  Instance[5]: id=E0F0B26C-E8B2-4096-B892-485F96234C2B, period=2026-07, expectedDue=2026-07-14 22:00:00 +0000, status=expected
-  Instance[6]: id=73AB7244-8891-4DDC-90EE-E911C69E1F16, period=2026-08, expectedDue=2026-08-14 22:00:00 +0000, status=expected
-  Instance[7]: id=8612579E-DB8B-442C-8F9E-6F11DB840E15, period=2026-09, expectedDue=2026-09-14 22:00:00 +0000, status=expected
-  Instance[8]: id=B5F82512-0F7A-436A-9D00-43BB6E47944A, period=2026-10, expectedDue=2026-10-14 22:00:00 +0000, status=expected
-  Instance[9]: id=4F534F8A-6453-413D-A3A0-941367A97D64, period=2026-11, expectedDue=2026-11-14 23:00:00 +0000, status=expected
-  Instance[10]: id=EBFF8CE3-F0C6-4351-A843-CA06DDC6E4E9, period=2026-12, expectedDue=2026-12-14 23:00:00 +0000, status=expected
-  Instance[11]: id=99FB9DF5-0E5D-473D-B242-0E1709658825, period=2027-01, expectedDue=2027-01-14 23:00:00 +0000, status=expected
-  Instance[12]: id=C04CF247-D54A-4B61-93BF-5DD7F0B18B46, period=2027-02, expectedDue=2027-02-14 23:00:00 +0000, status=expected
-PROCESSING: Document 4EAF54B1-FFA6-4683-A4B2-BE1E0DD7BBBB with due date 2025-08-15 00:00:00 +0000
-NO EXISTING INSTANCE: Creating historical instance for this document's period...
-Document period key: 2025-08
-No instance exists for period 2025-08 - creating historical instance via scheduler
-Creating historical instance for TOYOTA LEASING POLSKA Sp. z o.o.: 2025-08
-Created historical instance: C4F66C6B-BFA0-449A-A778-8C38D29FC7E2 for period 2025-08
-Created historical instance: C4F66C6B-BFA0-449A-A778-8C38D29FC7E2 for period 2025-08
-MATCH FOUND: Instance C4F66C6B-BFA0-449A-A778-8C38D29FC7E2 (expected: 2025-08-15 00:00:00 +0000)
-SET document.recurringInstanceId = C4F66C6B-BFA0-449A-A778-8C38D29FC7E2
-SET document.recurringTemplateId = AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-Instance C4F66C6B-BFA0-449A-A778-8C38D29FC7E2 status after matchDocument: matched
-Document was paid, marked instance as paid: paid
-LINKED: Document 4EAF54B1-FFA6-4683-A4B2-BE1E0DD7BBBB -> Instance C4F66C6B-BFA0-449A-A778-8C38D29FC7E2 (total linked: 1)
-PROCESSING: Document 78802855-023D-4D9C-91A2-508BAE7B9AAC with due date 2025-09-15 00:00:00 +0000
-NO EXISTING INSTANCE: Creating historical instance for this document's period...
-Document period key: 2025-09
-No instance exists for period 2025-09 - creating historical instance via scheduler
-Creating historical instance for TOYOTA LEASING POLSKA Sp. z o.o.: 2025-09
-Created historical instance: A7D50814-1E9C-4F90-A38D-6CCCF1B978E3 for period 2025-09
-Created historical instance: A7D50814-1E9C-4F90-A38D-6CCCF1B978E3 for period 2025-09
-MATCH FOUND: Instance A7D50814-1E9C-4F90-A38D-6CCCF1B978E3 (expected: 2025-09-15 00:00:00 +0000)
-SET document.recurringInstanceId = A7D50814-1E9C-4F90-A38D-6CCCF1B978E3
-SET document.recurringTemplateId = AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-Instance A7D50814-1E9C-4F90-A38D-6CCCF1B978E3 status after matchDocument: matched
-Document was paid, marked instance as paid: paid
-LINKED: Document 78802855-023D-4D9C-91A2-508BAE7B9AAC -> Instance A7D50814-1E9C-4F90-A38D-6CCCF1B978E3 (total linked: 2)
-SAVING: Persisting 2 linked documents to database...
-SAVE SUCCESS: All document linkages persisted
-VERIFY: Document 4EAF54B1-FFA6-4683-A4B2-BE1E0DD7BBBB - recurringInstanceId=C4F66C6B-BFA0-449A-A778-8C38D29FC7E2, recurringTemplateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-VERIFY: Document 78802855-023D-4D9C-91A2-508BAE7B9AAC - recurringInstanceId=A7D50814-1E9C-4F90-A38D-6CCCF1B978E3, recurringTemplateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-=== LINK COMPLETE: 2 documents linked to template ===
-LINK RESULT: 2 documents linked to template
-Removed candidate from suggestions
-STEP 4: Refreshing documents...
-Starting recurring payment auto-detection
-Running recurring detection analysis
-=== RECURRING DETECTION ANALYSIS START ===
-Finding vendors for analysis...
-Total documents with vendorFingerprint: 2
-Unique vendors found: 1
-Vendor 'TOYOTA LEASING POLSKA Sp. z o.o.' (fp: 99f75e7f4336aa61...): 2 docs
-Vendors with 2+ documents (eligible for analysis): 1
-Found 1 vendors with 2+ documents for analysis
-Analyzing vendor: TOYOTA LEASING POLSKA Sp. z o.o. (fingerprint: 99f75e7f4336aa61...)
-  - Document count: 2
-  - Due dates: ["15.08.2025", "15.09.2025"]
+  - Due dates: ["15.09.2025", "10.02.2026"]
   - SKIPPED: Template already exists
 === RECURRING DETECTION ANALYSIS COMPLETE ===
 Summary:
@@ -1304,639 +407,56 @@ Found 0 candidates meeting confidence threshold (>= 0.750000)
 After filtering: 0 candidates (filtered out 0)
 Found 0 candidates to suggest
 Auto-detection complete: found 0 suggestions
-Documents refreshed
-=== ACCEPT SUGGESTION COMPLETE ===
+🔵 LOAD_DOCUMENTS: Recurring detection complete
+🔵 LOAD_DOCUMENTS: Complete. Final document count: 3
+HomeViewModel.loadMetrics() called
+Computing Home metrics
+Home metrics computed: upcoming7=0, overdue=1, recurring=0
+Home metrics loaded successfully
 Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
 Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
 Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
 Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
 Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-📅 CalendarViewModel.loadDocuments() called for month: 2, year: 2026
-📅 Fetched 0 documents for calendar
-📅 Fetching recurring instances for period: 2026-02
-📅 DEBUG: Total recurring instances in database: 15
-📅 DEBUG: Instance periodKey=2026-11, id=4F534F8A-6453-413D-A3A0-941367A97D64, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-12, id=EBFF8CE3-F0C6-4351-A843-CA06DDC6E4E9, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-04, id=30A0D815-E586-45D3-93AD-56D34367EFE1, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-10, id=B5F82512-0F7A-436A-9D00-43BB6E47944A, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-07, id=E0F0B26C-E8B2-4096-B892-485F96234C2B, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-06, id=7B3AAAD4-66AB-4990-89B4-AA96712619B1, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-09, id=8612579E-DB8B-442C-8F9E-6F11DB840E15, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-08, id=73AB7244-8891-4DDC-90EE-E911C69E1F16, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-02, id=4FE7A598-C0C4-43CD-95E9-FB79759ABE7A, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2027-01, id=99FB9DF5-0E5D-473D-B242-0E1709658825, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-03, id=874216CA-958F-4008-BEA8-371094B0A8CB, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-05, id=C2B02DFE-5018-4C95-8684-6ABB71955B9F, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2027-02, id=C04CF247-D54A-4B61-93BF-5DD7F0B18B46, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2025-08, id=C4F66C6B-BFA0-449A-A778-8C38D29FC7E2, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2025-09, id=A7D50814-1E9C-4F90-A38D-6CCCF1B978E3, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Total recurring templates in database: 1
-📅 DEBUG: Template id=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9, vendor=TOYOTA LEASING POLSKA Sp. z o.o.
-📅 Found 1 recurring instances for period: 2026-02
-📅 Instance: 4FE7A598-C0C4-43CD-95E9-FB79759ABE7A, periodKey: 2026-02, status: expected, dueDate: 2026-02-14 23:00:00 +0000
-📅 Grouped recurring instances into 1 days
-📅 Fetching recurring instances for period: 2026-02
-📅 DEBUG: Total recurring instances in database: 15
-📅 DEBUG: Instance periodKey=2026-11, id=4F534F8A-6453-413D-A3A0-941367A97D64, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-12, id=EBFF8CE3-F0C6-4351-A843-CA06DDC6E4E9, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-04, id=30A0D815-E586-45D3-93AD-56D34367EFE1, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-10, id=B5F82512-0F7A-436A-9D00-43BB6E47944A, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-07, id=E0F0B26C-E8B2-4096-B892-485F96234C2B, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-06, id=7B3AAAD4-66AB-4990-89B4-AA96712619B1, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-09, id=8612579E-DB8B-442C-8F9E-6F11DB840E15, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-08, id=73AB7244-8891-4DDC-90EE-E911C69E1F16, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-02, id=4FE7A598-C0C4-43CD-95E9-FB79759ABE7A, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2027-01, id=99FB9DF5-0E5D-473D-B242-0E1709658825, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-03, id=874216CA-958F-4008-BEA8-371094B0A8CB, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-05, id=C2B02DFE-5018-4C95-8684-6ABB71955B9F, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2027-02, id=C04CF247-D54A-4B61-93BF-5DD7F0B18B46, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2025-08, id=C4F66C6B-BFA0-449A-A778-8C38D29FC7E2, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2025-09, id=A7D50814-1E9C-4F90-A38D-6CCCF1B978E3, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Total recurring templates in database: 1
-📅 DEBUG: Template id=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9, vendor=TOYOTA LEASING POLSKA Sp. z o.o.
-📅 Found 1 recurring instances for period: 2026-02
-📅 Instance: 4FE7A598-C0C4-43CD-95E9-FB79759ABE7A, periodKey: 2026-02, status: expected, dueDate: 2026-02-14 23:00:00 +0000
-📅 Grouped recurring instances into 1 days
-📅 Fetched 1 recurring instances for calendar
-📅 Recurring instances by day: Day 15: 1
-📅 CalendarViewModel.loadDocuments() called for month: 3, year: 2026
-📅 Fetched 0 documents for calendar
-📅 Fetching recurring instances for period: 2026-03
-📅 DEBUG: Total recurring instances in database: 15
-📅 DEBUG: Instance periodKey=2026-11, id=4F534F8A-6453-413D-A3A0-941367A97D64, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-12, id=EBFF8CE3-F0C6-4351-A843-CA06DDC6E4E9, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-04, id=30A0D815-E586-45D3-93AD-56D34367EFE1, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-10, id=B5F82512-0F7A-436A-9D00-43BB6E47944A, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-07, id=E0F0B26C-E8B2-4096-B892-485F96234C2B, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-06, id=7B3AAAD4-66AB-4990-89B4-AA96712619B1, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-09, id=8612579E-DB8B-442C-8F9E-6F11DB840E15, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-08, id=73AB7244-8891-4DDC-90EE-E911C69E1F16, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-02, id=4FE7A598-C0C4-43CD-95E9-FB79759ABE7A, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2027-01, id=99FB9DF5-0E5D-473D-B242-0E1709658825, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-03, id=874216CA-958F-4008-BEA8-371094B0A8CB, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-05, id=C2B02DFE-5018-4C95-8684-6ABB71955B9F, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2027-02, id=C04CF247-D54A-4B61-93BF-5DD7F0B18B46, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2025-08, id=C4F66C6B-BFA0-449A-A778-8C38D29FC7E2, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2025-09, id=A7D50814-1E9C-4F90-A38D-6CCCF1B978E3, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Total recurring templates in database: 1
-📅 DEBUG: Template id=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9, vendor=TOYOTA LEASING POLSKA Sp. z o.o.
-📅 Found 1 recurring instances for period: 2026-03
-📅 Instance: 874216CA-958F-4008-BEA8-371094B0A8CB, periodKey: 2026-03, status: expected, dueDate: 2026-03-14 23:00:00 +0000
-📅 Grouped recurring instances into 1 days
-📅 Fetching recurring instances for period: 2026-03
-📅 DEBUG: Total recurring instances in database: 15
-📅 DEBUG: Instance periodKey=2026-11, id=4F534F8A-6453-413D-A3A0-941367A97D64, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-12, id=EBFF8CE3-F0C6-4351-A843-CA06DDC6E4E9, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-04, id=30A0D815-E586-45D3-93AD-56D34367EFE1, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-10, id=B5F82512-0F7A-436A-9D00-43BB6E47944A, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-07, id=E0F0B26C-E8B2-4096-B892-485F96234C2B, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-06, id=7B3AAAD4-66AB-4990-89B4-AA96712619B1, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-09, id=8612579E-DB8B-442C-8F9E-6F11DB840E15, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-08, id=73AB7244-8891-4DDC-90EE-E911C69E1F16, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-02, id=4FE7A598-C0C4-43CD-95E9-FB79759ABE7A, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2027-01, id=99FB9DF5-0E5D-473D-B242-0E1709658825, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-03, id=874216CA-958F-4008-BEA8-371094B0A8CB, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-05, id=C2B02DFE-5018-4C95-8684-6ABB71955B9F, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2027-02, id=C04CF247-D54A-4B61-93BF-5DD7F0B18B46, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2025-08, id=C4F66C6B-BFA0-449A-A778-8C38D29FC7E2, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2025-09, id=A7D50814-1E9C-4F90-A38D-6CCCF1B978E3, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Total recurring templates in database: 1
-📅 DEBUG: Template id=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9, vendor=TOYOTA LEASING POLSKA Sp. z o.o.
-📅 Found 1 recurring instances for period: 2026-03
-📅 Instance: 874216CA-958F-4008-BEA8-371094B0A8CB, periodKey: 2026-03, status: expected, dueDate: 2026-03-14 23:00:00 +0000
-📅 Grouped recurring instances into 1 days
-📅 Fetched 1 recurring instances for calendar
-📅 Recurring instances by day: Day 15: 1
-📅 CalendarViewModel.loadDocuments() called for month: 4, year: 2026
-📅 Fetched 0 documents for calendar
-📅 Fetching recurring instances for period: 2026-04
-📅 DEBUG: Total recurring instances in database: 15
-📅 DEBUG: Instance periodKey=2026-11, id=4F534F8A-6453-413D-A3A0-941367A97D64, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-12, id=EBFF8CE3-F0C6-4351-A843-CA06DDC6E4E9, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-04, id=30A0D815-E586-45D3-93AD-56D34367EFE1, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-10, id=B5F82512-0F7A-436A-9D00-43BB6E47944A, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-07, id=E0F0B26C-E8B2-4096-B892-485F96234C2B, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-06, id=7B3AAAD4-66AB-4990-89B4-AA96712619B1, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-09, id=8612579E-DB8B-442C-8F9E-6F11DB840E15, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-08, id=73AB7244-8891-4DDC-90EE-E911C69E1F16, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-02, id=4FE7A598-C0C4-43CD-95E9-FB79759ABE7A, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2027-01, id=99FB9DF5-0E5D-473D-B242-0E1709658825, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-03, id=874216CA-958F-4008-BEA8-371094B0A8CB, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-05, id=C2B02DFE-5018-4C95-8684-6ABB71955B9F, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2027-02, id=C04CF247-D54A-4B61-93BF-5DD7F0B18B46, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2025-08, id=C4F66C6B-BFA0-449A-A778-8C38D29FC7E2, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2025-09, id=A7D50814-1E9C-4F90-A38D-6CCCF1B978E3, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Total recurring templates in database: 1
-📅 DEBUG: Template id=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9, vendor=TOYOTA LEASING POLSKA Sp. z o.o.
-📅 Found 1 recurring instances for period: 2026-04
-📅 Instance: 30A0D815-E586-45D3-93AD-56D34367EFE1, periodKey: 2026-04, status: expected, dueDate: 2026-04-14 22:00:00 +0000
-📅 Grouped recurring instances into 1 days
-📅 Fetching recurring instances for period: 2026-04
-📅 DEBUG: Total recurring instances in database: 15
-📅 DEBUG: Instance periodKey=2026-11, id=4F534F8A-6453-413D-A3A0-941367A97D64, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-12, id=EBFF8CE3-F0C6-4351-A843-CA06DDC6E4E9, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-04, id=30A0D815-E586-45D3-93AD-56D34367EFE1, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-10, id=B5F82512-0F7A-436A-9D00-43BB6E47944A, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-07, id=E0F0B26C-E8B2-4096-B892-485F96234C2B, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-06, id=7B3AAAD4-66AB-4990-89B4-AA96712619B1, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-09, id=8612579E-DB8B-442C-8F9E-6F11DB840E15, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-08, id=73AB7244-8891-4DDC-90EE-E911C69E1F16, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-02, id=4FE7A598-C0C4-43CD-95E9-FB79759ABE7A, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2027-01, id=99FB9DF5-0E5D-473D-B242-0E1709658825, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-03, id=874216CA-958F-4008-BEA8-371094B0A8CB, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-05, id=C2B02DFE-5018-4C95-8684-6ABB71955B9F, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2027-02, id=C04CF247-D54A-4B61-93BF-5DD7F0B18B46, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2025-08, id=C4F66C6B-BFA0-449A-A778-8C38D29FC7E2, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2025-09, id=A7D50814-1E9C-4F90-A38D-6CCCF1B978E3, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Total recurring templates in database: 1
-📅 DEBUG: Template id=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9, vendor=TOYOTA LEASING POLSKA Sp. z o.o.
-📅 Found 1 recurring instances for period: 2026-04
-📅 Instance: 30A0D815-E586-45D3-93AD-56D34367EFE1, periodKey: 2026-04, status: expected, dueDate: 2026-04-14 22:00:00 +0000
-📅 Grouped recurring instances into 1 days
-📅 Fetched 1 recurring instances for calendar
-📅 Recurring instances by day: Day 15: 1
-📅 CalendarViewModel.loadDocuments() called for month: 5, year: 2026
-📅 Fetched 0 documents for calendar
-📅 Fetching recurring instances for period: 2026-05
-📅 DEBUG: Total recurring instances in database: 15
-📅 DEBUG: Instance periodKey=2026-11, id=4F534F8A-6453-413D-A3A0-941367A97D64, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-12, id=EBFF8CE3-F0C6-4351-A843-CA06DDC6E4E9, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-04, id=30A0D815-E586-45D3-93AD-56D34367EFE1, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-10, id=B5F82512-0F7A-436A-9D00-43BB6E47944A, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-07, id=E0F0B26C-E8B2-4096-B892-485F96234C2B, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-06, id=7B3AAAD4-66AB-4990-89B4-AA96712619B1, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-09, id=8612579E-DB8B-442C-8F9E-6F11DB840E15, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-08, id=73AB7244-8891-4DDC-90EE-E911C69E1F16, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-02, id=4FE7A598-C0C4-43CD-95E9-FB79759ABE7A, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2027-01, id=99FB9DF5-0E5D-473D-B242-0E1709658825, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-03, id=874216CA-958F-4008-BEA8-371094B0A8CB, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-05, id=C2B02DFE-5018-4C95-8684-6ABB71955B9F, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2027-02, id=C04CF247-D54A-4B61-93BF-5DD7F0B18B46, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2025-08, id=C4F66C6B-BFA0-449A-A778-8C38D29FC7E2, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2025-09, id=A7D50814-1E9C-4F90-A38D-6CCCF1B978E3, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Total recurring templates in database: 1
-📅 DEBUG: Template id=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9, vendor=TOYOTA LEASING POLSKA Sp. z o.o.
-📅 Found 1 recurring instances for period: 2026-05
-📅 Instance: C2B02DFE-5018-4C95-8684-6ABB71955B9F, periodKey: 2026-05, status: expected, dueDate: 2026-05-14 22:00:00 +0000
-📅 Grouped recurring instances into 1 days
-📅 Fetching recurring instances for period: 2026-05
-📅 DEBUG: Total recurring instances in database: 15
-📅 DEBUG: Instance periodKey=2026-11, id=4F534F8A-6453-413D-A3A0-941367A97D64, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-12, id=EBFF8CE3-F0C6-4351-A843-CA06DDC6E4E9, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-04, id=30A0D815-E586-45D3-93AD-56D34367EFE1, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-10, id=B5F82512-0F7A-436A-9D00-43BB6E47944A, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-07, id=E0F0B26C-E8B2-4096-B892-485F96234C2B, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-06, id=7B3AAAD4-66AB-4990-89B4-AA96712619B1, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-09, id=8612579E-DB8B-442C-8F9E-6F11DB840E15, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-08, id=73AB7244-8891-4DDC-90EE-E911C69E1F16, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-02, id=4FE7A598-C0C4-43CD-95E9-FB79759ABE7A, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2027-01, id=99FB9DF5-0E5D-473D-B242-0E1709658825, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-03, id=874216CA-958F-4008-BEA8-371094B0A8CB, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2026-05, id=C2B02DFE-5018-4C95-8684-6ABB71955B9F, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2027-02, id=C04CF247-D54A-4B61-93BF-5DD7F0B18B46, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2025-08, id=C4F66C6B-BFA0-449A-A778-8C38D29FC7E2, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Instance periodKey=2025-09, id=A7D50814-1E9C-4F90-A38D-6CCCF1B978E3, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Total recurring templates in database: 1
-📅 DEBUG: Template id=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9, vendor=TOYOTA LEASING POLSKA Sp. z o.o.
-📅 Found 1 recurring instances for period: 2026-05
-📅 Instance: C2B02DFE-5018-4C95-8684-6ABB71955B9F, periodKey: 2026-05, status: expected, dueDate: 2026-05-14 22:00:00 +0000
-📅 Grouped recurring instances into 1 days
-📅 Fetched 1 recurring instances for calendar
-📅 Recurring instances by day: Day 15: 1
-Starting recurring payment auto-detection
-Running recurring detection analysis
-=== RECURRING DETECTION ANALYSIS START ===
-Finding vendors for analysis...
-Total documents with vendorFingerprint: 2
-Unique vendors found: 1
-Vendor 'TOYOTA LEASING POLSKA Sp. z o.o.' (fp: 99f75e7f4336aa61...): 2 docs
-Vendors with 2+ documents (eligible for analysis): 1
-Found 1 vendors with 2+ documents for analysis
-Analyzing vendor: TOYOTA LEASING POLSKA Sp. z o.o. (fingerprint: 99f75e7f4336aa61...)
-  - Document count: 2
-  - Due dates: ["15.08.2025", "15.09.2025"]
-  - SKIPPED: Template already exists
-=== RECURRING DETECTION ANALYSIS COMPLETE ===
-Summary:
-  - Vendors analyzed: 1
-  - Candidates updated: 0
-  - Skipped (template exists): 1
-  - Skipped (no pattern): 0
-Detection updated 0 candidates
-Fetching suggestion candidates (threshold: 0.750000)
-📊 DIAGNOSTIC: Total candidates in database: 1
-📊   - TOYOTA LEASING POLSKA Sp. z o.o.
-📊     Confidence: 0.750000
-📊     State: accepted
-📊     Meets threshold? true
-📊     State OK? false
-Found 0 candidates meeting confidence threshold (>= 0.750000)
-After filtering: 0 candidates (filtered out 0)
-Found 0 candidates to suggest
-Auto-detection complete: found 0 suggestions
-Starting recurring payment auto-detection
-Running recurring detection analysis
-=== RECURRING DETECTION ANALYSIS START ===
-Finding vendors for analysis...
-Total documents with vendorFingerprint: 2
-Unique vendors found: 1
-Vendor 'TOYOTA LEASING POLSKA Sp. z o.o.' (fp: 99f75e7f4336aa61...): 2 docs
-Vendors with 2+ documents (eligible for analysis): 1
-Found 1 vendors with 2+ documents for analysis
-Analyzing vendor: TOYOTA LEASING POLSKA Sp. z o.o. (fingerprint: 99f75e7f4336aa61...)
-  - Document count: 2
-  - Due dates: ["15.08.2025", "15.09.2025"]
-  - SKIPPED: Template already exists
-=== RECURRING DETECTION ANALYSIS COMPLETE ===
-Summary:
-  - Vendors analyzed: 1
-  - Candidates updated: 0
-  - Skipped (template exists): 1
-  - Skipped (no pattern): 0
-Detection updated 0 candidates
-Fetching suggestion candidates (threshold: 0.750000)
-📊 DIAGNOSTIC: Total candidates in database: 1
-📊   - TOYOTA LEASING POLSKA Sp. z o.o.
-📊     Confidence: 0.750000
-📊     State: accepted
-📊     Meets threshold? true
-📊     State OK? false
-Found 0 candidates meeting confidence threshold (>= 0.750000)
-After filtering: 0 candidates (filtered out 0)
-Found 0 candidates to suggest
-Auto-detection complete: found 0 suggestions
-📱 DocumentRow tapped: 78802855-023D-4D9C-91A2-508BAE7B9AAC - TOYOTA LEASING POLSKA Sp. z o.o.
-Appending document ID to navigation path: 78802855-023D-4D9C-91A2-508BAE7B9AAC
-NavigationDestination triggered for document ID: 78802855-023D-4D9C-91A2-508BAE7B9AAC
-DocumentDetailViewWrapper created for ID: 78802855-023D-4D9C-91A2-508BAE7B9AAC
-📋 DocumentDetailViewModel.loadDocument() called for ID: 78802855-023D-4D9C-91A2-508BAE7B9AAC
-📋 Document fetched successfully: true
-📋 Document details - Title: TOYOTA LEASING POLSKA Sp. z o.o., NIP: 5213202664
-=== DELETE DOCUMENT - STEP 1 ===
-Document ID: 4EAF54B1-FFA6-4683-A4B2-BE1E0DD7BBBB
-Document Title: TOYOTA LEASING POLSKA Sp. z o.o.
-Showing initial delete confirmation alert
-=== DELETE DOCUMENT - STEP 2 ===
-Document ID: 4EAF54B1-FFA6-4683-A4B2-BE1E0DD7BBBB
-FETCH_FRESH: Getting fresh document from database before checking recurring status...
-FETCH_FRESH: Re-fetching document 4EAF54B1-FFA6-4683-A4B2-BE1E0DD7BBBB from database
-FETCH_FRESH: Got document 4EAF54B1-FFA6-4683-A4B2-BE1E0DD7BBBB - instanceId=C4F66C6B-BFA0-449A-A778-8C38D29FC7E2, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-FETCH_FRESH: Got fresh document data
-recurringInstanceId: C4F66C6B-BFA0-449A-A778-8C38D29FC7E2
-recurringTemplateId: AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-isLinkedToRecurring: true
-DECISION: Document IS linked to recurring - showing options sheet
-No symbol named 'doc.badge.minus' found in system symbol set
+✅ Localization: Loaded bundle for language 'pl' from path: /private/var/containers/Bundle/Application/AF7F2E38-BD1D-458F-A8B5-B51237B2F058/Dueasy_v2.app/pl.lproj
+Initialized VNDocumentCameraViewController (VisionKit document scanner)
+Scanner provides: edge detection, perspective correction, contrast enhancement
 Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
 Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
 Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
 Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
 Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
-No symbol named 'doc.badge.minus' found in system symbol set
-No symbol named 'doc.badge.minus' found in system symbol set
-Unlinking document 4EAF54B1-FFA6-4683-A4B2-BE1E0DD7BBBB from recurring instance C4F66C6B-BFA0-449A-A778-8C38D29FC7E2
-Scheduled 0 notifications for recurring instance: 2025-08
-Successfully unlinked document from recurring instance C4F66C6B-BFA0-449A-A778-8C38D29FC7E2
-Deactivating recurring template: AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-Updated recurring template: TOYOTA LEASING POLSKA Sp. z o.o.
-Cancelled 3 notifications
-Deleted recurring instance: 2026-11
-Cancelled 3 notifications
-Deleted recurring instance: 2026-12
-Cancelled 3 notifications
-Deleted recurring instance: 2026-04
-Cancelled 3 notifications
-Deleted recurring instance: 2026-10
-Cancelled 3 notifications
-Deleted recurring instance: 2026-07
-Cancelled 3 notifications
-Deleted recurring instance: 2026-06
-Cancelled 3 notifications
-Deleted recurring instance: 2026-09
-Cancelled 3 notifications
-Deleted recurring instance: 2026-08
-Cancelled 3 notifications
-Deleted recurring instance: 2026-02
-Cancelled 3 notifications
-Deleted recurring instance: 2027-01
-Cancelled 3 notifications
-Deleted recurring instance: 2026-03
-Cancelled 3 notifications
-Deleted recurring instance: 2026-05
-Cancelled 3 notifications
-Deleted recurring instance: 2027-02
-Deleted recurring instance: 2025-08
-Deactivated template and DELETED 14 future instances from database (including calendar events)
-Starting recurring payment auto-detection
-Running recurring detection analysis
-=== RECURRING DETECTION ANALYSIS START ===
-Finding vendors for analysis...
-Total documents with vendorFingerprint: 2
-Unique vendors found: 1
-Vendor 'TOYOTA LEASING POLSKA Sp. z o.o.' (fp: 99f75e7f4336aa61...): 2 docs
-Vendors with 2+ documents (eligible for analysis): 1
-Found 1 vendors with 2+ documents for analysis
-Analyzing vendor: TOYOTA LEASING POLSKA Sp. z o.o. (fingerprint: 99f75e7f4336aa61...)
-  - Document count: 2
-  - Due dates: ["15.08.2025", "15.09.2025"]
-  - SKIPPED: Template already exists
-=== RECURRING DETECTION ANALYSIS COMPLETE ===
-Summary:
-  - Vendors analyzed: 1
-  - Candidates updated: 0
-  - Skipped (template exists): 1
-  - Skipped (no pattern): 0
-Detection updated 0 candidates
-Fetching suggestion candidates (threshold: 0.750000)
-📊 DIAGNOSTIC: Total candidates in database: 1
-📊   - TOYOTA LEASING POLSKA Sp. z o.o.
-📊     Confidence: 0.750000
-📊     State: accepted
-📊     Meets threshold? true
-📊     State OK? false
-Found 0 candidates meeting confidence threshold (>= 0.750000)
-After filtering: 0 candidates (filtered out 0)
-Found 0 candidates to suggest
-Auto-detection complete: found 0 suggestions
-Starting recurring payment auto-detection
-Running recurring detection analysis
-=== RECURRING DETECTION ANALYSIS START ===
-Finding vendors for analysis...
-Total documents with vendorFingerprint: 2
-Unique vendors found: 1
-Vendor 'TOYOTA LEASING POLSKA Sp. z o.o.' (fp: 99f75e7f4336aa61...): 2 docs
-Vendors with 2+ documents (eligible for analysis): 1
-Found 1 vendors with 2+ documents for analysis
-Analyzing vendor: TOYOTA LEASING POLSKA Sp. z o.o. (fingerprint: 99f75e7f4336aa61...)
-  - Document count: 2
-  - Due dates: ["15.08.2025", "15.09.2025"]
-  - SKIPPED: Template already exists
-=== RECURRING DETECTION ANALYSIS COMPLETE ===
-Summary:
-  - Vendors analyzed: 1
-  - Candidates updated: 0
-  - Skipped (template exists): 1
-  - Skipped (no pattern): 0
-Detection updated 0 candidates
-Fetching suggestion candidates (threshold: 0.750000)
-📊 DIAGNOSTIC: Total candidates in database: 1
-📊   - TOYOTA LEASING POLSKA Sp. z o.o.
-📊     Confidence: 0.750000
-📊     State: accepted
-📊     Meets threshold? true
-📊     State OK? false
-Found 0 candidates meeting confidence threshold (>= 0.750000)
-After filtering: 0 candidates (filtered out 0)
-Found 0 candidates to suggest
-Auto-detection complete: found 0 suggestions
-📅 CalendarViewModel.loadDocuments() called for month: 5, year: 2026
-📅 Fetched 0 documents for calendar
-📅 Fetching recurring instances for period: 2026-05
-📅 DEBUG: Total recurring instances in database: 1
-📅 DEBUG: Instance periodKey=2025-09, id=A7D50814-1E9C-4F90-A38D-6CCCF1B978E3, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Total recurring templates in database: 1
-📅 DEBUG: Template id=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9, vendor=TOYOTA LEASING POLSKA Sp. z o.o.
-📅 Found 0 recurring instances for period: 2026-05
-📅 Grouped recurring instances into 0 days
-📅 Fetching recurring instances for period: 2026-05
-📅 DEBUG: Total recurring instances in database: 1
-📅 DEBUG: Instance periodKey=2025-09, id=A7D50814-1E9C-4F90-A38D-6CCCF1B978E3, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Total recurring templates in database: 1
-📅 DEBUG: Template id=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9, vendor=TOYOTA LEASING POLSKA Sp. z o.o.
-📅 Found 0 recurring instances for period: 2026-05
-📅 Grouped recurring instances into 0 days
-📅 Fetched 0 recurring instances for calendar
-📅 Recurring instances by day:
-📅 CalendarViewModel.loadDocuments() called for month: 4, year: 2026
-📅 Fetched 0 documents for calendar
-📅 Fetching recurring instances for period: 2026-04
-📅 DEBUG: Total recurring instances in database: 1
-📅 DEBUG: Instance periodKey=2025-09, id=A7D50814-1E9C-4F90-A38D-6CCCF1B978E3, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Total recurring templates in database: 1
-📅 DEBUG: Template id=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9, vendor=TOYOTA LEASING POLSKA Sp. z o.o.
-📅 Found 0 recurring instances for period: 2026-04
-📅 Grouped recurring instances into 0 days
-📅 Fetching recurring instances for period: 2026-04
-📅 DEBUG: Total recurring instances in database: 1
-📅 DEBUG: Instance periodKey=2025-09, id=A7D50814-1E9C-4F90-A38D-6CCCF1B978E3, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Total recurring templates in database: 1
-📅 DEBUG: Template id=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9, vendor=TOYOTA LEASING POLSKA Sp. z o.o.
-📅 Found 0 recurring instances for period: 2026-04
-📅 Grouped recurring instances into 0 days
-📅 Fetched 0 recurring instances for calendar
-📅 Recurring instances by day:
-📅 CalendarViewModel.loadDocuments() called for month: 3, year: 2026
-📅 Fetched 0 documents for calendar
-📅 Fetching recurring instances for period: 2026-03
-📅 DEBUG: Total recurring instances in database: 1
-📅 DEBUG: Instance periodKey=2025-09, id=A7D50814-1E9C-4F90-A38D-6CCCF1B978E3, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Total recurring templates in database: 1
-📅 DEBUG: Template id=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9, vendor=TOYOTA LEASING POLSKA Sp. z o.o.
-📅 Found 0 recurring instances for period: 2026-03
-📅 Grouped recurring instances into 0 days
-📅 Fetching recurring instances for period: 2026-03
-📅 DEBUG: Total recurring instances in database: 1
-📅 DEBUG: Instance periodKey=2025-09, id=A7D50814-1E9C-4F90-A38D-6CCCF1B978E3, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Total recurring templates in database: 1
-📅 DEBUG: Template id=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9, vendor=TOYOTA LEASING POLSKA Sp. z o.o.
-📅 Found 0 recurring instances for period: 2026-03
-📅 Grouped recurring instances into 0 days
-📅 Fetched 0 recurring instances for calendar
-📅 Recurring instances by day:
-📅 CalendarViewModel.loadDocuments() called for month: 2, year: 2026
-📅 Fetched 0 documents for calendar
-📅 Fetching recurring instances for period: 2026-02
-📅 DEBUG: Total recurring instances in database: 1
-📅 DEBUG: Instance periodKey=2025-09, id=A7D50814-1E9C-4F90-A38D-6CCCF1B978E3, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Total recurring templates in database: 1
-📅 DEBUG: Template id=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9, vendor=TOYOTA LEASING POLSKA Sp. z o.o.
-📅 Found 0 recurring instances for period: 2026-02
-📅 Grouped recurring instances into 0 days
-📅 Fetching recurring instances for period: 2026-02
-📅 DEBUG: Total recurring instances in database: 1
-📅 DEBUG: Instance periodKey=2025-09, id=A7D50814-1E9C-4F90-A38D-6CCCF1B978E3, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Total recurring templates in database: 1
-📅 DEBUG: Template id=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9, vendor=TOYOTA LEASING POLSKA Sp. z o.o.
-📅 Found 0 recurring instances for period: 2026-02
-📅 Grouped recurring instances into 0 days
-📅 Fetched 0 recurring instances for calendar
-📅 Recurring instances by day:
-📅 CalendarViewModel.loadDocuments() called for month: 1, year: 2026
-📅 Fetched 0 documents for calendar
-📅 Fetching recurring instances for period: 2026-01
-📅 DEBUG: Total recurring instances in database: 1
-📅 DEBUG: Instance periodKey=2025-09, id=A7D50814-1E9C-4F90-A38D-6CCCF1B978E3, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Total recurring templates in database: 1
-📅 DEBUG: Template id=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9, vendor=TOYOTA LEASING POLSKA Sp. z o.o.
-📅 Found 0 recurring instances for period: 2026-01
-📅 Grouped recurring instances into 0 days
-📅 Fetching recurring instances for period: 2026-01
-📅 DEBUG: Total recurring instances in database: 1
-📅 DEBUG: Instance periodKey=2025-09, id=A7D50814-1E9C-4F90-A38D-6CCCF1B978E3, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Total recurring templates in database: 1
-📅 DEBUG: Template id=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9, vendor=TOYOTA LEASING POLSKA Sp. z o.o.
-📅 Found 0 recurring instances for period: 2026-01
-📅 Grouped recurring instances into 0 days
-📅 Fetched 0 recurring instances for calendar
-📅 Recurring instances by day:
-📅 CalendarViewModel.loadDocuments() called for month: 12, year: 2025
-📅 Fetched 0 documents for calendar
-📅 Fetching recurring instances for period: 2025-12
-📅 DEBUG: Total recurring instances in database: 1
-📅 DEBUG: Instance periodKey=2025-09, id=A7D50814-1E9C-4F90-A38D-6CCCF1B978E3, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Total recurring templates in database: 1
-📅 DEBUG: Template id=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9, vendor=TOYOTA LEASING POLSKA Sp. z o.o.
-📅 Found 0 recurring instances for period: 2025-12
-📅 Grouped recurring instances into 0 days
-📅 Fetching recurring instances for period: 2025-12
-📅 DEBUG: Total recurring instances in database: 1
-📅 DEBUG: Instance periodKey=2025-09, id=A7D50814-1E9C-4F90-A38D-6CCCF1B978E3, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Total recurring templates in database: 1
-📅 DEBUG: Template id=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9, vendor=TOYOTA LEASING POLSKA Sp. z o.o.
-📅 Found 0 recurring instances for period: 2025-12
-📅 Grouped recurring instances into 0 days
-📅 Fetched 0 recurring instances for calendar
-📅 Recurring instances by day:
-📅 CalendarViewModel.loadDocuments() called for month: 11, year: 2025
-📅 Fetched 0 documents for calendar
-📅 Fetching recurring instances for period: 2025-11
-📅 DEBUG: Total recurring instances in database: 1
-📅 DEBUG: Instance periodKey=2025-09, id=A7D50814-1E9C-4F90-A38D-6CCCF1B978E3, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Total recurring templates in database: 1
-📅 DEBUG: Template id=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9, vendor=TOYOTA LEASING POLSKA Sp. z o.o.
-📅 Found 0 recurring instances for period: 2025-11
-📅 Grouped recurring instances into 0 days
-📅 Fetching recurring instances for period: 2025-11
-📅 DEBUG: Total recurring instances in database: 1
-📅 DEBUG: Instance periodKey=2025-09, id=A7D50814-1E9C-4F90-A38D-6CCCF1B978E3, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Total recurring templates in database: 1
-📅 DEBUG: Template id=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9, vendor=TOYOTA LEASING POLSKA Sp. z o.o.
-📅 Found 0 recurring instances for period: 2025-11
-📅 Grouped recurring instances into 0 days
-📅 Fetched 0 recurring instances for calendar
-📅 Recurring instances by day:
-📅 CalendarViewModel.loadDocuments() called for month: 10, year: 2025
-📅 Fetched 0 documents for calendar
-📅 Fetching recurring instances for period: 2025-10
-📅 DEBUG: Total recurring instances in database: 1
-📅 DEBUG: Instance periodKey=2025-09, id=A7D50814-1E9C-4F90-A38D-6CCCF1B978E3, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Total recurring templates in database: 1
-📅 DEBUG: Template id=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9, vendor=TOYOTA LEASING POLSKA Sp. z o.o.
-📅 Found 0 recurring instances for period: 2025-10
-📅 Grouped recurring instances into 0 days
-📅 Fetching recurring instances for period: 2025-10
-📅 DEBUG: Total recurring instances in database: 1
-📅 DEBUG: Instance periodKey=2025-09, id=A7D50814-1E9C-4F90-A38D-6CCCF1B978E3, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Total recurring templates in database: 1
-📅 DEBUG: Template id=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9, vendor=TOYOTA LEASING POLSKA Sp. z o.o.
-📅 Found 0 recurring instances for period: 2025-10
-📅 Grouped recurring instances into 0 days
-📅 Fetched 0 recurring instances for calendar
-📅 Recurring instances by day:
-📅 CalendarViewModel.loadDocuments() called for month: 9, year: 2025
-📅 Fetched 1 documents for calendar
-📅 Fetching recurring instances for period: 2025-09
-📅 DEBUG: Total recurring instances in database: 1
-📅 DEBUG: Instance periodKey=2025-09, id=A7D50814-1E9C-4F90-A38D-6CCCF1B978E3, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Total recurring templates in database: 1
-📅 DEBUG: Template id=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9, vendor=TOYOTA LEASING POLSKA Sp. z o.o.
-📅 Found 1 recurring instances for period: 2025-09
-📅 Instance: A7D50814-1E9C-4F90-A38D-6CCCF1B978E3, periodKey: 2025-09, status: paid, dueDate: 2025-09-15 00:00:00 +0000
-📅 Grouped recurring instances into 1 days
-📅 Fetching recurring instances for period: 2025-09
-📅 DEBUG: Total recurring instances in database: 1
-📅 DEBUG: Instance periodKey=2025-09, id=A7D50814-1E9C-4F90-A38D-6CCCF1B978E3, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Total recurring templates in database: 1
-📅 DEBUG: Template id=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9, vendor=TOYOTA LEASING POLSKA Sp. z o.o.
-📅 Found 1 recurring instances for period: 2025-09
-📅 Instance: A7D50814-1E9C-4F90-A38D-6CCCF1B978E3, periodKey: 2025-09, status: paid, dueDate: 2025-09-15 00:00:00 +0000
-📅 Grouped recurring instances into 1 days
-📅 Fetched 1 recurring instances for calendar
-📅 Recurring instances by day: Day 15: 1
-📅 CalendarViewModel.loadDocuments() called for month: 8, year: 2025
-📅 Fetched 1 documents for calendar
-📅 Fetching recurring instances for period: 2025-08
-📅 DEBUG: Total recurring instances in database: 1
-📅 DEBUG: Instance periodKey=2025-09, id=A7D50814-1E9C-4F90-A38D-6CCCF1B978E3, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Total recurring templates in database: 1
-📅 DEBUG: Template id=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9, vendor=TOYOTA LEASING POLSKA Sp. z o.o.
-📅 Found 0 recurring instances for period: 2025-08
-📅 Grouped recurring instances into 0 days
-📅 Fetching recurring instances for period: 2025-08
-📅 DEBUG: Total recurring instances in database: 1
-📅 DEBUG: Instance periodKey=2025-09, id=A7D50814-1E9C-4F90-A38D-6CCCF1B978E3, templateId=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9
-📅 DEBUG: Total recurring templates in database: 1
-📅 DEBUG: Template id=AFBE0CB4-83C0-43A4-86BF-E8FFD5EF9CA9, vendor=TOYOTA LEASING POLSKA Sp. z o.o.
-📅 Found 0 recurring instances for period: 2025-08
-📅 Grouped recurring instances into 0 days
-📅 Fetched 0 recurring instances for calendar
-📅 Recurring instances by day:
-Starting recurring payment auto-detection
-Running recurring detection analysis
-=== RECURRING DETECTION ANALYSIS START ===
-Finding vendors for analysis...
-Total documents with vendorFingerprint: 2
-Unique vendors found: 1
-Vendor 'TOYOTA LEASING POLSKA Sp. z o.o.' (fp: 99f75e7f4336aa61...): 2 docs
-Vendors with 2+ documents (eligible for analysis): 1
-Found 1 vendors with 2+ documents for analysis
-Analyzing vendor: TOYOTA LEASING POLSKA Sp. z o.o. (fingerprint: 99f75e7f4336aa61...)
-  - Document count: 2
-  - Due dates: ["15.08.2025", "15.09.2025"]
-  - SKIPPED: Template already exists
-=== RECURRING DETECTION ANALYSIS COMPLETE ===
-Summary:
-  - Vendors analyzed: 1
-  - Candidates updated: 0
-  - Skipped (template exists): 1
-  - Skipped (no pattern): 0
-Detection updated 0 candidates
-Fetching suggestion candidates (threshold: 0.750000)
-📊 DIAGNOSTIC: Total candidates in database: 1
-📊   - TOYOTA LEASING POLSKA Sp. z o.o.
-📊     Confidence: 0.750000
-📊     State: accepted
-📊     Meets threshold? true
-📊     State OK? false
-Found 0 candidates meeting confidence threshold (>= 0.750000)
-After filtering: 0 candidates (filtered out 0)
-Found 0 candidates to suggest
-Auto-detection complete: found 0 suggestions
-Starting recurring payment auto-detection
-Running recurring detection analysis
-=== RECURRING DETECTION ANALYSIS START ===
-Finding vendors for analysis...
-Total documents with vendorFingerprint: 2
-Unique vendors found: 1
-Vendor 'TOYOTA LEASING POLSKA Sp. z o.o.' (fp: 99f75e7f4336aa61...): 2 docs
-Vendors with 2+ documents (eligible for analysis): 1
-Found 1 vendors with 2+ documents for analysis
-Analyzing vendor: TOYOTA LEASING POLSKA Sp. z o.o. (fingerprint: 99f75e7f4336aa61...)
-  - Document count: 2
-  - Due dates: ["15.08.2025", "15.09.2025"]
-  - SKIPPED: Template already exists
-=== RECURRING DETECTION ANALYSIS COMPLETE ===
-Summary:
-  - Vendors analyzed: 1
-  - Candidates updated: 0
-  - Skipped (template exists): 1
-  - Skipped (no pattern): 0
-Detection updated 0 candidates
-Fetching suggestion candidates (threshold: 0.750000)
-📊 DIAGNOSTIC: Total candidates in database: 1
-📊   - TOYOTA LEASING POLSKA Sp. z o.o.
-📊     Confidence: 0.750000
-📊     State: accepted
-📊     Meets threshold? true
-📊     State OK? false
-Found 0 candidates meeting confidence threshold (>= 0.750000)
-After filtering: 0 candidates (filtered out 0)
-Found 0 candidates to suggest
-Auto-detection complete: found 0 suggestions
-📱 DocumentRow tapped: 4EAF54B1-FFA6-4683-A4B2-BE1E0DD7BBBB - TOYOTA LEASING POLSKA Sp. z o.o.
-Appending document ID to navigation path: 4EAF54B1-FFA6-4683-A4B2-BE1E0DD7BBBB
-NavigationDestination triggered for document ID: 4EAF54B1-FFA6-4683-A4B2-BE1E0DD7BBBB
-DocumentDetailViewWrapper created for ID: 4EAF54B1-FFA6-4683-A4B2-BE1E0DD7BBBB
-📋 DocumentDetailViewModel.loadDocument() called for ID: 4EAF54B1-FFA6-4683-A4B2-BE1E0DD7BBBB
-📋 Document fetched successfully: true
-📋 Document details - Title: TOYOTA LEASING POLSKA Sp. z o.o., NIP: 5213202664
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Unable to simultaneously satisfy constraints.
+	Probably at least one of the constraints in the following list is one you don't want. 
+	Try this: 
+		(1) look at each constraint and try to figure out which you don't expect; 
+		(2) find the code that added the unwanted constraint or constraints and fix it. 
+	(Note: If you're seeing NSAutoresizingMaskLayoutConstraints that you don't understand, refer to the documentation for the UIView property translatesAutoresizingMaskIntoConstraints) 
+(
+    "<NSAutoresizingMaskLayoutConstraint:0x135a83e80 h=--& v=--& _TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x11c6f16c0.width == 0   (active)>",
+    "<NSLayoutConstraint:0x135a837a0 _TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x11c6f16c0.leading == _UIButtonBarButton:0x12697aa80.leading   (active)>",
+    "<NSLayoutConstraint:0x135a837f0 H:[_UIButtonBarButton:0x12697aa80]-(0)-|   (active, names: '|':_TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x11c6f16c0 )>",
+    "<NSLayoutConstraint:0x135a835c0 'IB_Leading_Leading' H:|-(2)-[_UIModernBarButton:0x11c65b800]   (active, names: '|':_UIButtonBarButton:0x12697aa80 )>",
+    "<NSLayoutConstraint:0x135a83610 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x11c65b800]-(2)-|   (active, names: '|':_UIButtonBarButton:0x12697aa80 )>"
+)
+
+Will attempt to recover by breaking constraint 
+<NSLayoutConstraint:0x135a83610 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x11c65b800]-(2)-|   (active, names: '|':_UIButtonBarButton:0x12697aa80 )>
+
+Make a symbolic breakpoint at UIViewAlertForUnsatisfiableConstraints to catch this in the debugger.
+The methods in the UIConstraintBasedLayoutDebugging category on UIView listed in <UIKitCore/UIView.h> may also be helpful.
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)

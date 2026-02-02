@@ -666,3 +666,57 @@
 "subscription.manageInAppStore" = "Zarządzaj w App Store";
 "subscription.cancelSubscription" = "Anuluj subskrypcję";
 "subscription.cancelFooter" = "Aby anulować lub zmodyfikować subskrypcję, użyj ustawień App Store. Zmiany wejdą w życie na koniec bieżącego okresu rozliczeniowego.";
+
+// MARK: - Home Screen (Glance Dashboard)
+
+"home.title" = "Home";
+"home.status.offline" = "Offline";
+"home.status.pro" = "Pro";
+
+// Hero Card
+"home.hero.dueIn7Days" = "Do zapłaty w ciągu 7 dni";
+"home.hero.invoicesCount" = "%d faktur";
+"home.hero.nextDue" = "Następna";
+"home.hero.noUpcoming" = "Brak nadchodzących płatności";
+"home.hero.allSet" = "Wszystko opłacone";
+
+// Status Capsules
+"home.capsule.overdue" = "Zaległe %d";
+"home.capsule.dueSoon" = "Wkrótce %d";
+
+// Overdue Tile
+"home.overdue.title" = "Zaległe";
+"home.overdue.allClear" = "Brak zaległości";
+"home.overdue.oldest" = "Najstarsza: %d dni";
+"home.overdue.review" = "Sprawdź";
+"home.overdue.check" = "Sprawdź";
+
+// Recurring Tile
+"home.recurring.title" = "Cykliczne";
+"home.recurring.active" = "Aktywne: %d";
+"home.recurring.next" = "Następna: %@ za %d dni";
+"home.recurring.missing" = "Brakujące: %d";
+"home.recurring.manage" = "Zarządzaj";
+"home.recurring.setup" = "Ustaw płatność cykliczną";
+
+// Next Payments
+"home.nextPayments.title" = "Najbliższe płatności";
+"home.nextPayments.seeAll" = "Zobacz wszystkie";
+"home.nextPayments.dueToday" = "Dziś";
+"home.nextPayments.dueInDays" = "Za %d dni";
+"home.nextPayments.overdueDays" = "Zaległe: %d dni";
+
+// Month Summary (Donut)
+"home.month.title" = "Ten miesiąc";
+"home.month.paymentStatus" = "Status płatności";
+"home.month.unpaidTotal" = "Do zapłaty: %@";
+
+// Donut segment labels
+"home.donut.paid" = "Zapłacone";
+"home.donut.due" = "Do zapłaty";
+"home.donut.overdue" = "Zaległe";
+
+// Empty State
+"home.empty.title" = "Brak płatności";
+"home.empty.message" = "Dodaj pierwszą fakturę, aby śledzić terminy płatności";
+"home.empty.goToScan" = "Skanuj fakturę";

@@ -84,7 +84,8 @@ final class RecurringSuggestionsViewModel {
 
         do {
             try await detectCandidatesUseCase.dismissCandidate(candidate)
-            logger.info("Dismissed suggestion: \(candidate.vendorDisplayName)")
+            // PRIVACY: Don't log vendor name
+            logger.info("Dismissed suggestion: confidence=\(String(format: "%.2f", candidate.confidenceScore))")
 
             // Remove from suggestions
             suggestions.removeAll { $0.id == candidate.id }
@@ -103,7 +104,8 @@ final class RecurringSuggestionsViewModel {
 
         do {
             try await detectCandidatesUseCase.snoozeCandidate(candidate)
-            logger.info("Snoozed suggestion: \(candidate.vendorDisplayName)")
+            // PRIVACY: Don't log vendor name
+            logger.info("Snoozed suggestion: confidence=\(String(format: "%.2f", candidate.confidenceScore))")
 
             // Remove from suggestions (will reappear later)
             suggestions.removeAll { $0.id == candidate.id }

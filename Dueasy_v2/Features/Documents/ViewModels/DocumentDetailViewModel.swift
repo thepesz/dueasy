@@ -55,23 +55,29 @@ final class DocumentDetailViewModel {
     /// Fetches the document from the repository.
     /// This ensures we always have a fresh reference, avoiding stale SwiftData objects.
     func loadDocument() async {
-        print("📋 DocumentDetailViewModel.loadDocument() called for ID: \(documentId)")
+        // PRIVACY: Only log document ID, not title or NIP
+        #if DEBUG
+        print("DocumentDetailViewModel.loadDocument() called for ID: \(documentId)")
+        #endif
         isLoading = true
         error = nil
 
         do {
             document = try await repository.fetch(documentId: documentId)
-            print("📋 Document fetched successfully: \(document != nil)")
-            if let doc = document {
-                print("📋 Document details - Title: \(doc.title), NIP: \(doc.vendorNIP ?? "nil")")
-            }
+            #if DEBUG
+            print("Document fetched successfully: \(document != nil)")
+            #endif
             isLoading = false
         } catch let appError as AppError {
-            print("📋 Error loading document: \(appError)")
+            #if DEBUG
+            print("Error loading document: \(appError)")
+            #endif
             error = appError
             isLoading = false
         } catch {
-            print("📋 Unknown error loading document: \(error)")
+            #if DEBUG
+            print("Unknown error loading document: \(error)")
+            #endif
             self.error = .repositoryFetchFailed(error.localizedDescription)
             isLoading = false
         }

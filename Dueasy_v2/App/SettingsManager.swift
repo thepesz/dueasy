@@ -213,8 +213,22 @@ final class SettingsManager: Sendable {
     // MARK: - Cloud Analysis Settings (Pro Tier)
 
     /// Enable cloud-based AI analysis for documents.
-    /// Requires Pro subscription. When enabled, low-confidence local results
-    /// are sent to cloud AI for enhanced accuracy.
+    ///
+    /// ## User Consent and Privacy
+    ///
+    /// This setting controls whether OCR text can be sent to cloud for analysis.
+    /// When enabled:
+    /// - OCR text is sent to cloud AI (OpenAI via Firebase) for enhanced accuracy
+    /// - Text is processed immediately and NOT stored on our servers
+    /// - Only structured results (vendor, amount, date) are returned
+    /// - All transmission is encrypted (TLS 1.3+)
+    ///
+    /// **Privacy Policy**:
+    /// - Requires explicit user opt-in (default: false)
+    /// - Requires Pro subscription
+    /// - User can disable at any time
+    /// - No raw document text is retained in cloud
+    ///
     /// Default: false (requires explicit opt-in and Pro tier)
     var cloudAnalysisEnabled: Bool {
         get { defaults.bool(forKey: Keys.cloudAnalysisEnabled) }

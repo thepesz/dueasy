@@ -174,9 +174,11 @@ final class SwiftDataDocumentRepository: DocumentRepositoryProtocol, @unchecked 
                 for doc in allDocs {
                     if let fp = doc.vendorFingerprint {
                         let matches = fp == vendorFingerprint
-                        logger.warning("  '\(doc.title)': fp='\(fp.prefix(32))...' MATCHES=\(matches)")
+                        // PRIVACY: Don't log title or full fingerprint
+                        logger.warning("  Doc id=\(doc.id): hasFingerprint=true, fpPrefix=\(fp.prefix(8))..., MATCHES=\(matches)")
                     } else {
-                        logger.warning("  '\(doc.title)': fp=nil")
+                        // PRIVACY: Don't log title
+                        logger.warning("  Doc id=\(doc.id): hasFingerprint=false")
                     }
                 }
             }
@@ -184,6 +186,94 @@ final class SwiftDataDocumentRepository: DocumentRepositoryProtocol, @unchecked 
             return results
         } catch {
             throw AppError.repositoryFetchFailed(error.localizedDescription)
+        }
+    }
+
+    func fetch(filter: DocumentFilter?, searchQuery: String?) async throws -> [FinanceDocument] {
+        // Build the predicate based on filter and search query
+        let predicate = buildFilterPredicate(filter: filter, searchQuery: searchQuery)
+
+        let descriptor = FetchDescriptor<FinanceDocument>(
+            predicate: predicate,
+            sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
+        )
+
+        do {
+            var results = try modelContext.fetch(descriptor)
+
+            // Handle overdue filter post-fetch since it requires computed logic
+            // (dueDate < now AND status != paid AND status != archived)
+            // SwiftData predicates don't support complex date comparisons with optionals well
+            if filter == .overdue {
+                let now = Date()
+                results = results.filter { document in
+                    guard let dueDate = document.dueDate else { return false }
+                    return dueDate < now &&
+                        document.status != .paid &&
+                        document.status != .archived
+                }
+            }
+
+            return results
+        } catch {
+            throw AppError.repositoryFetchFailed(error.localizedDescription)
+        }
+    }
+
+    // MARK: - Private Filter Helpers
+
+    /// Builds a SwiftData predicate for the given filter and search query.
+    /// Optimizes database-level filtering for improved performance.
+    private func buildFilterPredicate(filter: DocumentFilter?, searchQuery: String?) -> Predicate<FinanceDocument>? {
+        let hasSearch = searchQuery != nil && !searchQuery!.isEmpty
+        let lowercaseQuery = searchQuery?.lowercased() ?? ""
+
+        // Map filter to status raw value for predicate
+        let statusRaw: String? = {
+            switch filter {
+            case .pending:
+                return DocumentStatus.draft.rawValue
+            case .scheduled:
+                return DocumentStatus.scheduled.rawValue
+            case .paid:
+                return DocumentStatus.paid.rawValue
+            case .all, .overdue, .none:
+                // .all = no status filter
+                // .overdue = handled post-fetch (computed)
+                // .none = no filter
+                return nil
+            }
+        }()
+
+        // Build predicate based on combination of filter and search
+        switch (statusRaw, hasSearch) {
+        case (let status?, true):
+            // Both status filter and search query
+            return #Predicate<FinanceDocument> { document in
+                document.statusRaw == status && (
+                    document.title.localizedStandardContains(lowercaseQuery) ||
+                    (document.documentNumber?.localizedStandardContains(lowercaseQuery) ?? false) ||
+                    (document.notes?.localizedStandardContains(lowercaseQuery) ?? false)
+                )
+            }
+
+        case (let status?, false):
+            // Status filter only
+            return #Predicate<FinanceDocument> { document in
+                document.statusRaw == status
+            }
+
+        case (nil, true):
+            // Search query only (no status filter)
+            return #Predicate<FinanceDocument> { document in
+                document.title.localizedStandardContains(lowercaseQuery) ||
+                (document.documentNumber?.localizedStandardContains(lowercaseQuery) ?? false) ||
+                (document.notes?.localizedStandardContains(lowercaseQuery) ?? false)
+            }
+
+        case (nil, false):
+            // No filter, no search - return all
+            return nil
         }
     }
 

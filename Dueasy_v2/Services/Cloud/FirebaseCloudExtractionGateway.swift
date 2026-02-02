@@ -120,8 +120,8 @@ final class FirebaseCloudExtractionGateway: CloudExtractionGatewayProtocol {
         let bankAccountNumber = dict["bankAccount"] as? String
         let currency = dict["currency"] as? String ?? "PLN"
 
-        // Log what OpenAI returned for vendor
-        PrivacyLogger.app.info("🏢 OpenAI vendor: name=\(vendorName ?? "nil", privacy: .public), address=\(vendorAddress ?? "nil", privacy: .public), NIP=\(vendorNIP ?? "nil", privacy: .public)")
+        // PRIVACY: Log only metrics, not actual data
+        PrivacyLogger.cloud.info("OpenAI extraction: hasVendor=\(vendorName != nil), hasAddress=\(vendorAddress != nil), hasNIP=\(vendorNIP != nil)")
 
         // Extract document type
         let documentTypeStr = dict["documentType"] as? String ?? "invoice"
@@ -146,14 +146,15 @@ final class FirebaseCloudExtractionGateway: CloudExtractionGatewayProtocol {
         // Parse due date (ISO 8601 format: YYYY-MM-DD)
         var dueDate: Date?
         if let dueDateStr = dict["dueDate"] as? String, !dueDateStr.isEmpty {
-            PrivacyLogger.app.info("📅 OpenAI returned dueDate: \(dueDateStr, privacy: .public)")
+            // PRIVACY: Log only that we received a date, not the actual value
+            PrivacyLogger.cloud.debug("OpenAI returned dueDate string (length=\(dueDateStr.count))")
 
             // Try ISO 8601 format first (YYYY-MM-DD)
             let isoFormatter = ISO8601DateFormatter()
             isoFormatter.formatOptions = [.withFullDate, .withDashSeparatorInDate]
             if let parsed = isoFormatter.date(from: dueDateStr) {
                 dueDate = parsed
-                PrivacyLogger.app.info("✅ Parsed dueDate successfully: \(parsed, privacy: .public)")
+                PrivacyLogger.cloud.debug("Parsed dueDate with ISO8601 format")
             } else {
                 // Fallback: try standard date formatter with multiple formats
                 let dateFormatter = DateFormatter()
@@ -163,21 +164,21 @@ final class FirebaseCloudExtractionGateway: CloudExtractionGatewayProtocol {
                     dateFormatter.dateFormat = format
                     if let parsed = dateFormatter.date(from: dueDateStr) {
                         dueDate = parsed
-                        PrivacyLogger.app.info("✅ Parsed dueDate with format \(format, privacy: .public): \(parsed, privacy: .public)")
+                        PrivacyLogger.cloud.debug("Parsed dueDate with format: \(format)")
                         break
                     }
                 }
 
                 if dueDate == nil {
-                    PrivacyLogger.app.warning("⚠️ Failed to parse dueDate: \(dueDateStr, privacy: .public)")
+                    PrivacyLogger.cloud.warning("Failed to parse dueDate from OpenAI response")
                 }
             }
         } else {
-            PrivacyLogger.app.info("📅 OpenAI returned null/empty dueDate")
+            PrivacyLogger.cloud.debug("OpenAI returned null/empty dueDate")
             // Fallback: If no due date, use issue date (invoice might be already paid)
             if let issueDate = issueDate {
                 dueDate = issueDate
-                PrivacyLogger.app.info("📅 Using issue date as due date fallback")
+                PrivacyLogger.cloud.debug("Using issue date as due date fallback")
             }
         }
 

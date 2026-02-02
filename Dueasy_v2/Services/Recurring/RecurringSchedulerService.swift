@@ -154,7 +154,8 @@ final class RecurringSchedulerService: RecurringSchedulerServiceProtocol {
             modelContext.insert(instance)
             generatedInstances.append(instance)
 
-            logger.info("Generated recurring instance for \(template.vendorDisplayName): \(periodKey)")
+            // PRIVACY: Don't log vendor name
+            logger.debug("Generated recurring instance: \(periodKey)")
         }
 
         try modelContext.save()
@@ -423,7 +424,8 @@ final class RecurringSchedulerService: RecurringSchedulerServiceProtocol {
         periodKey: String,
         expectedDueDate: Date
     ) async throws -> RecurringInstance {
-        logger.info("Creating historical instance for \(template.vendorDisplayName): \(periodKey)")
+        // PRIVACY: Don't log vendor name
+        logger.info("Creating historical instance: \(periodKey)")
 
         // Check if instance already exists
         if let existing = try await fetchInstance(templateId: template.id, periodKey: periodKey) {

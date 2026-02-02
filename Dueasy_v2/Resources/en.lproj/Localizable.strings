@@ -663,3 +663,57 @@
 "subscription.manageInAppStore" = "Manage in App Store";
 "subscription.cancelSubscription" = "Cancel Subscription";
 "subscription.cancelFooter" = "To cancel or modify your subscription, use the App Store settings. Changes will take effect at the end of the current billing period.";
+
+// MARK: - Home Screen (Glance Dashboard)
+
+"home.title" = "Home";
+"home.status.offline" = "Offline";
+"home.status.pro" = "Pro";
+
+// Hero Card
+"home.hero.dueIn7Days" = "Due in next 7 days";
+"home.hero.invoicesCount" = "%d invoices";
+"home.hero.nextDue" = "Next due";
+"home.hero.noUpcoming" = "No upcoming payments";
+"home.hero.allSet" = "You're all set";
+
+// Status Capsules
+"home.capsule.overdue" = "Overdue %d";
+"home.capsule.dueSoon" = "Due soon %d";
+
+// Overdue Tile
+"home.overdue.title" = "Overdue";
+"home.overdue.allClear" = "All clear";
+"home.overdue.oldest" = "Oldest: %d days";
+"home.overdue.review" = "Review";
+"home.overdue.check" = "Check";
+
+// Recurring Tile
+"home.recurring.title" = "Recurring";
+"home.recurring.active" = "Active: %d";
+"home.recurring.next" = "Next: %@ in %dd";
+"home.recurring.missing" = "Missing: %d";
+"home.recurring.manage" = "Manage";
+"home.recurring.setup" = "Set up recurring";
+
+// Next Payments
+"home.nextPayments.title" = "Next payments";
+"home.nextPayments.seeAll" = "See all upcoming";
+"home.nextPayments.dueToday" = "Due today";
+"home.nextPayments.dueInDays" = "Due in %d days";
+"home.nextPayments.overdueDays" = "Overdue: %dd";
+
+// Month Summary (Donut)
+"home.month.title" = "This month";
+"home.month.paymentStatus" = "Payment status";
+"home.month.unpaidTotal" = "Unpaid total: %@";
+
+// Donut segment labels
+"home.donut.paid" = "Paid";
+"home.donut.due" = "Due";
+"home.donut.overdue" = "Overdue";
+
+// Empty State
+"home.empty.title" = "No payments yet";
+"home.empty.message" = "Add your first invoice to start tracking due dates";
+"home.empty.goToScan" = "Go to Scan";

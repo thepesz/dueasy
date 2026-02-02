@@ -7,7 +7,15 @@ import os
 /// Handles OCR misreads, diacritics variations, and regional formats.
 /// Includes adaptive learning from user corrections.
 ///
-/// PRIVACY: Uses PrivacyLogger to ensure no PII (vendor names, amounts, dates,
+/// ## Privacy and OCR Text Handling
+///
+/// This service processes OCR text transiently during analysis:
+/// - OCR text is received, parsed, and results returned in `DocumentAnalysisResult`
+/// - The `rawOCRText` field is passed through for keyword learning (NOT persisted)
+/// - Only extracted field values are stored in `FinanceDocument`
+/// - Only keyword patterns (not raw text) are saved in learning data
+///
+/// **PRIVACY**: Uses PrivacyLogger to ensure no PII (vendor names, amounts, dates,
 /// addresses, NIP numbers) is ever logged. Only metrics are logged.
 final class LocalInvoiceParsingService: DocumentAnalysisServiceProtocol, @unchecked Sendable {
     private let keywordLearningService: KeywordLearningService?

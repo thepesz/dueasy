@@ -351,11 +351,8 @@ struct DocumentDetailView: View {
     /// Step 1: Handles delete action - always shows initial confirmation first (like iOS Calendar)
     private func handleDeleteAction() {
         guard viewModel != nil, viewModel?.document != nil else {
-            print("DELETE: No viewModel or document")
             return
         }
-
-        print("DELETE: Step 1 - Showing initial confirmation alert")
         showingDeleteConfirmation = true
     }
 
@@ -364,18 +361,11 @@ struct DocumentDetailView: View {
     /// If not recurring, executes standard deletion immediately.
     private func handleConfirmedDeletion() {
         guard let vm = viewModel, let doc = vm.document else {
-            print("DELETE: No viewModel or document")
             return
         }
 
-        print("DELETE: Step 2 - Checking if linked to recurring")
-        print("DELETE: recurringInstanceId = \(doc.recurringInstanceId?.uuidString ?? "nil")")
-        print("DELETE: recurringTemplateId = \(doc.recurringTemplateId?.uuidString ?? "nil")")
-        print("DELETE: isLinkedToRecurring = \(vm.isLinkedToRecurring)")
-
         if vm.isLinkedToRecurring {
             // Document is linked to recurring payment - show step 2 options
-            print("DELETE: Document IS linked to recurring - showing options sheet")
             let deletionVM = environment.makeRecurringDeletionViewModel()
             recurringDeletionViewModel = deletionVM
 
@@ -386,7 +376,6 @@ struct DocumentDetailView: View {
             }
         } else {
             // Not recurring - execute standard deletion immediately
-            print("DELETE: Document is NOT linked to recurring - executing deletion")
             Task { await vm.deleteDocument() }
         }
     }

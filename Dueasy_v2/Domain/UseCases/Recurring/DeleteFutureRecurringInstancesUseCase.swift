@@ -110,13 +110,15 @@ final class DeleteFutureRecurringInstancesUseCase: @unchecked Sendable {
         // Optionally deactivate the template
         if deactivateTemplate {
             try await templateService.updateTemplate(template, reminderOffsets: nil, toleranceDays: nil, isActive: false)
-            logger.info("Deactivated template: \(template.vendorDisplayName)")
+            // PRIVACY: Don't log vendor name
+            logger.info("Deactivated template: id=\(template.id)")
         }
 
         // Save changes
         try modelContext.save()
 
-        logger.info("HARD DELETED \(cancelledCount) future recurring instances from database for template: \(template.vendorDisplayName)")
+        // PRIVACY: Don't log vendor name
+        logger.info("Deleted \(cancelledCount) future recurring instances for template: id=\(template.id)")
 
         return cancelledCount
     }

@@ -68,7 +68,9 @@ struct CreateDocumentUseCase: Sendable {
 
 // MARK: - Fetch Documents Use Case
 
-/// Use case for fetching documents from repository
+/// Use case for fetching documents from repository.
+/// Supports both unfiltered fetches (for backward compatibility) and
+/// optimized database-level filtering for improved performance with large datasets.
 struct FetchDocumentsUseCase: Sendable {
 
     private let repository: DocumentRepositoryProtocol
@@ -77,14 +79,26 @@ struct FetchDocumentsUseCase: Sendable {
         self.repository = repository
     }
 
-    /// Fetch all documents sorted by due date
+    /// Fetch all documents sorted by creation date (newest first).
+    /// For large datasets, prefer using `execute(filter:searchQuery:)` for better performance.
     func execute() async throws -> [FinanceDocument] {
         return try await repository.fetchAll()
     }
 
-    /// Fetch documents filtered by status
+    /// Fetch documents filtered by status.
+    /// Deprecated: Use `execute(filter:searchQuery:)` for combined filtering.
     func execute(status: DocumentStatus) async throws -> [FinanceDocument] {
         return try await repository.fetch(byStatus: status)
+    }
+
+    /// Fetch documents with combined filter and search query.
+    /// Performs database-level filtering for optimal performance with large datasets.
+    /// - Parameters:
+    ///   - filter: Optional document filter (all, pending, scheduled, paid, overdue)
+    ///   - searchQuery: Optional search string to match against title, documentNumber, and notes
+    /// - Returns: Array of filtered documents, sorted by creation date (newest first)
+    func execute(filter: DocumentFilter?, searchQuery: String?) async throws -> [FinanceDocument] {
+        return try await repository.fetch(filter: filter, searchQuery: searchQuery)
     }
 
     /// Fetch upcoming documents (due within next N days)

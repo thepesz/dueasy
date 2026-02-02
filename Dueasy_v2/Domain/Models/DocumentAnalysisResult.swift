@@ -3,6 +3,21 @@ import Foundation
 /// Result of document analysis (OCR + parsing).
 /// This is the stable contract for both local parsing (Iteration 1) and AI analysis (Iteration 2).
 /// JSON-serializable for backend communication.
+///
+/// ## Privacy and OCR Text Handling
+///
+/// **IMPORTANT**: The `rawOCRText` field is used ONLY for transient processing:
+/// - Passed to keyword learning service during user correction flow
+/// - Sent to cloud analysis (with user consent via `cloudAnalysisEnabled` setting)
+/// - **NEVER persisted** to database or local storage
+///
+/// Raw OCR text is sensitive because it may contain:
+/// - Vendor names and addresses (PII)
+/// - Financial amounts and account numbers
+/// - Personal information from documents
+///
+/// Only derived learning data (keywords, patterns, confidence scores) is stored.
+/// See `LearningData` and `VendorProfileV2` for privacy-safe storage models.
 struct DocumentAnalysisResult: Codable, Equatable, Sendable {
 
     // MARK: - Extracted Fields
@@ -113,7 +128,16 @@ struct DocumentAnalysisResult: Codable, Equatable, Sendable {
     /// Raw text hints for debugging (optional, not stored long-term in production)
     let rawHints: String?
 
-    /// Raw OCR text for keyword learning (optional, not stored long-term)
+    /// Raw OCR text for keyword learning (optional, NEVER persisted).
+    ///
+    /// **Privacy Policy**:
+    /// - Used transiently during parsing session only
+    /// - Fed to `KeywordLearningService.learnFromCorrection()` for pattern extraction
+    /// - Sent to cloud analysis if user has enabled `cloudAnalysisEnabled` setting
+    /// - **NEVER stored** in FinanceDocument, LearningData, or any persistent model
+    /// - Discarded after the review/save flow completes
+    ///
+    /// Only derived data (keywords, field positions, confidence scores) is persisted.
     let rawOCRText: String?
 
     // MARK: - Initialization

@@ -36,10 +36,7 @@ struct FetchRecurringInstancesForMonthUseCase: Sendable {
         // DEBUG: Also check templates
         let templateDescriptor = FetchDescriptor<RecurringTemplate>()
         let allTemplates = try modelContext.fetch(templateDescriptor)
-        logger.info("📅 DEBUG: Total recurring templates in database: \(allTemplates.count)")
-        for template in allTemplates {
-            logger.info("📅 DEBUG: Template id=\(template.id.uuidString), vendor=\(template.vendorDisplayName)")
-        }
+        logger.debug("Total recurring templates in database: \(allTemplates.count)")
 
         // Fetch instances for this period
         let descriptor = FetchDescriptor<RecurringInstance>(
@@ -49,12 +46,7 @@ struct FetchRecurringInstancesForMonthUseCase: Sendable {
 
         let instances = try modelContext.fetch(descriptor)
 
-        logger.info("📅 Found \(instances.count) recurring instances for period: \(periodKey)")
-
-        // Log individual instances for debugging
-        for instance in instances {
-            logger.debug("📅 Instance: \(instance.id.uuidString), periodKey: \(instance.periodKey), status: \(instance.statusRaw), dueDate: \(instance.expectedDueDate)")
-        }
+        logger.info("Found \(instances.count) recurring instances for period: \(periodKey)")
 
         // Group by day of month
         var grouped: [Int: [RecurringInstance]] = [:]

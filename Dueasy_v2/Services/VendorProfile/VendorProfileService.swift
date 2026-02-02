@@ -17,13 +17,15 @@ final class VendorProfileService {
 
     /// Find vendor profile by name and/or tax ID
     func findVendorProfile(vendorName: String?, nip: String?, regon: String?) async throws -> VendorProfileV2? {
-        logger.info("Finding vendor profile: name=\(vendorName ?? "nil"), nip=\(nip ?? "nil"), regon=\(regon ?? "nil")")
+        // PRIVACY: Log only presence flags, not actual values
+        logger.info("Finding vendor profile: hasName=\(vendorName != nil), hasNIP=\(nip != nil), hasREGON=\(regon != nil)")
 
         // Strategy 1: Match by NIP (most reliable)
         if let nip = nip?.trimmingCharacters(in: .whitespaces), !nip.isEmpty {
             let descriptor = FetchDescriptor(predicate: VendorProfileV2.byNIP(nip))
             if let profile = try modelContext.fetch(descriptor).first {
-                logger.info("Found vendor by NIP: \(profile.displayName)")
+                // PRIVACY: Don't log vendor display name
+                logger.info("Found vendor by NIP match")
                 return profile
             }
         }
@@ -32,7 +34,8 @@ final class VendorProfileService {
         if let regon = regon?.trimmingCharacters(in: .whitespaces), !regon.isEmpty {
             let descriptor = FetchDescriptor(predicate: VendorProfileV2.byREGON(regon))
             if let profile = try modelContext.fetch(descriptor).first {
-                logger.info("Found vendor by REGON: \(profile.displayName)")
+                // PRIVACY: Don't log vendor display name
+                logger.info("Found vendor by REGON match")
                 return profile
             }
         }
@@ -43,7 +46,8 @@ final class VendorProfileService {
             let vendorKey = VendorProfileV2.generateVendorKey(name: vendorName, nip: nip)
             let keyDescriptor = FetchDescriptor(predicate: VendorProfileV2.byKey(vendorKey))
             if let profile = try modelContext.fetch(keyDescriptor).first {
-                logger.info("Found vendor by exact key match: \(profile.displayName)")
+                // PRIVACY: Don't log vendor display name
+                logger.info("Found vendor by exact key match")
                 return profile
             }
 
@@ -66,7 +70,8 @@ final class VendorProfileService {
             }
 
             if let bestMatch = matches.first {
-                logger.info("Found vendor by fuzzy name match: \(bestMatch.displayName) (similarity > 0.8)")
+                // PRIVACY: Don't log vendor display name
+                logger.info("Found vendor by fuzzy name match (similarity > 0.8)")
                 return bestMatch
             }
         }
@@ -88,7 +93,8 @@ final class VendorProfileService {
         }
 
         // Create new profile
-        logger.info("Creating new vendor profile: \(vendorName)")
+        // PRIVACY: Don't log vendor name
+        logger.info("Creating new vendor profile (nameLength=\(vendorName.count))")
         let vendorKey = VendorProfileV2.generateVendorKey(name: vendorName, nip: nip)
         let newProfile = VendorProfileV2(
             vendorKey: vendorKey,
@@ -115,18 +121,19 @@ final class VendorProfileService {
         correctContext: String,
         incorrectContexts: [String]
     ) async throws {
-        logger.info("Learning from correction for vendor: \(vendorProfile.displayName), field: \(correctedField.rawValue)")
+        // PRIVACY: Don't log vendor name or keywords (contain document text)
+        logger.info("Learning from correction: field=\(correctedField.rawValue)")
 
         // Extract keywords from correct context (2-3 word phrases)
         let correctKeywords = extractKeywords(from: correctContext)
-        logger.debug("Correct context keywords: \(correctKeywords.joined(separator: ", "))")
+        logger.debug("Extracted correctKeywords count: \(correctKeywords.count)")
 
         // Extract keywords from incorrect contexts
         var incorrectKeywords: Set<String> = []
         for context in incorrectContexts {
             incorrectKeywords.formUnion(extractKeywords(from: context))
         }
-        logger.debug("Incorrect context keywords: \(incorrectKeywords.joined(separator: ", "))")
+        logger.debug("Extracted incorrectKeywords count: \(incorrectKeywords.count)")
 
         // Update KeywordStats for each keyword
         for keyword in correctKeywords {
@@ -213,7 +220,8 @@ final class VendorProfileService {
             } else {
                 stats.recordMiss()
             }
-            logger.debug("Updated KeywordStats '\(phrase)': hits=\(stats.hits), misses=\(stats.misses), state=\(stats.state.rawValue)")
+            // PRIVACY: Don't log actual phrase or vendorKey (contains vendor data)
+            logger.debug("Updated KeywordStats: hits=\(stats.hits), misses=\(stats.misses), state=\(stats.state.rawValue)")
         } else {
             // Create new KeywordStats
             let newStats = KeywordStats(
@@ -224,7 +232,8 @@ final class VendorProfileService {
                 misses: isHit ? 0 : 1
             )
             modelContext.insert(newStats)
-            logger.debug("Created new KeywordStats for '\(phrase)' (vendorKey: \(vendorKey))")
+            // PRIVACY: Don't log actual phrase or vendorKey
+            logger.debug("Created new KeywordStats for field \(fieldType.rawValue)")
         }
     }
 
@@ -261,7 +270,8 @@ final class VendorProfileService {
                 negative: overrides.negative,
                 disabledGlobalPhrases: overrides.disabledGlobalPhrases
             )
-            logger.info("✅ Synced \(newRules.count) promoted keywords to payDue for vendor: \(vendorProfile.displayName)")
+            // PRIVACY: Don't log vendor name
+            logger.info("Synced \(newRules.count) promoted keywords to payDue")
 
         case .dueDate:
             // Merge with existing dueDate keywords
@@ -274,7 +284,8 @@ final class VendorProfileService {
                 negative: overrides.negative,
                 disabledGlobalPhrases: overrides.disabledGlobalPhrases
             )
-            logger.info("✅ Synced \(newRules.count) promoted keywords to dueDate for vendor: \(vendorProfile.displayName)")
+            // PRIVACY: Don't log vendor name
+            logger.info("Synced \(newRules.count) promoted keywords to dueDate")
 
         case .vendor, .documentNumber, .nip, .bankAccount:
             // Not applicable
@@ -306,7 +317,8 @@ final class VendorProfileService {
                 disabledGlobalPhrases: overrides.disabledGlobalPhrases
             )
             vendorProfile.keywordOverrides = overrides
-            logger.info("⛔️ Synced \(newNegativeRules.count) blocked keywords to negative for vendor: \(vendorProfile.displayName)")
+            // PRIVACY: Don't log vendor name
+            logger.info("Synced \(newNegativeRules.count) blocked keywords to negative")
         }
     }
 
@@ -501,7 +513,8 @@ final class VendorProfileMigrationService {
                 try await migrateVendor(vendor, to: globalConfig)
                 migratedCount += 1
             } catch {
-                logger.error("Failed to migrate vendor '\(vendor.displayName)': \(error.localizedDescription)")
+                // PRIVACY: Don't log vendor display name
+                logger.error("Failed to migrate vendor: \(error.localizedDescription)")
                 failedCount += 1
             }
         }
@@ -518,18 +531,19 @@ final class VendorProfileMigrationService {
         let oldVersion = vendor.baseGlobalVersion
         let newVersion = globalConfig.version
 
-        logger.info("Migrating vendor '\(vendor.displayName)' from v\(oldVersion) to v\(newVersion)")
+        // PRIVACY: Don't log vendor display name
+        logger.info("Migrating vendor from v\(oldVersion) to v\(newVersion)")
 
         // Check if migration is needed
         guard vendor.shouldMigrateTo(globalVersion: newVersion) else {
-            logger.debug("Vendor '\(vendor.displayName)' is already at version \(newVersion)")
+            logger.debug("Vendor already at version \(newVersion)")
             return
         }
 
         // Perform soft migration (preserves vendor overrides)
         vendor.migrateToGlobalVersion(newVersion)
 
-        logger.info("✅ Successfully migrated vendor '\(vendor.displayName)' to v\(newVersion)")
+        logger.info("Successfully migrated vendor to v\(newVersion)")
     }
 
     // MARK: - Rollback
@@ -537,19 +551,21 @@ final class VendorProfileMigrationService {
     /// Rollback a vendor to its last good global version if accuracy dropped
     func rollbackVendorIfNeeded(_ vendor: VendorProfileV2, currentAccuracy: Double, threshold: Double = 0.7) throws {
         guard let stats = vendor.stats else {
-            logger.debug("No stats available for vendor '\(vendor.displayName)' - skipping rollback check")
+            // PRIVACY: Don't log vendor display name
+            logger.debug("No stats available for vendor - skipping rollback check")
             return
         }
 
         let accuracyRate = stats.accuracyRate
 
-        logger.debug("Vendor '\(vendor.displayName)' accuracy: \(accuracyRate) (threshold: \(threshold))")
+        // PRIVACY: Don't log vendor display name
+        logger.debug("Vendor accuracy: \(accuracyRate) (threshold: \(threshold))")
 
         if accuracyRate < threshold && vendor.lastGoodGlobalVersion != nil {
-            logger.warning("Vendor '\(vendor.displayName)' accuracy (\(accuracyRate)) below threshold (\(threshold)) - rolling back")
+            logger.warning("Vendor accuracy (\(accuracyRate)) below threshold (\(threshold)) - rolling back")
             vendor.rollbackToLastGoodVersion()
             try modelContext.save()
-            logger.info("✅ Rolled back vendor '\(vendor.displayName)' to last good version")
+            logger.info("Rolled back vendor to last good version")
         }
     }
 
@@ -568,7 +584,8 @@ final class VendorProfileMigrationService {
             let accuracyRate = stats.accuracyRate
 
             if accuracyRate < threshold && vendor.lastGoodGlobalVersion != nil {
-                logger.warning("Vendor '\(vendor.displayName)' has low accuracy (\(accuracyRate)) - rolling back")
+                // PRIVACY: Don't log vendor display name
+                logger.warning("Vendor has low accuracy (\(accuracyRate)) - rolling back")
                 vendor.rollbackToLastGoodVersion()
                 rolledBackCount += 1
             }

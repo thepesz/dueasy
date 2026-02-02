@@ -49,7 +49,8 @@ final class EventKitCalendarService: CalendarServiceProtocol, @unchecked Sendabl
         notes: String?,
         calendarId: String?
     ) async throws -> String {
-        logger.info("Creating calendar event: title='\(title)', dueDate=\(dueDate), calendarId=\(calendarId ?? "default")")
+        // PRIVACY: Don't log title (contains vendor name) or exact date
+        logger.info("Creating calendar event: hasTitle=\(title.count > 0), hasCalendarId=\(calendarId != nil)")
 
         let status = await authorizationStatus
         logger.info("Calendar authorization status: \(String(describing: status))")
@@ -63,11 +64,11 @@ final class EventKitCalendarService: CalendarServiceProtocol, @unchecked Sendabl
         var calendar: EKCalendar?
         if let calendarId = calendarId {
             calendar = eventStore.calendar(withIdentifier: calendarId)
-            logger.debug("Found calendar by ID: \(calendar?.title ?? "nil")")
+            logger.debug("Found calendar by ID: \(calendar != nil)")
         }
         if calendar == nil {
             calendar = eventStore.defaultCalendarForNewEvents
-            logger.debug("Using default calendar: \(calendar?.title ?? "nil")")
+            logger.debug("Using default calendar: \(calendar != nil)")
         }
 
         guard let targetCalendar = calendar else {
@@ -75,7 +76,8 @@ final class EventKitCalendarService: CalendarServiceProtocol, @unchecked Sendabl
             throw AppError.calendarNotFound
         }
 
-        logger.info("Using calendar: \(targetCalendar.title) (ID: \(targetCalendar.calendarIdentifier))")
+        // PRIVACY: Don't log calendar title (user data)
+        logger.info("Using calendar with ID (calendar found successfully)")
 
         let event = EKEvent(eventStore: eventStore)
         event.title = title

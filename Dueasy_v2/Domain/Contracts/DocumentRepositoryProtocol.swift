@@ -65,6 +65,15 @@ protocol DocumentRepositoryProtocol: Sendable {
     /// - Throws: `AppError.repositoryFetchFailed`
     func fetchOverdue() async throws -> [FinanceDocument]
 
+    /// Fetches documents with combined filter and optional search query.
+    /// This method enables database-level filtering for improved performance with large datasets.
+    /// - Parameters:
+    ///   - filter: Optional document filter (all, pending, scheduled, paid, overdue)
+    ///   - searchQuery: Optional search string to match against title, documentNumber, and notes
+    /// - Returns: Array of filtered documents, sorted by creation date (newest first)
+    /// - Throws: `AppError.repositoryFetchFailed`
+    func fetch(filter: DocumentFilter?, searchQuery: String?) async throws -> [FinanceDocument]
+
     /// Fetches documents by vendor fingerprint (for recurring payment linking).
     /// - Parameter vendorFingerprint: The vendor fingerprint to match
     /// - Returns: Array of documents with matching vendor fingerprint

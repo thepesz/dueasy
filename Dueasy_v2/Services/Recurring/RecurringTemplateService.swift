@@ -131,7 +131,8 @@ final class RecurringTemplateService: RecurringTemplateServiceProtocol {
         modelContext.insert(template)
         try modelContext.save()
 
-        logger.info("Created recurring template for vendor: \(document.title) (source: \(creationSource.rawValue))")
+        // PRIVACY: Don't log vendor name (document.title)
+        logger.info("Created recurring template: id=\(template.id), source=\(creationSource.rawValue)")
 
         return template
     }
@@ -168,7 +169,8 @@ final class RecurringTemplateService: RecurringTemplateServiceProtocol {
 
         try modelContext.save()
 
-        logger.info("Created recurring template from candidate for vendor: \(candidate.vendorDisplayName)")
+        // PRIVACY: Don't log vendor name
+        logger.info("Created recurring template from candidate: id=\(template.id)")
 
         return template
     }
@@ -231,7 +233,8 @@ final class RecurringTemplateService: RecurringTemplateServiceProtocol {
         template.markUpdated()
 
         try modelContext.save()
-        logger.info("Updated recurring template: \(template.vendorDisplayName)")
+        // PRIVACY: Don't log vendor name
+        logger.info("Updated recurring template: id=\(template.id)")
     }
 
     func updateAmountRange(_ template: RecurringTemplate, with amount: Decimal) async throws {
@@ -256,7 +259,8 @@ final class RecurringTemplateService: RecurringTemplateServiceProtocol {
         modelContext.delete(template)
         try modelContext.save()
 
-        logger.info("Deleted recurring template and \(instances.count) instances for: \(template.vendorDisplayName)")
+        // PRIVACY: Don't log vendor name
+        logger.info("Deleted recurring template (id=\(templateId)) and \(instances.count) instances")
     }
 }
 

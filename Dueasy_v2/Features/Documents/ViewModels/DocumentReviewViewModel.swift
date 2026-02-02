@@ -53,7 +53,13 @@ final class DocumentReviewViewModel {
     // Analysis result
     var analysisResult: DocumentAnalysisResult?
     var ocrConfidence: Double = 0.0
-    var ocrText: String = "" // Store OCR text for keyword learning
+
+    /// OCR text stored transiently for keyword learning during this session.
+    /// **PRIVACY**: This is NEVER persisted to database. It is:
+    /// - Used only for `KeywordLearningService.learnFromCorrection()` calls
+    /// - Discarded when the ViewModel is deallocated
+    /// - Only keyword patterns (not raw text) are saved to UserDefaults
+    var ocrText: String = ""
 
     // Validation and errors
     var error: AppError?

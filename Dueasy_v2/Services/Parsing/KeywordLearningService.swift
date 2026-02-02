@@ -5,6 +5,17 @@ import os.log
 /// Helps improve parsing accuracy by learning from successful detections
 /// and manual corrections.
 ///
+/// ## Privacy-Safe Learning
+///
+/// This service processes raw OCR text TRANSIENTLY to extract keyword patterns,
+/// but **NEVER persists the raw text itself**. Only the following is stored:
+/// - Keywords (generic terms like "termin", "kwota", not specific values)
+/// - Confidence scores (numeric)
+/// - Usage timestamps
+///
+/// The `learnFromCorrection()` method receives OCR text, extracts keywords,
+/// and immediately discards the raw text. Only the keyword patterns are saved.
+///
 /// Storage strategy: UserDefaults for learned keywords (simple key-value pairs)
 /// Structure: Field type -> Keyword -> Confidence score
 final class KeywordLearningService: @unchecked Sendable {
@@ -103,7 +114,7 @@ final class KeywordLearningService: @unchecked Sendable {
         // Skip if keyword is too generic
         let genericKeywords = ["faktura", "invoice", "data", "date", "nr", "no"]
         if genericKeywords.contains(normalized) {
-            logger.debug("Skipping generic keyword: '\(normalized)'")
+            logger.debug("Skipping generic keyword (length=\(normalized.count))")
             return
         }
 
@@ -113,12 +124,14 @@ final class KeywordLearningService: @unchecked Sendable {
         if let index = keywords.firstIndex(where: { $0.keyword == normalized }) {
             // Update existing keyword
             keywords[index].recordSuccess()
-            logger.info("Updated existing keyword '\(normalized)' for \(fieldType.rawValue), new confidence: \(keywords[index].confidence)")
+            // PRIVACY: Log only field type and confidence, not actual keyword
+            logger.info("Updated keyword for \(fieldType.rawValue), newConfidence=\(keywords[index].confidence)")
         } else {
             // Add new keyword
             let newKeyword = LearnedKeyword(keyword: normalized, confidence: initialConfidence)
             keywords.append(newKeyword)
-            logger.info("Learned new keyword '\(normalized)' for \(fieldType.rawValue) with confidence: \(initialConfidence)")
+            // PRIVACY: Log only field type and confidence, not actual keyword
+            logger.info("Learned keyword for \(fieldType.rawValue), confidence=\(initialConfidence)")
         }
 
         // Save
@@ -131,7 +144,8 @@ final class KeywordLearningService: @unchecked Sendable {
     ///   - ocrText: Full OCR text to search for context
     ///   - fieldType: Type of field being corrected
     func learnFromCorrection(correctedValue: String, ocrText: String, fieldType: FieldType) {
-        logger.info("Learning from user correction for \(fieldType.rawValue): '\(correctedValue)'")
+        // PRIVACY: Log only field type, not the actual corrected value (financial/PII data)
+        logger.info("Learning from user correction for \(fieldType.rawValue) (valueLength=\(correctedValue.count))")
 
         let lowercasedText = ocrText.lowercased()
         let lowercasedValue = correctedValue.lowercased()
@@ -145,7 +159,8 @@ final class KeywordLearningService: @unchecked Sendable {
         }
 
         guard let foundRange = range else {
-            logger.warning("Could not find corrected value '\(correctedValue)' in OCR text")
+            // PRIVACY: Don't log the actual corrected value
+            logger.warning("Could not find corrected value in OCR text (length=\(correctedValue.count))")
             return
         }
 
@@ -154,7 +169,8 @@ final class KeywordLearningService: @unchecked Sendable {
         let contextEndIndex = foundRange.lowerBound
         let context = String(lowercasedText[contextStartIndex..<contextEndIndex])
 
-        logger.debug("Context before corrected value: '\(context)'")
+        // PRIVACY: Don't log actual context (may contain sensitive document text)
+        logger.debug("Found context before value (length=\(context.count))")
 
         // Extract potential keywords from context
         let potentialKeywords = extractKeywordsFromContext(context)
@@ -173,7 +189,8 @@ final class KeywordLearningService: @unchecked Sendable {
         if let index = keywords.firstIndex(where: { $0.keyword == normalized }) {
             keywords[index].recordSuccess()
             saveKeywords(keywords, for: fieldType)
-            logger.debug("Recorded success for keyword '\(normalized)' in \(fieldType.rawValue)")
+            // PRIVACY: Don't log actual keyword
+            logger.debug("Recorded success for keyword in \(fieldType.rawValue)")
         }
     }
 
@@ -188,11 +205,13 @@ final class KeywordLearningService: @unchecked Sendable {
             // Remove keyword if confidence drops too low
             if keywords[index].confidence < 10 {
                 keywords.remove(at: index)
-                logger.info("Removed low-confidence keyword '\(normalized)' from \(fieldType.rawValue)")
+                // PRIVACY: Don't log actual keyword
+                logger.info("Removed low-confidence keyword from \(fieldType.rawValue)")
             }
 
             saveKeywords(keywords, for: fieldType)
-            logger.debug("Recorded failure for keyword '\(normalized)' in \(fieldType.rawValue)")
+            // PRIVACY: Don't log actual keyword
+            logger.debug("Recorded failure for keyword in \(fieldType.rawValue)")
         }
     }
 
@@ -282,12 +301,14 @@ final class KeywordLearningService: @unchecked Sendable {
 
         for variant in searchVariants {
             if let range = text.range(of: variant) {
-                logger.debug("Found amount '\(amount)' as '\(variant)' in OCR text")
+                // PRIVACY: Don't log actual amount value
+                logger.debug("Found amount in OCR text (variantLength=\(variant.count))")
                 return range
             }
         }
 
-        logger.debug("Could not find amount '\(amount)' in any normalized form")
+        // PRIVACY: Don't log actual amount value
+        logger.debug("Could not find amount in any normalized form")
         return nil
     }
 
@@ -359,7 +380,8 @@ final class KeywordLearningService: @unchecked Sendable {
             variants.append("\(before) , \(after)")
         }
 
-        logger.debug("Generated \(variants.count) search variants for amount '\(normalizedAmount)'")
+        // PRIVACY: Don't log actual amount value
+        logger.debug("Generated \(variants.count) search variants for amount")
         return variants
     }
 

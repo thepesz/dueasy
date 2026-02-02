@@ -62,6 +62,11 @@ struct ImportFromPDFUseCase: Sendable {
     // MARK: - Private Helpers
 
     /// Extracts page images from PDF data.
+    ///
+    /// **Memory Optimization:**
+    /// Uses autoreleasepool to release temporary objects (PDFPage, UIImage rendering buffers)
+    /// after each page extraction. This prevents memory spikes when processing multi-page PDFs.
+    ///
     /// - Parameter data: PDF file data
     /// - Returns: Array of UIImages for each page
     private func extractImagesFromPDF(data: Data) throws -> [UIImage] {
@@ -73,29 +78,33 @@ struct ImportFromPDFUseCase: Sendable {
         let pageCount = min(pdfDocument.pageCount, 10) // Limit to 10 pages for performance
 
         for pageIndex in 0..<pageCount {
-            guard let page = pdfDocument.page(at: pageIndex) else { continue }
+            // Use autoreleasepool to release temporary objects after each page.
+            // PDF rendering creates large temporary buffers that can spike memory.
+            autoreleasepool {
+                guard let page = pdfDocument.page(at: pageIndex) else { return }
 
-            // Render page at high resolution for good OCR quality
-            let pageRect = page.bounds(for: .mediaBox)
-            let scale: CGFloat = 2.0 // 2x scale for crisp rendering
-            let width = pageRect.width * scale
-            let height = pageRect.height * scale
+                // Render page at high resolution for good OCR quality
+                let pageRect = page.bounds(for: .mediaBox)
+                let scale: CGFloat = 2.0 // 2x scale for crisp rendering
+                let width = pageRect.width * scale
+                let height = pageRect.height * scale
 
-            let renderer = UIGraphicsImageRenderer(size: CGSize(width: width, height: height))
-            let image = renderer.image { context in
-                // White background
-                UIColor.white.set()
-                context.fill(CGRect(x: 0, y: 0, width: width, height: height))
+                let renderer = UIGraphicsImageRenderer(size: CGSize(width: width, height: height))
+                let image = renderer.image { context in
+                    // White background
+                    UIColor.white.set()
+                    context.fill(CGRect(x: 0, y: 0, width: width, height: height))
 
-                // Flip coordinate system for PDF rendering
-                context.cgContext.translateBy(x: 0, y: height)
-                context.cgContext.scaleBy(x: scale, y: -scale)
+                    // Flip coordinate system for PDF rendering
+                    context.cgContext.translateBy(x: 0, y: height)
+                    context.cgContext.scaleBy(x: scale, y: -scale)
 
-                // Draw PDF page
-                page.draw(with: .mediaBox, to: context.cgContext)
+                    // Draw PDF page
+                    page.draw(with: .mediaBox, to: context.cgContext)
+                }
+
+                images.append(image)
             }
-
-            images.append(image)
         }
 
         return images

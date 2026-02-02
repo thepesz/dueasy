@@ -55,7 +55,8 @@ final class DetectRecurringCandidatesUseCase: @unchecked Sendable {
         reminderOffsets: [Int] = [7, 1, 0],
         toleranceDays: Int = 3
     ) async throws -> RecurringTemplate {
-        logger.info("Accepting recurring candidate: \(candidate.vendorDisplayName)")
+        // PRIVACY: Don't log vendor name
+        logger.info("Accepting recurring candidate: confidence=\(String(format: "%.2f", candidate.confidenceScore)), docs=\(candidate.documentCount)")
 
         let template = try await templateService.createTemplate(
             from: candidate,
@@ -70,7 +71,8 @@ final class DetectRecurringCandidatesUseCase: @unchecked Sendable {
     /// - Parameter candidate: The candidate to dismiss
     @MainActor
     func dismissCandidate(_ candidate: RecurringCandidate) async throws {
-        logger.info("Dismissing recurring candidate: \(candidate.vendorDisplayName)")
+        // PRIVACY: Don't log vendor name
+        logger.info("Dismissing recurring candidate: confidence=\(String(format: "%.2f", candidate.confidenceScore))")
         try await detectionService.dismissCandidate(candidate)
     }
 
@@ -78,7 +80,8 @@ final class DetectRecurringCandidatesUseCase: @unchecked Sendable {
     /// - Parameter candidate: The candidate to snooze
     @MainActor
     func snoozeCandidate(_ candidate: RecurringCandidate) async throws {
-        logger.info("Snoozing recurring candidate: \(candidate.vendorDisplayName)")
+        // PRIVACY: Don't log vendor name
+        logger.info("Snoozing recurring candidate: confidence=\(String(format: "%.2f", candidate.confidenceScore))")
         try await detectionService.snoozeCandidate(candidate)
     }
 }

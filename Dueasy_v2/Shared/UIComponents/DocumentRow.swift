@@ -20,7 +20,10 @@ struct DocumentRow: View {
 
     var body: some View {
         Button(action: {
-            print("📱 DocumentRow tapped: \(document.id) - \(document.title)")
+            // PRIVACY: Don't log document title (contains vendor name)
+            #if DEBUG
+            print("DocumentRow tapped: \(document.id)")
+            #endif
             onTap()
         }) {
             HStack(spacing: Spacing.sm) {

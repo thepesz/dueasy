@@ -682,6 +682,63 @@ enum L10n {
         static let cancelFooter = "subscription.cancelFooter"
     }
 
+    // MARK: - Home Screen (Glance Dashboard)
+    enum Home {
+        static let title = "home.title"
+        static let statusOffline = "home.status.offline"
+        static let statusPro = "home.status.pro"
+
+        // Hero Card
+        static let dueIn7Days = "home.hero.dueIn7Days"
+        static let invoicesCount = "home.hero.invoicesCount"
+        static let nextDue = "home.hero.nextDue"
+        static let noUpcoming = "home.hero.noUpcoming"
+        static let allSet = "home.hero.allSet"
+
+        // Status Capsules
+        static let overdue = "home.capsule.overdue"
+        static let dueSoon = "home.capsule.dueSoon"
+
+        // Overdue Tile
+        static let overdueTitle = "home.overdue.title"
+        static let allClear = "home.overdue.allClear"
+        static let oldestOverdue = "home.overdue.oldest"
+        static let review = "home.overdue.review"
+        static let check = "home.overdue.check"
+
+        // Recurring Tile
+        static let recurringTitle = "home.recurring.title"
+        static let activeCount = "home.recurring.active"
+        static let nextRecurring = "home.recurring.next"
+        static let missingCount = "home.recurring.missing"
+        static let manage = "home.recurring.manage"
+        static let setupRecurring = "home.recurring.setup"
+
+        // Next Payments
+        static let nextPayments = "home.nextPayments.title"
+        static let seeAllUpcoming = "home.nextPayments.seeAll"
+        static let dueTodayLabel = "home.nextPayments.dueToday"
+        static let dueInDaysLabel = "home.nextPayments.dueInDays"
+        static let overdueDaysLabel = "home.nextPayments.overdueDays"
+
+        // Month Summary (Donut)
+        static let thisMonth = "home.month.title"
+        static let paymentStatus = "home.month.paymentStatus"
+        static let unpaidTotal = "home.month.unpaidTotal"
+
+        // Donut segment labels
+        enum Donut {
+            static let paid = "home.donut.paid"
+            static let due = "home.donut.due"
+            static let overdue = "home.donut.overdue"
+        }
+
+        // Empty State
+        static let noPaymentsTitle = "home.empty.title"
+        static let noPaymentsMessage = "home.empty.message"
+        static let goToScan = "home.empty.goToScan"
+    }
+
     // MARK: - Errors
     enum Errors {
         // File Storage
@@ -787,10 +844,14 @@ final class LocalizationManager: ObservableObject {
         if let path = Bundle.main.path(forResource: localeCode, ofType: "lproj"),
            let bundle = Bundle(path: path) {
             _bundle = bundle
-            print("✅ Localization: Loaded bundle for language '\(languageCode)' from path: \(path)")
+            #if DEBUG
+            print("Localization: Loaded bundle for language '\(languageCode)' from path: \(path)")
+            #endif
         } else {
             _bundle = .main
-            print("⚠️ Localization: Could not find bundle for language '\(languageCode)', using main bundle")
+            #if DEBUG
+            print("Localization: Could not find bundle for language '\(languageCode)', using main bundle")
+            #endif
         }
     }
 }

@@ -5,11 +5,30 @@ import OSLog
 /// is ever logged. Only metrics and non-sensitive operational data should be logged.
 ///
 /// PRIVACY PRINCIPLE: Log metrics, not data.
-/// - OK to log: line counts, confidence scores, durations, success/failure rates
+/// - OK to log: line counts, confidence scores, durations, success/failure rates, boolean flags
 /// - NOT OK to log: vendor names, amounts, NIP numbers, addresses, dates, document content
+///
+/// USAGE:
+/// Instead of: logger.info("Processing \(vendorName) for \(amount)")
+/// Use: logger.info("Processing document: hasVendor=\(vendorName != nil), hasAmount=\(amount != nil)")
+///
+/// Or for dev debugging only:
+/// #if DEBUG
+///     logger.debug("Vendor: \(PrivacyLogger.sanitizeVendor(vendorName))")
+/// #endif
 enum PrivacyLogger {
 
     private static let subsystem = "com.dueasy.app"
+
+    // MARK: - Debug Mode Flag
+
+    /// Enable verbose logging in DEBUG builds only.
+    /// Even in debug mode, actual values are sanitized - only metrics and redacted forms are shown.
+    #if DEBUG
+    static let isVerboseLoggingEnabled = true
+    #else
+    static let isVerboseLoggingEnabled = false
+    #endif
 
     // MARK: - Category Loggers
 
@@ -36,6 +55,18 @@ enum PrivacyLogger {
 
     /// Logger for app lifecycle operations
     static let app = Logger(subsystem: subsystem, category: "App")
+
+    /// Logger for recurring payment operations
+    static let recurring = Logger(subsystem: subsystem, category: "Recurring")
+
+    /// Logger for document operations
+    static let document = Logger(subsystem: subsystem, category: "Document")
+
+    /// Logger for cloud/backend operations
+    static let cloud = Logger(subsystem: subsystem, category: "Cloud")
+
+    /// Logger for learning/ML operations
+    static let learning = Logger(subsystem: subsystem, category: "Learning")
 
     // MARK: - Sanitization Helpers
 
@@ -137,6 +168,93 @@ enum PrivacyLogger {
     static func sanitizeText(_ text: String?) -> String {
         guard let text = text else { return "nil" }
         return sanitizeText(text)
+    }
+
+    /// Sanitizes a document/event title (often contains vendor info)
+    /// - Parameter title: Optional title string
+    /// - Returns: Redacted string with character count
+    static func sanitizeTitle(_ title: String?) -> String {
+        if let title = title, !title.isEmpty {
+            return "[TITLE:\(title.count)chars]"
+        }
+        return "nil"
+    }
+
+    /// Sanitizes a vendor fingerprint hash (partial for debugging)
+    /// - Parameter fingerprint: Optional fingerprint hash
+    /// - Returns: Redacted string showing only prefix
+    static func sanitizeFingerprint(_ fingerprint: String?) -> String {
+        if let fp = fingerprint, fp.count >= 8 {
+            return "[FP:\(fp.prefix(8))...]"
+        } else if fingerprint != nil {
+            return "[FP:***]"
+        }
+        return "nil"
+    }
+
+    /// Sanitizes an email address
+    /// - Parameter email: Optional email string
+    /// - Returns: Redacted string indicating presence
+    static func sanitizeEmail(_ email: String?) -> String {
+        if email != nil {
+            return "[EMAIL_REDACTED]"
+        }
+        return "nil"
+    }
+
+    /// Sanitizes a phone number
+    /// - Parameter phone: Optional phone string
+    /// - Returns: Redacted string indicating presence
+    static func sanitizePhone(_ phone: String?) -> String {
+        if phone != nil {
+            return "[PHONE_REDACTED]"
+        }
+        return "nil"
+    }
+
+    // MARK: - Metrics-Only Helpers
+
+    /// Creates a metrics-only string for field presence
+    /// Use this pattern: PrivacyLogger.fieldPresence(vendor: x, amount: y, date: z)
+    /// - Returns: String like "hasVendor=true, hasAmount=true, hasDate=false"
+    static func fieldPresence(
+        vendor: String? = nil,
+        amount: Decimal? = nil,
+        date: Date? = nil,
+        documentNumber: String? = nil,
+        nip: String? = nil,
+        bankAccount: String? = nil
+    ) -> String {
+        var parts: [String] = []
+
+        if vendor != nil || amount != nil || date != nil || documentNumber != nil || nip != nil || bankAccount != nil {
+            parts.append("hasVendor=\(vendor != nil && !vendor!.isEmpty)")
+            parts.append("hasAmount=\(amount != nil)")
+            parts.append("hasDate=\(date != nil)")
+            parts.append("hasDocNum=\(documentNumber != nil && !documentNumber!.isEmpty)")
+            parts.append("hasNIP=\(nip != nil && !nip!.isEmpty)")
+            parts.append("hasBankAccount=\(bankAccount != nil && !bankAccount!.isEmpty)")
+        }
+
+        return parts.joined(separator: ", ")
+    }
+
+    /// Creates a metrics-only string for a candidate/suggestion
+    /// - Parameters:
+    ///   - confidence: Confidence score (0.0-1.0)
+    ///   - documentCount: Number of documents
+    ///   - daySpan: Number of days spanned
+    /// - Returns: Safe metrics string
+    static func candidateMetrics(
+        confidence: Double,
+        documentCount: Int,
+        daySpan: Int? = nil
+    ) -> String {
+        var result = "confidence=\(String(format: "%.2f", confidence)), docs=\(documentCount)"
+        if let span = daySpan {
+            result += ", span=\(span)d"
+        }
+        return result
     }
 
     // MARK: - Metrics Logging (Safe)

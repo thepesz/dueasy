@@ -130,7 +130,8 @@ final class VendorFingerprintService: VendorFingerprintServiceProtocol, @uncheck
         if let normalizedNIP = normalizedNIP, !normalizedNIP.isEmpty {
             combined = "\(normalizedName)|\(normalizedNIP)"
             isFallback = false
-            logger.debug("Generating fingerprint with NIP for vendor: \(vendorName.prefix(30))...")
+            // PRIVACY: Log only that fingerprint was generated, not vendor name
+            logger.debug("Generating fingerprint with NIP (nameLength=\(vendorName.count))")
         } else {
             // Fallback: use normalized name only
             // Mark as lower certainty - this handles:
@@ -138,7 +139,8 @@ final class VendorFingerprintService: VendorFingerprintServiceProtocol, @uncheck
             // - Foreign invoices without Polish NIP
             combined = normalizedName
             isFallback = true
-            logger.warning("Generating FALLBACK fingerprint (no NIP) for vendor: \(vendorName.prefix(30))... - lower certainty")
+            // PRIVACY: Log only that fallback was used, not vendor name
+            logger.debug("Generating FALLBACK fingerprint (no NIP) - nameLength=\(vendorName.count)")
         }
 
         // Generate SHA256 hash

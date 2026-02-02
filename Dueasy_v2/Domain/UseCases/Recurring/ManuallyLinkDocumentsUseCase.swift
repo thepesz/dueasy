@@ -35,7 +35,8 @@ final class ManuallyLinkDocumentsUseCase: @unchecked Sendable {
         var totalLinked = 0
 
         for template in templates {
-            logger.info("Processing template: \(template.vendorDisplayName)")
+            // PRIVACY: Don't log vendor name
+            logger.info("Processing template: id=\(template.id)")
 
             // Find documents for this vendor
             let documents = try await documentRepository.fetch(byVendorFingerprint: template.vendorFingerprint)

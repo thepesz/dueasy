@@ -29,18 +29,22 @@ final class FirebaseConfigurator {
 
         // Check if GoogleService-Info.plist exists
         guard Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist") != nil else {
-            print("⚠️ Firebase: GoogleService-Info.plist not found. Firebase will not be initialized.")
+            #if DEBUG
+            print("Firebase: GoogleService-Info.plist not found. Firebase will not be initialized.")
             print("   To enable Firebase:")
             print("   1. Create a Firebase project at https://console.firebase.google.com")
             print("   2. Add an iOS app to your project")
             print("   3. Download GoogleService-Info.plist")
             print("   4. Add it to your Xcode project")
+            #endif
             return
         }
 
         // Configure Firebase
         FirebaseApp.configure()
-        print("✅ Firebase configured successfully")
+        #if DEBUG
+        print("Firebase configured successfully")
+        #endif
 
         // Optional: Configure Firebase settings
         #if DEBUG
@@ -50,13 +54,15 @@ final class FirebaseConfigurator {
 
         #else
         // Firebase SDK not available
+        #if DEBUG
         if tier == .pro {
-            print("⚠️ Firebase: SDK not available. Add Firebase packages to enable Pro features.")
+            print("Firebase: SDK not available. Add Firebase packages to enable Pro features.")
             print("   To add Firebase SDK:")
             print("   1. In Xcode, go to File > Add Package Dependencies")
             print("   2. Add https://github.com/firebase/firebase-ios-sdk")
             print("   3. Select: FirebaseAuth, FirebaseFunctions")
         }
+        #endif
         #endif
     }
 

@@ -80,26 +80,30 @@ enum FieldValidators {
 
         // Reject account numbers
         if looksLikeAccountNumber(trimmed) {
-            logger.debug("Vendor rejected: looks like account '\(trimmed)'")
+            // PRIVACY: Don't log actual value
+            logger.debug("Vendor rejected: looks like account (length=\(trimmed.count))")
             return false
         }
 
         // Reject amounts
         if looksLikeAmount(trimmed) {
-            logger.debug("Vendor rejected: looks like amount '\(trimmed)'")
+            // PRIVACY: Don't log actual value
+            logger.debug("Vendor rejected: looks like amount (length=\(trimmed.count))")
             return false
         }
 
         // Reject NIP/REGON/KRS patterns
         if looksLikeNIP(trimmed) || looksLikeREGON(trimmed) || looksLikeKRS(trimmed) {
-            logger.debug("Vendor rejected: looks like tax ID '\(trimmed)'")
+            // PRIVACY: Don't log actual value
+            logger.debug("Vendor rejected: looks like tax ID (length=\(trimmed.count))")
             return false
         }
 
         // Reject pure numbers with punctuation
         let strippedPunctuation = trimmed.filter { $0.isLetter || $0.isNumber }
         if strippedPunctuation.allSatisfy({ $0.isNumber }) && strippedPunctuation.count > 0 {
-            logger.debug("Vendor rejected: all numbers '\(trimmed)'")
+            // PRIVACY: Don't log actual value
+            logger.debug("Vendor rejected: all numbers (length=\(trimmed.count))")
             return false
         }
 

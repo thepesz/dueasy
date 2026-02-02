@@ -23,7 +23,8 @@ final class VendorTemplateService {
             let templates = try modelContext.fetch(descriptor)
             return templates.first
         } catch {
-            logger.error("Failed to fetch template for NIP \(nip): \(error.localizedDescription)")
+            // PRIVACY: Don't log NIP
+            logger.error("Failed to fetch template: \(error.localizedDescription)")
             return nil
         }
     }
@@ -50,7 +51,8 @@ final class VendorTemplateService {
         region: DocumentRegion?,
         anchorUsed: String?
     ) {
-        logger.info("Recording correction for vendor \(vendorName), field: \(field.rawValue)")
+        // PRIVACY: Don't log vendor name or corrected value
+        logger.info("Recording correction for field: \(field.rawValue)")
 
         // Find or create template
         var template = fetchTemplate(for: vendorNIP)
@@ -216,7 +218,8 @@ final class VendorTemplateService {
     func createTemplate(nip: String, name: String) -> VendorTemplate {
         let template = VendorTemplate(vendorNIP: nip, vendorName: name)
         modelContext.insert(template)
-        logger.info("Created new vendor template for: \(name) (NIP: \(nip))")
+        // PRIVACY: Don't log vendor name or NIP
+        logger.info("Created new vendor template")
         return template
     }
 
@@ -303,7 +306,8 @@ final class VendorTemplateService {
             return result
         }
 
-        logger.info("Applying template for vendor NIP: \(vendorNIP)")
+        // PRIVACY: Don't log vendor NIP
+        logger.info("Applying vendor template")
         template.markAsUsed()
 
         // Build field confidences with boosts

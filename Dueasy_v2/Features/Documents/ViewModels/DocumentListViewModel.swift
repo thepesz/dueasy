@@ -1,10 +1,14 @@
 import Foundation
 import Observation
 import SwiftUI
+import Combine
 import os.log
 
 /// ViewModel for the document list screen.
 /// Manages document fetching, filtering, search, and recurring payment auto-detection.
+///
+/// Performance Optimization: Filtering and search are performed at the repository/database level
+/// rather than in-memory. This scales efficiently with thousands of documents.
 @MainActor
 @Observable
 final class DocumentListViewModel {
@@ -13,12 +17,28 @@ final class DocumentListViewModel {
 
     // MARK: - State
 
+    /// Documents currently loaded (already filtered by repository)
     var documents: [FinanceDocument] = []
-    var selectedFilter: DocumentFilter = .all
-    var searchText: String = ""
+
+    /// Current filter selection
+    private(set) var selectedFilter: DocumentFilter = .all
+
+    /// Current search text (debounced before triggering fetch)
+    var searchText: String = "" {
+        didSet {
+            searchTextSubject.send(searchText)
+        }
+    }
+
     var isLoading: Bool = false
     var error: AppError?
     var statusCounts: [DocumentStatus: Int] = [:]
+
+    /// Total document count (for "All" filter badge, fetched separately)
+    var totalDocumentCount: Int = 0
+
+    /// Overdue count (fetched separately for badge display)
+    private(set) var overdueCount: Int = 0
 
     /// Recurring payment suggestions detected by auto-detection.
     /// Shown as cards at the top of the document list.
@@ -26,6 +46,26 @@ final class DocumentListViewModel {
 
     /// Whether auto-detection is currently running
     var isDetectionRunning: Bool = false
+
+    // MARK: - Search Debouncing
+
+    /// Subject for debouncing search input
+    private let searchTextSubject = PassthroughSubject<String, Never>()
+
+    /// Cancellable for search debounce subscription
+    private var searchDebounceSubscription: AnyCancellable?
+
+    /// Debounce interval for search (milliseconds)
+    private static let searchDebounceInterval: Int = 300
+
+    // MARK: - Recurring Detection Background Processing
+
+    /// Task handle for background recurring detection (allows cancellation)
+    private var detectionTask: Task<Void, Never>?
+
+    /// Debounce delay before starting recurring detection (seconds)
+    /// Prevents rapid refreshes from triggering multiple expensive detection runs
+    private static let detectionDelay: TimeInterval = 0.5
 
     // MARK: - Dependencies
 
@@ -39,46 +79,22 @@ final class DocumentListViewModel {
 
     // MARK: - Computed Properties
 
+    /// Returns the currently loaded documents.
+    /// Since filtering is now done at the repository level, this simply returns the documents array.
+    /// Kept for backward compatibility with existing views.
     var filteredDocuments: [FinanceDocument] {
-        var result = documents
-
-        // Apply status filter
-        switch selectedFilter {
-        case .all:
-            break
-        case .pending:
-            result = result.filter { $0.status == .draft }
-        case .scheduled:
-            result = result.filter { $0.status == .scheduled }
-        case .paid:
-            result = result.filter { $0.status == .paid }
-        case .overdue:
-            result = result.filter { $0.isOverdue }
-        }
-
-        // Apply search filter
-        if !searchText.isEmpty {
-            let query = searchText.lowercased()
-            result = result.filter { document in
-                document.title.lowercased().contains(query) ||
-                (document.documentNumber?.lowercased().contains(query) ?? false) ||
-                (document.notes?.lowercased().contains(query) ?? false)
-            }
-        }
-
-        return result
+        documents
     }
 
+    /// Whether there are any documents in the system (ignoring current filter).
+    /// Uses totalDocumentCount which is fetched separately.
     var hasDocuments: Bool {
-        !documents.isEmpty
+        totalDocumentCount > 0
     }
 
+    /// Whether the current filtered result has documents
     var hasFilteredDocuments: Bool {
-        !filteredDocuments.isEmpty
-    }
-
-    var overdueCount: Int {
-        documents.filter { $0.isOverdue }.count
+        !documents.isEmpty
     }
 
     /// Whether there are recurring suggestions to show
@@ -113,75 +129,179 @@ final class DocumentListViewModel {
         self.schedulerService = schedulerService
         self.linkExistingDocumentsUseCase = linkExistingDocumentsUseCase
         self.documentRepository = documentRepository
+
+        setupSearchDebounce()
+    }
+
+    // MARK: - Search Debouncing Setup
+
+    /// Sets up debounced search to avoid excessive database queries while typing
+    private func setupSearchDebounce() {
+        searchDebounceSubscription = searchTextSubject
+            .debounce(for: .milliseconds(Self.searchDebounceInterval), scheduler: DispatchQueue.main)
+            .removeDuplicates()
+            .sink { [weak self] _ in
+                guard let self = self else { return }
+                Task { @MainActor in
+                    await self.fetchFilteredDocuments()
+                }
+            }
     }
 
     // MARK: - Actions
 
+    /// Loads documents with current filter and search state.
+    /// This is the main entry point for initial load and refresh.
     func loadDocuments() async {
-        print("🔵 LOAD_DOCUMENTS: Starting...")
+        logger.debug("LOAD_DOCUMENTS: Starting with filter=\(self.selectedFilter.rawValue), search='\(self.searchText)'")
         isLoading = true
         error = nil
 
         do {
-            // Proper MVVM flow: ViewModel → UseCase → Repository
-            print("🔵 LOAD_DOCUMENTS: Fetching documents from use case...")
-            documents = try await fetchDocumentsUseCase.execute()
-            print("🔵 LOAD_DOCUMENTS: Fetched \(documents.count) documents")
+            // Fetch filtered documents from repository (database-level filtering)
+            await fetchFilteredDocuments()
 
-            print("🔵 LOAD_DOCUMENTS: Counting documents by status...")
+            // Fetch status counts for filter badges
+            logger.debug("LOAD_DOCUMENTS: Counting documents by status...")
             statusCounts = try await countDocumentsUseCase.executeAll()
-            print("🔵 LOAD_DOCUMENTS: Status counts: \(statusCounts)")
+            logger.debug("LOAD_DOCUMENTS: Status counts: \(self.statusCounts)")
 
-            // CRITICAL: Run recurring payment auto-detection after loading documents.
-            // This analyzes vendor patterns and generates suggestions for recurring payments.
-            print("🔵 LOAD_DOCUMENTS: Running recurring detection...")
-            await runRecurringDetection()
-            print("🔵 LOAD_DOCUMENTS: Recurring detection complete")
+            // Calculate total and overdue counts for UI badges
+            totalDocumentCount = statusCounts.values.reduce(0, +)
+            overdueCount = try await countDocumentsUseCase.countOverdue()
+
+            // Run recurring payment auto-detection in background after loading documents
+            // This keeps UI responsive while detection analyzes document patterns
+            logger.debug("LOAD_DOCUMENTS: Scheduling background recurring detection...")
+            scheduleBackgroundDetection()
 
         } catch let appError as AppError {
-            print("🔵 LOAD_DOCUMENTS: Error (AppError): \(appError)")
+            logger.error("LOAD_DOCUMENTS: Error (AppError): \(appError)")
             error = appError
         } catch {
-            print("🔵 LOAD_DOCUMENTS: Error (Unknown): \(error.localizedDescription)")
+            logger.error("LOAD_DOCUMENTS: Error (Unknown): \(error.localizedDescription)")
             self.error = .repositoryFetchFailed(error.localizedDescription)
         }
 
         isLoading = false
-        print("🔵 LOAD_DOCUMENTS: Complete. Final document count: \(documents.count)")
+        logger.debug("LOAD_DOCUMENTS: Complete. Filtered document count: \(self.documents.count)")
     }
 
-    // MARK: - Recurring Payment Auto-Detection
+    /// Fetches documents with current filter and search state.
+    /// Called by loadDocuments() and search debounce.
+    private func fetchFilteredDocuments() async {
+        do {
+            // Normalize search query: empty string becomes nil for repository
+            let searchQuery: String? = searchText.isEmpty ? nil : searchText
 
-    /// Runs the recurring payment auto-detection analysis.
-    /// Called automatically after loading documents.
-    private func runRecurringDetection() async {
+            // Use optimized database-level filtering
+            documents = try await fetchDocumentsUseCase.execute(
+                filter: selectedFilter,
+                searchQuery: searchQuery
+            )
+
+            logger.debug("FETCH_FILTERED: Fetched \(self.documents.count) documents for filter=\(self.selectedFilter.rawValue), search='\(searchQuery ?? "")'")
+        } catch {
+            logger.error("FETCH_FILTERED: Error: \(error.localizedDescription)")
+            // Don't overwrite existing documents on filter error
+        }
+    }
+
+    // MARK: - Recurring Payment Auto-Detection (Background Processing)
+
+    /// Schedules recurring detection to run in the background after a brief delay.
+    /// This keeps the UI responsive during document list refresh.
+    ///
+    /// **Performance Optimization:**
+    /// - Cancels any pending detection task (handles rapid refresh scenarios)
+    /// - Waits for debounce delay to avoid redundant work
+    /// - Runs heavy detection work on background thread via Task.detached
+    /// - Posts results back to MainActor when complete
+    private func scheduleBackgroundDetection() {
+        // Cancel any pending detection to handle rapid refreshes
+        detectionTask?.cancel()
+
+        // Capture weak self to avoid retain cycles
+        detectionTask = Task.detached { [weak self] in
+            // Wait for debounce delay to coalesce rapid refreshes
+            do {
+                try await Task.sleep(nanoseconds: UInt64(Self.detectionDelay * 1_000_000_000))
+            } catch {
+                // Task was cancelled during sleep - exit early
+                return
+            }
+
+            // Check cancellation before starting expensive work
+            guard !Task.isCancelled else { return }
+
+            // Run detection on background thread, post results to main
+            await self?.runRecurringDetectionAsync()
+        }
+    }
+
+    /// Runs recurring detection asynchronously on a background thread.
+    /// Results are posted back to the MainActor when complete.
+    ///
+    /// This method is designed to be called from Task.detached context.
+    private func runRecurringDetectionAsync() async {
         guard let detectUseCase = detectCandidatesUseCase else {
-            logger.debug("Auto-detection skipped: DetectRecurringCandidatesUseCase not provided")
+            await MainActor.run {
+                logger.debug("Auto-detection skipped: DetectRecurringCandidatesUseCase not provided")
+            }
             return
         }
 
-        guard !isDetectionRunning else {
-            logger.debug("Auto-detection already running, skipping")
-            return
+        // Check if detection is already running (thread-safe check on main)
+        let shouldSkip = await MainActor.run { () -> Bool in
+            if isDetectionRunning {
+                logger.debug("Auto-detection already running, skipping")
+                return true
+            }
+            isDetectionRunning = true
+            logger.info("Starting background recurring payment auto-detection")
+            return false
         }
 
-        isDetectionRunning = true
-        logger.info("Starting recurring payment auto-detection")
+        guard !shouldSkip else { return }
 
         do {
+            // Heavy work runs off main thread
             let candidates = try await detectUseCase.execute()
-            suggestedCandidates = candidates
-            logger.info("Auto-detection complete: found \(candidates.count) suggestions")
 
-            for candidate in candidates {
-                logger.info("  - \(candidate.vendorDisplayName): confidence=\(candidate.confidenceScore), docs=\(candidate.documentCount)")
+            // Check cancellation before posting results
+            guard !Task.isCancelled else {
+                await MainActor.run {
+                    isDetectionRunning = false
+                    logger.debug("Auto-detection cancelled before posting results")
+                }
+                return
+            }
+
+            // Post results back to main thread
+            await MainActor.run {
+                suggestedCandidates = candidates
+                isDetectionRunning = false
+                logger.info("Background auto-detection complete: found \(candidates.count) suggestions")
+
+                // PRIVACY: Log only metrics, not vendor names
+                for candidate in candidates {
+                    logger.info("  - Candidate: \(PrivacyLogger.candidateMetrics(confidence: candidate.confidenceScore, documentCount: candidate.documentCount))")
+                }
             }
         } catch {
-            logger.error("Auto-detection failed: \(error.localizedDescription)")
-            // Don't show error to user - auto-detection is a background feature
+            await MainActor.run {
+                isDetectionRunning = false
+                logger.error("Background auto-detection failed: \(error.localizedDescription)")
+                // Don't show error to user - auto-detection is a background feature
+            }
         }
+    }
 
-        isDetectionRunning = false
+    /// Cancels any pending background detection task.
+    /// Called during deinitialization and when explicitly needed.
+    func cancelPendingDetection() {
+        detectionTask?.cancel()
+        detectionTask = nil
     }
 
     /// Accepts a recurring suggestion and creates a template.
@@ -200,18 +320,19 @@ final class DocumentListViewModel {
             return
         }
 
+        // PRIVACY: Log only metrics, not vendor names or fingerprints
         logger.info("=== ACCEPT SUGGESTION START ===")
-        logger.info("Vendor: \(candidate.vendorDisplayName)")
-        logger.info("Fingerprint: \(candidate.vendorFingerprint)")
-        logger.info("Document Count: \(candidate.documentCount)")
-        logger.info("Reminders: \(reminderOffsets)")
+        logger.info("Candidate: \(PrivacyLogger.candidateMetrics(confidence: candidate.confidenceScore, documentCount: candidate.documentCount))")
+        logger.info("Fingerprint: \(PrivacyLogger.sanitizeFingerprint(candidate.vendorFingerprint))")
+        logger.info("Reminders: \(reminderOffsets.count) offsets")
         logger.info("Duration: \(durationMonths) months")
 
         do {
             // Step 1: Create template from candidate
             logger.info("STEP 1: Creating template from candidate...")
             let template = try await detectUseCase.acceptCandidate(candidate, reminderOffsets: reminderOffsets)
-            logger.info("Template created: id=\(template.id), vendorFingerprint=\(template.vendorFingerprint)")
+            // PRIVACY: Log only template ID and sanitized fingerprint
+            logger.info("Template created: id=\(template.id), fingerprint=\(PrivacyLogger.sanitizeFingerprint(template.vendorFingerprint))")
 
             // Step 2: Generate instances for the new template
             logger.info("STEP 2: Generating instances...")
@@ -253,7 +374,8 @@ final class DocumentListViewModel {
             return
         }
 
-        logger.info("Dismissing recurring suggestion: \(candidate.vendorDisplayName)")
+        // PRIVACY: Log only metrics, not vendor name
+        logger.info("Dismissing recurring suggestion: \(PrivacyLogger.candidateMetrics(confidence: candidate.confidenceScore, documentCount: candidate.documentCount))")
 
         do {
             try await detectUseCase.dismissCandidate(candidate)
@@ -271,7 +393,8 @@ final class DocumentListViewModel {
             return
         }
 
-        logger.info("Snoozing recurring suggestion: \(candidate.vendorDisplayName)")
+        // PRIVACY: Log only metrics, not vendor name
+        logger.info("Snoozing recurring suggestion: \(PrivacyLogger.candidateMetrics(confidence: candidate.confidenceScore, documentCount: candidate.documentCount))")
 
         do {
             try await detectUseCase.snoozeCandidate(candidate)
@@ -284,9 +407,10 @@ final class DocumentListViewModel {
     /// Step 1: Initiates deletion flow by showing initial confirmation alert.
     /// This matches iOS Calendar's two-step deletion UX.
     func deleteDocument(_ document: FinanceDocument) async {
+        // PRIVACY: Log only document ID, not title (contains vendor name)
         logger.info("=== DELETE DOCUMENT - STEP 1 ===")
         logger.info("Document ID: \(document.id)")
-        logger.info("Document Title: \(document.title)")
+        logger.info("Document hasTitle: \(document.title.count > 0)")
 
         // Always show initial confirmation first (like iOS Calendar)
         documentPendingDeletion = document
@@ -380,49 +504,33 @@ final class DocumentListViewModel {
         error = nil
     }
 
+    /// Sets the filter and triggers a filtered fetch.
+    /// - Parameter filter: The new filter to apply
     func setFilter(_ filter: DocumentFilter) {
+        guard filter != selectedFilter else { return }
+
+        logger.debug("SET_FILTER: Changing from \(self.selectedFilter.rawValue) to \(filter.rawValue)")
         selectedFilter = filter
-    }
-}
 
-// MARK: - Document Filter
-
-enum DocumentFilter: String, CaseIterable, Identifiable {
-    case all
-    case pending
-    case scheduled
-    case paid
-    case overdue
-
-    var id: String { rawValue }
-
-    var displayName: String {
-        switch self {
-        case .all:
-            return L10n.Filters.all.localized
-        case .pending:
-            return L10n.Filters.pending.localized
-        case .scheduled:
-            return L10n.Filters.scheduled.localized
-        case .paid:
-            return L10n.Filters.paid.localized
-        case .overdue:
-            return L10n.Filters.overdue.localized
+        // Trigger filtered fetch
+        Task {
+            await fetchFilteredDocuments()
         }
     }
 
-    var iconName: String {
-        switch self {
-        case .all:
-            return "doc.on.doc"
-        case .pending:
-            return "doc.badge.ellipsis"
-        case .scheduled:
-            return "calendar.badge.clock"
-        case .paid:
-            return "checkmark.circle"
-        case .overdue:
-            return "exclamationmark.triangle"
-        }
+    /// Clears the current search text and triggers a refresh.
+    func clearSearch() {
+        searchText = ""
+        // The didSet on searchText will trigger debounced fetch
     }
+
 }
+
+// Note: DocumentFilter enum has been moved to Domain/Models/DocumentFilter.swift
+// for use across repository and use case layers.
+//
+// Resource Cleanup:
+// - AnyCancellable (searchDebounceSubscription) automatically cancels on deallocation.
+// - Task (detectionTask) is cancelled via cancelPendingDetection() or when the view disappears.
+//   Views using this ViewModel should call cancelPendingDetection() in their onDisappear modifier
+//   if the ViewModel might outlive the view.

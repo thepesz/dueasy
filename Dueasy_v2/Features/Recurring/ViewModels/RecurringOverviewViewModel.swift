@@ -102,7 +102,8 @@ final class RecurringOverviewViewModel {
         do {
             try await templateService.updateTemplate(template, reminderOffsets: nil, toleranceDays: nil, isActive: false)
             await loadData()
-            logger.info("Paused template: \(template.vendorDisplayName)")
+            // PRIVACY: Don't log vendor name
+            logger.info("Paused template: id=\(template.id)")
         } catch {
             logger.error("Failed to pause template: \(error.localizedDescription)")
             self.error = .repositorySaveFailed(error.localizedDescription)
@@ -117,7 +118,8 @@ final class RecurringOverviewViewModel {
             let _ = try await schedulerService.generateInstances(for: template, monthsAhead: 3)
 
             await loadData()
-            logger.info("Resumed template: \(template.vendorDisplayName)")
+            // PRIVACY: Don't log vendor name
+            logger.info("Resumed template: id=\(template.id)")
         } catch {
             logger.error("Failed to resume template: \(error.localizedDescription)")
             self.error = .repositorySaveFailed(error.localizedDescription)
@@ -128,7 +130,8 @@ final class RecurringOverviewViewModel {
         do {
             try await templateService.deleteTemplate(template)
             await loadData()
-            logger.info("Deleted template: \(template.vendorDisplayName)")
+            // PRIVACY: Don't log vendor name
+            logger.info("Deleted template: id=\(template.id)")
         } catch {
             logger.error("Failed to delete template: \(error.localizedDescription)")
             self.error = .repositoryDeleteFailed(error.localizedDescription)

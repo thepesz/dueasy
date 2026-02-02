@@ -6,6 +6,19 @@ import Foundation
 /// Iteration 1: Mock implementation for testing.
 /// Iteration 2: Firebase Functions integration with OpenAI Vision API.
 ///
+/// ## Privacy and Consent
+///
+/// Cloud analysis requires **explicit user consent** via the `cloudAnalysisEnabled`
+/// setting in `SettingsManager`. This setting:
+/// - Defaults to `false` (local-only analysis by default)
+/// - Must be explicitly enabled by the user in Settings
+/// - Is clearly explained during Pro subscription onboarding
+///
+/// When enabled, OCR text is sent to cloud for enhanced analysis but:
+/// - **NOT stored on our servers** (processed and discarded immediately)
+/// - **Encrypted in transit** (TLS 1.3+)
+/// - **No raw text retained** in cloud storage (only analysis results returned)
+///
 /// Privacy-first design:
 /// - Primary: Text-only analysis (OCR text sent, images stay on device)
 /// - Fallback: Cropped image snippets when text is insufficient

@@ -107,12 +107,9 @@ final class RecurringDetectionService: RecurringDetectionServiceProtocol {
 
         try modelContext.save()
 
-        logger.info("Analyzed vendor \(vendorName): confidence=\(confidenceScore), documents=\(documents.count)")
-        logger.info("📊 DIAGNOSTIC After save:")
-        logger.info("📊   - Confidence: \(candidate.confidenceScore)")
-        logger.info("📊   - State: \(candidate.suggestionStateRaw)")
-        logger.info("📊   - ID: \(candidate.id)")
-        logger.info("📊   - Fingerprint: \(candidate.vendorFingerprint.prefix(16))...")
+        // PRIVACY: Log only metrics, not vendor names or fingerprints
+        logger.info("Analyzed vendor: confidence=\(String(format: "%.2f", confidenceScore)), documents=\(documents.count)")
+        logger.debug("Candidate after save: confidence=\(candidate.confidenceScore), state=\(candidate.suggestionStateRaw), id=\(candidate.id)")
 
         return candidate
     }
@@ -125,13 +122,10 @@ final class RecurringDetectionService: RecurringDetectionServiceProtocol {
         // DIAGNOSTIC: Fetch ALL candidates to see what's in the database
         let allDescriptor = FetchDescriptor<RecurringCandidate>()
         let allCandidates = try modelContext.fetch(allDescriptor)
-        logger.info("📊 DIAGNOSTIC: Total candidates in database: \(allCandidates.count)")
+        // PRIVACY: Log only counts and metrics, not vendor names
+        logger.info("Total candidates in database: \(allCandidates.count)")
         for candidate in allCandidates {
-            logger.info("📊   - \(candidate.vendorDisplayName)")
-            logger.info("📊     Confidence: \(candidate.confidenceScore)")
-            logger.info("📊     State: \(candidate.suggestionStateRaw)")
-            logger.info("📊     Meets threshold? \(candidate.confidenceScore >= Self.suggestionThreshold)")
-            logger.info("📊     State OK? \(candidate.suggestionStateRaw == "none" || candidate.suggestionStateRaw == "suggested")")
+            logger.debug("Candidate: confidence=\(String(format: "%.2f", candidate.confidenceScore)), state=\(candidate.suggestionStateRaw), meetsThreshold=\(candidate.confidenceScore >= Self.suggestionThreshold)")
         }
 
         let threshold = Self.suggestionThreshold
@@ -146,12 +140,9 @@ final class RecurringDetectionService: RecurringDetectionServiceProtocol {
         var candidates = try modelContext.fetch(descriptor)
         logger.info("Found \(candidates.count) candidates meeting confidence threshold (>= \(Self.suggestionThreshold))")
 
+        // PRIVACY: Log only metrics, not vendor names
         for candidate in candidates {
-            logger.info("Candidate: \(candidate.vendorDisplayName)")
-            logger.info("  - Confidence: \(String(format: "%.2f", candidate.confidenceScore))")
-            logger.info("  - State: \(candidate.suggestionStateRaw)")
-            logger.info("  - Day span: \(candidate.daySpan) days")
-            logger.info("  - Time eligible: \(candidate.isTimeEligible)")
+            logger.debug("Candidate: confidence=\(String(format: "%.2f", candidate.confidenceScore)), state=\(candidate.suggestionStateRaw), daySpan=\(candidate.daySpan), timeEligible=\(candidate.isTimeEligible)")
         }
 
         // Filter by additional criteria that can't be expressed in predicate
@@ -159,14 +150,13 @@ final class RecurringDetectionService: RecurringDetectionServiceProtocol {
         candidates = candidates.filter { candidate in
             // Must be time-eligible
             guard candidate.isTimeEligible else {
-                logger.debug("Filtering out \(candidate.vendorDisplayName): not time-eligible")
-                logger.debug("  - First doc: \(candidate.firstDocumentDate), docs: \(candidate.documentCount), span: \(candidate.daySpan)")
+                logger.debug("Filtering out candidate: not time-eligible, docs=\(candidate.documentCount), span=\(candidate.daySpan)")
                 return false
             }
 
             // Must not be hard-rejected category
             guard !candidate.documentCategory.isHardRejectedForAutoDetection else {
-                logger.debug("Filtering out \(candidate.vendorDisplayName): hard-rejected category (\(candidate.documentCategoryRaw))")
+                logger.debug("Filtering out candidate: hard-rejected category (\(candidate.documentCategoryRaw))")
                 return false
             }
 
@@ -181,7 +171,7 @@ final class RecurringDetectionService: RecurringDetectionServiceProtocol {
 
                 // Don't show again too soon
                 if daysSinceSuggestion < 7 {
-                    logger.debug("Filtering out \(candidate.vendorDisplayName): suggested too recently (\(daysSinceSuggestion) days ago)")
+                    logger.debug("Filtering out candidate: suggested too recently (\(daysSinceSuggestion) days ago)")
                     return false
                 }
             }
@@ -207,14 +197,16 @@ final class RecurringDetectionService: RecurringDetectionServiceProtocol {
     func dismissCandidate(_ candidate: RecurringCandidate) async throws {
         candidate.dismiss()
         try modelContext.save()
-        logger.info("Dismissed recurring candidate: \(candidate.vendorDisplayName)")
+        // PRIVACY: Log only metrics, not vendor names
+        logger.info("Dismissed recurring candidate: confidence=\(String(format: "%.2f", candidate.confidenceScore)), docs=\(candidate.documentCount)")
     }
 
     func snoozeCandidate(_ candidate: RecurringCandidate) async throws {
         // Reset to "none" state so it can be suggested again later
         candidate.resetSuggestionState()
         try modelContext.save()
-        logger.info("Snoozed recurring candidate: \(candidate.vendorDisplayName)")
+        // PRIVACY: Log only metrics, not vendor names
+        logger.info("Snoozed recurring candidate: confidence=\(String(format: "%.2f", candidate.confidenceScore)), docs=\(candidate.documentCount)")
     }
 
     // MARK: - Batch Analysis
@@ -234,13 +226,12 @@ final class RecurringDetectionService: RecurringDetectionServiceProtocol {
         for (fingerprint, documents) in vendorGroups {
             guard let firstDoc = documents.first else { continue }
 
-            logger.debug("Analyzing vendor: \(firstDoc.title) (fingerprint: \(fingerprint.prefix(16))...)")
-            logger.debug("  - Document count: \(documents.count)")
-            logger.debug("  - Due dates: \(documents.compactMap { $0.dueDate }.map { DateFormatter.localizedString(from: $0, dateStyle: .short, timeStyle: .none) })")
+            // PRIVACY: Log only metrics, not vendor names or dates
+            logger.debug("Analyzing vendor group: docs=\(documents.count), fingerprint=\(fingerprint.prefix(8))...")
 
             // Check if template exists (skip if so)
             if try await templateService.templateExists(forVendorFingerprint: fingerprint) {
-                logger.debug("  - SKIPPED: Template already exists")
+                logger.debug("SKIPPED: Template already exists")
                 skippedTemplateExists += 1
                 continue
             }
@@ -250,24 +241,17 @@ final class RecurringDetectionService: RecurringDetectionServiceProtocol {
                 vendorFingerprint: fingerprint,
                 vendorName: firstDoc.title
             ) {
-                logger.info("  - Candidate created/updated:")
-                logger.info("    - Confidence: \(String(format: "%.2f", candidate.confidenceScore))")
-                logger.info("    - Time eligible: \(candidate.isTimeEligible)")
-                logger.info("    - Dominant due day: \(candidate.dominantDueDayOfMonth ?? -1)")
-                logger.info("    - Day span: \(candidate.daySpan) days (first: \(candidate.firstDocumentDate), last: \(candidate.lastDocumentDate))")
-                logger.info("    - Suggestion state: \(candidate.suggestionStateRaw)")
-                logger.info("    - Category: \(candidate.documentCategoryRaw) (hard-reject: \(candidate.documentCategory.isHardRejectedForAutoDetection))")
-                logger.info("    - Should show: \(candidate.shouldShowSuggestion)")
+                // PRIVACY: Log only metrics
+                logger.info("Candidate created/updated: confidence=\(String(format: "%.2f", candidate.confidenceScore)), timeEligible=\(candidate.isTimeEligible), category=\(candidate.documentCategoryRaw)")
+                logger.debug("Details: dominantDay=\(candidate.dominantDueDayOfMonth ?? -1), daySpan=\(candidate.daySpan), state=\(candidate.suggestionStateRaw)")
 
                 if !candidate.isTimeEligible {
-                    logger.debug("    - First doc date: \(candidate.firstDocumentDate)")
-                    logger.debug("    - Doc count: \(candidate.documentCount), Day span: \(candidate.daySpan)")
-                    logger.debug("    - Needs: 60+ days since first OR (3+ docs AND 45+ day span)")
+                    logger.debug("Not time eligible: docs=\(candidate.documentCount), span=\(candidate.daySpan)")
                 }
 
                 updatedCount += 1
             } else {
-                logger.debug("  - SKIPPED: No pattern detected")
+                logger.debug("SKIPPED: No pattern detected")
                 skippedNoPattern += 1
             }
         }
@@ -319,10 +303,8 @@ final class RecurringDetectionService: RecurringDetectionServiceProtocol {
         )
         let noFingerprintDocs = try modelContext.fetch(noFingerprintDescriptor)
         if !noFingerprintDocs.isEmpty {
+            // PRIVACY: Log only count, not document titles
             logger.warning("Documents WITHOUT vendorFingerprint: \(noFingerprintDocs.count)")
-            for doc in noFingerprintDocs.prefix(5) {
-                logger.warning("  - '\(doc.title)' (created: \(doc.createdAt))")
-            }
         }
 
         // Group by vendor fingerprint
@@ -343,12 +325,8 @@ final class RecurringDetectionService: RecurringDetectionServiceProtocol {
             }
         }
 
-        // Log vendor groups
-        for (fingerprint, docs) in groups {
-            if let firstDoc = docs.first {
-                logger.debug("Vendor '\(firstDoc.title)' (fp: \(fingerprint.prefix(16))...): \(docs.count) docs")
-            }
-        }
+        // PRIVACY: Log only counts, not vendor names
+        logger.debug("Vendor groups created: \(groups.count) unique vendors")
 
         // Filter to vendors with 2+ documents
         let eligible = groups.filter { $0.value.count >= 2 }
@@ -375,13 +353,8 @@ final class RecurringDetectionService: RecurringDetectionServiceProtocol {
         let firstDate = firstDueDate
         let lastDate = lastDueDate
 
-        // Log the dates for debugging
-        logger.debug("  Statistics update for \(candidate.vendorDisplayName):")
-        logger.debug("    - First doc dueDate: \(String(describing: firstDoc.dueDate))")
-        logger.debug("    - First doc createdAt: \(firstDoc.createdAt)")
-        logger.debug("    - Calculated firstDate: \(firstDate)")
-        logger.debug("    - Last doc dueDate: \(String(describing: lastDoc.dueDate))")
-        logger.debug("    - Calculated lastDate: \(lastDate)")
+        // PRIVACY: Log only metrics, not actual dates (which can identify documents)
+        logger.debug("Statistics update: docs=\(documentCount), hasDueDates=\(firstDoc.dueDate != nil && lastDoc.dueDate != nil)")
 
         // Classify documents
         let categoryResults = documents.compactMap { doc -> DocumentCategory? in
@@ -408,12 +381,8 @@ final class RecurringDetectionService: RecurringDetectionServiceProtocol {
         // This handles weekend/holiday shifts where vendor moves due date
         let bucketStabilityRatio = calculateDueDateBucketStability(dueDays: dueDays, dominantDay: dominantDay)
 
-        logger.debug("    - Due date analysis:")
-        logger.debug("      - dueDays: \(dueDays)")
-        logger.debug("      - dominantDay: \(dominantDay ?? -1)")
-        logger.debug("      - dominantPercentage: \(String(format: "%.2f", dominantPercentage ?? 0))")
-        logger.debug("      - stdDev: \(String(format: "%.2f", stdDev ?? -1))")
-        logger.debug("      - bucketStabilityRatio (+/-3d): \(String(format: "%.2f", bucketStabilityRatio ?? 0))")
+        // PRIVACY: Log only statistical metrics, not actual due dates
+        logger.debug("Due date analysis: dominantDay=\(dominantDay ?? -1), dominantPct=\(String(format: "%.2f", dominantPercentage ?? 0)), stdDev=\(String(format: "%.2f", stdDev ?? -1)), bucketRatio=\(String(format: "%.2f", bucketStabilityRatio ?? 0))")
 
         // Amount analysis
         let amounts = documents.map { $0.amountValue }
@@ -428,10 +397,8 @@ final class RecurringDetectionService: RecurringDetectionServiceProtocol {
         let hasStableIBAN = uniqueIBANs.count == 1 && !ibans.isEmpty
         let stableIBAN = hasStableIBAN ? uniqueIBANs.first : nil
 
-        logger.debug("    - IBAN analysis:")
-        logger.debug("      - ibans found: \(ibans.count)")
-        logger.debug("      - unique IBANs: \(uniqueIBANs.count)")
-        logger.debug("      - hasStableIBAN: \(hasStableIBAN)")
+        // PRIVACY: Log only counts, not actual IBAN values
+        logger.debug("IBAN analysis: found=\(ibans.count), unique=\(uniqueIBANs.count), isStable=\(hasStableIBAN)")
 
         // Recurring keywords check
         let hasRecurringKeywords = documents.contains { doc in
@@ -448,11 +415,7 @@ final class RecurringDetectionService: RecurringDetectionServiceProtocol {
         }
         let hasFallbackFingerprint = documentsWithNIP.isEmpty
 
-        if hasFallbackFingerprint {
-            logger.debug("    - Fallback fingerprint: YES (no documents have NIP)")
-        } else {
-            logger.debug("    - Fallback fingerprint: NO (\(documentsWithNIP.count)/\(documents.count) docs have NIP)")
-        }
+        logger.debug("Fallback fingerprint: \(hasFallbackFingerprint) (docsWithNIP=\(documentsWithNIP.count)/\(documents.count))")
 
         // Update candidate
         candidate.documentCategory = dominantCategory
@@ -475,12 +438,10 @@ final class RecurringDetectionService: RecurringDetectionServiceProtocol {
             confidenceScore: 0.0 // Will be calculated separately
         )
 
-        // Log time eligibility calculation
+        // Log time eligibility calculation - PRIVACY: no actual dates
         let now = Date()
         let daysSinceFirst = Calendar.current.dateComponents([.day], from: candidate.firstDocumentDate, to: now).day ?? 0
-        logger.debug("    - Days since first: \(daysSinceFirst) (need >= 60 for eligibility)")
-        logger.debug("    - Day span: \(candidate.daySpan) days (from \(candidate.firstDocumentDate) to \(candidate.lastDocumentDate))")
-        logger.debug("    - Doc count: \(candidate.documentCount), Day span: \(candidate.daySpan) (need >= 3 docs AND >= 45 span)")
+        logger.debug("Time eligibility: daysSinceFirst=\(daysSinceFirst), daySpan=\(candidate.daySpan), docs=\(candidate.documentCount)")
     }
 
     /// Calculates the bucket stability ratio for due dates (+/-3 days tolerance).
@@ -659,33 +620,28 @@ final class RecurringDetectionService: RecurringDetectionServiceProtocol {
                 // Cap confidence below threshold
                 let cappedScore = min(score, 0.65)
                 if cappedScore < score {
-                    logger.info("  STRONG SIGNAL GATE: Category is \(candidate.documentCategoryRaw) but no strong signal found")
-                    logger.info("    - hasStrongIBAN: \(hasStrongIBAN) (score=\(String(format: "%.3f", ibanScore)))")
-                    logger.info("    - hasStrongAmount: \(hasStrongAmount) (score=\(String(format: "%.3f", amountScore)))")
-                    logger.info("    - hasStrongKeywords: \(hasStrongKeywords) (score=\(String(format: "%.3f", keywordScore)))")
-                    logger.info("    - Capping confidence from \(String(format: "%.3f", score)) to \(String(format: "%.3f", cappedScore))")
+                    // PRIVACY: Log only category and scores, not vendor name
+                    logger.debug("STRONG SIGNAL GATE: category=\(candidate.documentCategoryRaw), strongIBAN=\(hasStrongIBAN), strongAmount=\(hasStrongAmount), strongKeywords=\(hasStrongKeywords)")
+                    logger.debug("Capping confidence from \(String(format: "%.3f", score)) to \(String(format: "%.3f", cappedScore))")
                     score = cappedScore
                     strongSignalGateApplied = true
                 }
             } else {
-                logger.debug("  Strong signal gate PASSED for \(candidate.documentCategoryRaw): IBAN=\(hasStrongIBAN), amount=\(hasStrongAmount), keywords=\(hasStrongKeywords)")
+                logger.debug("Strong signal gate PASSED: category=\(candidate.documentCategoryRaw), IBAN=\(hasStrongIBAN), amount=\(hasStrongAmount), keywords=\(hasStrongKeywords)")
             }
         }
 
         // ---------------------------------------------------------------------
-        // Log Comprehensive Score Breakdown
+        // Log Comprehensive Score Breakdown (PRIVACY: no vendor name)
         // ---------------------------------------------------------------------
-        logger.info("=== SCORE BREAKDOWN: \(candidate.vendorDisplayName) ===")
+        logger.debug("=== SCORE BREAKDOWN ===")
         for item in scoreBreakdown {
-            logger.info("  \(item)")
+            logger.debug("  \(item)")
         }
         if strongSignalGateApplied {
-            logger.info("  [CAPPED by strong signal gate]")
+            logger.debug("  [CAPPED by strong signal gate]")
         }
-        logger.info("  -----------------------------------------")
-        logger.info("  TOTAL: \(String(format: "%.3f", score)) (threshold: \(Self.suggestionThreshold))")
-        logger.info("  DECISION: \(score >= Self.suggestionThreshold ? "SUGGEST" : "DO NOT SUGGEST")")
-        logger.info("===============================================")
+        logger.info("Score: total=\(String(format: "%.3f", score)), threshold=\(Self.suggestionThreshold), decision=\(score >= Self.suggestionThreshold ? "SUGGEST" : "SKIP")")
 
         return min(max(score, 0.0), 1.0)
     }

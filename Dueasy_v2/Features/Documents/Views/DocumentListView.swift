@@ -32,8 +32,12 @@ struct DocumentListView: View {
     /// External trigger from MainTabView to refresh after adding documents
     let refreshTrigger: Int
 
-    init(refreshTrigger: Int = 0) {
+    /// Initial filter to apply when the view first appears (e.g., from overdue navigation)
+    let initialFilter: DocumentFilter?
+
+    init(refreshTrigger: Int = 0, initialFilter: DocumentFilter? = nil) {
         self.refreshTrigger = refreshTrigger
+        self.initialFilter = initialFilter
     }
 
     var body: some View {
@@ -100,33 +104,23 @@ struct DocumentListView: View {
                    let document = vm.documentPendingDeletion,
                    let deletionVM = recurringDeletionViewModel {
                     RecurringDocumentDeletionSheet(viewModel: deletionVM) { result in
-                        print("🟢 COMPLETION_HANDLER: Received deletion result")
-                        print("🟢 COMPLETION_HANDLER: result.success = \(result.success)")
-                        print("🟢 COMPLETION_HANDLER: result.documentDeleted = \(result.documentDeleted)")
-                        print("🟢 COMPLETION_HANDLER: result.templateDeactivated = \(result.templateDeactivated)")
-                        print("🟢 COMPLETION_HANDLER: result.deletedInstanceCount = \(result.deletedInstanceCount)")
-                        print("🟢 COMPLETION_HANDLER: result.option = '\(result.option)'")
+                        #if DEBUG
+                        print("COMPLETION_HANDLER: success=\(result.success), docDeleted=\(result.documentDeleted), instancesDeleted=\(result.deletedInstanceCount)")
+                        #endif
 
                         // Always refresh the document list after successful recurring deletion
                         // This handles both cases:
                         // 1. Document was deleted (documentDeleted = true) - removed from list
                         // 2. Future instances were deleted but document kept (templateDeactivated = true) - still in list but unlinked
                         if result.success {
-                            print("🟢 COMPLETION_HANDLER: Success=true, calling loadDocuments()")
                             Task {
-                                print("🟢 COMPLETION_HANDLER: Awaiting loadDocuments()...")
                                 await viewModel?.loadDocuments()
-                                print("🟢 COMPLETION_HANDLER: loadDocuments() completed")
                             }
-                        } else {
-                            print("🟢 COMPLETION_HANDLER: Success=false, skipping loadDocuments()")
                         }
 
-                        print("🟢 COMPLETION_HANDLER: Cleaning up sheet state")
                         viewModel?.showRecurringDeletionSheet = false
                         viewModel?.documentPendingDeletion = nil
                         recurringDeletionViewModel = nil
-                        print("🟢 COMPLETION_HANDLER: Cleanup complete")
                     }
                 }
             }
@@ -149,13 +143,18 @@ struct DocumentListView: View {
                 }
             }
             .onChange(of: refreshTrigger) { oldValue, newValue in
-                // External refresh triggered (from MainTabView after adding document)
+                // External refresh triggered (from MainTabView after adding document or navigating with filter)
                 // CRITICAL: Set refresh guard BEFORE clearing path to block stale navigationDestination callbacks
                 isRefreshing = true
 
                 // Clear navigation to return to list view
                 if !navigationPath.isEmpty {
                     navigationPath = NavigationPath()
+                }
+
+                // Apply initial filter if specified (e.g., from overdue navigation)
+                if let initialFilter = initialFilter {
+                    viewModel?.setFilter(initialFilter)
                 }
 
                 Task {
@@ -169,10 +168,8 @@ struct DocumentListView: View {
                 // CRITICAL: Block stale navigation during refresh cycle to prevent phantom views
                 // that corrupt the layout. When isRefreshing is true, return an empty view.
                 if isRefreshing {
-                    let _ = print("NavigationDestination BLOCKED (refreshing) for document ID: \(documentId)")
                     Color.clear
                 } else {
-                    let _ = print("NavigationDestination triggered for document ID: \(documentId)")
                     DocumentDetailViewWrapper(documentId: documentId)
                         .environment(environment)
                 }
@@ -183,6 +180,12 @@ struct DocumentListView: View {
         // in onChange(of: refreshTrigger) is sufficient to reset navigation state.
         .task {
             setupViewModel()
+
+            // Apply initial filter if specified (e.g., from overdue navigation)
+            if let initialFilter = initialFilter {
+                viewModel?.setFilter(initialFilter)
+            }
+
             await viewModel?.loadDocuments()
 
             // Trigger appearance animation after data loads
@@ -198,10 +201,6 @@ struct DocumentListView: View {
 
     // MARK: - Content Views
 
-    private var appHeader: some View {
-        HandwrittenLogo()
-    }
-
     @ViewBuilder
     private func documentListContent(viewModel: DocumentListViewModel) -> some View {
         ZStack {
@@ -210,16 +209,11 @@ struct DocumentListView: View {
                 .ignoresSafeArea()
 
             VStack(spacing: 0) {
-                // App header with handwritten logo
-                appHeader
-                    .padding(.top, Spacing.md)
-                    .padding(.horizontal, Spacing.md)
-
                 // Recurring payment suggestions (shown when detected)
                 if viewModel.hasSuggestions {
                     recurringSuggestionsSection(viewModel: viewModel)
                         .padding(.horizontal, Spacing.md)
-                        .padding(.top, Spacing.sm)
+                        .padding(.top, Spacing.md)
                 }
 
                 // Inline search bar positioned above filters
@@ -231,7 +225,7 @@ struct DocumentListView: View {
                     placeholder: L10n.Documents.searchPlaceholder.localized
                 )
                 .padding(.horizontal, Spacing.md)
-                .padding(.top, Spacing.sm)
+                .padding(.top, viewModel.hasSuggestions ? Spacing.sm : Spacing.md)
 
                 // Filter bar with glass effect
                 filterBar(viewModel: viewModel)
@@ -361,7 +355,6 @@ struct DocumentListView: View {
         List {
             ForEach(Array(viewModel.filteredDocuments.enumerated()), id: \.element.id) { index, document in
                 DocumentRow(document: document) {
-                    print("Appending document ID to navigation path: \(document.id)")
                     navigationPath.append(document.id)
                 }
                 .opacity(appeared ? 1 : 0)
@@ -880,7 +873,6 @@ struct DocumentDetailViewWrapper: View {
     let documentId: UUID
 
     var body: some View {
-        let _ = print("DocumentDetailViewWrapper created for ID: \(documentId)")
         DocumentDetailView(documentId: documentId)
             .environment(environment)
     }

@@ -466,6 +466,18 @@ final class AppEnvironment {
         )
     }
 
+    // MARK: - Home Screen Use Case Factory Methods
+
+    /// Creates a FetchHomeMetricsUseCase with injected dependencies
+    func makeFetchHomeMetricsUseCase() -> FetchHomeMetricsUseCase {
+        FetchHomeMetricsUseCase(
+            documentRepository: documentRepository,
+            recurringTemplateService: recurringTemplateService,
+            recurringSchedulerService: recurringSchedulerService,
+            appTier: appTier
+        )
+    }
+
     // MARK: - Versioning and Migration
 
     /// Run vendor profile migrations on app startup

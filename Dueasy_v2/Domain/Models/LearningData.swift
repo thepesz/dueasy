@@ -2,8 +2,23 @@ import Foundation
 import SwiftData
 
 /// Learning data captured from user corrections.
-/// Stored WITHOUT full invoice text for privacy.
 /// Used to improve parsing accuracy over time.
+///
+/// ## Privacy-Safe Design
+///
+/// This model stores ONLY derived metrics and patterns, NEVER raw document text:
+/// - **NO raw OCR text**: Raw text is processed transiently and discarded
+/// - **NO vendor names**: Only keyword patterns and confidence scores
+/// - **NO financial values**: Only metadata about candidate ranking
+/// - **NO addresses or PII**: Only boolean flags for correction tracking
+///
+/// What IS stored (privacy-safe):
+/// - Keyword patterns that matched successfully
+/// - Confidence scores and candidate rankings
+/// - Boolean flags indicating which fields were corrected
+/// - OCR confidence metrics (numeric only)
+///
+/// This allows the app to learn and improve without retaining sensitive data.
 @Model
 final class LearningData {
     /// Unique identifier
