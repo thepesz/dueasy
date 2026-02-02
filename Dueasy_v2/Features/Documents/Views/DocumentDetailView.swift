@@ -3,88 +3,40 @@ import SwiftUI
 /// Document detail view showing full document information.
 ///
 /// ARCHITECTURE: This view is presented via NavigationStack from DocumentListView.
-/// The parent NavigationStack is recreated after sheet dismissals to prevent
-/// safe area corruption issues.
+/// Uses standard toolbar for navigation controls to avoid safe area corruption issues.
+///
+/// LAYOUT FIX (v3): Uses .safeAreaInset(edge: .top) for the floating header buttons.
+/// This is SwiftUI's native way to add persistent header content - it automatically
+/// handles safe area calculations and avoids GeometryReader timing issues where
+/// incorrect values could be returned during navigation transitions.
 struct DocumentDetailView: View {
 
     @Environment(AppEnvironment.self) private var environment
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var colorScheme
 
     let documentId: UUID
 
     @State private var viewModel: DocumentDetailViewModel?
     @State private var showingEditSheet = false
+    @State private var showingDeleteConfirmation = false  // Step 1: Initial confirmation
+    @State private var showingRecurringDeletionSheet = false  // Step 2: Recurring options
+    @State private var recurringDeletionViewModel: RecurringDeletionViewModel?
 
     var body: some View {
+        // LAYOUT FIX (v3): Use .safeAreaInset instead of GeometryReader + ZStack
+        // .safeAreaInset handles safe area calculations automatically and reliably
         ScrollView {
-            if let viewModel = viewModel, let doc = viewModel.document {
-                VStack(alignment: .leading, spacing: 16) {
-                    // Header
-                    headerSection(document: doc)
-
-                    // Amount
-                    amountSection(document: doc)
-
-                    // Details
-                    detailsSection(document: doc)
-
-                    // Calendar
-                    calendarSection(document: doc)
-
-                    // Actions
-                    if doc.status == .scheduled {
-                        actionsSection(viewModel: viewModel)
-                    }
-                }
-                .padding(.horizontal, 16)
-                .padding(.top, 16)
-                .padding(.bottom, 32)
-            } else {
-                VStack {
-                    ProgressView()
-                    Text(L10n.Common.loading.localized)
-                        .foregroundStyle(.secondary)
-                }
-                .frame(maxWidth: .infinity, minHeight: 200)
-            }
+            contentBody
         }
         .background(Color(UIColor.systemGroupedBackground))
+        .safeAreaInset(edge: .top, spacing: 0) {
+            floatingButtonsHeader
+        }
+        .toolbar(.hidden, for: .navigationBar)
         .task {
             setupViewModel()
             await viewModel?.loadDocument()
-        }
-        .navigationTitle(viewModel?.document?.title ?? L10n.Detail.title.localized)
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbarBackground(.visible, for: .navigationBar)
-        .toolbarBackground(.ultraThinMaterial, for: .navigationBar)
-        .toolbar {
-            ToolbarItem(placement: .primaryAction) {
-                Menu {
-                    Button {
-                        showingEditSheet = true
-                    } label: {
-                        Label(L10n.Common.edit.localized, systemImage: "pencil")
-                    }
-
-                    if viewModel?.document?.status == .scheduled {
-                        Button {
-                            Task { await viewModel?.markAsPaid() }
-                        } label: {
-                            Label(L10n.Detail.markAsPaid.localized, systemImage: "checkmark.circle")
-                        }
-                    }
-
-                    Divider()
-
-                    Button(role: .destructive) {
-                        Task { await viewModel?.deleteDocument() }
-                    } label: {
-                        Label(L10n.Common.delete.localized, systemImage: "trash")
-                    }
-                } label: {
-                    Image(systemName: "ellipsis.circle")
-                }
-            }
         }
         .onChange(of: viewModel?.shouldDismiss ?? false) { _, shouldDismiss in
             if shouldDismiss { dismiss() }
@@ -95,21 +47,156 @@ struct DocumentDetailView: View {
                     .environment(environment)
             }
         }
+        // Step 1: Initial delete confirmation alert (like iOS Calendar)
+        .alert(
+            L10n.Documents.deleteInvoiceTitle.localized,
+            isPresented: $showingDeleteConfirmation,
+            presenting: viewModel?.document
+        ) { document in
+            Button(L10n.Common.delete.localized, role: .destructive) {
+                handleConfirmedDeletion()
+            }
+            Button(L10n.Common.cancel.localized, role: .cancel) {}
+        } message: { document in
+            Text(document.title)
+        }
+        // Step 2: Recurring deletion options sheet (only shown if document is linked to recurring)
+        .sheet(isPresented: $showingRecurringDeletionSheet) {
+            if let deletionVM = recurringDeletionViewModel {
+                RecurringDocumentDeletionSheet(viewModel: deletionVM) { result in
+                    // Handle completion - dismiss the detail view on any successful deletion
+                    // This includes:
+                    // 1. Document deleted (documentDeleted = true)
+                    // 2. Future instances deleted but document kept (templateDeactivated = true)
+                    if result.success && (result.documentDeleted || result.templateDeactivated) {
+                        dismiss()
+                    }
+                }
+            }
+        }
+        .id(documentId) // Force view recreation when document changes
     }
 
-    // MARK: - Sections (Minimal Styling)
+    // MARK: - Content Body
+
+    @ViewBuilder
+    private var contentBody: some View {
+        if let viewModel = viewModel, let doc = viewModel.document {
+            VStack(alignment: .leading, spacing: Spacing.md) {
+                // Header
+                headerSection(document: doc)
+
+                // Amount
+                amountSection(document: doc)
+
+                // Details
+                detailsSection(document: doc)
+
+                // Calendar
+                calendarSection(document: doc)
+
+                // Actions
+                if doc.status == .scheduled {
+                    actionsSection(viewModel: viewModel)
+                }
+            }
+            .padding(.horizontal, Spacing.md)
+            .padding(.top, Spacing.xs) // Small gap between header and content
+            .padding(.bottom, Spacing.xl)
+        } else {
+            VStack {
+                ProgressView()
+                Text(L10n.Common.loading.localized)
+                    .font(Typography.body)
+                    .foregroundStyle(.secondary)
+            }
+            .frame(maxWidth: .infinity, minHeight: 200)
+        }
+    }
+
+    // MARK: - Floating Buttons Header
+
+    /// Floating buttons header using .safeAreaInset for proper safe area handling.
+    /// SwiftUI automatically positions this below the device safe area (notch/dynamic island)
+    /// and adjusts the ScrollView content inset accordingly.
+    @ViewBuilder
+    private var floatingButtonsHeader: some View {
+        HStack {
+            // Back button - ALWAYS visible
+            Button {
+                dismiss()
+            } label: {
+                Image(systemName: "chevron.left")
+                    .font(.title3.weight(.semibold))
+                    .foregroundStyle(AppColors.primary)
+                    .frame(width: 44, height: 44)
+                    .background(buttonBackground, in: Circle())
+            }
+
+            Spacer()
+
+            // Menu button - ALWAYS visible (disabled during loading)
+            Menu {
+                Button {
+                    showingEditSheet = true
+                } label: {
+                    Label(L10n.Common.edit.localized, systemImage: "pencil")
+                }
+
+                if let vm = viewModel, vm.document?.status == .scheduled {
+                    Button {
+                        Task { await vm.markAsPaid() }
+                    } label: {
+                        Label(L10n.Detail.markAsPaid.localized, systemImage: "checkmark.circle")
+                    }
+                }
+
+                Divider()
+
+                Button(role: .destructive) {
+                    handleDeleteAction()
+                } label: {
+                    Label(L10n.Common.delete.localized, systemImage: "trash")
+                }
+            } label: {
+                Image(systemName: "ellipsis")
+                    .font(.title3.weight(.semibold))
+                    .foregroundStyle(viewModel != nil ? AppColors.primary : Color.gray)
+                    .frame(width: 44, height: 44)
+                    .background(buttonBackground, in: Circle())
+            }
+            .disabled(viewModel == nil)
+        }
+        .padding(.horizontal, Spacing.md)
+        .padding(.vertical, Spacing.xs)
+        .frame(maxWidth: .infinity)
+        .background(
+            Color(UIColor.systemGroupedBackground)
+                .opacity(0.95)
+        )
+    }
+
+    /// Solid background for floating buttons.
+    /// Avoids material effects entirely to prevent visual style conflicts.
+    private var buttonBackground: some ShapeStyle {
+        colorScheme == .light
+            ? Color(white: 0.94)
+            : Color(white: 0.22)
+    }
+
+    // MARK: - Sections
 
     @ViewBuilder
     private func headerSection(document: FinanceDocument) -> some View {
         HStack {
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: Spacing.xxs) {
                 Text(document.type.displayName)
-                    .font(.caption)
+                    .font(Typography.caption1)
                     .foregroundStyle(.secondary)
 
                 if let number = document.documentNumber, !number.isEmpty {
                     Text(L10n.Detail.documentNumber.localized(with: number))
-                        .font(.subheadline)
+                        .font(Typography.subheadline)
                         .foregroundStyle(.secondary)
                 }
             }
@@ -122,23 +209,23 @@ struct DocumentDetailView: View {
 
     @ViewBuilder
     private func amountSection(document: FinanceDocument) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: Spacing.xs) {
             Text(L10n.Detail.amount.localized)
-                .font(.caption)
+                .font(Typography.caption1)
                 .foregroundStyle(.secondary)
 
             Text(formattedAmount(for: document))
-                .font(.system(size: 32, weight: .bold, design: .rounded))
+                .font(Typography.monospacedTitle)
         }
-        .padding(16)
+        .padding(Spacing.md)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color(UIColor.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .clipShape(RoundedRectangle(cornerRadius: CornerRadius.md))
     }
 
     @ViewBuilder
     private func detailsSection(document: FinanceDocument) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: Spacing.sm) {
             // Vendor
             detailRow(label: L10n.Detail.vendor.localized, value: document.title.isEmpty ? L10n.Detail.notSpecified.localized : document.title)
 
@@ -170,31 +257,31 @@ struct DocumentDetailView: View {
             // Created
             detailRow(label: L10n.Detail.created.localized, value: formattedDate(document.createdAt))
         }
-        .padding(16)
+        .padding(Spacing.md)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color(UIColor.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .clipShape(RoundedRectangle(cornerRadius: CornerRadius.md))
     }
 
     @ViewBuilder
     private func calendarSection(document: FinanceDocument) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: Spacing.xs) {
             HStack {
                 Image(systemName: "calendar")
-                    .foregroundStyle(.blue)
+                    .foregroundStyle(AppColors.primary)
 
                 Text(L10n.Detail.calendar.localized)
-                    .font(.headline)
+                    .font(Typography.headline)
 
                 Spacer()
 
                 if document.calendarEventId != nil {
                     Text(L10n.Detail.calendarAdded.localized)
-                        .font(.caption)
-                        .foregroundStyle(.green)
+                        .font(Typography.caption1)
+                        .foregroundStyle(AppColors.success)
                 } else {
                     Text(L10n.Detail.calendarNotAdded.localized)
-                        .font(.caption)
+                        .font(Typography.caption1)
                         .foregroundStyle(.secondary)
                 }
             }
@@ -202,17 +289,17 @@ struct DocumentDetailView: View {
             if document.notificationsEnabled {
                 HStack {
                     Image(systemName: "bell.fill")
-                        .foregroundStyle(.blue)
+                        .foregroundStyle(AppColors.primary)
 
                     Text(L10n.DetailLabels.remindersEnabled.localized)
-                        .font(.subheadline)
+                        .font(Typography.subheadline)
                 }
             }
         }
-        .padding(16)
+        .padding(Spacing.md)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color(UIColor.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .clipShape(RoundedRectangle(cornerRadius: CornerRadius.md))
     }
 
     @ViewBuilder
@@ -221,12 +308,12 @@ struct DocumentDetailView: View {
             Task { await viewModel.markAsPaid() }
         } label: {
             Label(L10n.Detail.markAsPaid.localized, systemImage: "checkmark.circle.fill")
-                .font(.headline)
+                .font(Typography.headline)
                 .frame(maxWidth: .infinity)
                 .padding()
-                .background(Color.green)
+                .background(AppColors.success)
                 .foregroundStyle(.white)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .clipShape(RoundedRectangle(cornerRadius: CornerRadius.md))
         }
     }
 
@@ -234,13 +321,13 @@ struct DocumentDetailView: View {
 
     @ViewBuilder
     private func detailRow(label: String, value: String) -> some View {
-        VStack(alignment: .leading, spacing: 2) {
+        VStack(alignment: .leading, spacing: Spacing.xxs) {
             Text(label)
-                .font(.caption)
+                .font(Typography.caption1)
                 .foregroundStyle(.secondary)
 
             Text(value)
-                .font(.body)
+                .font(Typography.body)
         }
     }
 
@@ -259,6 +346,51 @@ struct DocumentDetailView: View {
         return formatter.string(from: date)
     }
 
+    // MARK: - Delete Action
+
+    /// Step 1: Handles delete action - always shows initial confirmation first (like iOS Calendar)
+    private func handleDeleteAction() {
+        guard viewModel != nil, viewModel?.document != nil else {
+            print("DELETE: No viewModel or document")
+            return
+        }
+
+        print("DELETE: Step 1 - Showing initial confirmation alert")
+        showingDeleteConfirmation = true
+    }
+
+    /// Step 2: Called after user confirms initial deletion.
+    /// If document is linked to recurring, shows additional options sheet.
+    /// If not recurring, executes standard deletion immediately.
+    private func handleConfirmedDeletion() {
+        guard let vm = viewModel, let doc = vm.document else {
+            print("DELETE: No viewModel or document")
+            return
+        }
+
+        print("DELETE: Step 2 - Checking if linked to recurring")
+        print("DELETE: recurringInstanceId = \(doc.recurringInstanceId?.uuidString ?? "nil")")
+        print("DELETE: recurringTemplateId = \(doc.recurringTemplateId?.uuidString ?? "nil")")
+        print("DELETE: isLinkedToRecurring = \(vm.isLinkedToRecurring)")
+
+        if vm.isLinkedToRecurring {
+            // Document is linked to recurring payment - show step 2 options
+            print("DELETE: Document IS linked to recurring - showing options sheet")
+            let deletionVM = environment.makeRecurringDeletionViewModel()
+            recurringDeletionViewModel = deletionVM
+
+            // Setup the deletion view model with the document
+            Task {
+                await deletionVM.setupForDocumentDeletion(document: doc, template: nil)
+                showingRecurringDeletionSheet = true
+            }
+        } else {
+            // Not recurring - execute standard deletion immediately
+            print("DELETE: Document is NOT linked to recurring - executing deletion")
+            Task { await vm.deleteDocument() }
+        }
+    }
+
     // MARK: - Setup
 
     private func setupViewModel() {
@@ -273,7 +405,7 @@ struct DocumentDetailView: View {
     }
 }
 
-// MARK: - Document Edit View (Minimal Version)
+// MARK: - Document Edit View
 
 struct DocumentEditView: View {
     @Environment(AppEnvironment.self) private var environment
@@ -361,7 +493,7 @@ struct DocumentEditView: View {
                         .overlay {
                             ProgressView(L10n.Edit.saving.localized)
                                 .padding()
-                                .background(.regularMaterial)
+                                .background(Color(UIColor.systemBackground).opacity(0.95))
                                 .clipShape(RoundedRectangle(cornerRadius: 12))
                         }
                 }
@@ -405,13 +537,13 @@ struct DocumentEditView: View {
 
         do {
             document.vendorAddress = vendorAddress.isEmpty ? nil : vendorAddress
-            document.vendorNIP = vendorNIP.isEmpty ? nil : vendorNIP
             document.bankAccountNumber = bankAccountNumber.isEmpty ? nil : bankAccountNumber
 
             let updateUseCase = environment.makeUpdateDocumentUseCase()
             try await updateUseCase.execute(
                 document: document,
                 title: vendorName,
+                vendorNIP: vendorNIP.isEmpty ? nil : vendorNIP,
                 amount: finalAmount,
                 currency: currency,
                 dueDate: dueDate,

@@ -49,10 +49,17 @@ struct ManualEntryView: View {
                         .opacity(appeared ? 1 : 0)
                         .animation(reduceMotion ? .none : .easeOut(duration: 0.3).delay(0.15), value: appeared)
 
-                    // Reminder settings
-                    reminderSettings
+                    // Reminder settings - only show when calendar is enabled
+                    if viewModel.addToCalendar {
+                        reminderSettings
+                            .opacity(appeared ? 1 : 0)
+                            .animation(reduceMotion ? .none : .easeOut(duration: 0.3).delay(0.2), value: appeared)
+                    }
+
+                    // Invoice paid toggle
+                    invoicePaidSettings
                         .opacity(appeared ? 1 : 0)
-                        .animation(reduceMotion ? .none : .easeOut(duration: 0.3).delay(0.2), value: appeared)
+                        .animation(reduceMotion ? .none : .easeOut(duration: 0.3).delay(0.25), value: appeared)
 
                     // Validation errors
                     if !viewModel.validationErrors.isEmpty {
@@ -62,7 +69,7 @@ struct ManualEntryView: View {
                     // Save button
                     saveButton
                         .opacity(appeared ? 1 : 0)
-                        .animation(reduceMotion ? .none : .easeOut(duration: 0.3).delay(0.25), value: appeared)
+                        .animation(reduceMotion ? .none : .easeOut(duration: 0.3).delay(0.3), value: appeared)
                 }
                 .padding(.horizontal, Spacing.md)
                 .padding(.top, Spacing.md)
@@ -180,14 +187,14 @@ struct ManualEntryView: View {
             // NIP (optional)
             FormField(label: L10n.Review.nipLabel.localized, isRequired: false) {
                 TextField(L10n.Review.nipPlaceholder.localized, text: $viewModel.nip, axis: .vertical)
-                    .font(.system(.body, design: .monospaced))
+                    .font(Typography.monospacedBody)
                     .lineLimit(1)
             }
 
             // Bank account (optional)
             FormField(label: L10n.Review.bankAccountLabel.localized, isRequired: false) {
                 TextField(L10n.Review.bankAccountPlaceholder.localized, text: $viewModel.bankAccountNumber, axis: .vertical)
-                    .font(.system(.body, design: .monospaced))
+                    .font(Typography.monospacedBody)
                     .lineLimit(1...3)
             }
 
@@ -255,13 +262,7 @@ struct ManualEntryView: View {
             VStack(alignment: .leading, spacing: Spacing.sm) {
                 Label(L10n.Review.remindersTitle.localized, systemImage: "bell.fill")
                     .font(Typography.headline)
-                    .foregroundStyle(viewModel.addToCalendar ? AppColors.primary : .secondary)
-
-                if !viewModel.addToCalendar {
-                    Text(L10n.Review.remindersRequireCalendar.localized)
-                        .font(Typography.caption1)
-                        .foregroundStyle(.secondary)
-                }
+                    .foregroundStyle(AppColors.primary)
 
                 FlowLayout(spacing: Spacing.xs) {
                     ForEach(SettingsManager.availableReminderOffsets, id: \.self) { offset in
@@ -271,10 +272,34 @@ struct ManualEntryView: View {
                         ) {
                             viewModel.toggleReminderOffset(offset)
                         }
-                        .disabled(!viewModel.addToCalendar)
-                        .opacity(viewModel.addToCalendar ? 1.0 : 0.5)
                     }
                 }
+            }
+        }
+    }
+
+    // MARK: - Invoice Paid Settings
+
+    @ViewBuilder
+    private var invoicePaidSettings: some View {
+        Card.glass {
+            HStack(spacing: Spacing.sm) {
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.title2)
+                    .foregroundStyle(AppColors.success)
+
+                VStack(alignment: .leading, spacing: Spacing.xxs) {
+                    Text(L10n.Review.markAsPaidTitle.localized)
+                        .font(Typography.subheadline.weight(.semibold))
+                    Text(L10n.Review.markAsPaidDescription.localized)
+                        .font(Typography.caption1)
+                        .foregroundStyle(.secondary)
+                }
+
+                Spacer()
+
+                Toggle("", isOn: $viewModel.markAsPaid)
+                    .labelsHidden()
             }
         }
     }
@@ -337,8 +362,9 @@ final class ManualEntryViewModel {
     var nip = ""
     var bankAccountNumber = ""
     var notes = ""
-    var addToCalendar = true
-    var reminderOffsets: Set<Int> = [7, 1, 0]
+    var addToCalendar = false // Will be initialized from SettingsManager
+    var reminderOffsets: Set<Int> = [] // Will be initialized from SettingsManager
+    var markAsPaid = false
 
     // MARK: - UI State
 
@@ -363,11 +389,10 @@ final class ManualEntryViewModel {
         self.finalizeUseCase = environment.makeFinalizeInvoiceUseCase()
         self.settingsManager = environment.settingsManager
 
-        // Load default currency from settings
+        // Load defaults from settings (single source of truth)
         self.currency = settingsManager.defaultCurrency
-
-        // Load default reminder offsets from settings
         self.reminderOffsets = Set(settingsManager.defaultReminderOffsets)
+        self.addToCalendar = settingsManager.addToCalendarByDefault
     }
 
     // MARK: - Computed Properties
@@ -426,6 +451,11 @@ final class ManualEntryViewModel {
                 reminderOffsets: document.reminderOffsetsDays,
                 skipCalendar: !addToCalendar
             )
+
+            // Mark as paid if requested
+            if markAsPaid {
+                document.status = .paid
+            }
 
             isSaving = false
             return true

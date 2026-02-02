@@ -17,7 +17,7 @@ struct ProSubscriptionSection: View {
             if isLoading {
                 HStack {
                     ProgressView()
-                    Text("Loading subscription status...")
+                    Text(L10n.Subscription.loadingStatus.localized)
                         .font(Typography.body)
                         .foregroundStyle(.secondary)
                 }
@@ -33,10 +33,10 @@ struct ProSubscriptionSection: View {
                         showManageSheet = true
                     } label: {
                         HStack {
-                            Text("Manage Subscription")
+                            Text(L10n.Subscription.manageSubscription.localized)
                             Spacer()
                             Image(systemName: "chevron.right")
-                                .font(.caption)
+                                .font(Typography.caption1)
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -54,28 +54,28 @@ struct ProSubscriptionSection: View {
                                         endPoint: .trailing
                                     )
                                 )
-                            Text("Upgrade to Pro")
+                            Text(L10n.Subscription.upgradeToPro.localized)
                                 .fontWeight(.semibold)
                             Spacer()
                             Image(systemName: "arrow.right")
-                                .font(.caption)
+                                .font(Typography.caption1)
                         }
                     }
                     .buttonStyle(.borderless)
                 }
             }
         } header: {
-            Text("Subscription")
+            Text(L10n.Subscription.section.localized)
         } footer: {
             if !subscriptionStatus.isActive {
-                Text("Upgrade to Pro for AI-powered analysis, cloud backup, and enhanced accuracy.")
+                Text(L10n.Subscription.upgradeFooter.localized)
                     .font(Typography.caption1)
             } else if let expirationDate = subscriptionStatus.expirationDate {
                 if subscriptionStatus.willAutoRenew {
-                    Text("Your subscription will renew on \(expirationDate.formatted(date: .abbreviated, time: .omitted))")
+                    Text(L10n.Subscription.willRenewOn.localized(with: expirationDate.formatted(date: .abbreviated, time: .omitted)))
                         .font(Typography.caption1)
                 } else {
-                    Text("Your subscription expires on \(expirationDate.formatted(date: .abbreviated, time: .omitted))")
+                    Text(L10n.Subscription.expiresOn.localized(with: expirationDate.formatted(date: .abbreviated, time: .omitted)))
                         .font(Typography.caption1)
                 }
             }
@@ -129,20 +129,20 @@ struct ProSubscriptionSection: View {
 
                 if subscriptionStatus.tier == .pro {
                     if subscriptionStatus.isTrialPeriod {
-                        Text("Free Trial")
+                        Text(L10n.Subscription.freeTrial.localized)
                             .font(Typography.caption1)
                             .foregroundStyle(.secondary)
                     } else if subscriptionStatus.isInGracePeriod {
-                        Text("Payment Issue")
+                        Text(L10n.Subscription.paymentIssue.localized)
                             .font(Typography.caption1)
-                            .foregroundStyle(.orange)
+                            .foregroundStyle(AppColors.warning)
                     } else {
-                        Text("Active")
+                        Text(L10n.Subscription.active.localized)
                             .font(Typography.caption1)
-                            .foregroundStyle(.green)
+                            .foregroundStyle(AppColors.success)
                     }
                 } else {
-                    Text("Local-only features")
+                    Text(L10n.Subscription.localOnly.localized)
                         .font(Typography.caption1)
                         .foregroundStyle(.secondary)
                 }
@@ -154,7 +154,7 @@ struct ProSubscriptionSection: View {
             if subscriptionStatus.tier == .pro {
                 Image(systemName: "checkmark.circle.fill")
                     .font(.title3)
-                    .foregroundStyle(.green)
+                    .foregroundStyle(AppColors.success)
             }
         }
         .padding(.vertical, Spacing.xs)
@@ -187,49 +187,49 @@ struct ManageSubscriptionView: View {
         NavigationStack {
             List {
                 Section {
-                    LabeledContent("Status", value: status.isActive ? "Active" : "Inactive")
-                    LabeledContent("Tier", value: status.tier.displayName)
+                    LabeledContent(L10n.Subscription.status.localized, value: status.isActive ? L10n.Subscription.active.localized : L10n.Subscription.inactive.localized)
+                    LabeledContent(L10n.Subscription.tier.localized, value: status.tier.displayName)
 
                     if let productId = status.productId {
-                        LabeledContent("Plan", value: productId)
+                        LabeledContent(L10n.Subscription.plan.localized, value: productId)
                     }
 
                     if let expirationDate = status.expirationDate {
-                        LabeledContent("Expires", value: expirationDate.formatted(date: .abbreviated, time: .omitted))
+                        LabeledContent(L10n.Subscription.expires.localized, value: expirationDate.formatted(date: .abbreviated, time: .omitted))
                     }
 
                     if let purchaseDate = status.originalPurchaseDate {
-                        LabeledContent("Subscribed", value: purchaseDate.formatted(date: .abbreviated, time: .omitted))
+                        LabeledContent(L10n.Subscription.subscribed.localized, value: purchaseDate.formatted(date: .abbreviated, time: .omitted))
                     }
 
-                    LabeledContent("Auto-renew", value: status.willAutoRenew ? "On" : "Off")
+                    LabeledContent(L10n.Subscription.autoRenew.localized, value: status.willAutoRenew ? L10n.Common.on.localized : L10n.Common.off.localized)
 
                     if status.isTrialPeriod {
-                        LabeledContent("Trial Period", value: "Yes")
+                        LabeledContent(L10n.Subscription.trialPeriod.localized, value: L10n.Common.yes.localized)
                     }
                 } header: {
-                    Text("Subscription Details")
+                    Text(L10n.Subscription.details.localized)
                 }
 
                 Section {
-                    Button("Manage in App Store") {
+                    Button(L10n.Subscription.manageInAppStore.localized) {
                         openSubscriptionManagement()
                     }
 
-                    Button("Cancel Subscription", role: .destructive) {
+                    Button(L10n.Subscription.cancelSubscription.localized, role: .destructive) {
                         openSubscriptionManagement()
                     }
                 } header: {
-                    Text("Actions")
+                    Text(L10n.Common.actions.localized)
                 } footer: {
-                    Text("To cancel or modify your subscription, use the App Store settings. Changes will take effect at the end of the current billing period.")
+                    Text(L10n.Subscription.cancelFooter.localized)
                 }
             }
-            .navigationTitle("Manage Subscription")
+            .navigationTitle(L10n.Subscription.manageSubscription.localized)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") {
+                    Button(L10n.Common.done.localized) {
                         dismiss()
                     }
                 }

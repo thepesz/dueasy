@@ -60,6 +60,9 @@ enum L10n {
         static let statistics = "common.statistics"
         static let comingSoon = "common.comingSoon"
         static let comingSoonMessage = "common.comingSoonMessage"
+        static let on = "common.on"
+        static let off = "common.off"
+        static let actions = "common.actions"
     }
 
     // MARK: - Documents
@@ -70,6 +73,10 @@ enum L10n {
         static let deleteConfirmTitle = "documents.deleteConfirmTitle"
         static let deleteConfirmMessage = "documents.deleteConfirmMessage"
         static let loadingDocuments = "documents.loadingDocuments"
+
+        // Two-step deletion (iOS Calendar style)
+        static let deleteInvoiceTitle = "documents.deleteInvoice.title"
+        static let deleteInvoiceMessage = "documents.deleteInvoice.message"
 
         // Empty states
         static let noDocumentsTitle = "documents.noDocuments.title"
@@ -185,6 +192,10 @@ enum L10n {
         static let saveAndAddToCalendar = "review.saveAndAddToCalendar"
         static let saving = "review.saving"
 
+        // Mark as paid
+        static let markAsPaidTitle = "review.markAsPaid.title"
+        static let markAsPaidDescription = "review.markAsPaid.description"
+
         // Validation
         static let validationVendorRequired = "review.validation.vendorRequired"
         static let validationAmountRequired = "review.validation.amountRequired"
@@ -270,6 +281,16 @@ enum L10n {
         static let documentsCount = "calendar.documentsCount"
         static let documentsDue = "calendar.documentsDue"
         static let loading = "calendar.loading"
+        static let showRecurringOnly = "calendar.showRecurringOnly"
+        static let recurringCount = "calendar.recurringCount"
+        static let recurringSection = "calendar.recurringSection"
+        static let documentsSection = "calendar.documentsSection"
+        static let noRecurring = "calendar.noRecurring"
+        static let noRecurringMessage = "calendar.noRecurringMessage"
+        static let expectedPayment = "calendar.expectedPayment"
+        static let matchedPayment = "calendar.matchedPayment"
+        static let markAsPaid = "calendar.markAsPaid"
+        static let viewDocument = "calendar.viewDocument"
     }
 
     // MARK: - Settings
@@ -296,6 +317,8 @@ enum L10n {
         static let usingInvoicesCalendar = "settings.usingInvoicesCalendar"
         static let usingDefaultCalendar = "settings.usingDefaultCalendar"
         static let calendarFooter = "settings.calendarFooter"
+        static let syncRecurringToiOSCalendar = "settings.syncRecurringToiOSCalendar"
+        static let syncRecurringToiOSCalendarFooter = "settings.syncRecurringToiOSCalendarFooter"
 
         // Defaults section
         static let defaultsSection = "settings.defaults.section"
@@ -412,6 +435,14 @@ enum L10n {
         static let noCloudBackupDesc = "security.noCloudBackupDesc"
         static let privacyLogging = "security.privacyLogging"
         static let privacyLoggingDesc = "security.privacyLoggingDesc"
+
+        // App Lock View
+        static let appLocked = "security.appLocked"
+        static let dataProtected = "security.dataProtected"
+        static let authenticating = "security.authenticating"
+        static let unlockFaceID = "security.unlockFaceID"
+        static let unlockTouchID = "security.unlockTouchID"
+        static let unlockPasscode = "security.unlockPasscode"
     }
 
     // MARK: - Language Settings
@@ -428,6 +459,227 @@ enum L10n {
     // MARK: - Detail View Labels
     enum DetailLabels {
         static let remindersEnabled = "detail.remindersEnabled"
+    }
+
+    // MARK: - Document Categories
+    enum DocumentCategoryKeys {
+        static let utility = "documentCategory.utility"
+        static let telecom = "documentCategory.telecom"
+        static let rent = "documentCategory.rent"
+        static let insurance = "documentCategory.insurance"
+        static let subscription = "documentCategory.subscription"
+        static let invoiceGeneric = "documentCategory.invoiceGeneric"
+        static let fuel = "documentCategory.fuel"
+        static let grocery = "documentCategory.grocery"
+        static let retail = "documentCategory.retail"
+        static let receipt = "documentCategory.receipt"
+        static let unknown = "documentCategory.unknown"
+
+        /// Returns the localization key for a given category
+        static func forCategory(_ category: DocumentCategory) -> String {
+            switch category {
+            case .utility: return utility
+            case .telecom: return telecom
+            case .rent: return rent
+            case .insurance: return insurance
+            case .subscription: return subscription
+            case .invoiceGeneric: return invoiceGeneric
+            case .fuel: return fuel
+            case .grocery: return grocery
+            case .retail: return retail
+            case .receipt: return receipt
+            case .unknown: return unknown
+            }
+        }
+    }
+
+    // MARK: - Recurring Payments
+    enum Recurring {
+        // Review screen - recurring toggle
+        static let toggleTitle = "recurring.toggleTitle"
+        static let toggleDescription = "recurring.toggleDescription"
+        static let settingsTitle = "recurring.settingsTitle"
+        static let toleranceDays = "recurring.toleranceDays"
+        static let toleranceDaysDescription = "recurring.toleranceDaysDescription"
+        static let warningFuelRetail = "recurring.warningFuelRetail"
+        static let warningNoPattern = "recurring.warningNoPattern"
+
+        // Recurring overview
+        static let overviewTitle = "recurring.overviewTitle"
+        static let templatesSection = "recurring.templatesSection"
+        static let instancesSection = "recurring.instancesSection"
+        static let noTemplates = "recurring.noTemplates"
+        static let noTemplatesMessage = "recurring.noTemplatesMessage"
+        static let noUpcoming = "recurring.noUpcoming"
+        static let noUpcomingMessage = "recurring.noUpcomingMessage"
+        static let templateCount = "recurring.templateCount"
+        static let activeTemplates = "recurring.activeTemplates"
+        static let pausedTemplates = "recurring.pausedTemplates"
+
+        // Template detail
+        static let templateDetailTitle = "recurring.templateDetailTitle"
+        static let vendorLabel = "recurring.vendorLabel"
+        static let dueDayLabel = "recurring.dueDayLabel"
+        static let dueDayValue = "recurring.dueDayValue"
+        static let toleranceLabel = "recurring.toleranceLabel"
+        static let toleranceValue = "recurring.toleranceValue"
+        static let remindersLabel = "recurring.remindersLabel"
+        static let amountRangeLabel = "recurring.amountRangeLabel"
+        static let amountRangeValue = "recurring.amountRangeValue"
+        static let ibanLabel = "recurring.ibanLabel"
+        static let statsLabel = "recurring.statsLabel"
+        static let matchedCount = "recurring.matchedCount"
+        static let paidCount = "recurring.paidCount"
+        static let missedCount = "recurring.missedCount"
+        static let pauseTemplate = "recurring.pauseTemplate"
+        static let resumeTemplate = "recurring.resumeTemplate"
+        static let deleteTemplate = "recurring.deleteTemplate"
+        static let deleteTemplateConfirm = "recurring.deleteTemplateConfirm"
+
+        // Creation source
+        static let sourceManual = "recurring.source.manual"
+        static let sourceAutoDetection = "recurring.source.autoDetection"
+    }
+
+    // MARK: - Recurring Instance Status
+    enum RecurringInstance {
+        static let expected = "recurring.instance.expected"
+        static let matched = "recurring.instance.matched"
+        static let paid = "recurring.instance.paid"
+        static let missed = "recurring.instance.missed"
+        static let cancelled = "recurring.instance.cancelled"
+        static let dueIn = "recurring.instance.dueIn"
+        static let dueToday = "recurring.instance.dueToday"
+        static let overdue = "recurring.instance.overdue"
+
+        /// Returns the localization key for a given status
+        static func status(for status: RecurringInstanceStatus) -> String {
+            switch status {
+            case .expected: return expected
+            case .matched: return matched
+            case .paid: return paid
+            case .missed: return missed
+            case .cancelled: return cancelled
+            }
+        }
+    }
+
+    // MARK: - Recurring Suggestions
+    enum RecurringSuggestions {
+        static let title = "recurring.suggestionsTitle"
+        static let sectionTitle = "recurring.sectionTitle"
+        static let cardTitle = "recurring.suggestionCard.title"
+        static let cardDescription = "recurring.suggestionCard.description"
+        static let cardConfidence = "recurring.suggestionCard.confidence"
+        static let accept = "recurring.suggestionCard.accept"
+        static let dismiss = "recurring.suggestionCard.dismiss"
+        static let snooze = "recurring.suggestionCard.snooze"
+        static let noSuggestions = "recurring.noSuggestions"
+        static let noSuggestionsMessage = "recurring.noSuggestionsMessage"
+        static let inlineDescription = "recurring.inlineDescription"
+        static let inlineDescriptionNoDueDay = "recurring.inlineDescriptionNoDueDay"
+        static let moreSuggestions = "recurring.moreSuggestions"
+        static let setupReminders = "recurring.setupReminders"
+        static let confidence = "recurring.confidence"
+        static let documentsFound = "recurring.documentsFound"
+        static let typicalDueDate = "recurring.typicalDueDate"
+        static let dayOfMonth = "recurring.dayOfMonth"
+        static let averageAmount = "recurring.averageAmount"
+        static let reminderDescription = "recurring.reminderDescription"
+        static let createRecurring = "recurring.createRecurring"
+        static let patternWithDueDay = "recurring.patternWithDueDay"
+        static let patternNoDueDay = "recurring.patternNoDueDay"
+        static let durationTitle = "recurring.durationTitle"
+        static let durationDescription = "recurring.durationDescription"
+        static let monthsAhead = "recurring.monthsAhead"
+        static let monthsCount = "recurring.monthsCount"
+        static let durationHint = "recurring.durationHint"
+        static let selectedDuration = "recurring.selectedDuration"
+    }
+
+    // MARK: - Recurring Deletion
+    enum RecurringDeletion {
+        // Scenario 1: Document linked to recurring
+        static let documentTitle = "recurring.deletion.documentTitle"
+        static let documentSubtitle = "recurring.deletion.documentSubtitle"
+        static let deleteOnlyThisInvoice = "recurring.deletion.deleteOnlyThisInvoice"
+        static let deleteOnlyThisInvoiceDescription = "recurring.deletion.deleteOnlyThisInvoiceDescription"
+        static let cancelRecurringPayments = "recurring.deletion.cancelRecurringPayments"
+        static let cancelRecurringPaymentsDescription = "recurring.deletion.cancelRecurringPaymentsDescription"
+
+        // iOS Calendar style - recurring series messages
+        static let recurringSeriesTitle = "recurring.deletion.recurringSeriesTitle"
+        static let recurringSeriesMessage = "recurring.deletion.recurringSeriesMessage"
+        static let deleteThisOnly = "recurring.deletion.deleteThisOnly"
+        static let deleteThisOnlyDescription = "recurring.deletion.deleteThisOnlyDescription"
+        static let deleteAllFuture = "recurring.deletion.deleteAllFuture"
+        static let deleteAllFutureDescription = "recurring.deletion.deleteAllFutureDescription"
+
+        // Scenario 2: Instance/template deletion
+        static let instanceTitle = "recurring.deletion.instanceTitle"
+        static let instanceSubtitle = "recurring.deletion.instanceSubtitle"
+        static let deleteThisMonthOnly = "recurring.deletion.deleteThisMonthOnly"
+        static let deleteThisMonthOnlyDescription = "recurring.deletion.deleteThisMonthOnlyDescription"
+        static let deleteAllFutureOccurrences = "recurring.deletion.deleteAllFutureOccurrences"
+        static let deleteAllFutureOccurrencesDescription = "recurring.deletion.deleteAllFutureOccurrencesDescription"
+
+        // Shared
+        static let cancel = "recurring.deletion.cancel"
+        static let cancelDescription = "recurring.deletion.cancelDescription"
+        static let warning = "recurring.deletion.warning"
+        static let futureInstancesCount = "recurring.deletion.futureInstancesCount"
+        static let keepHistory = "recurring.deletion.keepHistory"
+
+        // Success messages
+        static let successInvoiceOnly = "recurring.deletion.successInvoiceOnly"
+        static let successRecurringCancelled = "recurring.deletion.successRecurringCancelled"
+        static let successThisMonthOnly = "recurring.deletion.successThisMonthOnly"
+        static let successAllFuture = "recurring.deletion.successAllFuture"
+    }
+
+    // MARK: - Subscription
+    enum Subscription {
+        static let section = "subscription.section"
+        static let upgradeTitle = "subscription.upgradeTitle"
+        static let upgradeToPro = "subscription.upgradeToPro"
+        static let unlockFeature = "subscription.unlockFeature"
+        static let choosePlan = "subscription.choosePlan"
+        static let monthly = "subscription.monthly"
+        static let yearly = "subscription.yearly"
+        static let perMonth = "subscription.perMonth"
+        static let perYear = "subscription.perYear"
+        static let cancelAnytime = "subscription.cancelAnytime"
+        static let bestValue = "subscription.bestValue"
+        static let bestValueBadge = "subscription.bestValueBadge"
+        static let startFreeTrial = "subscription.startFreeTrial"
+        static let trialInfo = "subscription.trialInfo"
+        static let cancelInSettings = "subscription.cancelInSettings"
+        static let termsOfService = "subscription.termsOfService"
+        static let privacyPolicy = "subscription.privacyPolicy"
+        static let restore = "subscription.restore"
+        static let maybeLater = "subscription.maybeLater"
+        static let purchaseError = "subscription.purchaseError"
+        static let loadingStatus = "subscription.loadingStatus"
+        static let manageSubscription = "subscription.manageSubscription"
+        static let upgradeFooter = "subscription.upgradeFooter"
+        static let willRenewOn = "subscription.willRenewOn"
+        static let expiresOn = "subscription.expiresOn"
+        static let freeTrial = "subscription.freeTrial"
+        static let paymentIssue = "subscription.paymentIssue"
+        static let active = "subscription.active"
+        static let inactive = "subscription.inactive"
+        static let localOnly = "subscription.localOnly"
+        static let status = "subscription.status"
+        static let tier = "subscription.tier"
+        static let plan = "subscription.plan"
+        static let expires = "subscription.expires"
+        static let subscribed = "subscription.subscribed"
+        static let autoRenew = "subscription.autoRenew"
+        static let trialPeriod = "subscription.trialPeriod"
+        static let details = "subscription.details"
+        static let manageInAppStore = "subscription.manageInAppStore"
+        static let cancelSubscription = "subscription.cancelSubscription"
+        static let cancelFooter = "subscription.cancelFooter"
     }
 
     // MARK: - Errors

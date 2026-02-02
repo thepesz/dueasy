@@ -84,6 +84,20 @@ final class FinanceDocument {
     /// Analysis provider identifier (e.g., "local", "openai", "gemini")
     var analysisProvider: String?
 
+    // MARK: - Recurring Payment Fields
+
+    /// Document category for recurring detection (utility, telecom, etc.)
+    var documentCategoryRaw: String?
+
+    /// Vendor fingerprint for matching recurring payments (SHA256 of normalized vendor name + NIP)
+    var vendorFingerprint: String?
+
+    /// ID of the RecurringTemplate this document is associated with (if any)
+    var recurringTemplateId: UUID?
+
+    /// ID of the RecurringInstance this document is matched to (if any)
+    var recurringInstanceId: UUID?
+
     // MARK: - Computed Properties
 
     var type: DocumentType {
@@ -94,6 +108,15 @@ final class FinanceDocument {
     var status: DocumentStatus {
         get { DocumentStatus(rawValue: statusRaw) ?? .draft }
         set { statusRaw = newValue.rawValue }
+    }
+
+    /// Document category for recurring payment detection
+    var documentCategory: DocumentCategory {
+        get {
+            guard let raw = documentCategoryRaw else { return .unknown }
+            return DocumentCategory(rawValue: raw) ?? .unknown
+        }
+        set { documentCategoryRaw = newValue.rawValue }
     }
 
     var amount: Decimal {
@@ -138,7 +161,11 @@ final class FinanceDocument {
         remoteDocumentId: String? = nil,
         remoteFileId: String? = nil,
         analysisVersion: Int = 1,
-        analysisProvider: String? = "local"
+        analysisProvider: String? = "local",
+        documentCategory: DocumentCategory = .unknown,
+        vendorFingerprint: String? = nil,
+        recurringTemplateId: UUID? = nil,
+        recurringInstanceId: UUID? = nil
     ) {
         self.id = id
         self.typeRaw = type.rawValue
@@ -163,6 +190,10 @@ final class FinanceDocument {
         self.remoteFileId = remoteFileId
         self.analysisVersion = analysisVersion
         self.analysisProvider = analysisProvider
+        self.documentCategoryRaw = documentCategory.rawValue
+        self.vendorFingerprint = vendorFingerprint
+        self.recurringTemplateId = recurringTemplateId
+        self.recurringInstanceId = recurringInstanceId
     }
 
     // MARK: - Update Methods

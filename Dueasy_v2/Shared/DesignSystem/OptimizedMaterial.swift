@@ -11,12 +11,17 @@ import SwiftUI
 // 4. Using static views where possible to minimize GPU blur layer count
 
 /// A performance-optimized material background that respects accessibility settings.
-/// Use this instead of raw .ultraThinMaterial to prevent excessive blur layer creation.
+///
+/// VISUAL STYLE FIX: This component now uses solid colors that simulate glass appearance
+/// instead of actual material effects (.ultraThinMaterial, .thinMaterial, .regularMaterial).
+/// This prevents "Requesting visual style in an implementation that has disabled it" errors
+/// that occur when materials are used in views within NavigationStacks that have hidden
+/// navigation bars (which disables the visual style system).
 ///
 /// This view automatically:
 /// - Falls back to solid colors when Reduce Transparency is enabled
-/// - Uses a single material layer instead of stacked ZStack layers
-/// - Provides consistent styling across the app
+/// - Uses solid glass simulation instead of actual blur materials
+/// - Provides consistent styling across the app without visual style conflicts
 struct OptimizedMaterial<S: Shape>: View {
 
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
@@ -41,9 +46,9 @@ struct OptimizedMaterial<S: Shape>: View {
             // Solid fallback for accessibility
             shape.fill(solidFallbackColor)
         } else {
-            // Single material layer with optional highlight
+            // VISUAL STYLE FIX: Use solid glass simulation instead of material
             shape
-                .fill(materialFill)
+                .fill(glassSimulationColor)
                 .overlay {
                     if addGlassHighlight {
                         shape.fill(highlightGradient)
@@ -54,14 +59,21 @@ struct OptimizedMaterial<S: Shape>: View {
 
     // MARK: - Private Computed Properties
 
-    private var materialFill: some ShapeStyle {
+    /// Solid color that simulates the glass/frosted appearance of materials
+    private var glassSimulationColor: Color {
         switch style {
         case .ultraThin:
-            return AnyShapeStyle(.ultraThinMaterial)
+            return colorScheme == .light
+                ? Color(white: 0.98, opacity: 0.85)
+                : Color(white: 0.12, opacity: 0.85)
         case .thin:
-            return AnyShapeStyle(.thinMaterial)
+            return colorScheme == .light
+                ? Color(white: 0.97, opacity: 0.88)
+                : Color(white: 0.14, opacity: 0.88)
         case .regular:
-            return AnyShapeStyle(.regularMaterial)
+            return colorScheme == .light
+                ? Color(white: 0.96, opacity: 0.92)
+                : Color(white: 0.16, opacity: 0.92)
         }
     }
 
@@ -98,6 +110,10 @@ enum MaterialStyle {
 // MARK: - Specialized Material Shapes
 
 /// Circle material background optimized for icons and loading indicators
+///
+/// VISUAL STYLE FIX: Uses solid colors that simulate glass appearance instead of
+/// .ultraThinMaterial to prevent "Requesting visual style in an implementation that
+/// has disabled it" errors when used in views with hidden navigation bars.
 struct CircleMaterial: View {
 
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
@@ -113,8 +129,11 @@ struct CircleMaterial: View {
         if reduceTransparency {
             Circle().fill(AppColors.secondaryBackground)
         } else {
+            // VISUAL STYLE FIX: Use solid glass simulation instead of material
             Circle()
-                .fill(.ultraThinMaterial)
+                .fill(colorScheme == .light
+                      ? Color(white: 0.98, opacity: 0.9)
+                      : Color(white: 0.15, opacity: 0.9))
                 .overlay {
                     if addHighlight {
                         Circle()
@@ -135,6 +154,9 @@ struct CircleMaterial: View {
 }
 
 /// Capsule material background for pills and chips
+///
+/// VISUAL STYLE FIX: Uses solid colors that simulate glass appearance instead of
+/// .ultraThinMaterial to prevent visual style conflicts with hidden navigation bars.
 struct CapsuleMaterial: View {
 
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
@@ -150,8 +172,11 @@ struct CapsuleMaterial: View {
         if reduceTransparency {
             Capsule().fill(AppColors.secondaryBackground)
         } else {
+            // VISUAL STYLE FIX: Use solid glass simulation instead of material
             Capsule()
-                .fill(.ultraThinMaterial)
+                .fill(colorScheme == .light
+                      ? Color(white: 0.98, opacity: 0.9)
+                      : Color(white: 0.15, opacity: 0.9))
                 .overlay {
                     if addHighlight {
                         Capsule()
@@ -172,6 +197,14 @@ struct CapsuleMaterial: View {
 }
 
 /// Rounded rectangle material background for cards
+///
+/// VISUAL STYLE FIX: Uses solid colors that simulate glass appearance instead of
+/// .ultraThinMaterial to prevent "Requesting visual style in an implementation that
+/// has disabled it" errors. This is critical for:
+/// - DocumentListView filter bar and cards
+/// - AddDocumentView input method cards
+/// - DocumentDetailView (uses .navigationBarHidden(true))
+/// - Any view in NavigationStack with hidden navigation bars
 struct CardMaterial: View {
 
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
@@ -197,8 +230,11 @@ struct CardMaterial: View {
         if reduceTransparency {
             shape.fill(accentColor?.opacity(0.08) ?? AppColors.secondaryBackground)
         } else {
+            // VISUAL STYLE FIX: Use solid glass simulation instead of material
             shape
-                .fill(.ultraThinMaterial)
+                .fill(colorScheme == .light
+                      ? Color(white: 0.98, opacity: 0.9)
+                      : Color(white: 0.15, opacity: 0.9))
                 .overlay {
                     if let accent = accentColor {
                         shape.fill(accent.opacity(0.1))

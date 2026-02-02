@@ -1,27 +1,37 @@
 import Foundation
+import os.log
 
 /// Use case for updating an existing document.
 /// Syncs changes with calendar and notifications.
+/// Recalculates vendorFingerprint and documentCategory when vendor name or NIP changes.
 struct UpdateDocumentUseCase: Sendable {
 
     private let repository: DocumentRepositoryProtocol
     private let calendarService: CalendarServiceProtocol
     private let notificationService: NotificationServiceProtocol
+    private let vendorFingerprintService: VendorFingerprintServiceProtocol
+    private let classifierService: DocumentClassifierServiceProtocol
+    private let logger = Logger(subsystem: "com.dueasy.app", category: "UpdateDocument")
 
     init(
         repository: DocumentRepositoryProtocol,
         calendarService: CalendarServiceProtocol,
-        notificationService: NotificationServiceProtocol
+        notificationService: NotificationServiceProtocol,
+        vendorFingerprintService: VendorFingerprintServiceProtocol,
+        classifierService: DocumentClassifierServiceProtocol
     ) {
         self.repository = repository
         self.calendarService = calendarService
         self.notificationService = notificationService
+        self.vendorFingerprintService = vendorFingerprintService
+        self.classifierService = classifierService
     }
 
     /// Updates a document and syncs with calendar/notifications.
     /// - Parameters:
     ///   - document: Document to update
-    ///   - title: New title
+    ///   - title: New title (vendor name)
+    ///   - vendorNIP: New vendor NIP (for fingerprint recalculation)
     ///   - amount: New amount
     ///   - currency: New currency
     ///   - dueDate: New due date
@@ -32,6 +42,7 @@ struct UpdateDocumentUseCase: Sendable {
     func execute(
         document: FinanceDocument,
         title: String,
+        vendorNIP: String? = nil,
         amount: Decimal,
         currency: String,
         dueDate: Date?,
@@ -47,14 +58,37 @@ struct UpdateDocumentUseCase: Sendable {
         let oldDueDate = document.dueDate
         let dueDateChanged = oldDueDate != dueDate
 
+        // Check if vendor name or NIP changed - need to recalculate fingerprint
+        let vendorChanged = document.title != title || document.vendorNIP != vendorNIP
+
         // Update document fields
         document.title = title
+        document.vendorNIP = vendorNIP
         document.amount = amount
         document.currency = currency
         document.dueDate = dueDate
         document.documentNumber = documentNumber
         document.notes = notes
         document.reminderOffsetsDays = reminderOffsets
+
+        // Recalculate fingerprint if vendor changed OR fingerprint was never set
+        if vendorChanged || document.vendorFingerprint == nil {
+            let fingerprint = vendorFingerprintService.generateFingerprint(
+                vendorName: title,
+                nip: vendorNIP
+            )
+            document.vendorFingerprint = fingerprint
+            logger.info("Updated vendor fingerprint: \(fingerprint.prefix(16))... (vendor changed: \(vendorChanged))")
+
+            // Reclassify document category
+            let classification = classifierService.classify(
+                vendorName: title,
+                ocrText: nil,
+                amount: amount
+            )
+            document.documentCategoryRaw = classification.category.rawValue
+            logger.info("Reclassified document as category: \(classification.category.rawValue)")
+        }
 
         // Update calendar event if exists and due date changed
         if let eventId = document.calendarEventId, dueDateChanged, let newDueDate = dueDate {

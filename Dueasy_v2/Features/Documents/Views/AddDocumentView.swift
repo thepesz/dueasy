@@ -322,7 +322,7 @@ struct InputMethodCard: View {
                     }
 
                     Text(method.description)
-                        .font(.system(size: 10))
+                        .font(Typography.caption2)
                         .foregroundStyle(.secondary)
                         .lineLimit(2)
                         .multilineTextAlignment(.center)
@@ -389,10 +389,10 @@ struct InputMethodCard: View {
     @ViewBuilder
     private var recommendedBadge: some View {
         Text(L10n.AddDocument.recommended.localized)
-            .font(.system(size: 9, weight: .bold))
+            .font(Typography.caption2.weight(.bold))
             .textCase(.uppercase)
             .foregroundStyle(.white)
-            .padding(.horizontal, 4)
+            .padding(.horizontal, Spacing.xxs)
             .padding(.vertical, 2)
             .background(AppColors.primary)
             .clipShape(Capsule())

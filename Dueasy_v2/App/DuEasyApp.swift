@@ -44,7 +44,10 @@ struct DuEasyApp: App {
                 VendorProfile.self,
                 VendorProfileV2.self,
                 GlobalKeywordConfig.self,
-                KeywordStats.self
+                KeywordStats.self,
+                RecurringTemplate.self,
+                RecurringInstance.self,
+                RecurringCandidate.self
             ])
             let modelConfiguration = ModelConfiguration(
                 schema: schema,

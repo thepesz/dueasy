@@ -35,10 +35,20 @@ final class DocumentReviewViewModel {
     var selectedAmountIndex: Int = 0
 
     // Reminder settings
-    var reminderOffsets: Set<Int> = [7, 1, 0]
+    var reminderOffsets: Set<Int> = []
 
     // Calendar settings
-    var addToCalendar: Bool = true
+    var addToCalendar: Bool = false // Will be initialized from SettingsManager
+
+    // Payment status
+    var markAsPaid: Bool = false
+
+    // Recurring payment settings
+    var isRecurringPayment: Bool = false
+    var recurringToleranceDays: Int = 3
+    var showRecurringCategoryWarning: Bool = false
+    var recurringCategoryWarningMessage: String = ""
+    var isCreatingRecurringTemplate: Bool = false
 
     // Analysis result
     var analysisResult: DocumentAnalysisResult?
@@ -107,6 +117,9 @@ final class DocumentReviewViewModel {
     private let keywordLearningService: KeywordLearningService?
     private let learningDataService: LearningDataService?
     private let vendorTemplateService: VendorTemplateService?
+    private let createRecurringTemplateUseCase: CreateRecurringTemplateFromDocumentUseCase?
+    private let vendorFingerprintService: VendorFingerprintServiceProtocol?
+    private let documentClassifierService: DocumentClassifierServiceProtocol?
 
     var documentId: UUID { document.id }
 
@@ -225,7 +238,10 @@ final class DocumentReviewViewModel {
         settingsManager: SettingsManager,
         keywordLearningService: KeywordLearningService? = nil,
         learningDataService: LearningDataService? = nil,
-        vendorTemplateService: VendorTemplateService? = nil
+        vendorTemplateService: VendorTemplateService? = nil,
+        createRecurringTemplateUseCase: CreateRecurringTemplateFromDocumentUseCase? = nil,
+        vendorFingerprintService: VendorFingerprintServiceProtocol? = nil,
+        documentClassifierService: DocumentClassifierServiceProtocol? = nil
     ) {
         self.document = document
         self.images = images
@@ -236,6 +252,9 @@ final class DocumentReviewViewModel {
         self.keywordLearningService = keywordLearningService
         self.learningDataService = learningDataService
         self.vendorTemplateService = vendorTemplateService
+        self.createRecurringTemplateUseCase = createRecurringTemplateUseCase
+        self.vendorFingerprintService = vendorFingerprintService
+        self.documentClassifierService = documentClassifierService
 
         // Initialize reminder offsets and calendar settings from settings
         self.reminderOffsets = Set(settingsManager.defaultReminderOffsets)
@@ -476,6 +495,17 @@ final class DocumentReviewViewModel {
                 skipCalendar: !addToCalendar
             )
 
+            // Mark as paid if requested
+            if markAsPaid {
+                document.status = .paid
+                logger.info("Document marked as paid")
+            }
+
+            // Create recurring template if enabled
+            if isRecurringPayment {
+                await createRecurringTemplate()
+            }
+
             logger.info("Document saved successfully")
             isSaving = false
             return true
@@ -564,6 +594,87 @@ final class DocumentReviewViewModel {
 
     func clearError() {
         error = nil
+    }
+
+    // MARK: - Recurring Payment
+
+    /// Toggles recurring payment and checks for category warnings
+    func toggleRecurringPayment(_ enabled: Bool) {
+        isRecurringPayment = enabled
+
+        if enabled {
+            checkRecurringCategoryWarning()
+        } else {
+            showRecurringCategoryWarning = false
+            recurringCategoryWarningMessage = ""
+        }
+    }
+
+    /// Checks if the document category should show a warning for recurring
+    private func checkRecurringCategoryWarning() {
+        guard let classifier = documentClassifierService else {
+            showRecurringCategoryWarning = false
+            return
+        }
+
+        let classification = classifier.classify(
+            vendorName: vendorName,
+            ocrText: ocrText,
+            amount: amountDecimal
+        )
+
+        // Update document category
+        document.documentCategory = classification.category
+
+        // Check if this is a risky category
+        if classification.category.isHardRejectedForAutoDetection {
+            showRecurringCategoryWarning = true
+            recurringCategoryWarningMessage = L10n.Recurring.warningFuelRetail.localized
+        } else if classification.category == .unknown && classification.confidence < 0.3 {
+            showRecurringCategoryWarning = true
+            recurringCategoryWarningMessage = L10n.Recurring.warningNoPattern.localized
+        } else {
+            showRecurringCategoryWarning = false
+            recurringCategoryWarningMessage = ""
+        }
+    }
+
+    /// Creates a recurring template after document is saved
+    private func createRecurringTemplate() async {
+        guard let useCase = createRecurringTemplateUseCase else {
+            logger.warning("CreateRecurringTemplateUseCase not available")
+            return
+        }
+
+        isCreatingRecurringTemplate = true
+
+        do {
+            // Generate vendor fingerprint
+            if let fingerprintService = vendorFingerprintService {
+                let fingerprint = fingerprintService.generateFingerprint(
+                    vendorName: vendorName,
+                    nip: nip.isEmpty ? nil : nip
+                )
+                document.vendorFingerprint = fingerprint
+            }
+
+            let result = try await useCase.execute(
+                document: document,
+                reminderOffsets: Array(reminderOffsets).sorted(by: >),
+                toleranceDays: recurringToleranceDays
+            )
+
+            logger.info("Created recurring template: \(result.template.id), instances: \(result.instances.count)")
+
+            if let warning = result.categoryWarning {
+                logger.warning("Recurring category warning: \(warning.message)")
+            }
+        } catch {
+            logger.error("Failed to create recurring template: \(error.localizedDescription)")
+            // Don't fail the save - recurring is optional
+        }
+
+        isCreatingRecurringTemplate = false
     }
 
     // MARK: - Validation

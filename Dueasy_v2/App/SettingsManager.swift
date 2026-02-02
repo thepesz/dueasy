@@ -31,6 +31,9 @@ final class SettingsManager: Sendable {
         static let cloudAnalysisEnabled = "cloudAnalysisEnabled"
         static let highAccuracyMode = "highAccuracyMode"
         static let cloudVaultEnabled = "cloudVaultEnabled"
+
+        // Recurring payments settings
+        static let syncRecurringToiOSCalendar = "syncRecurringToiOSCalendar"
     }
 
     // MARK: - UserDefaults
@@ -46,7 +49,7 @@ final class SettingsManager: Sendable {
         defaults.register(defaults: [
             Keys.defaultReminderOffsets: [7, 1, 0],
             Keys.useInvoicesCalendar: true,
-            Keys.addToCalendarByDefault: true,
+            Keys.addToCalendarByDefault: false,
             Keys.defaultCurrency: "PLN",
             Keys.hasCompletedOnboarding: false,
             Keys.notificationsEnabled: true,
@@ -63,7 +66,10 @@ final class SettingsManager: Sendable {
             // Cloud analysis defaults (Pro tier)
             Keys.cloudAnalysisEnabled: true,  // Enabled for testing - should be opt-in in production
             Keys.highAccuracyMode: false,     // Use local-with-assist by default
-            Keys.cloudVaultEnabled: false     // Cloud backup disabled by default
+            Keys.cloudVaultEnabled: false,    // Cloud backup disabled by default
+
+            // Recurring payments defaults
+            Keys.syncRecurringToiOSCalendar: false // iOS Calendar sync disabled by default (opt-in)
         ])
     }
 
@@ -233,6 +239,17 @@ final class SettingsManager: Sendable {
         set { defaults.set(newValue, forKey: Keys.cloudVaultEnabled) }
     }
 
+    // MARK: - Recurring Payments Settings
+
+    /// Sync recurring payment instances to iOS Calendar.
+    /// When enabled, expected recurring payments are added as events
+    /// to the iOS Calendar for visibility outside the app.
+    /// Default: false (opt-in - internal calendar view is the primary source)
+    var syncRecurringToiOSCalendar: Bool {
+        get { defaults.bool(forKey: Keys.syncRecurringToiOSCalendar) }
+        set { defaults.set(newValue, forKey: Keys.syncRecurringToiOSCalendar) }
+    }
+
     /// Determine analysis mode based on current settings
     var analysisMode: AnalysisMode {
         guard cloudAnalysisEnabled else { return .localOnly }
@@ -272,6 +289,8 @@ final class SettingsManager: Sendable {
         defaults.removeObject(forKey: Keys.cloudAnalysisEnabled)
         defaults.removeObject(forKey: Keys.highAccuracyMode)
         defaults.removeObject(forKey: Keys.cloudVaultEnabled)
+        // Recurring payments settings
+        defaults.removeObject(forKey: Keys.syncRecurringToiOSCalendar)
         // Note: Not resetting onboarding
         registerDefaults()
     }

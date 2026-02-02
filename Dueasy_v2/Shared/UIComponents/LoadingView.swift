@@ -63,8 +63,12 @@ struct LoadingView: View {
 
     @ViewBuilder
     private var glassCircle: some View {
-        // PERFORMANCE: Uses CircleMaterial for optimized single-layer blur
-        CircleMaterial(addHighlight: false)
+        // VISUAL STYLE FIX: Use solid background instead of CircleMaterial to prevent
+        // "Requesting visual style" errors when displayed in views with hidden navigation bars
+        Circle()
+            .fill(colorScheme == .light
+                  ? Color(white: 0.98, opacity: 0.95)
+                  : Color(white: 0.15, opacity: 0.95))
     }
 }
 
@@ -92,7 +96,14 @@ struct InlineLoadingView: View {
 }
 
 /// Loading overlay that can be placed over other content.
+///
+/// VISUAL STYLE FIX: Uses solid backgrounds instead of CardMaterial to prevent
+/// "Requesting visual style in an implementation that has disabled it" errors.
+/// This overlay may appear in views that are children of NavigationStacks with
+/// hidden navigation bars, which disables the visual style system that materials depend on.
 struct LoadingOverlay: View {
+
+    @Environment(\.colorScheme) private var colorScheme
 
     let isLoading: Bool
     let message: String?
@@ -120,10 +131,19 @@ struct LoadingOverlay: View {
                     }
                 }
                 .padding(Spacing.xl)
-                .background { CardMaterial(cornerRadius: CornerRadius.lg, addHighlight: false) }
+                // VISUAL STYLE FIX: Use solid background instead of CardMaterial
+                // to avoid material effects that conflict with hidden navigation bars
+                .background(loadingCardBackground)
                 .clipShape(RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous))
             }
         }
+    }
+
+    /// Solid background for loading card that mimics glass appearance without materials
+    private var loadingCardBackground: some ShapeStyle {
+        colorScheme == .light
+            ? Color(white: 0.98, opacity: 0.95)
+            : Color(white: 0.15, opacity: 0.95)
     }
 }
 

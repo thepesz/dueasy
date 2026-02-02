@@ -37,6 +37,10 @@
 "documents.deleteConfirmMessage" = "This will also remove the calendar event and scheduled notifications.";
 "documents.loadingDocuments" = "Loading documents...";
 
+// Two-step deletion (iOS Calendar style)
+"documents.deleteInvoice.title" = "Delete Invoice?";
+"documents.deleteInvoice.message" = "Are you sure you want to delete this invoice?";
+
 // Empty states
 "documents.noDocuments.title" = "No Documents Yet";
 "documents.noDocuments.message" = "Scan your first invoice to get started tracking due dates.";
@@ -140,6 +144,10 @@
 "review.saveAndAddToCalendar" = "Save & Add to Calendar";
 "review.saving" = "Saving...";
 
+// Mark as paid
+"review.markAsPaid.title" = "Mark as Paid";
+"review.markAsPaid.description" = "Invoice will be immediately marked as paid";
+
 // Validation
 "review.validation.vendorRequired" = "Vendor name is required";
 "review.validation.amountRequired" = "Amount must be greater than zero";
@@ -237,6 +245,8 @@
 "settings.usingInvoicesCalendar" = "Using Invoices calendar";
 "settings.usingDefaultCalendar" = "Using default calendar";
 "settings.calendarFooter" = "When enabled, DuEasy creates a separate \"Invoices\" calendar for all due date events. This makes it easy to show or hide invoice due dates in your calendar app.";
+"settings.syncRecurringToiOSCalendar" = "Sync recurring to iOS Calendar";
+"settings.syncRecurringToiOSCalendarFooter" = "When enabled, expected recurring payments will be added to iOS Calendar. The in-app calendar view always shows all recurring payments.";
 
 // Defaults section
 "settings.defaults.section" = "Defaults";
@@ -316,6 +326,16 @@
 "calendar.documentsCount" = "%d document(s)";
 "calendar.documentsDue" = "Select a day to see documents";
 "calendar.loading" = "Loading calendar...";
+"calendar.showRecurringOnly" = "Recurring Only";
+"calendar.recurringCount" = "%d recurring";
+"calendar.recurringSection" = "Recurring Payments";
+"calendar.documentsSection" = "Documents";
+"calendar.noRecurring" = "No recurring payments";
+"calendar.noRecurringMessage" = "No recurring payments expected on this date";
+"calendar.expectedPayment" = "Expected Payment";
+"calendar.matchedPayment" = "Matched";
+"calendar.markAsPaid" = "Mark as Paid";
+"calendar.viewDocument" = "View Document";
 
 // MARK: - Errors
 
@@ -441,3 +461,205 @@
 // MARK: - Detail View Labels
 
 "detail.remindersEnabled" = "Reminders enabled";
+
+// MARK: - Document Categories
+
+"documentCategory.utility" = "Utility";
+"documentCategory.telecom" = "Telecom";
+"documentCategory.rent" = "Rent";
+"documentCategory.insurance" = "Insurance";
+"documentCategory.subscription" = "Subscription";
+"documentCategory.invoiceGeneric" = "Invoice";
+"documentCategory.fuel" = "Fuel";
+"documentCategory.grocery" = "Grocery";
+"documentCategory.retail" = "Retail";
+"documentCategory.receipt" = "Receipt";
+"documentCategory.unknown" = "Unknown";
+
+// MARK: - Recurring Payments
+
+// Review screen - recurring toggle
+"recurring.toggleTitle" = "Recurring Payment";
+"recurring.toggleDescription" = "Auto-generate reminders for future payments";
+"recurring.settingsTitle" = "Recurring Settings";
+"recurring.toleranceDays" = "Tolerance Days";
+"recurring.toleranceDaysDescription" = "Days before/after due date for matching";
+"recurring.warningFuelRetail" = "This looks like a fuel or retail purchase. Are you sure it's recurring?";
+"recurring.warningNoPattern" = "This vendor does not have a regular payment pattern.";
+
+// Recurring overview
+"recurring.overviewTitle" = "Recurring Payments";
+"recurring.templatesSection" = "Templates";
+"recurring.instancesSection" = "Upcoming Payments";
+"recurring.noTemplates" = "No recurring payments set up";
+"recurring.noTemplatesMessage" = "Mark an invoice as recurring to start tracking regular payments.";
+"recurring.noUpcoming" = "No upcoming payments";
+"recurring.noUpcomingMessage" = "Your next recurring payment will appear here.";
+"recurring.templateCount" = "%d recurring payment(s)";
+"recurring.activeTemplates" = "Active";
+"recurring.pausedTemplates" = "Paused";
+
+// Template detail
+"recurring.templateDetailTitle" = "Recurring Payment";
+"recurring.vendorLabel" = "Vendor";
+"recurring.dueDayLabel" = "Due Day";
+"recurring.dueDayValue" = "Day %d of each month";
+"recurring.toleranceLabel" = "Tolerance";
+"recurring.toleranceValue" = "+/- %d days";
+"recurring.remindersLabel" = "Reminders";
+"recurring.amountRangeLabel" = "Expected Amount";
+"recurring.amountRangeValue" = "%@ - %@";
+"recurring.ibanLabel" = "Bank Account";
+"recurring.statsLabel" = "Statistics";
+"recurring.matchedCount" = "%d matched";
+"recurring.paidCount" = "%d paid";
+"recurring.missedCount" = "%d missed";
+"recurring.pauseTemplate" = "Pause";
+"recurring.resumeTemplate" = "Resume";
+"recurring.deleteTemplate" = "Delete Template";
+"recurring.deleteTemplateConfirm" = "This will delete the recurring payment template and all future expected instances. Past matched documents will not be affected.";
+
+// Instance status
+"recurring.instance.expected" = "Expected";
+"recurring.instance.matched" = "Matched";
+"recurring.instance.paid" = "Paid";
+"recurring.instance.missed" = "Missed";
+"recurring.instance.dueIn" = "Due in %d days";
+"recurring.instance.dueToday" = "Due today";
+"recurring.instance.overdue" = "%d days overdue";
+
+// Auto-detection suggestions
+"recurring.suggestionsTitle" = "Suggested Recurring";
+"recurring.sectionTitle" = "Recurring Detected";
+"recurring.suggestionCard.title" = "Looks like a recurring payment";
+"recurring.suggestionCard.description" = "We've detected %d similar invoices from %@";
+"recurring.suggestionCard.confidence" = "Confidence: %d%%";
+"recurring.suggestionCard.accept" = "Set as Recurring";
+"recurring.suggestionCard.dismiss" = "Not Recurring";
+"recurring.suggestionCard.snooze" = "Ask Later";
+"recurring.noSuggestions" = "No suggestions";
+"recurring.noSuggestionsMessage" = "We'll notify you when we detect a recurring pattern.";
+"recurring.inlineDescription" = "%d invoices detected, due on day %d";
+"recurring.inlineDescriptionNoDueDay" = "%d invoices detected";
+"recurring.moreSuggestions" = "+%d more suggestions";
+"recurring.setupReminders" = "Setup Reminders";
+"recurring.confidence" = "Match";
+"recurring.documentsFound" = "Documents found";
+"recurring.typicalDueDate" = "Typical due date";
+"recurring.dayOfMonth" = "Day %d of month";
+"recurring.averageAmount" = "Average amount";
+"recurring.reminderDescription" = "Choose when to receive reminders before the due date";
+"recurring.createRecurring" = "Create Recurring Payment";
+"recurring.patternWithDueDay" = "%d invoices, typically due on day %d";
+"recurring.patternNoDueDay" = "%d invoices detected";
+"recurring.durationTitle" = "Duration";
+"recurring.durationDescription" = "How long should we track this recurring payment?";
+"recurring.monthsAhead" = "Generate for";
+"recurring.monthsCount" = "%d months";
+"recurring.durationHint" = "You can always extend or stop it later";
+"recurring.selectedDuration" = "Selected duration";
+
+// Creation source
+"recurring.source.manual" = "Manual";
+"recurring.source.autoDetection" = "Auto-detected";
+
+// Instance status - cancelled
+"recurring.instance.cancelled" = "Cancelled";
+
+// MARK: - Recurring Deletion
+
+// Scenario 1: Document linked to recurring
+"recurring.deletion.documentTitle" = "Delete Recurring Invoice";
+"recurring.deletion.documentSubtitle" = "This invoice is linked to a recurring payment from %@";
+"recurring.deletion.deleteOnlyThisInvoice" = "Delete this invoice only";
+"recurring.deletion.deleteOnlyThisInvoiceDescription" = "Remove this invoice but keep the recurring payment active. Calendar events and reminders remain scheduled.";
+"recurring.deletion.cancelRecurringPayments" = "Delete invoice and cancel recurring payments";
+"recurring.deletion.cancelRecurringPaymentsDescription" = "Delete this invoice and stop tracking future payments. All calendar events and reminders will be removed.";
+
+// iOS Calendar style - recurring series
+"recurring.deletion.recurringSeriesTitle" = "This invoice is part of a recurring series";
+"recurring.deletion.recurringSeriesMessage" = "Do you want to delete only this invoice or all future occurrences?";
+"recurring.deletion.deleteThisOnly" = "Delete This Invoice Only";
+"recurring.deletion.deleteThisOnlyDescription" = "Remove this invoice but keep future recurring payments active.";
+"recurring.deletion.deleteAllFuture" = "Delete This Invoice and All Future";
+"recurring.deletion.deleteAllFutureDescription" = "Delete this invoice and stop tracking all future payments.";
+
+// Scenario 2: Instance/template deletion from calendar
+"recurring.deletion.instanceTitle" = "Delete Recurring Payment";
+"recurring.deletion.instanceSubtitle" = "This is an expected payment for %@";
+"recurring.deletion.deleteThisMonthOnly" = "Delete this month only";
+"recurring.deletion.deleteThisMonthOnlyDescription" = "Skip this specific payment. The recurring pattern continues for other months.";
+"recurring.deletion.deleteAllFutureOccurrences" = "Delete all future occurrences";
+"recurring.deletion.deleteAllFutureOccurrencesDescription" = "Stop tracking this recurring payment entirely. Past payments are preserved.";
+
+// Shared
+"recurring.deletion.cancel" = "Cancel";
+"recurring.deletion.cancelDescription" = "Don't delete anything";
+"recurring.deletion.warning" = "This action cannot be undone";
+"recurring.deletion.futureInstancesCount" = "%d future payments will be affected";
+"recurring.deletion.keepHistory" = "Payment history will be preserved";
+
+// Success messages
+"recurring.deletion.successInvoiceOnly" = "Invoice deleted. Recurring payment still active.";
+"recurring.deletion.successRecurringCancelled" = "Recurring payment cancelled. %d future instances removed.";
+"recurring.deletion.successThisMonthOnly" = "This month's payment skipped.";
+"recurring.deletion.successAllFuture" = "Recurring payment cancelled. %d future instances removed.";
+
+// MARK: - Common (additions)
+
+"common.on" = "On";
+"common.off" = "Off";
+"common.actions" = "Actions";
+
+// MARK: - Security (additions)
+
+"security.appLocked" = "DuEasy is Locked";
+"security.dataProtected" = "Your financial data is protected";
+"security.authenticating" = "Authenticating...";
+"security.unlockFaceID" = "Unlock with Face ID";
+"security.unlockTouchID" = "Unlock with Touch ID";
+"security.unlockPasscode" = "Unlock with Passcode";
+
+// MARK: - Subscription
+
+"subscription.section" = "Subscription";
+"subscription.upgradeTitle" = "Upgrade to Pro";
+"subscription.upgradeToPro" = "Upgrade to Pro";
+"subscription.unlockFeature" = "Unlock %@ and more premium features";
+"subscription.choosePlan" = "Choose your plan";
+"subscription.monthly" = "Monthly";
+"subscription.yearly" = "Yearly";
+"subscription.perMonth" = "per month";
+"subscription.perYear" = "per year";
+"subscription.cancelAnytime" = "Cancel anytime";
+"subscription.bestValue" = "Save 33% - Best value";
+"subscription.bestValueBadge" = "BEST VALUE";
+"subscription.startFreeTrial" = "Start Free Trial";
+"subscription.trialInfo" = "7-day free trial, then $4.99/month";
+"subscription.cancelInSettings" = "Cancel anytime in Settings";
+"subscription.termsOfService" = "Terms of Service";
+"subscription.privacyPolicy" = "Privacy Policy";
+"subscription.restore" = "Restore";
+"subscription.maybeLater" = "Maybe Later";
+"subscription.purchaseError" = "Purchase Error";
+"subscription.loadingStatus" = "Loading subscription status...";
+"subscription.manageSubscription" = "Manage Subscription";
+"subscription.upgradeFooter" = "Upgrade to Pro for AI-powered analysis, cloud backup, and enhanced accuracy.";
+"subscription.willRenewOn" = "Your subscription will renew on %@";
+"subscription.expiresOn" = "Your subscription expires on %@";
+"subscription.freeTrial" = "Free Trial";
+"subscription.paymentIssue" = "Payment Issue";
+"subscription.active" = "Active";
+"subscription.inactive" = "Inactive";
+"subscription.localOnly" = "Local-only features";
+"subscription.status" = "Status";
+"subscription.tier" = "Tier";
+"subscription.plan" = "Plan";
+"subscription.expires" = "Expires";
+"subscription.subscribed" = "Subscribed";
+"subscription.autoRenew" = "Auto-renew";
+"subscription.trialPeriod" = "Trial Period";
+"subscription.details" = "Subscription Details";
+"subscription.manageInAppStore" = "Manage in App Store";
+"subscription.cancelSubscription" = "Cancel Subscription";
+"subscription.cancelFooter" = "To cancel or modify your subscription, use the App Store settings. Changes will take effect at the end of the current billing period.";

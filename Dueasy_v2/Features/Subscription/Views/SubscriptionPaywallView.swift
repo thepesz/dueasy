@@ -53,7 +53,7 @@ struct SubscriptionPaywallView: View {
                             .scaleEffect(appeared ? 1 : 0.8)
                             .animation(reduceMotion ? .none : .spring(response: 0.6, dampingFraction: 0.7).delay(0.1), value: appeared)
 
-                            Text("Upgrade to Pro")
+                            Text(L10n.Subscription.upgradeTitle.localized)
                                 .font(Typography.largeTitle)
                                 .fontWeight(.bold)
                                 .multilineTextAlignment(.center)
@@ -62,7 +62,7 @@ struct SubscriptionPaywallView: View {
                                 .animation(reduceMotion ? .none : .easeOut(duration: 0.5).delay(0.2), value: appeared)
 
                             if let feature = requiredFeature {
-                                Text("Unlock \(feature) and more premium features")
+                                Text(L10n.Subscription.unlockFeature.localized(with: feature))
                                     .font(Typography.subheadline)
                                     .foregroundStyle(.secondary)
                                     .multilineTextAlignment(.center)
@@ -93,16 +93,16 @@ struct SubscriptionPaywallView: View {
 
                         // Pricing (placeholder - will be loaded from StoreKit)
                         VStack(spacing: Spacing.md) {
-                            Text("Choose your plan")
+                            Text(L10n.Subscription.choosePlan.localized)
                                 .font(Typography.headline)
                                 .foregroundStyle(.secondary)
 
                             // Monthly plan (placeholder)
                             PlanCard(
-                                title: "Monthly",
+                                title: L10n.Subscription.monthly.localized,
                                 price: "$4.99",
-                                period: "per month",
-                                description: "Cancel anytime",
+                                period: L10n.Subscription.perMonth.localized,
+                                description: L10n.Subscription.cancelAnytime.localized,
                                 isSelected: selectedProduct?.id == "monthly",
                                 onTap: {
                                     // Will be replaced with actual product selection
@@ -111,10 +111,10 @@ struct SubscriptionPaywallView: View {
 
                             // Yearly plan (placeholder)
                             PlanCard(
-                                title: "Yearly",
+                                title: L10n.Subscription.yearly.localized,
                                 price: "$39.99",
-                                period: "per year",
-                                description: "Save 33% • Best value",
+                                period: L10n.Subscription.perYear.localized,
+                                description: L10n.Subscription.bestValue.localized,
                                 isSelected: selectedProduct?.id == "yearly",
                                 isRecommended: true,
                                 onTap: {
@@ -128,7 +128,7 @@ struct SubscriptionPaywallView: View {
 
                         // CTA Button
                         PrimaryButton(
-                            "Start Free Trial",
+                            L10n.Subscription.startFreeTrial.localized,
                             icon: "arrow.right",
                             isLoading: isPurchasing
                         ) {
@@ -141,16 +141,16 @@ struct SubscriptionPaywallView: View {
 
                         // Legal text
                         VStack(spacing: Spacing.xs) {
-                            Text("7-day free trial, then $4.99/month")
+                            Text(L10n.Subscription.trialInfo.localized)
                                 .font(Typography.caption2)
                                 .foregroundStyle(.secondary)
 
-                            Text("Cancel anytime in Settings")
+                            Text(L10n.Subscription.cancelInSettings.localized)
                                 .font(Typography.caption2)
                                 .foregroundStyle(.secondary)
 
                             HStack(spacing: Spacing.xs) {
-                                Button("Terms of Service") {
+                                Button(L10n.Subscription.termsOfService.localized) {
                                     // Open terms
                                 }
                                 .font(Typography.caption2)
@@ -160,7 +160,7 @@ struct SubscriptionPaywallView: View {
                                     .font(Typography.caption2)
                                     .foregroundStyle(.secondary)
 
-                                Button("Privacy Policy") {
+                                Button(L10n.Subscription.privacyPolicy.localized) {
                                     // Open privacy
                                 }
                                 .font(Typography.caption2)
@@ -170,7 +170,7 @@ struct SubscriptionPaywallView: View {
                                     .font(Typography.caption2)
                                     .foregroundStyle(.secondary)
 
-                                Button("Restore") {
+                                Button(L10n.Subscription.restore.localized) {
                                     handleRestore()
                                 }
                                 .font(Typography.caption2)
@@ -185,17 +185,17 @@ struct SubscriptionPaywallView: View {
                     }
                 }
             }
-            .navigationTitle("Upgrade")
+            .navigationTitle(L10n.Subscription.upgradeTitle.localized)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Maybe Later") {
+                    Button(L10n.Subscription.maybeLater.localized) {
                         dismiss()
                     }
                 }
             }
-            .alert("Purchase Error", isPresented: $showError) {
-                Button("OK", role: .cancel) {}
+            .alert(L10n.Subscription.purchaseError.localized, isPresented: $showError) {
+                Button(L10n.Common.ok.localized, role: .cancel) {}
             } message: {
                 Text(errorMessage)
             }
@@ -385,7 +385,7 @@ struct PlanCard: View {
             VStack(spacing: Spacing.md) {
                 // Recommended badge
                 if isRecommended {
-                    Text("BEST VALUE")
+                    Text(L10n.Subscription.bestValueBadge.localized)
                         .font(Typography.caption1.weight(.bold))
                         .foregroundStyle(.white)
                         .padding(.horizontal, Spacing.md)
@@ -408,9 +408,9 @@ struct PlanCard: View {
                             .font(Typography.title3)
                             .fontWeight(.semibold)
 
-                        HStack(alignment: .firstTextBaseline, spacing: 4) {
+                        HStack(alignment: .firstTextBaseline, spacing: Spacing.xxs) {
                             Text(price)
-                                .font(.system(size: 32, weight: .bold))
+                                .font(Typography.monospacedTitle)
 
                             Text(period)
                                 .font(Typography.caption1)

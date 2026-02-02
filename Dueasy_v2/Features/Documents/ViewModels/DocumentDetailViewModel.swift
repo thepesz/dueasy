@@ -14,6 +14,21 @@ final class DocumentDetailViewModel {
     private(set) var error: AppError?
     private(set) var shouldDismiss = false
 
+    /// Whether this document is linked to a recurring payment
+    var isLinkedToRecurring: Bool {
+        document?.recurringInstanceId != nil
+    }
+
+    /// The recurring template ID if linked
+    var recurringTemplateId: UUID? {
+        document?.recurringTemplateId
+    }
+
+    /// The recurring instance ID if linked
+    var recurringInstanceId: UUID? {
+        document?.recurringInstanceId
+    }
+
     // MARK: - Dependencies
 
     private let documentId: UUID

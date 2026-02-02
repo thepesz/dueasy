@@ -78,6 +78,15 @@ final class AppEnvironment {
     let vendorMigrationService: VendorProfileMigrationService
     let vendorTemplateService: VendorTemplateService
 
+    // MARK: - Recurring Payment Services
+
+    let vendorFingerprintService: VendorFingerprintServiceProtocol
+    let documentClassifierService: DocumentClassifierServiceProtocol
+    let recurringTemplateService: RecurringTemplateServiceProtocol
+    let recurringSchedulerService: RecurringSchedulerServiceProtocol
+    let recurringMatcherService: RecurringMatcherServiceProtocol
+    let recurringDetectionService: RecurringDetectionServiceProtocol
+
     // MARK: - Cloud Integration Services (Phase 1 Foundation)
 
     /// Authentication service for backend access.
@@ -173,6 +182,37 @@ final class AppEnvironment {
         self.notificationService = LocalNotificationService()
         self.syncService = NoOpSyncService() // No-op for Iteration 1
 
+        // Initialize recurring payment services
+        self.vendorFingerprintService = VendorFingerprintService()
+        self.documentClassifierService = DocumentClassifierService()
+
+        // Template service needs modelContext
+        let templateService = RecurringTemplateService(modelContext: modelContext)
+        self.recurringTemplateService = templateService
+
+        // Scheduler service needs modelContext, notification service, calendar service, and settings
+        let schedulerService = RecurringSchedulerService(
+            modelContext: modelContext,
+            notificationService: notificationService,
+            calendarService: calendarService,
+            settingsManager: settingsManager
+        )
+        self.recurringSchedulerService = schedulerService
+
+        // Matcher service needs modelContext, template service, and scheduler service
+        self.recurringMatcherService = RecurringMatcherService(
+            modelContext: modelContext,
+            templateService: templateService,
+            schedulerService: schedulerService
+        )
+
+        // Detection service needs modelContext, template service, and classifier service
+        self.recurringDetectionService = RecurringDetectionService(
+            modelContext: modelContext,
+            templateService: templateService,
+            classifierService: documentClassifierService
+        )
+
         // Initialize tier-specific services
         switch tier {
         case .pro:
@@ -219,7 +259,11 @@ final class AppEnvironment {
 
     /// Creates a CreateDocumentUseCase with injected dependencies
     func makeCreateDocumentUseCase() -> CreateDocumentUseCase {
-        CreateDocumentUseCase(repository: documentRepository)
+        CreateDocumentUseCase(
+            repository: documentRepository,
+            vendorFingerprintService: vendorFingerprintService,
+            classifierService: documentClassifierService
+        )
     }
 
     /// Creates a ScanAndAttachFileUseCase with injected dependencies
@@ -244,7 +288,9 @@ final class AppEnvironment {
             repository: documentRepository,
             calendarService: calendarService,
             notificationService: notificationService,
-            settingsManager: settingsManager
+            settingsManager: settingsManager,
+            vendorFingerprintService: vendorFingerprintService,
+            classifierService: documentClassifierService
         )
     }
 
@@ -271,7 +317,9 @@ final class AppEnvironment {
         UpdateDocumentUseCase(
             repository: documentRepository,
             calendarService: calendarService,
-            notificationService: notificationService
+            notificationService: notificationService,
+            vendorFingerprintService: vendorFingerprintService,
+            classifierService: documentClassifierService
         )
     }
 
@@ -298,6 +346,11 @@ final class AppEnvironment {
         FetchDocumentsForCalendarUseCase(repository: documentRepository)
     }
 
+    /// Creates a FetchRecurringInstancesForMonthUseCase with injected dependencies
+    func makeFetchRecurringInstancesForMonthUseCase() -> FetchRecurringInstancesForMonthUseCase {
+        FetchRecurringInstancesForMonthUseCase(modelContext: modelContext)
+    }
+
     /// Creates an ImportFromPDFUseCase with injected dependencies
     func makeImportFromPDFUseCase() -> ImportFromPDFUseCase {
         ImportFromPDFUseCase(
@@ -314,17 +367,173 @@ final class AppEnvironment {
         )
     }
 
+    // MARK: - Recurring Payment Use Case Factory Methods
+
+    /// Creates a CreateRecurringTemplateFromDocumentUseCase with injected dependencies
+    func makeCreateRecurringTemplateFromDocumentUseCase() -> CreateRecurringTemplateFromDocumentUseCase {
+        CreateRecurringTemplateFromDocumentUseCase(
+            templateService: recurringTemplateService,
+            schedulerService: recurringSchedulerService,
+            matcherService: recurringMatcherService,
+            fingerprintService: vendorFingerprintService,
+            classifierService: documentClassifierService
+        )
+    }
+
+    /// Creates a DetectRecurringCandidatesUseCase with injected dependencies
+    func makeDetectRecurringCandidatesUseCase() -> DetectRecurringCandidatesUseCase {
+        DetectRecurringCandidatesUseCase(
+            detectionService: recurringDetectionService,
+            templateService: recurringTemplateService
+        )
+    }
+
+    /// Creates a LinkExistingDocumentsUseCase with injected dependencies
+    func makeLinkExistingDocumentsUseCase() -> LinkExistingDocumentsUseCase {
+        LinkExistingDocumentsUseCase(
+            documentRepository: SwiftDataDocumentRepository(modelContext: modelContext),
+            schedulerService: recurringSchedulerService
+        )
+    }
+
+    /// Creates a ManuallyLinkDocumentsUseCase for retroactive linking
+    func makeManuallyLinkDocumentsUseCase() -> ManuallyLinkDocumentsUseCase {
+        ManuallyLinkDocumentsUseCase(
+            documentRepository: SwiftDataDocumentRepository(modelContext: modelContext),
+            schedulerService: recurringSchedulerService,
+            templateService: recurringTemplateService
+        )
+    }
+
+    /// Creates a MatchDocumentToRecurringUseCase with injected dependencies
+    func makeMatchDocumentToRecurringUseCase() -> MatchDocumentToRecurringUseCase {
+        MatchDocumentToRecurringUseCase(
+            matcherService: recurringMatcherService,
+            fingerprintService: vendorFingerprintService,
+            classifierService: documentClassifierService,
+            detectionService: recurringDetectionService
+        )
+    }
+
+    /// Creates an UnlinkDocumentFromRecurringUseCase with injected dependencies
+    func makeUnlinkDocumentFromRecurringUseCase() -> UnlinkDocumentFromRecurringUseCase {
+        UnlinkDocumentFromRecurringUseCase(
+            modelContext: modelContext,
+            schedulerService: recurringSchedulerService,
+            templateService: recurringTemplateService,
+            notificationService: notificationService
+        )
+    }
+
+    /// Creates a DeactivateRecurringTemplateUseCase with injected dependencies
+    func makeDeactivateRecurringTemplateUseCase() -> DeactivateRecurringTemplateUseCase {
+        DeactivateRecurringTemplateUseCase(
+            modelContext: modelContext,
+            templateService: recurringTemplateService,
+            notificationService: notificationService,
+            calendarService: calendarService
+        )
+    }
+
+    /// Creates a DeleteRecurringInstanceUseCase with injected dependencies
+    func makeDeleteRecurringInstanceUseCase() -> DeleteRecurringInstanceUseCase {
+        DeleteRecurringInstanceUseCase(
+            modelContext: modelContext,
+            notificationService: notificationService,
+            calendarService: calendarService
+        )
+    }
+
+    /// Creates a DeleteFutureRecurringInstancesUseCase with injected dependencies
+    func makeDeleteFutureRecurringInstancesUseCase() -> DeleteFutureRecurringInstancesUseCase {
+        DeleteFutureRecurringInstancesUseCase(
+            modelContext: modelContext,
+            templateService: recurringTemplateService,
+            notificationService: notificationService,
+            calendarService: calendarService
+        )
+    }
+
+    /// Creates a RecurringDeletionViewModel with all injected dependencies
+    func makeRecurringDeletionViewModel() -> RecurringDeletionViewModel {
+        RecurringDeletionViewModel(
+            unlinkDocumentUseCase: makeUnlinkDocumentFromRecurringUseCase(),
+            deactivateTemplateUseCase: makeDeactivateRecurringTemplateUseCase(),
+            deleteInstanceUseCase: makeDeleteRecurringInstanceUseCase(),
+            deleteFutureInstancesUseCase: makeDeleteFutureRecurringInstancesUseCase(),
+            deleteDocumentUseCase: makeDeleteDocumentUseCase(),
+            templateService: recurringTemplateService
+        )
+    }
+
     // MARK: - Versioning and Migration
 
     /// Run vendor profile migrations on app startup
     /// Call this after AppEnvironment is initialized
     func runStartupMigrations() async throws {
         try await vendorMigrationService.migrateVendorsIfNeeded(to: globalKeywordConfig)
+
+        // Backfill vendorFingerprint and documentCategory for existing documents
+        try await backfillVendorFingerprints()
     }
 
     /// Get migration statistics for monitoring
     func getMigrationStats() throws -> MigrationStats {
         return try vendorMigrationService.getMigrationStats()
+    }
+
+    // MARK: - Vendor Fingerprint Backfill
+
+    /// Backfills vendorFingerprint and documentCategory for existing documents that don't have them.
+    /// This is a one-time migration to fix documents created before fingerprint support was added.
+    /// Safe to call multiple times - only updates documents with nil fingerprint.
+    func backfillVendorFingerprints() async throws {
+        let logger = Logger(subsystem: "com.dueasy.app", category: "FingerprintBackfill")
+
+        // Fetch all documents without vendorFingerprint
+        let descriptor = FetchDescriptor<FinanceDocument>(
+            predicate: #Predicate<FinanceDocument> { $0.vendorFingerprint == nil }
+        )
+
+        let documentsToBackfill = try modelContext.fetch(descriptor)
+
+        if documentsToBackfill.isEmpty {
+            logger.info("No documents need fingerprint backfill")
+            return
+        }
+
+        logger.info("Backfilling vendorFingerprint for \(documentsToBackfill.count) documents")
+
+        var backfilledCount = 0
+        for document in documentsToBackfill {
+            // Skip documents without a title (empty drafts)
+            guard !document.title.isEmpty else {
+                logger.debug("Skipping document \(document.id) - no title")
+                continue
+            }
+
+            // Generate fingerprint
+            let fingerprint = vendorFingerprintService.generateFingerprint(
+                vendorName: document.title,
+                nip: document.vendorNIP
+            )
+            document.vendorFingerprint = fingerprint
+
+            // Classify document category
+            let classification = documentClassifierService.classify(
+                vendorName: document.title,
+                ocrText: nil,
+                amount: document.amount
+            )
+            document.documentCategoryRaw = classification.category.rawValue
+
+            backfilledCount += 1
+            logger.debug("Backfilled document: fingerprint=\(fingerprint.prefix(16))..., category=\(classification.category.rawValue)")
+        }
+
+        // Save changes
+        try modelContext.save()
+        logger.info("Successfully backfilled \(backfilledCount) documents with vendor fingerprints")
     }
 
     // MARK: - Keyword Learning Integration

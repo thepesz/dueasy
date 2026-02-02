@@ -146,12 +146,12 @@ struct AppLockView: View {
 
     private var titleSection: some View {
         VStack(spacing: Spacing.sm) {
-            Text("DuEasy is Locked")
+            Text(L10n.Security.appLocked.localized)
                 .font(Typography.title2)
                 .fontWeight(.bold)
                 .foregroundStyle(.primary)
 
-            Text("Your financial data is protected")
+            Text(L10n.Security.dataProtected.localized)
                 .font(Typography.body)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
@@ -254,14 +254,14 @@ struct AppLockView: View {
 
     private var buttonText: String {
         if lockManager.isAuthenticating {
-            return "Authenticating..."
+            return L10n.Security.authenticating.localized
         }
 
         let type = lockManager.availableBiometricType
         switch type {
-        case .faceID: return "Unlock with Face ID"
-        case .touchID: return "Unlock with Touch ID"
-        case .none: return "Unlock with Passcode"
+        case .faceID: return L10n.Security.unlockFaceID.localized
+        case .touchID: return L10n.Security.unlockTouchID.localized
+        case .none: return L10n.Security.unlockPasscode.localized
         }
     }
 

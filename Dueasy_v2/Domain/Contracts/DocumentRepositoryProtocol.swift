@@ -65,6 +65,12 @@ protocol DocumentRepositoryProtocol: Sendable {
     /// - Throws: `AppError.repositoryFetchFailed`
     func fetchOverdue() async throws -> [FinanceDocument]
 
+    /// Fetches documents by vendor fingerprint (for recurring payment linking).
+    /// - Parameter vendorFingerprint: The vendor fingerprint to match
+    /// - Returns: Array of documents with matching vendor fingerprint
+    /// - Throws: `AppError.repositoryFetchFailed`
+    func fetch(byVendorFingerprint vendorFingerprint: String) async throws -> [FinanceDocument]
+
     // MARK: - Batch Operations
 
     /// Saves any pending changes.
@@ -75,4 +81,13 @@ protocol DocumentRepositoryProtocol: Sendable {
     /// - Returns: Dictionary of status to count
     /// - Throws: `AppError.repositoryFetchFailed`
     func countByStatus() async throws -> [DocumentStatus: Int]
+
+    // MARK: - Cache Management
+
+    /// Forces a re-fetch of a document from the persistent store.
+    /// Use this when you need the latest database values after batch operations.
+    /// SwiftData caches objects in memory, so this ensures you get fresh data.
+    /// - Parameter documentId: ID of the document to refresh
+    /// - Returns: Fresh document from the database, or nil if not found
+    func fetchFresh(documentId: UUID) async throws -> FinanceDocument?
 }

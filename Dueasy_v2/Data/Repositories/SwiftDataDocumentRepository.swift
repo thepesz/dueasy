@@ -148,6 +148,45 @@ final class SwiftDataDocumentRepository: DocumentRepositoryProtocol, @unchecked 
         }.sorted { ($0.dueDate ?? .distantFuture) < ($1.dueDate ?? .distantFuture) }
     }
 
+    func fetch(byVendorFingerprint vendorFingerprint: String) async throws -> [FinanceDocument] {
+        logger.info("=== FETCH BY VENDOR FINGERPRINT ===")
+        logger.info("Searching for fingerprint: '\(vendorFingerprint.prefix(32))...'")
+        logger.info("Full fingerprint length: \(vendorFingerprint.count)")
+
+        let predicate = #Predicate<FinanceDocument> { document in
+            document.vendorFingerprint == vendorFingerprint
+        }
+        let descriptor = FetchDescriptor<FinanceDocument>(
+            predicate: predicate,
+            sortBy: [SortDescriptor(\.dueDate, order: .forward)]
+        )
+
+        do {
+            let results = try modelContext.fetch(descriptor)
+            logger.info("Fetch returned \(results.count) documents")
+
+            // DIAGNOSTIC: If no results, check what fingerprints exist
+            if results.isEmpty {
+                logger.warning("NO MATCHES - checking what fingerprints exist in database...")
+                let allDescriptor = FetchDescriptor<FinanceDocument>()
+                let allDocs = try modelContext.fetch(allDescriptor)
+                logger.warning("Total documents: \(allDocs.count)")
+                for doc in allDocs {
+                    if let fp = doc.vendorFingerprint {
+                        let matches = fp == vendorFingerprint
+                        logger.warning("  '\(doc.title)': fp='\(fp.prefix(32))...' MATCHES=\(matches)")
+                    } else {
+                        logger.warning("  '\(doc.title)': fp=nil")
+                    }
+                }
+            }
+
+            return results
+        } catch {
+            throw AppError.repositoryFetchFailed(error.localizedDescription)
+        }
+    }
+
     // MARK: - Batch Operations
 
     func save() async throws {
@@ -167,6 +206,40 @@ final class SwiftDataDocumentRepository: DocumentRepositoryProtocol, @unchecked 
         }
 
         return counts
+    }
+
+    // MARK: - Cache Management
+
+    /// Forces a re-fetch of a document from the persistent store.
+    /// Use this when you need the latest database values after batch operations.
+    /// SwiftData caches objects in memory, so this ensures you get fresh data.
+    ///
+    /// Implementation note: SwiftData doesn't have Core Data's refresh() method.
+    /// The workaround is to fetch by ID again, which retrieves the current database state.
+    /// - Parameter documentId: ID of the document to refresh
+    /// - Returns: Fresh document from the database, or nil if not found
+    func fetchFresh(documentId: UUID) async throws -> FinanceDocument? {
+        logger.debug("FETCH_FRESH: Re-fetching document \(documentId) from database")
+
+        let predicate = #Predicate<FinanceDocument> { document in
+            document.id == documentId
+        }
+        let descriptor = FetchDescriptor<FinanceDocument>(predicate: predicate)
+
+        do {
+            let results = try modelContext.fetch(descriptor)
+            if let fresh = results.first {
+                // Force access to the properties we care about to ensure they're loaded
+                let instanceId = fresh.recurringInstanceId
+                let templateId = fresh.recurringTemplateId
+                logger.debug("FETCH_FRESH: Got document \(fresh.id) - instanceId=\(instanceId?.uuidString ?? "nil"), templateId=\(templateId?.uuidString ?? "nil")")
+                return fresh
+            }
+            logger.warning("FETCH_FRESH: Document \(documentId) not found in database")
+            return nil
+        } catch {
+            throw AppError.repositoryFetchFailed(error.localizedDescription)
+        }
     }
 
     // MARK: - Private Helpers

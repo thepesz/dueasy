@@ -243,7 +243,7 @@ struct SettingsRow: View {
             }
             .shadow(color: iconColor.opacity(0.3), radius: 4, y: 2)
 
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: Spacing.xxs) {
                 Text(title)
                     .font(Typography.body)
 
@@ -330,6 +330,18 @@ struct CalendarSettingsView: View {
                 )
             } footer: {
                 Text(L10n.Settings.calendarFooter.localized)
+            }
+
+            Section {
+                Toggle(
+                    L10n.Settings.syncRecurringToiOSCalendar.localized,
+                    isOn: Binding(
+                        get: { environment.settingsManager.syncRecurringToiOSCalendar },
+                        set: { environment.settingsManager.syncRecurringToiOSCalendar = $0 }
+                    )
+                )
+            } footer: {
+                Text(L10n.Settings.syncRecurringToiOSCalendarFooter.localized)
             }
         }
         .navigationTitle(L10n.Settings.calendar.localized)
@@ -549,7 +561,7 @@ struct SecuritySettingsView: View {
                             .foregroundStyle(.purple)
                             .frame(width: 28)
 
-                        VStack(alignment: .leading, spacing: 2) {
+                        VStack(alignment: .leading, spacing: Spacing.xxs) {
                             Text(biometricTitle)
                                 .font(Typography.body)
 
@@ -588,19 +600,19 @@ struct SecuritySettingsView: View {
             // Biometric Status
             Section {
                 HStack {
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: Spacing.xxs) {
                         Text(L10n.Security.biometricStatus.localized)
                             .font(Typography.body)
 
                         Text(biometricStatusDescription)
                             .font(Typography.caption1)
-                            .foregroundStyle(appLockManager.isBiometricAvailable ? .green : .secondary)
+                            .foregroundStyle(appLockManager.isBiometricAvailable ? AppColors.success : .secondary)
                     }
 
                     Spacer()
 
                     Image(systemName: appLockManager.isBiometricAvailable ? "checkmark.circle.fill" : "xmark.circle.fill")
-                        .foregroundStyle(appLockManager.isBiometricAvailable ? .green : .secondary)
+                        .foregroundStyle(appLockManager.isBiometricAvailable ? AppColors.success : .secondary)
                 }
             } footer: {
                 if !appLockManager.isBiometricAvailable {
@@ -685,11 +697,11 @@ private struct InfoRow: View {
     var body: some View {
         HStack(alignment: .top, spacing: Spacing.sm) {
             Image(systemName: icon)
-                .font(.body)
-                .foregroundStyle(.blue)
+                .font(Typography.body)
+                .foregroundStyle(AppColors.primary)
                 .frame(width: 24)
 
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: Spacing.xxs) {
                 Text(title)
                     .font(Typography.subheadline)
                     .fontWeight(.medium)
@@ -715,21 +727,21 @@ struct PermissionSettingsView: View {
             // Calendar permission
             Section {
                 HStack {
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: Spacing.xxs) {
                         Text(L10n.Settings.calendarPermission.localized)
                             .font(Typography.body)
                         Text(calendarGranted
                             ? L10n.Settings.calendarPermissionGranted.localized
                             : L10n.Settings.calendarPermissionDenied.localized)
                             .font(Typography.caption1)
-                            .foregroundStyle(calendarGranted ? .green : .secondary)
+                            .foregroundStyle(calendarGranted ? AppColors.success : .secondary)
                     }
 
                     Spacer()
 
                     if calendarGranted {
                         Image(systemName: "checkmark.circle.fill")
-                            .foregroundStyle(.green)
+                            .foregroundStyle(AppColors.success)
                     } else {
                         Button(L10n.Settings.grantPermissions.localized) {
                             requestCalendarPermission()
@@ -747,21 +759,21 @@ struct PermissionSettingsView: View {
             // Notification permission
             Section {
                 HStack {
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: Spacing.xxs) {
                         Text(L10n.Settings.notificationPermission.localized)
                             .font(Typography.body)
                         Text(notificationGranted
                             ? L10n.Settings.notificationPermissionGranted.localized
                             : L10n.Settings.notificationPermissionDenied.localized)
                             .font(Typography.caption1)
-                            .foregroundStyle(notificationGranted ? .green : .secondary)
+                            .foregroundStyle(notificationGranted ? AppColors.success : .secondary)
                     }
 
                     Spacer()
 
                     if notificationGranted {
                         Image(systemName: "checkmark.circle.fill")
-                            .foregroundStyle(.green)
+                            .foregroundStyle(AppColors.success)
                     } else {
                         Button(L10n.Settings.grantPermissions.localized) {
                             requestNotificationPermission()

@@ -37,6 +37,10 @@
 "documents.deleteConfirmMessage" = "Spowoduje to również usunięcie wydarzenia z kalendarza i zaplanowanych powiadomień.";
 "documents.loadingDocuments" = "Ładowanie dokumentów...";
 
+// Two-step deletion (iOS Calendar style)
+"documents.deleteInvoice.title" = "Usunąć fakturę?";
+"documents.deleteInvoice.message" = "Czy na pewno chcesz usunąć tę fakturę?";
+
 // Empty states
 "documents.noDocuments.title" = "Brak dokumentów";
 "documents.noDocuments.message" = "Zeskanuj pierwszą fakturę, aby rozpocząć śledzenie terminów płatności.";
@@ -140,6 +144,10 @@
 "review.saveAndAddToCalendar" = "Zapisz i dodaj do kalendarza";
 "review.saving" = "Zapisywanie...";
 
+// Mark as paid
+"review.markAsPaid.title" = "Oznacz jako opłacone";
+"review.markAsPaid.description" = "Faktura zostanie natychmiast oznaczona jako opłacona";
+
 // Validation
 "review.validation.vendorRequired" = "Nazwa sprzedawcy jest wymagana";
 "review.validation.amountRequired" = "Kwota musi być większa od zera";
@@ -240,6 +248,8 @@
 "settings.usingInvoicesCalendar" = "Kalendarz Faktury";
 "settings.usingDefaultCalendar" = "Kalendarz domyślny";
 "settings.calendarFooter" = "Po włączeniu DuEasy tworzy oddzielny kalendarz \"Faktury\" dla wszystkich terminów płatności. Ułatwia to pokazywanie lub ukrywanie terminów płatności faktur w aplikacji kalendarza.";
+"settings.syncRecurringToiOSCalendar" = "Synchronizuj cykliczne z kalendarzem iOS";
+"settings.syncRecurringToiOSCalendarFooter" = "Po włączeniu oczekiwane płatności cykliczne zostaną dodane do kalendarza iOS. Widok kalendarza w aplikacji zawsze pokazuje wszystkie płatności cykliczne.";
 
 // Defaults section
 "settings.defaults.section" = "Ustawienia domyślne";
@@ -319,6 +329,16 @@
 "calendar.documentsCount" = "%d dokument(y)";
 "calendar.documentsDue" = "Wybierz dzień, aby zobaczyć dokumenty";
 "calendar.loading" = "Ładowanie kalendarza...";
+"calendar.showRecurringOnly" = "Tylko cykliczne";
+"calendar.recurringCount" = "%d cyklicznych";
+"calendar.recurringSection" = "Płatności cykliczne";
+"calendar.documentsSection" = "Dokumenty";
+"calendar.noRecurring" = "Brak płatności cyklicznych";
+"calendar.noRecurringMessage" = "Brak oczekiwanych płatności cyklicznych na ten dzień";
+"calendar.expectedPayment" = "Oczekiwana płatność";
+"calendar.matchedPayment" = "Dopasowana";
+"calendar.markAsPaid" = "Oznacz jako zapłacone";
+"calendar.viewDocument" = "Zobacz dokument";
 
 // MARK: - Errors
 
@@ -444,3 +464,205 @@
 // MARK: - Detail View Labels
 
 "detail.remindersEnabled" = "Przypomnienia włączone";
+
+// MARK: - Document Categories
+
+"documentCategory.utility" = "Media";
+"documentCategory.telecom" = "Telekomunikacja";
+"documentCategory.rent" = "Czynsz";
+"documentCategory.insurance" = "Ubezpieczenie";
+"documentCategory.subscription" = "Subskrypcja";
+"documentCategory.invoiceGeneric" = "Faktura";
+"documentCategory.fuel" = "Paliwo";
+"documentCategory.grocery" = "Zakupy spożywcze";
+"documentCategory.retail" = "Zakupy";
+"documentCategory.receipt" = "Paragon";
+"documentCategory.unknown" = "Nieznana";
+
+// MARK: - Recurring Payments
+
+// Review screen - recurring toggle
+"recurring.toggleTitle" = "Płatność cykliczna";
+"recurring.toggleDescription" = "Automatycznie generuj przypomnienia o przyszłych płatnościach";
+"recurring.settingsTitle" = "Ustawienia cykliczności";
+"recurring.toleranceDays" = "Dni tolerancji";
+"recurring.toleranceDaysDescription" = "Dni przed/po terminie do dopasowania";
+"recurring.warningFuelRetail" = "To wygląda na zakup paliwa lub detaliczny. Czy na pewno jest to płatność cykliczna?";
+"recurring.warningNoPattern" = "Ten dostawca nie ma regularnego wzorca płatności.";
+
+// Recurring overview
+"recurring.overviewTitle" = "Płatności cykliczne";
+"recurring.templatesSection" = "Szablony";
+"recurring.instancesSection" = "Nadchodzące płatności";
+"recurring.noTemplates" = "Brak płatności cyklicznych";
+"recurring.noTemplatesMessage" = "Oznacz fakturę jako cykliczną, aby śledzić regularne płatności.";
+"recurring.noUpcoming" = "Brak nadchodzących płatności";
+"recurring.noUpcomingMessage" = "Twoja następna cykliczna płatność pojawi się tutaj.";
+"recurring.templateCount" = "%d płatność(i) cykliczna(e)";
+"recurring.activeTemplates" = "Aktywne";
+"recurring.pausedTemplates" = "Wstrzymane";
+
+// Template detail
+"recurring.templateDetailTitle" = "Płatność cykliczna";
+"recurring.vendorLabel" = "Dostawca";
+"recurring.dueDayLabel" = "Dzień płatności";
+"recurring.dueDayValue" = "%d dzień każdego miesiąca";
+"recurring.toleranceLabel" = "Tolerancja";
+"recurring.toleranceValue" = "+/- %d dni";
+"recurring.remindersLabel" = "Przypomnienia";
+"recurring.amountRangeLabel" = "Oczekiwana kwota";
+"recurring.amountRangeValue" = "%@ - %@";
+"recurring.ibanLabel" = "Numer konta";
+"recurring.statsLabel" = "Statystyki";
+"recurring.matchedCount" = "%d dopasowane";
+"recurring.paidCount" = "%d zapłacone";
+"recurring.missedCount" = "%d pominięte";
+"recurring.pauseTemplate" = "Wstrzymaj";
+"recurring.resumeTemplate" = "Wznów";
+"recurring.deleteTemplate" = "Usuń szablon";
+"recurring.deleteTemplateConfirm" = "Spowoduje to usunięcie szablonu płatności cyklicznej i wszystkich przyszłych oczekiwanych instancji. Wcześniej dopasowane dokumenty nie zostaną zmienione.";
+
+// Instance status
+"recurring.instance.expected" = "Oczekiwana";
+"recurring.instance.matched" = "Dopasowana";
+"recurring.instance.paid" = "Zapłacona";
+"recurring.instance.missed" = "Pominięta";
+"recurring.instance.dueIn" = "Termin za %d dni";
+"recurring.instance.dueToday" = "Termin dzisiaj";
+"recurring.instance.overdue" = "%d dni po terminie";
+
+// Auto-detection suggestions
+"recurring.suggestionsTitle" = "Sugerowane cykliczne";
+"recurring.sectionTitle" = "Wykryto cykliczne";
+"recurring.suggestionCard.title" = "Wygląda na płatność cykliczną";
+"recurring.suggestionCard.description" = "Wykryliśmy %d podobnych faktur od %@";
+"recurring.suggestionCard.confidence" = "Pewność: %d%%";
+"recurring.suggestionCard.accept" = "Ustaw jako cykliczną";
+"recurring.suggestionCard.dismiss" = "To nie jest cykliczna";
+"recurring.suggestionCard.snooze" = "Zapytaj później";
+"recurring.noSuggestions" = "Brak sugestii";
+"recurring.noSuggestionsMessage" = "Powiadomimy Cię, gdy wykryjemy wzorzec cykliczny.";
+"recurring.inlineDescription" = "Wykryto %d faktur, termin płatności: %d. dzień miesiąca";
+"recurring.inlineDescriptionNoDueDay" = "Wykryto %d faktur";
+"recurring.moreSuggestions" = "+%d więcej sugestii";
+"recurring.setupReminders" = "Ustaw przypomnienia";
+"recurring.confidence" = "Dopasowanie";
+"recurring.documentsFound" = "Znaleziono dokumentów";
+"recurring.typicalDueDate" = "Typowy termin płatności";
+"recurring.dayOfMonth" = "%d. dzień miesiąca";
+"recurring.averageAmount" = "Średnia kwota";
+"recurring.reminderDescription" = "Wybierz kiedy otrzymywać przypomnienia przed terminem płatności";
+"recurring.createRecurring" = "Utwórz płatność cykliczną";
+"recurring.patternWithDueDay" = "%d faktury, zazwyczaj termin: %d. dzień miesiąca";
+"recurring.patternNoDueDay" = "Wykryto %d faktur";
+"recurring.durationTitle" = "Czas trwania";
+"recurring.durationDescription" = "Jak długo mamy śledzić tę płatność cykliczną?";
+"recurring.monthsAhead" = "Generuj na";
+"recurring.monthsCount" = "%d miesięcy";
+"recurring.durationHint" = "Możesz to później przedłużyć lub zatrzymać";
+"recurring.selectedDuration" = "Wybrany czas trwania";
+
+// Creation source
+"recurring.source.manual" = "Ręczny";
+"recurring.source.autoDetection" = "Automatycznie wykryty";
+
+// Instance status - cancelled
+"recurring.instance.cancelled" = "Anulowana";
+
+// MARK: - Recurring Deletion
+
+// Scenario 1: Document linked to recurring
+"recurring.deletion.documentTitle" = "Usuń fakturę cykliczną";
+"recurring.deletion.documentSubtitle" = "Ta faktura jest powiązana z płatnością cykliczną od %@";
+"recurring.deletion.deleteOnlyThisInvoice" = "Usuń tylko tę fakturę";
+"recurring.deletion.deleteOnlyThisInvoiceDescription" = "Usuń tę fakturę, ale zachowaj płatność cykliczną. Wydarzenia w kalendarzu i przypomnienia pozostaną zaplanowane.";
+"recurring.deletion.cancelRecurringPayments" = "Usuń fakturę i anuluj płatności cykliczne";
+"recurring.deletion.cancelRecurringPaymentsDescription" = "Usuń tę fakturę i przestań śledzić przyszłe płatności. Wszystkie wydarzenia w kalendarzu i przypomnienia zostaną usunięte.";
+
+// iOS Calendar style - recurring series
+"recurring.deletion.recurringSeriesTitle" = "Ta faktura jest częścią serii cyklicznej";
+"recurring.deletion.recurringSeriesMessage" = "Czy chcesz usunąć tylko tę fakturę, czy wszystkie przyszłe?";
+"recurring.deletion.deleteThisOnly" = "Usuń tylko tę fakturę";
+"recurring.deletion.deleteThisOnlyDescription" = "Usuń tę fakturę, ale zachowaj przyszłe płatności cykliczne.";
+"recurring.deletion.deleteAllFuture" = "Usuń tę fakturę i wszystkie przyszłe";
+"recurring.deletion.deleteAllFutureDescription" = "Usuń tę fakturę i przestań śledzić wszystkie przyszłe płatności.";
+
+// Scenario 2: Instance/template deletion from calendar
+"recurring.deletion.instanceTitle" = "Usuń płatność cykliczną";
+"recurring.deletion.instanceSubtitle" = "To jest oczekiwana płatność dla %@";
+"recurring.deletion.deleteThisMonthOnly" = "Usuń tylko ten miesiąc";
+"recurring.deletion.deleteThisMonthOnlyDescription" = "Pomiń tę konkretną płatność. Wzorzec cykliczny kontynuuje dla innych miesięcy.";
+"recurring.deletion.deleteAllFutureOccurrences" = "Usuń wszystkie przyszłe";
+"recurring.deletion.deleteAllFutureOccurrencesDescription" = "Całkowicie przestań śledzić tę płatność cykliczną. Historia płatności zostanie zachowana.";
+
+// Shared
+"recurring.deletion.cancel" = "Anuluj";
+"recurring.deletion.cancelDescription" = "Nie usuwaj niczego";
+"recurring.deletion.warning" = "Tej akcji nie można cofnąć";
+"recurring.deletion.futureInstancesCount" = "%d przyszłych płatności będzie usuniętych";
+"recurring.deletion.keepHistory" = "Historia płatności zostanie zachowana";
+
+// Success messages
+"recurring.deletion.successInvoiceOnly" = "Faktura usunięta. Płatność cykliczna nadal aktywna.";
+"recurring.deletion.successRecurringCancelled" = "Płatność cykliczna anulowana. Usunięto %d przyszłych instancji.";
+"recurring.deletion.successThisMonthOnly" = "Płatność tego miesiąca pominięta.";
+"recurring.deletion.successAllFuture" = "Płatność cykliczna anulowana. Usunięto %d przyszłych instancji.";
+
+// MARK: - Common (additions)
+
+"common.on" = "Wł.";
+"common.off" = "Wył.";
+"common.actions" = "Akcje";
+
+// MARK: - Security (additions)
+
+"security.appLocked" = "DuEasy jest zablokowane";
+"security.dataProtected" = "Twoje dane finansowe są chronione";
+"security.authenticating" = "Uwierzytelnianie...";
+"security.unlockFaceID" = "Odblokuj za pomocą Face ID";
+"security.unlockTouchID" = "Odblokuj za pomocą Touch ID";
+"security.unlockPasscode" = "Odblokuj kodem";
+
+// MARK: - Subscription
+
+"subscription.section" = "Subskrypcja";
+"subscription.upgradeTitle" = "Uaktualnij do Pro";
+"subscription.upgradeToPro" = "Uaktualnij do Pro";
+"subscription.unlockFeature" = "Odblokuj %@ i więcej funkcji premium";
+"subscription.choosePlan" = "Wybierz swój plan";
+"subscription.monthly" = "Miesięcznie";
+"subscription.yearly" = "Rocznie";
+"subscription.perMonth" = "miesięcznie";
+"subscription.perYear" = "rocznie";
+"subscription.cancelAnytime" = "Anuluj w dowolnym momencie";
+"subscription.bestValue" = "Oszczędź 33% - Najlepsza oferta";
+"subscription.bestValueBadge" = "NAJLEPSZA OFERTA";
+"subscription.startFreeTrial" = "Rozpocznij bezpłatny okres próbny";
+"subscription.trialInfo" = "7-dniowy bezpłatny okres próbny, potem 4,99$/miesiąc";
+"subscription.cancelInSettings" = "Anuluj w dowolnym momencie w Ustawieniach";
+"subscription.termsOfService" = "Regulamin";
+"subscription.privacyPolicy" = "Polityka prywatności";
+"subscription.restore" = "Przywróć";
+"subscription.maybeLater" = "Może później";
+"subscription.purchaseError" = "Błąd zakupu";
+"subscription.loadingStatus" = "Ładowanie statusu subskrypcji...";
+"subscription.manageSubscription" = "Zarządzaj subskrypcją";
+"subscription.upgradeFooter" = "Uaktualnij do Pro, aby uzyskać analizę AI, kopię zapasową w chmurze i zwiększoną dokładność.";
+"subscription.willRenewOn" = "Twoja subskrypcja odnowi się %@";
+"subscription.expiresOn" = "Twoja subskrypcja wygasa %@";
+"subscription.freeTrial" = "Okres próbny";
+"subscription.paymentIssue" = "Problem z płatnością";
+"subscription.active" = "Aktywna";
+"subscription.inactive" = "Nieaktywna";
+"subscription.localOnly" = "Tylko funkcje lokalne";
+"subscription.status" = "Status";
+"subscription.tier" = "Poziom";
+"subscription.plan" = "Plan";
+"subscription.expires" = "Wygasa";
+"subscription.subscribed" = "Subskrybowano";
+"subscription.autoRenew" = "Automatyczne odnawianie";
+"subscription.trialPeriod" = "Okres próbny";
+"subscription.details" = "Szczegóły subskrypcji";
+"subscription.manageInAppStore" = "Zarządzaj w App Store";
+"subscription.cancelSubscription" = "Anuluj subskrypcję";
+"subscription.cancelFooter" = "Aby anulować lub zmodyfikować subskrypcję, użyj ustawień App Store. Zmiany wejdą w życie na koniec bieżącego okresu rozliczeniowego.";

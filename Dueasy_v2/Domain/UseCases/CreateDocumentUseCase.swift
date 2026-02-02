@@ -1,30 +1,65 @@
 import Foundation
+import os.log
 
 /// Use case for creating a new document.
 /// Creates a draft document with the specified type.
+/// Sets vendorFingerprint and documentCategory if title is provided.
 struct CreateDocumentUseCase: Sendable {
 
     private let repository: DocumentRepositoryProtocol
+    private let vendorFingerprintService: VendorFingerprintServiceProtocol
+    private let classifierService: DocumentClassifierServiceProtocol
+    private let logger = Logger(subsystem: "com.dueasy.app", category: "CreateDocument")
 
-    init(repository: DocumentRepositoryProtocol) {
+    init(
+        repository: DocumentRepositoryProtocol,
+        vendorFingerprintService: VendorFingerprintServiceProtocol,
+        classifierService: DocumentClassifierServiceProtocol
+    ) {
         self.repository = repository
+        self.vendorFingerprintService = vendorFingerprintService
+        self.classifierService = classifierService
     }
 
     /// Creates a new draft document.
     /// - Parameters:
     ///   - type: Document type (invoice, contract, receipt)
-    ///   - title: Optional initial title
+    ///   - title: Optional initial title (vendor name)
+    ///   - vendorNIP: Optional vendor NIP for fingerprint generation
     /// - Returns: The created document
     @MainActor
     func execute(
         type: DocumentType = .invoice,
-        title: String = ""
+        title: String = "",
+        vendorNIP: String? = nil
     ) async throws -> FinanceDocument {
         let document = FinanceDocument(
             type: type,
             title: title,
             status: .draft
         )
+
+        // Set vendor fingerprint if title is provided
+        // This enables recurring payment detection even for manually created documents
+        if !title.isEmpty {
+            let fingerprint = vendorFingerprintService.generateFingerprint(
+                vendorName: title,
+                nip: vendorNIP
+            )
+            document.vendorFingerprint = fingerprint
+            logger.info("Created document with vendor fingerprint: \(fingerprint.prefix(16))...")
+
+            // Classify document category
+            let classification = classifierService.classify(
+                vendorName: title,
+                ocrText: nil,
+                amount: nil
+            )
+            document.documentCategoryRaw = classification.category.rawValue
+            logger.info("Classified new document as category: \(classification.category.rawValue)")
+        } else {
+            logger.info("Created draft document without title - fingerprint will be set on finalize")
+        }
 
         try await repository.create(document)
         return document

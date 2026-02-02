@@ -19,6 +19,16 @@ struct DocumentListView: View {
     @State private var navigationPath = NavigationPath()
     @State private var appeared = false
 
+    /// Guards against stale navigation destinations firing during refresh.
+    /// When true, navigationDestination callbacks are blocked to prevent phantom navigation.
+    @State private var isRefreshing = false
+
+    /// Candidate being accepted (shows reminder selection sheet)
+    @State private var candidateToAccept: RecurringCandidate?
+
+    /// Recurring deletion view model (for documents linked to recurring payments)
+    @State private var recurringDeletionViewModel: RecurringDeletionViewModel?
+
     /// External trigger from MainTabView to refresh after adding documents
     let refreshTrigger: Int
 
@@ -42,6 +52,84 @@ struct DocumentListView: View {
                 AddDocumentView(environment: environment)
                     .environment(environment)
             }
+            .sheet(item: $candidateToAccept) { candidate in
+                AcceptRecurringSheet(
+                    candidate: candidate,
+                    onAccept: { reminderOffsets, durationMonths in
+                        Task {
+                            await viewModel?.acceptSuggestion(
+                                candidate,
+                                reminderOffsets: reminderOffsets,
+                                durationMonths: durationMonths
+                            )
+                        }
+                        candidateToAccept = nil
+                    },
+                    onCancel: {
+                        candidateToAccept = nil
+                    }
+                )
+                .environment(environment)
+            }
+            // Step 1: Initial delete confirmation alert (like iOS Calendar)
+            .alert(
+                L10n.Documents.deleteInvoiceTitle.localized,
+                isPresented: Binding(
+                    get: { viewModel?.showDeleteConfirmation ?? false },
+                    set: { if !$0 { viewModel?.showDeleteConfirmation = false } }
+                ),
+                presenting: viewModel?.documentPendingDeletion
+            ) { document in
+                Button(L10n.Common.delete.localized, role: .destructive) {
+                    Task {
+                        await viewModel?.confirmDeleteDocument()
+                    }
+                }
+                Button(L10n.Common.cancel.localized, role: .cancel) {
+                    viewModel?.cancelDeleteDocument()
+                }
+            } message: { document in
+                Text(document.title)
+            }
+            // Step 2: Recurring deletion options sheet (only shown if document is linked to recurring)
+            .sheet(isPresented: Binding(
+                get: { viewModel?.showRecurringDeletionSheet ?? false },
+                set: { if !$0 { viewModel?.showRecurringDeletionSheet = false } }
+            )) {
+                if let vm = viewModel,
+                   let document = vm.documentPendingDeletion,
+                   let deletionVM = recurringDeletionViewModel {
+                    RecurringDocumentDeletionSheet(viewModel: deletionVM) { result in
+                        print("🟢 COMPLETION_HANDLER: Received deletion result")
+                        print("🟢 COMPLETION_HANDLER: result.success = \(result.success)")
+                        print("🟢 COMPLETION_HANDLER: result.documentDeleted = \(result.documentDeleted)")
+                        print("🟢 COMPLETION_HANDLER: result.templateDeactivated = \(result.templateDeactivated)")
+                        print("🟢 COMPLETION_HANDLER: result.deletedInstanceCount = \(result.deletedInstanceCount)")
+                        print("🟢 COMPLETION_HANDLER: result.option = '\(result.option)'")
+
+                        // Always refresh the document list after successful recurring deletion
+                        // This handles both cases:
+                        // 1. Document was deleted (documentDeleted = true) - removed from list
+                        // 2. Future instances were deleted but document kept (templateDeactivated = true) - still in list but unlinked
+                        if result.success {
+                            print("🟢 COMPLETION_HANDLER: Success=true, calling loadDocuments()")
+                            Task {
+                                print("🟢 COMPLETION_HANDLER: Awaiting loadDocuments()...")
+                                await viewModel?.loadDocuments()
+                                print("🟢 COMPLETION_HANDLER: loadDocuments() completed")
+                            }
+                        } else {
+                            print("🟢 COMPLETION_HANDLER: Success=false, skipping loadDocuments()")
+                        }
+
+                        print("🟢 COMPLETION_HANDLER: Cleaning up sheet state")
+                        viewModel?.showRecurringDeletionSheet = false
+                        viewModel?.documentPendingDeletion = nil
+                        recurringDeletionViewModel = nil
+                        print("🟢 COMPLETION_HANDLER: Cleanup complete")
+                    }
+                }
+            }
             .onChange(of: showingAddDocument) { oldValue, newValue in
                 // Reload documents when sheet is dismissed (false after being true)
                 if oldValue && !newValue {
@@ -50,21 +138,44 @@ struct DocumentListView: View {
                     }
                 }
             }
+            .onChange(of: viewModel?.showRecurringDeletionSheet ?? false) { oldValue, newValue in
+                // Set up recurring deletion view model when sheet is about to show
+                if newValue && !oldValue, let document = viewModel?.documentPendingDeletion {
+                    let deletionVM = environment.makeRecurringDeletionViewModel()
+                    recurringDeletionViewModel = deletionVM
+                    Task {
+                        await deletionVM.setupForDocumentDeletion(document: document, template: nil)
+                    }
+                }
+            }
             .onChange(of: refreshTrigger) { oldValue, newValue in
                 // External refresh triggered (from MainTabView after adding document)
-                // PERFORMANCE: Only clear navigation if we're currently navigated somewhere
-                // to avoid unnecessary view updates
+                // CRITICAL: Set refresh guard BEFORE clearing path to block stale navigationDestination callbacks
+                isRefreshing = true
+
+                // Clear navigation to return to list view
                 if !navigationPath.isEmpty {
                     navigationPath = NavigationPath()
                 }
+
                 Task {
                     await viewModel?.loadDocuments()
+                    // Allow view hierarchy to fully settle before re-enabling navigation
+                    try? await Task.sleep(for: .milliseconds(200))
+                    isRefreshing = false
                 }
             }
             .navigationDestination(for: UUID.self) { documentId in
-                let _ = print("NavigationDestination triggered for document ID: \(documentId)")
-                DocumentDetailViewWrapper(documentId: documentId)
-                    .environment(environment)
+                // CRITICAL: Block stale navigation during refresh cycle to prevent phantom views
+                // that corrupt the layout. When isRefreshing is true, return an empty view.
+                if isRefreshing {
+                    let _ = print("NavigationDestination BLOCKED (refreshing) for document ID: \(documentId)")
+                    Color.clear
+                } else {
+                    let _ = print("NavigationDestination triggered for document ID: \(documentId)")
+                    DocumentDetailViewWrapper(documentId: documentId)
+                        .environment(environment)
+                }
             }
         }
         // PERFORMANCE FIX: Removed .id(refreshTrigger) which was causing full NavigationStack
@@ -103,6 +214,13 @@ struct DocumentListView: View {
                 appHeader
                     .padding(.top, Spacing.md)
                     .padding(.horizontal, Spacing.md)
+
+                // Recurring payment suggestions (shown when detected)
+                if viewModel.hasSuggestions {
+                    recurringSuggestionsSection(viewModel: viewModel)
+                        .padding(.horizontal, Spacing.md)
+                        .padding(.top, Spacing.sm)
+                }
 
                 // Inline search bar positioned above filters
                 InlineSearchBar(
@@ -154,6 +272,43 @@ struct DocumentListView: View {
         .animation(.default, value: viewModel.error != nil)
     }
 
+    // MARK: - Recurring Suggestions Section
+
+    @ViewBuilder
+    private func recurringSuggestionsSection(viewModel: DocumentListViewModel) -> some View {
+        VStack(alignment: .leading, spacing: Spacing.sm) {
+            // Section header
+            HStack {
+                Image(systemName: "sparkles")
+                    .foregroundStyle(AppColors.primary)
+                Text(L10n.RecurringSuggestions.sectionTitle.localized)
+                    .font(Typography.subheadline.weight(.semibold))
+                Spacer()
+            }
+
+            // Show first suggestion card (compact inline version)
+            if let firstCandidate = viewModel.suggestedCandidates.first {
+                InlineSuggestionCard(
+                    candidate: firstCandidate,
+                    totalCount: viewModel.suggestedCandidates.count,
+                    onAccept: {
+                        candidateToAccept = firstCandidate
+                    },
+                    onDismiss: {
+                        Task {
+                            await viewModel.dismissSuggestion(firstCandidate)
+                        }
+                    },
+                    onSnooze: {
+                        Task {
+                            await viewModel.snoozeSuggestion(firstCandidate)
+                        }
+                    }
+                )
+            }
+        }
+    }
+
     @ViewBuilder
     private func filterBar(viewModel: DocumentListViewModel) -> some View {
         // Fixed-width glass container with horizontally scrolling content inside
@@ -203,43 +358,43 @@ struct DocumentListView: View {
 
     @ViewBuilder
     private func documentList(viewModel: DocumentListViewModel) -> some View {
-        ScrollView {
-            LazyVStack(spacing: Spacing.sm) {
-                ForEach(Array(viewModel.filteredDocuments.enumerated()), id: \.element.id) { index, document in
-                    DocumentRow(document: document) {
-                        print("Appending document ID to navigation path: \(document.id)")
-                        navigationPath.append(document.id)
-                    }
-                    .opacity(appeared ? 1 : 0)
-                    .offset(y: appeared ? 0 : 20)
-                    .animation(
-                        reduceMotion ? .none : .spring(response: 0.4, dampingFraction: 0.8).delay(Double(index) * 0.05),
-                        value: appeared
-                    )
-                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                        Button(role: .destructive) {
-                            Task {
-                                await viewModel.deleteDocument(document)
-                            }
-                        } label: {
-                            Label(L10n.Common.delete.localized, systemImage: "trash")
+        List {
+            ForEach(Array(viewModel.filteredDocuments.enumerated()), id: \.element.id) { index, document in
+                DocumentRow(document: document) {
+                    print("Appending document ID to navigation path: \(document.id)")
+                    navigationPath.append(document.id)
+                }
+                .opacity(appeared ? 1 : 0)
+                .offset(y: appeared ? 0 : 20)
+                .animation(
+                    reduceMotion ? .none : .spring(response: 0.4, dampingFraction: 0.8).delay(Double(index) * 0.05),
+                    value: appeared
+                )
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
+                .listRowInsets(EdgeInsets(top: Spacing.xs, leading: Spacing.md, bottom: Spacing.xs, trailing: Spacing.md))
+                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                    Button(role: .destructive) {
+                        Task {
+                            await viewModel.deleteDocument(document)
                         }
+                    } label: {
+                        Label(L10n.Common.delete.localized, systemImage: "trash")
                     }
-                    .contextMenu {
-                        Button(role: .destructive) {
-                            Task {
-                                await viewModel.deleteDocument(document)
-                            }
-                        } label: {
-                            Label(L10n.Common.delete.localized, systemImage: "trash")
+                }
+                .contextMenu {
+                    Button(role: .destructive) {
+                        Task {
+                            await viewModel.deleteDocument(document)
                         }
+                    } label: {
+                        Label(L10n.Common.delete.localized, systemImage: "trash")
                     }
                 }
             }
-            .padding(.horizontal, Spacing.md)
-            .padding(.top, Spacing.sm)
-            .padding(.bottom, Spacing.xxl)
         }
+        .listStyle(.plain)
+        .scrollContentBackground(.hidden)
         .scrollIndicators(.hidden)
     }
 
@@ -259,7 +414,11 @@ struct DocumentListView: View {
         viewModel = DocumentListViewModel(
             fetchDocumentsUseCase: environment.makeFetchDocumentsUseCase(),
             countDocumentsUseCase: environment.makeCountDocumentsByStatusUseCase(),
-            deleteUseCase: environment.makeDeleteDocumentUseCase()
+            deleteUseCase: environment.makeDeleteDocumentUseCase(),
+            detectCandidatesUseCase: environment.makeDetectRecurringCandidatesUseCase(),
+            schedulerService: environment.recurringSchedulerService,
+            linkExistingDocumentsUseCase: environment.makeLinkExistingDocumentsUseCase(),
+            documentRepository: environment.documentRepository
         )
     }
 }
@@ -576,6 +735,141 @@ struct FilterChip: View {
     }
 }
 
+// MARK: - Inline Suggestion Card
+
+/// Compact suggestion card shown inline in the document list.
+/// Displays recurring payment detection with quick actions.
+struct InlineSuggestionCard: View {
+
+    @Environment(\.colorScheme) private var colorScheme
+
+    let candidate: RecurringCandidate
+    let totalCount: Int
+    let onAccept: () -> Void
+    let onDismiss: () -> Void
+    let onSnooze: () -> Void
+
+    @State private var isProcessing = false
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: Spacing.sm) {
+            // Main content
+            HStack(spacing: Spacing.sm) {
+                // Icon
+                Image(systemName: candidate.documentCategory.iconName)
+                    .font(.title3)
+                    .foregroundStyle(AppColors.primary)
+                    .frame(width: 36, height: 36)
+                    .background(AppColors.primary.opacity(0.1))
+                    .clipShape(Circle())
+
+                // Text content
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(candidate.vendorDisplayName)
+                        .font(Typography.subheadline.weight(.semibold))
+                        .lineLimit(1)
+
+                    Text(suggestionMessage)
+                        .font(Typography.caption1)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+
+                Spacer(minLength: 0)
+
+                // Confidence badge
+                Text("\(Int(candidate.confidenceScore * 100))%")
+                    .font(Typography.caption2.weight(.semibold))
+                    .foregroundStyle(confidenceColor)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(confidenceColor.opacity(0.15))
+                    .clipShape(Capsule())
+            }
+
+            // Action buttons
+            HStack(spacing: Spacing.xs) {
+                // Dismiss button
+                Button(action: {
+                    isProcessing = true
+                    onDismiss()
+                }) {
+                    Text(L10n.RecurringSuggestions.dismiss.localized)
+                        .font(Typography.caption1)
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+                .disabled(isProcessing)
+
+                // Snooze button
+                Button(action: {
+                    isProcessing = true
+                    onSnooze()
+                }) {
+                    Text(L10n.RecurringSuggestions.snooze.localized)
+                        .font(Typography.caption1)
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+                .disabled(isProcessing)
+
+                Spacer()
+
+                // Accept button
+                Button(action: {
+                    isProcessing = true
+                    onAccept()
+                }) {
+                    if isProcessing {
+                        ProgressView()
+                            .scaleEffect(0.7)
+                    } else {
+                        Text(L10n.RecurringSuggestions.accept.localized)
+                            .font(Typography.caption1.weight(.semibold))
+                    }
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.small)
+                .tint(AppColors.primary)
+                .disabled(isProcessing)
+            }
+
+            // Show count if more suggestions
+            if totalCount > 1 {
+                Text(L10n.RecurringSuggestions.moreSuggestions.localized(with: totalCount - 1))
+                    .font(Typography.caption2)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .padding(Spacing.sm)
+        .background {
+            CardMaterial(cornerRadius: 12, addHighlight: false)
+        }
+        .overlay {
+            GlassBorder(cornerRadius: 12, lineWidth: 1, accentColor: AppColors.primary.opacity(0.5))
+        }
+    }
+
+    private var suggestionMessage: String {
+        let count = candidate.documentCount
+        if let dueDay = candidate.dominantDueDayOfMonth {
+            return L10n.RecurringSuggestions.inlineDescription.localized(with: count, dueDay)
+        } else {
+            return L10n.RecurringSuggestions.inlineDescriptionNoDueDay.localized(with: count)
+        }
+    }
+
+    private var confidenceColor: Color {
+        if candidate.confidenceScore >= 0.9 {
+            return AppColors.success
+        } else if candidate.confidenceScore >= 0.8 {
+            return AppColors.primary
+        } else {
+            return AppColors.warning
+        }
+    }
+}
+
 // MARK: - Document Detail Wrapper
 
 /// Wrapper view that passes document ID to detail view.
@@ -589,6 +883,340 @@ struct DocumentDetailViewWrapper: View {
         let _ = print("DocumentDetailViewWrapper created for ID: \(documentId)")
         DocumentDetailView(documentId: documentId)
             .environment(environment)
+    }
+}
+
+// MARK: - Accept Recurring Sheet
+
+/// Sheet for accepting a recurring payment suggestion with reminder customization.
+struct AcceptRecurringSheet: View {
+
+    @Environment(AppEnvironment.self) private var environment
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    let candidate: RecurringCandidate
+    let onAccept: ([Int], Int) -> Void
+    let onCancel: () -> Void
+
+    @State private var selectedReminderOffsets: Set<Int>
+    @State private var selectedDurationMonths: Int = 12
+    @State private var appeared = false
+
+    init(
+        candidate: RecurringCandidate,
+        onAccept: @escaping ([Int], Int) -> Void,
+        onCancel: @escaping () -> Void
+    ) {
+        self.candidate = candidate
+        self.onAccept = onAccept
+        self.onCancel = onCancel
+        // Initialize with default reminder offsets from settings
+        _selectedReminderOffsets = State(initialValue: Set([7, 1, 0]))
+    }
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(spacing: Spacing.lg) {
+                    // Candidate info
+                    candidateInfoCard
+                        .opacity(appeared ? 1 : 0)
+                        .animation(reduceMotion ? .none : .easeOut(duration: 0.3), value: appeared)
+
+                    // Duration settings
+                    durationSettings
+                        .opacity(appeared ? 1 : 0)
+                        .animation(reduceMotion ? .none : .easeOut(duration: 0.3).delay(0.1), value: appeared)
+
+                    // Reminder settings
+                    reminderSettings
+                        .opacity(appeared ? 1 : 0)
+                        .animation(reduceMotion ? .none : .easeOut(duration: 0.3).delay(0.15), value: appeared)
+
+                    // Accept button
+                    acceptButton
+                        .opacity(appeared ? 1 : 0)
+                        .animation(reduceMotion ? .none : .easeOut(duration: 0.3).delay(0.2), value: appeared)
+                }
+                .padding(.horizontal, Spacing.md)
+                .padding(.top, Spacing.md)
+                .padding(.bottom, Spacing.xxl)
+            }
+            .scrollIndicators(.hidden)
+            .scrollContentBackground(.hidden)
+            .background {
+                GradientBackgroundFixed()
+            }
+            .navigationTitle(L10n.RecurringSuggestions.setupReminders.localized)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button(L10n.Common.cancel.localized) {
+                        onCancel()
+                    }
+                }
+            }
+        }
+        .onAppear {
+            if !reduceMotion {
+                withAnimation(.easeOut(duration: 0.4)) {
+                    appeared = true
+                }
+            } else {
+                appeared = true
+            }
+        }
+    }
+
+    // MARK: - Candidate Info Card
+
+    @ViewBuilder
+    private var candidateInfoCard: some View {
+        Card.glass {
+            VStack(alignment: .leading, spacing: Spacing.sm) {
+                HStack(spacing: Spacing.sm) {
+                    Image(systemName: candidate.documentCategory.iconName)
+                        .font(.title)
+                        .foregroundStyle(AppColors.primary)
+
+                    VStack(alignment: .leading, spacing: Spacing.xxs) {
+                        Text(candidate.vendorDisplayName)
+                            .font(Typography.headline)
+
+                        Text(candidatePattern)
+                            .font(Typography.subheadline)
+                            .foregroundStyle(.secondary)
+                    }
+
+                    Spacer()
+
+                    // Confidence badge
+                    VStack(spacing: 2) {
+                        Text("\(Int(candidate.confidenceScore * 100))%")
+                            .font(Typography.caption1.weight(.bold))
+                            .foregroundStyle(confidenceColor)
+
+                        Text(L10n.RecurringSuggestions.confidence.localized)
+                            .font(Typography.caption2)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+
+                Divider()
+                    .padding(.vertical, Spacing.xxs)
+
+                // Pattern details
+                VStack(alignment: .leading, spacing: Spacing.xs) {
+                    detailRow(
+                        icon: "calendar",
+                        label: L10n.RecurringSuggestions.documentsFound.localized,
+                        value: "\(candidate.documentCount)"
+                    )
+
+                    if let dueDay = candidate.dominantDueDayOfMonth {
+                        detailRow(
+                            icon: "bell",
+                            label: L10n.RecurringSuggestions.typicalDueDate.localized,
+                            value: L10n.RecurringSuggestions.dayOfMonth.localized(with: dueDay)
+                        )
+                    }
+
+                    if let avgAmount = candidate.averageAmount {
+                        detailRow(
+                            icon: "dollarsign.circle",
+                            label: L10n.RecurringSuggestions.averageAmount.localized,
+                            value: formatCurrency(avgAmount, currency: candidate.currency)
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func detailRow(icon: String, label: String, value: String) -> some View {
+        HStack(spacing: Spacing.xs) {
+            Image(systemName: icon)
+                .font(Typography.caption1)
+                .foregroundStyle(AppColors.primary)
+                .frame(width: 20)
+
+            Text(label)
+                .font(Typography.caption1)
+                .foregroundStyle(.secondary)
+
+            Spacer()
+
+            Text(value)
+                .font(Typography.caption1.weight(.semibold))
+        }
+    }
+
+    // MARK: - Duration Settings
+
+    @ViewBuilder
+    private var durationSettings: some View {
+        Card.glass {
+            VStack(alignment: .leading, spacing: Spacing.sm) {
+                Label(L10n.RecurringSuggestions.durationTitle.localized, systemImage: "calendar.badge.clock")
+                    .font(Typography.headline)
+                    .foregroundStyle(AppColors.primary)
+
+                Text(L10n.RecurringSuggestions.durationDescription.localized)
+                    .font(Typography.caption1)
+                    .foregroundStyle(.secondary)
+
+                // Month selection using Stepper with custom display
+                VStack(alignment: .leading, spacing: Spacing.sm) {
+                    HStack {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(L10n.RecurringSuggestions.selectedDuration.localized)
+                                .font(Typography.caption1)
+                                .foregroundStyle(.secondary)
+
+                            Text(L10n.RecurringSuggestions.monthsCount.localized(with: selectedDurationMonths))
+                                .font(Typography.title3.weight(.semibold))
+                                .foregroundStyle(AppColors.primary)
+                        }
+
+                        Spacer()
+
+                        // Stepper controls
+                        HStack(spacing: Spacing.xs) {
+                            Button(action: {
+                                if selectedDurationMonths > 1 {
+                                    selectedDurationMonths -= 1
+                                }
+                            }) {
+                                Image(systemName: "minus.circle.fill")
+                                    .font(.title2)
+                                    .foregroundStyle(selectedDurationMonths > 1 ? AppColors.primary : Color.gray.opacity(0.3))
+                            }
+                            .disabled(selectedDurationMonths <= 1)
+
+                            Button(action: {
+                                if selectedDurationMonths < 36 {
+                                    selectedDurationMonths += 1
+                                }
+                            }) {
+                                Image(systemName: "plus.circle.fill")
+                                    .font(.title2)
+                                    .foregroundStyle(selectedDurationMonths < 36 ? AppColors.primary : Color.gray.opacity(0.3))
+                            }
+                            .disabled(selectedDurationMonths >= 36)
+                        }
+                    }
+                    .padding(Spacing.sm)
+                    .background(AppColors.primary.opacity(0.05))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+
+                    // Quick selection buttons
+                    HStack(spacing: Spacing.xs) {
+                        ForEach([3, 6, 12, 24], id: \.self) { months in
+                            Button(action: {
+                                selectedDurationMonths = months
+                            }) {
+                                Text("\(months)")
+                                    .font(Typography.caption1.weight(.medium))
+                                    .foregroundStyle(selectedDurationMonths == months ? .white : AppColors.primary)
+                                    .padding(.horizontal, Spacing.sm)
+                                    .padding(.vertical, Spacing.xs)
+                                    .background(selectedDurationMonths == months ? AppColors.primary : AppColors.primary.opacity(0.1))
+                                    .clipShape(Capsule())
+                            }
+                        }
+
+                        Spacer()
+                    }
+
+                    HStack(spacing: Spacing.xxs) {
+                        Image(systemName: "info.circle")
+                            .font(Typography.caption2)
+                        Text(L10n.RecurringSuggestions.durationHint.localized)
+                            .font(Typography.caption2)
+                    }
+                    .foregroundStyle(.secondary)
+                }
+            }
+        }
+    }
+
+    // MARK: - Reminder Settings
+
+    @ViewBuilder
+    private var reminderSettings: some View {
+        Card.glass {
+            VStack(alignment: .leading, spacing: Spacing.sm) {
+                Label(L10n.Review.remindersTitle.localized, systemImage: "bell.fill")
+                    .font(Typography.headline)
+                    .foregroundStyle(AppColors.primary)
+
+                Text(L10n.RecurringSuggestions.reminderDescription.localized)
+                    .font(Typography.caption1)
+                    .foregroundStyle(.secondary)
+
+                FlowLayout(spacing: Spacing.xs) {
+                    ForEach(SettingsManager.availableReminderOffsets, id: \.self) { offset in
+                        ReminderChip(
+                            offset: offset,
+                            isSelected: selectedReminderOffsets.contains(offset)
+                        ) {
+                            toggleReminderOffset(offset)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // MARK: - Accept Button
+
+    @ViewBuilder
+    private var acceptButton: some View {
+        PrimaryButton(
+            L10n.RecurringSuggestions.createRecurring.localized,
+            icon: "checkmark.circle.fill"
+        ) {
+            let offsets = Array(selectedReminderOffsets).sorted(by: >)
+            onAccept(offsets, selectedDurationMonths)
+            dismiss()
+        }
+    }
+
+    // MARK: - Helpers
+
+    private var candidatePattern: String {
+        if let dueDay = candidate.dominantDueDayOfMonth {
+            return L10n.RecurringSuggestions.patternWithDueDay.localized(with: candidate.documentCount, dueDay)
+        } else {
+            return L10n.RecurringSuggestions.patternNoDueDay.localized(with: candidate.documentCount)
+        }
+    }
+
+    private var confidenceColor: Color {
+        if candidate.confidenceScore >= 0.9 {
+            return AppColors.success
+        } else if candidate.confidenceScore >= 0.8 {
+            return AppColors.primary
+        } else {
+            return AppColors.warning
+        }
+    }
+
+    private func toggleReminderOffset(_ offset: Int) {
+        if selectedReminderOffsets.contains(offset) {
+            selectedReminderOffsets.remove(offset)
+        } else {
+            selectedReminderOffsets.insert(offset)
+        }
+    }
+
+    private func formatCurrency(_ amount: Decimal, currency: String) -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.currencyCode = currency
+        return formatter.string(from: NSDecimalNumber(decimal: amount)) ?? "\(amount) \(currency)"
     }
 }
 

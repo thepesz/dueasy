@@ -3,24 +3,31 @@ import os.log
 
 /// Use case for finalizing an invoice document.
 /// Validates fields, creates calendar event, and schedules notifications.
+/// Also sets vendorFingerprint and documentCategory for recurring payment detection.
 struct FinalizeInvoiceUseCase: Sendable {
 
     private let repository: DocumentRepositoryProtocol
     private let calendarService: CalendarServiceProtocol
     private let notificationService: NotificationServiceProtocol
     private let settingsManager: SettingsManager
+    private let vendorFingerprintService: VendorFingerprintServiceProtocol
+    private let classifierService: DocumentClassifierServiceProtocol
     private let logger = Logger(subsystem: "com.dueasy.app", category: "FinalizeInvoice")
 
     init(
         repository: DocumentRepositoryProtocol,
         calendarService: CalendarServiceProtocol,
         notificationService: NotificationServiceProtocol,
-        settingsManager: SettingsManager
+        settingsManager: SettingsManager,
+        vendorFingerprintService: VendorFingerprintServiceProtocol,
+        classifierService: DocumentClassifierServiceProtocol
     ) {
         self.repository = repository
         self.calendarService = calendarService
         self.notificationService = notificationService
         self.settingsManager = settingsManager
+        self.vendorFingerprintService = vendorFingerprintService
+        self.classifierService = classifierService
     }
 
     /// Finalizes a document with validated data.
@@ -75,6 +82,24 @@ struct FinalizeInvoiceUseCase: Sendable {
         document.notificationsEnabled = true
 
         logger.debug("Document fields updated - NIP: \(vendorNIP ?? "nil"), Address: \(vendorAddress != nil)")
+
+        // CRITICAL: Set vendor fingerprint for recurring payment detection
+        // This must be done for ALL documents, not just recurring ones
+        let fingerprint = vendorFingerprintService.generateFingerprint(
+            vendorName: title,
+            nip: vendorNIP
+        )
+        document.vendorFingerprint = fingerprint
+        logger.info("Set vendor fingerprint: \(fingerprint.prefix(16))... for vendor (name hidden for privacy)")
+
+        // CRITICAL: Classify document category for auto-detection filtering
+        let classification = classifierService.classify(
+            vendorName: title,
+            ocrText: nil, // OCR text not passed through finalize - could be enhanced
+            amount: amount
+        )
+        document.documentCategoryRaw = classification.category.rawValue
+        logger.info("Classified document as category: \(classification.category.rawValue), confidence: \(String(format: "%.2f", classification.confidence))")
 
         // Create calendar event if not skipped
         if !skipCalendar {

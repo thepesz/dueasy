@@ -82,18 +82,54 @@ enum CardStyle {
     }
 }
 
-/// Glass background using system materials with enhanced styling
-/// PERFORMANCE: Now uses CardMaterial for optimized single-layer blur
+/// Glass background using solid colors that simulate glass appearance.
+///
+/// VISUAL STYLE FIX: Replaced CardMaterial (which uses .ultraThinMaterial) with solid
+/// backgrounds to prevent "Requesting visual style in an implementation that has disabled it"
+/// errors. These errors occur when views using material effects are displayed within
+/// NavigationStacks that have hidden navigation bars (.navigationBarHidden(true)),
+/// which disables the visual style system that materials depend on.
+///
+/// This affects the entire add-invoice flow:
+/// - DocumentReviewView (uses Card.glass)
+/// - ManualEntryView (uses Card.glass)
+/// - DocumentDetailView children
 struct GlassBackground: View {
     @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
-        // PERFORMANCE: Replaced ZStack with CardMaterial to reduce blur layers
-        CardMaterial(cornerRadius: CornerRadius.lg, addHighlight: true)
+        // VISUAL STYLE FIX: Use solid color that simulates glass appearance
+        // instead of actual material effects
+        RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous)
+            .fill(glassBackgroundColor)
+            .overlay {
+                // Glass highlight gradient
+                RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous)
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                Color.white.opacity(colorScheme == .light ? 0.4 : 0.08),
+                                Color.white.opacity(colorScheme == .light ? 0.15 : 0.02)
+                            ],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+            }
+    }
+
+    /// Solid color that simulates glass/frosted appearance without using materials
+    private var glassBackgroundColor: Color {
+        colorScheme == .light
+            ? Color(white: 0.98, opacity: 0.85)
+            : Color(white: 0.12, opacity: 0.85)
     }
 }
 
 /// Premium glass card with enhanced styling for hero sections
+///
+/// VISUAL STYLE FIX: Uses solid backgrounds instead of CardMaterial to prevent
+/// visual style conflicts with hidden navigation bars.
 struct PremiumGlassCard<Content: View>: View {
 
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
@@ -111,15 +147,11 @@ struct PremiumGlassCard<Content: View>: View {
     }
 
     var body: some View {
-        // PERFORMANCE: Uses CardMaterial for optimized single-layer blur
         content()
             .cardPadding()
             .background {
-                CardMaterial(
-                    cornerRadius: CornerRadius.lg,
-                    addHighlight: true,
-                    accentColor: accentColor
-                )
+                // VISUAL STYLE FIX: Use solid glass simulation instead of CardMaterial
+                premiumGlassBackground
             }
             .clipShape(RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous))
             .overlay {
@@ -135,6 +167,36 @@ struct PremiumGlassCard<Content: View>: View {
                 x: 0,
                 y: 6
             )
+    }
+
+    @ViewBuilder
+    private var premiumGlassBackground: some View {
+        let shape = RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous)
+
+        if reduceTransparency {
+            shape.fill(accentColor.opacity(0.08))
+        } else {
+            // Solid glass simulation with accent color
+            shape
+                .fill(colorScheme == .light
+                      ? Color(white: 0.98, opacity: 0.85)
+                      : Color(white: 0.12, opacity: 0.85))
+                .overlay {
+                    shape.fill(accentColor.opacity(0.1))
+                }
+                .overlay {
+                    shape.fill(
+                        LinearGradient(
+                            colors: [
+                                Color.white.opacity(colorScheme == .light ? 0.4 : 0.08),
+                                Color.white.opacity(colorScheme == .light ? 0.15 : 0.02)
+                            ],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+                }
+        }
     }
 }
 

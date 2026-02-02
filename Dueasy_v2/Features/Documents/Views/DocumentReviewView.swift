@@ -39,7 +39,10 @@ struct DocumentReviewView: View {
             settingsManager: environment.settingsManager,
             keywordLearningService: environment.keywordLearningService,
             learningDataService: environment.learningDataService,
-            vendorTemplateService: environment.vendorTemplateService
+            vendorTemplateService: environment.vendorTemplateService,
+            createRecurringTemplateUseCase: environment.makeCreateRecurringTemplateFromDocumentUseCase(),
+            vendorFingerprintService: environment.vendorFingerprintService,
+            documentClassifierService: environment.documentClassifierService
         ))
     }
 
@@ -75,10 +78,29 @@ struct DocumentReviewView: View {
                         .opacity(appeared ? 1 : 0)
                         .animation(reduceMotion ? .none : .easeOut(duration: 0.3).delay(0.15), value: appeared)
 
-                    // Reminder settings
-                    reminderSettings
+                    // Reminder settings - only show when calendar is enabled
+                    if viewModel.addToCalendar {
+                        reminderSettings
+                            .opacity(appeared ? 1 : 0)
+                            .animation(reduceMotion ? .none : .easeOut(duration: 0.3).delay(0.2), value: appeared)
+                    }
+
+                    // Invoice paid toggle
+                    invoicePaidSettings
                         .opacity(appeared ? 1 : 0)
-                        .animation(reduceMotion ? .none : .easeOut(duration: 0.3).delay(0.2), value: appeared)
+                        .animation(reduceMotion ? .none : .easeOut(duration: 0.3).delay(0.25), value: appeared)
+
+                    // Recurring payment toggle
+                    recurringPaymentSettings
+                        .opacity(appeared ? 1 : 0)
+                        .animation(reduceMotion ? .none : .easeOut(duration: 0.3).delay(0.3), value: appeared)
+
+                    // Recurring settings (if enabled)
+                    if viewModel.isRecurringPayment {
+                        recurringDetailSettings
+                            .opacity(appeared ? 1 : 0)
+                            .animation(reduceMotion ? .none : .easeOut(duration: 0.3).delay(0.35), value: appeared)
+                    }
 
                     // Validation errors
                     if !viewModel.validationErrors.isEmpty {
@@ -88,7 +110,7 @@ struct DocumentReviewView: View {
                     // Save button
                     saveButton
                         .opacity(appeared ? 1 : 0)
-                        .animation(reduceMotion ? .none : .easeOut(duration: 0.3).delay(0.25), value: appeared)
+                        .animation(reduceMotion ? .none : .easeOut(duration: 0.3).delay(0.3), value: appeared)
                 }
                 .padding(.horizontal, Spacing.md)
                 .padding(.top, Spacing.md)
@@ -103,7 +125,7 @@ struct DocumentReviewView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
+                    Button(L10n.Common.cancel.localized) {
                         // Call onDismiss before dismissing
                         onDismiss?(false)
                         dismiss()
@@ -116,7 +138,7 @@ struct DocumentReviewView: View {
                         .padding()
                 }
             }
-            .loadingOverlay(isLoading: viewModel.isSaving, message: "Saving...")
+            .loadingOverlay(isLoading: viewModel.isSaving, message: L10n.Review.saving.localized)
         }
         .task {
             await viewModel.processImages()
@@ -211,7 +233,7 @@ struct DocumentReviewView: View {
                     }
 
                 if viewModel.images.count > 1 {
-                    Text("\(viewModel.images.count) pages scanned")
+                    Text(L10n.Review.pagesScanned.localized(with: viewModel.images.count))
                         .font(Typography.caption1)
                         .foregroundStyle(.secondary)
                 }
@@ -244,8 +266,8 @@ struct DocumentReviewView: View {
     @ViewBuilder
     private var lowConfidenceWarning: some View {
         WarningBanner(
-            message: "Some fields may not be accurate",
-            suggestion: "Please review and correct the extracted values"
+            message: L10n.Review.lowConfidenceWarning.localized,
+            suggestion: L10n.Review.lowConfidenceSuggestion.localized
         )
     }
 
@@ -429,8 +451,8 @@ struct DocumentReviewView: View {
                     if viewModel.showDueDateWarning {
                         HStack(spacing: Spacing.xxs) {
                             Image(systemName: "exclamationmark.triangle.fill")
-                                .font(.caption)
-                            Text("This date is in the past")
+                                .font(Typography.caption1)
+                            Text(L10n.Review.dueDatePast.localized)
                                 .font(Typography.caption1)
                         }
                         .foregroundStyle(AppColors.warning)
@@ -671,13 +693,7 @@ struct DocumentReviewView: View {
             VStack(alignment: .leading, spacing: Spacing.sm) {
                 Label(L10n.Review.remindersTitle.localized, systemImage: "bell.fill")
                     .font(Typography.headline)
-                    .foregroundStyle(viewModel.addToCalendar ? AppColors.primary : .secondary)
-
-                if !viewModel.addToCalendar {
-                    Text(L10n.Review.remindersRequireCalendar.localized)
-                        .font(Typography.caption1)
-                        .foregroundStyle(.secondary)
-                }
+                    .foregroundStyle(AppColors.primary)
 
                 FlowLayout(spacing: Spacing.xs) {
                     ForEach(SettingsManager.availableReminderOffsets, id: \.self) { offset in
@@ -687,9 +703,109 @@ struct DocumentReviewView: View {
                         ) {
                             viewModel.toggleReminderOffset(offset)
                         }
-                        .disabled(!viewModel.addToCalendar)
-                        .opacity(viewModel.addToCalendar ? 1.0 : 0.5)
                     }
+                }
+            }
+        }
+    }
+
+    // MARK: - Invoice Paid Settings
+
+    @ViewBuilder
+    private var invoicePaidSettings: some View {
+        Card.glass {
+            HStack(spacing: Spacing.sm) {
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.title2)
+                    .foregroundStyle(AppColors.success)
+
+                VStack(alignment: .leading, spacing: Spacing.xxs) {
+                    Text(L10n.Review.markAsPaidTitle.localized)
+                        .font(Typography.subheadline.weight(.semibold))
+                    Text(L10n.Review.markAsPaidDescription.localized)
+                        .font(Typography.caption1)
+                        .foregroundStyle(.secondary)
+                }
+
+                Spacer()
+
+                Toggle("", isOn: $viewModel.markAsPaid)
+                    .labelsHidden()
+            }
+        }
+    }
+
+    // MARK: - Recurring Payment Settings
+
+    @ViewBuilder
+    private var recurringPaymentSettings: some View {
+        Card.glass {
+            VStack(alignment: .leading, spacing: Spacing.sm) {
+                HStack(spacing: Spacing.sm) {
+                    Image(systemName: "repeat.circle.fill")
+                        .font(.title2)
+                        .foregroundStyle(AppColors.primary)
+
+                    VStack(alignment: .leading, spacing: Spacing.xxs) {
+                        Text(L10n.Recurring.toggleTitle.localized)
+                            .font(Typography.subheadline.weight(.semibold))
+                        Text(L10n.Recurring.toggleDescription.localized)
+                            .font(Typography.caption1)
+                            .foregroundStyle(.secondary)
+                    }
+
+                    Spacer()
+
+                    Toggle("", isOn: Binding(
+                        get: { viewModel.isRecurringPayment },
+                        set: { viewModel.toggleRecurringPayment($0) }
+                    ))
+                    .labelsHidden()
+                }
+
+                // Show warning if category is risky
+                if viewModel.showRecurringCategoryWarning {
+                    HStack(spacing: Spacing.xs) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .font(.caption)
+                            .foregroundStyle(AppColors.warning)
+                        Text(viewModel.recurringCategoryWarningMessage)
+                            .font(Typography.caption1)
+                            .foregroundStyle(AppColors.warning)
+                    }
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var recurringDetailSettings: some View {
+        Card.glass {
+            VStack(alignment: .leading, spacing: Spacing.sm) {
+                Label(L10n.Recurring.settingsTitle.localized, systemImage: "gearshape.fill")
+                    .font(Typography.headline)
+                    .foregroundStyle(AppColors.primary)
+
+                // Tolerance days picker
+                HStack {
+                    VStack(alignment: .leading, spacing: Spacing.xxs) {
+                        Text(L10n.Recurring.toleranceDays.localized)
+                            .font(Typography.subheadline)
+                        Text(L10n.Recurring.toleranceDaysDescription.localized)
+                            .font(Typography.caption1)
+                            .foregroundStyle(.secondary)
+                    }
+
+                    Spacer()
+
+                    Picker("", selection: $viewModel.recurringToleranceDays) {
+                        Text("1").tag(1)
+                        Text("3").tag(3)
+                        Text("5").tag(5)
+                        Text("7").tag(7)
+                    }
+                    .pickerStyle(.segmented)
+                    .frame(width: 160)
                 }
             }
         }
@@ -824,11 +940,11 @@ struct ReminderChip: View {
     private var label: String {
         switch offset {
         case 0:
-            return "Due date"
+            return L10n.Review.reminderDueDate.localized
         case 1:
-            return "1 day"
+            return L10n.Review.reminderOneDay.localized
         default:
-            return "\(offset) days"
+            return L10n.Review.reminderDays.localized(with: offset)
         }
     }
 }
