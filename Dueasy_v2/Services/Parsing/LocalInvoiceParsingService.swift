@@ -199,8 +199,8 @@ final class LocalInvoiceParsingService: DocumentAnalysisServiceProtocol, @unchec
             bankAccountNumber: bankAccountNumber,
             suggestedAmounts: suggestedAmounts,
             amountCandidates: amountCandidatesForLearning,
-            dateCandidates: nil, // TODO: Extract date candidates
-            vendorCandidates: nil, // TODO: Extract vendor candidates
+            dateCandidates: nil, // ITERATION 2: Extract multiple date candidates for user selection
+            vendorCandidates: nil, // ITERATION 2: Extract multiple vendor candidates for user selection
             overallConfidence: confidence,
             fieldConfidences: FieldConfidences(
                 vendorName: vendorName != nil ? 0.7 : nil,
@@ -642,99 +642,39 @@ final class LocalInvoiceParsingService: DocumentAnalysisServiceProtocol, @unchec
         let lines = text.components(separatedBy: .newlines)
 
         // Load learned keywords from keyword learning service
-        var learnedAmountKeywords: [String] = []
+        // TODO: Integrate learned keywords into regex patterns for adaptive extraction
         if let learningService = keywordLearningService {
             let learned = learningService.getLearnedKeywords(for: .amount)
-            learnedAmountKeywords = learned.map { $0.keyword }
             if !learned.isEmpty {
                 PrivacyLogger.parsing.info("Using \(learned.count) learned amount keywords")
+                // Future: Build dynamic patterns from learned.map { $0.keyword }
             }
         }
 
         // ========================================
+        // KEYWORD REFERENCE - For documentation and testing
+        // The actual matching is done via regex patterns below
+        // ========================================
+        //
         // DEFINITIVE PAYMENT KEYWORDS - HIGHEST PRIORITY (300-400 confidence boost)
-        // These are the final amounts that should be paid
+        // These are the final amounts that should be paid:
+        //   English: "current account amount payable", "amount payable", "total amount payable",
+        //            "amount due", "total due", "balance due", "pay this amount", "payment amount",
+        //            "outstanding balance", "total to pay"
+        //   Polish:  "kwota do zapłaty na rachunek bieżący", "saldo do zapłaty", "rachunek bieżący",
+        //            "kwota do zapłaty", "do zapłaty", "należność do zapłaty", "należność ogółem",
+        //            "końcowa kwota", "w tym do zapłaty"
+        //
+        // POLISH TOTAL KEYWORDS - HIGH PRIORITY (100-200 confidence boost):
+        //   Payment: "do zapłaty", "płatne", "należność płatna"
+        //   Totals:  "razem do zapłaty", "suma do zapłaty", "wartość brutto", "kwota brutto",
+        //            "razem brutto", "należność", "suma", "razem", "total", "ogółem"
+        //   Utility: "opłata", "abonament", "rachunek za", "należność za"
+        //   VAT:     "kwota vat", "podatek vat", "wartość z vat"
+        //
+        // OCR MISREAD VARIATIONS (same confidence as correct spellings):
+        //   Cyrillic lookalikes, missing diacritics (ł→l, ą→a, ę→e), l→i confusion
         // ========================================
-        let definitivePaymentKeywords = [
-            // English - telecom/utility invoices (CRITICAL - user feedback)
-            "current account amount payable",
-            "amount payable",
-            "total amount payable",
-            "amount due",
-            "total due",
-            "balance due",
-            "pay this amount",
-            "payment amount",
-            "outstanding balance",
-            "total to pay",
-            // Polish - definitive payment terms
-            "kwota do zapłaty na rachunek bieżący",
-            "kwota do zapłaty na rachunek",
-            "saldo do zapłaty",
-            "rachunek bieżący",
-            "kwota do zapłaty",
-            "do zapłaty",
-            "do zapłacenia",        // Alternative form
-            "do zaplaty",           // Without diacritics
-            "do zapłacenia",
-            "do zaplecenia",        // OCR misread
-            "należność do zapłaty",
-            "naleznosc do zaplaty",
-            "należność ogółem",     // Total amount due
-            "naleznosc ogolem",
-            "końcowa kwota",        // Final amount
-            "koncowa kwota",
-            "w tym do zapłaty",     // Including to pay
-        ]
-
-        // ========================================
-        // POLISH TOTAL KEYWORDS - HIGH PRIORITY (100-200 confidence boost)
-        // ========================================
-        let polishTotalKeywords = [
-            // Payment-related
-            "do zapłaty", "do zaplaty", "do zapłaty:",
-            "do zapłacenia", "do zaplecenia",
-            "płatne", "platne",                     // Payable
-            "należność płatna", "naleznosc platna",
-            // Totals and sums
-            "razem do zapłaty", "razem do zaplaty",
-            "suma do zapłaty", "suma do zaplaty",
-            "wartość brutto", "wartosc brutto",
-            "kwota brutto", "kwota do zapłaty",
-            "razem brutto", "ogółem brutto", "ogolem brutto",
-            "należność", "naleznosc",
-            "suma", "razem", "total", "ogółem", "ogolem",
-            "brutto", "gross",
-            // Invoice value
-            "wartość faktury", "wartosc faktury",   // Invoice value
-            "fakturowana kwota",                    // Invoiced amount
-            // Telecom/utility specific
-            "opłata", "oplata",                     // Fee/charge
-            "abonament",                            // Subscription
-            "rachunek za",                          // Bill for
-            "należność za", "naleznosc za",         // Amount due for
-            // VAT related
-            "kwota vat", "podatek vat",
-            "wartość z vat", "wartosc z vat",
-        ]
-
-        // ========================================
-        // OCR MISREAD VARIATIONS
-        // Same confidence as correct spellings
-        // ========================================
-        let ocrMisreadKeywords = [
-            // Cyrillic lookalikes (common OCR confusion)
-            "dо zapłaty",   // Cyrillic 'о' instead of 'o'
-            "dо zарłaty",   // Cyrillic 'о' and 'р'
-            // Missing diacritics
-            "zaplaty", "naleznosc", "platnosc",
-            // OCR l→i confusion
-            "zaplaiy", "nalezinosc", "pilatnosc",
-            // OCR ł→l confusion (very common)
-            "zaplaty", "platne", "ogolem",
-            // OCR ą→a, ę→e confusion
-            "razem do zapłaty", "naleznosc platna",
-        ]
 
         // Simple amount pattern that matches most formats: 0,98 or 1234,56 or 1 234,56
         // This is the core pattern used throughout
@@ -982,7 +922,7 @@ final class LocalInvoiceParsingService: DocumentAnalysisServiceProtocol, @unchec
     /// - Returns: Sorted array of amount candidates with OCR confidence applied
     func extractAllAmounts(from text: String, lineData: [OCRLineData]) -> [InternalAmountCandidate] {
         // First, get base candidates using text-only extraction
-        var baseCandidates = extractAllAmounts(from: text)
+        let baseCandidates = extractAllAmounts(from: text)
 
         // If no lineData, return as-is
         guard !lineData.isEmpty else {

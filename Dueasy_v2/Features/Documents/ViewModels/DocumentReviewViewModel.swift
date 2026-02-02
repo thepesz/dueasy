@@ -803,12 +803,9 @@ final class DocumentReviewViewModel {
             return
         }
 
-        let reviewDuration: TimeInterval?
-        if let startTime = reviewStartTime {
-            reviewDuration = Date().timeIntervalSince(startTime)
-        } else {
-            reviewDuration = nil
-        }
+        // Calculate review duration for future analytics
+        // TODO: Pass to recordFeedback when duration tracking is implemented
+        _ = reviewStartTime.map { Date().timeIntervalSince($0) }
 
         // Build field corrections
         var corrections: [FieldCorrection] = []

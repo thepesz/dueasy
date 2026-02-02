@@ -375,13 +375,11 @@ final class AppleVisionOCRService: OCRServiceProtocol, @unchecked Sendable {
         // Add sensitive lines that don't duplicate standard lines
         for sensitiveLine in sensitiveLines {
             var isDuplicate = false
-            var duplicateIndex: Int?
 
             // Check against existing merged lines
             for (index, existingLine) in mergedLines.enumerated() {
                 if sensitiveLine.isDuplicate(of: existingLine) {
                     isDuplicate = true
-                    duplicateIndex = index
 
                     // If sensitive line has higher confidence, replace
                     // PRIVACY: Do not log actual text content
@@ -567,26 +565,15 @@ final class AppleVisionOCRService: OCRServiceProtocol, @unchecked Sendable {
         }
 
         // Use VNDetectTextRectanglesRequest to find text line angles
-        var detectedAngles: [Double] = []
-
-        let request = VNDetectTextRectanglesRequest { request, error in
-            guard error == nil,
-                  let observations = request.results as? [VNTextObservation] else {
+        // Note: VNDetectTextRectanglesRequest provides axis-aligned bounding boxes,
+        // so direct angle measurement is limited. We use document segmentation
+        // for more accurate deskew on iOS 15+.
+        let request = VNDetectTextRectanglesRequest { _, error in
+            guard error == nil else {
                 return
             }
-
-            for observation in observations {
-                // Calculate angle from bounding box
-                // If the box is rotated, we can estimate the skew
-                let box = observation.boundingBox
-
-                // For significant text boxes, estimate rotation from aspect ratio changes
-                // This is a simplified heuristic - text boxes should be roughly horizontal
-                if box.width > 0.1 && box.height > 0.01 {
-                    // The bounding box is axis-aligned, so we can't directly measure rotation
-                    // Instead, we'll use document segmentation for more accurate deskew
-                }
-            }
+            // Text rectangles detected - used as fallback check
+            // Actual deskew performed via document segmentation below
         }
 
         request.reportCharacterBoxes = false

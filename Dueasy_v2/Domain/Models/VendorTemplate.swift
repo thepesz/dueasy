@@ -1,36 +1,8 @@
 import Foundation
 import SwiftData
 
-// NOTE: DocumentRegion is defined in Domain/Models/KeywordModels.swift
-// with 9 regions for the 3x3 grid layout analysis.
-
-/// Field template capturing learned extraction patterns for a specific field.
-/// Stored as JSON within VendorTemplate.
-struct FieldTemplate: Codable, Sendable, Equatable {
-    /// Preferred document region where this field typically appears
-    let preferredRegion: DocumentRegion?
-
-    /// Anchor phrase found near the field value (e.g., "Sprzedawca", "Do zaplaty")
-    let anchorPhrase: String?
-
-    /// Bounding box region (normalized coordinates) for UI highlighting
-    let regionHint: BoundingBox?
-
-    /// Confidence boost to apply when extraction matches this template (+0.1 to +0.2)
-    let confidenceBoost: Double
-
-    init(
-        preferredRegion: DocumentRegion? = nil,
-        anchorPhrase: String? = nil,
-        regionHint: BoundingBox? = nil,
-        confidenceBoost: Double = 0.1
-    ) {
-        self.preferredRegion = preferredRegion
-        self.anchorPhrase = anchorPhrase
-        self.regionHint = regionHint
-        self.confidenceBoost = confidenceBoost
-    }
-}
+// Note: FieldTemplate is defined in FieldTemplate.swift
+// to avoid Swift 6 strict concurrency warnings with @Model classes.
 
 /// Vendor template for local learning.
 /// Stores field-specific extraction patterns learned from user corrections.
@@ -96,10 +68,10 @@ final class VendorTemplate {
     var vendorNameTemplate: FieldTemplate? {
         get {
             guard let data = vendorNameTemplateData else { return nil }
-            return try? JSONDecoder().decode(FieldTemplate.self, from: data)
+            return Self.decodeFieldTemplate(from: data)
         }
         set {
-            vendorNameTemplateData = try? JSONEncoder().encode(newValue)
+            vendorNameTemplateData = Self.encodeFieldTemplate(newValue)
         }
     }
 
@@ -107,10 +79,10 @@ final class VendorTemplate {
     var nipTemplate: FieldTemplate? {
         get {
             guard let data = nipTemplateData else { return nil }
-            return try? JSONDecoder().decode(FieldTemplate.self, from: data)
+            return Self.decodeFieldTemplate(from: data)
         }
         set {
-            nipTemplateData = try? JSONEncoder().encode(newValue)
+            nipTemplateData = Self.encodeFieldTemplate(newValue)
         }
     }
 
@@ -118,10 +90,10 @@ final class VendorTemplate {
     var amountTemplate: FieldTemplate? {
         get {
             guard let data = amountTemplateData else { return nil }
-            return try? JSONDecoder().decode(FieldTemplate.self, from: data)
+            return Self.decodeFieldTemplate(from: data)
         }
         set {
-            amountTemplateData = try? JSONEncoder().encode(newValue)
+            amountTemplateData = Self.encodeFieldTemplate(newValue)
         }
     }
 
@@ -129,10 +101,10 @@ final class VendorTemplate {
     var dueDateTemplate: FieldTemplate? {
         get {
             guard let data = dueDateTemplateData else { return nil }
-            return try? JSONDecoder().decode(FieldTemplate.self, from: data)
+            return Self.decodeFieldTemplate(from: data)
         }
         set {
-            dueDateTemplateData = try? JSONEncoder().encode(newValue)
+            dueDateTemplateData = Self.encodeFieldTemplate(newValue)
         }
     }
 
@@ -140,10 +112,10 @@ final class VendorTemplate {
     var documentNumberTemplate: FieldTemplate? {
         get {
             guard let data = documentNumberTemplateData else { return nil }
-            return try? JSONDecoder().decode(FieldTemplate.self, from: data)
+            return Self.decodeFieldTemplate(from: data)
         }
         set {
-            documentNumberTemplateData = try? JSONEncoder().encode(newValue)
+            documentNumberTemplateData = Self.encodeFieldTemplate(newValue)
         }
     }
 
@@ -151,11 +123,25 @@ final class VendorTemplate {
     var bankAccountTemplate: FieldTemplate? {
         get {
             guard let data = bankAccountTemplateData else { return nil }
-            return try? JSONDecoder().decode(FieldTemplate.self, from: data)
+            return Self.decodeFieldTemplate(from: data)
         }
         set {
-            bankAccountTemplateData = try? JSONEncoder().encode(newValue)
+            bankAccountTemplateData = Self.encodeFieldTemplate(newValue)
         }
+    }
+
+    // MARK: - Nonisolated Helpers for Codable Operations
+    // These helpers allow Codable operations to work correctly with Swift 6 strict concurrency
+    // since JSONDecoder/JSONEncoder operations don't need main actor isolation.
+
+    /// Decodes FieldTemplate from JSON data in a nonisolated context
+    private nonisolated static func decodeFieldTemplate(from data: Data) -> FieldTemplate? {
+        try? JSONDecoder().decode(FieldTemplate.self, from: data)
+    }
+
+    /// Encodes FieldTemplate to JSON data in a nonisolated context
+    private nonisolated static func encodeFieldTemplate(_ template: FieldTemplate?) -> Data? {
+        try? JSONEncoder().encode(template)
     }
 
     // MARK: - Initialization

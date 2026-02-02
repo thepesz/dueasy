@@ -680,6 +680,7 @@ enum L10n {
         static let manageInAppStore = "subscription.manageInAppStore"
         static let cancelSubscription = "subscription.cancelSubscription"
         static let cancelFooter = "subscription.cancelFooter"
+        static let comingSoon = "subscription.comingSoon"
     }
 
     // MARK: - Home Screen (Glance Dashboard)

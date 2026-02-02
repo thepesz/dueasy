@@ -115,7 +115,7 @@ final class RecurringOverviewViewModel {
             try await templateService.updateTemplate(template, reminderOffsets: nil, toleranceDays: nil, isActive: true)
 
             // Regenerate instances for resumed template
-            let _ = try await schedulerService.generateInstances(for: template, monthsAhead: 3)
+            let _ = try await schedulerService.generateInstances(for: template, monthsAhead: 3, includeHistorical: false)
 
             await loadData()
             // PRIVACY: Don't log vendor name

@@ -14,14 +14,17 @@ final class LinkExistingDocumentsUseCase: @unchecked Sendable {
 
     private let documentRepository: DocumentRepositoryProtocol
     private let schedulerService: RecurringSchedulerServiceProtocol
+    private let dateService: RecurringDateServiceProtocol
     private let logger = Logger(subsystem: "com.dueasy.app", category: "LinkExistingDocuments")
 
     init(
         documentRepository: DocumentRepositoryProtocol,
-        schedulerService: RecurringSchedulerServiceProtocol
+        schedulerService: RecurringSchedulerServiceProtocol,
+        dateService: RecurringDateServiceProtocol = RecurringDateService()
     ) {
         self.documentRepository = documentRepository
         self.schedulerService = schedulerService
+        self.dateService = dateService
     }
 
     /// Links existing documents to a recurring template's instances.
@@ -31,9 +34,7 @@ final class LinkExistingDocumentsUseCase: @unchecked Sendable {
     /// - Returns: Number of documents successfully linked
     @MainActor
     func execute(template: RecurringTemplate, toleranceDays: Int = 3) async throws -> Int {
-        // PRIVACY: Don't log vendor name or full fingerprint
-        logger.info("=== LINK EXISTING DOCUMENTS USE CASE ===")
-        logger.info("Template ID: \(template.id), toleranceDays: \(toleranceDays)")
+        logger.debug("Linking documents for template: \(template.id), toleranceDays: \(toleranceDays)")
         logger.debug("Fingerprint prefix: \(PrivacyLogger.sanitizeFingerprint(template.vendorFingerprint))")
 
         // Find all documents matching the vendor fingerprint
@@ -88,7 +89,7 @@ final class LinkExistingDocumentsUseCase: @unchecked Sendable {
             // This handles the case where template was just created but documents are from past months.
             if matchingInstance == nil {
                 // Get the period key for this document's due date
-                let periodKey = RecurringInstance.periodKey(for: documentDueDate)
+                let periodKey = dateService.periodKey(for: documentDueDate)
 
                 // Check if an instance already exists for this period (might have been skipped in tolerance check)
                 let existingForPeriod = instances.first { $0.periodKey == periodKey }
@@ -169,7 +170,6 @@ final class LinkExistingDocumentsUseCase: @unchecked Sendable {
         in instances: [RecurringInstance],
         toleranceDays: Int
     ) -> RecurringInstance? {
-        let calendar = Calendar.current
         let tolerance = TimeInterval(toleranceDays * 24 * 60 * 60)
 
         return instances.first { instance in

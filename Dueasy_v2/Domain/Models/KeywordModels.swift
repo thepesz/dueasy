@@ -52,7 +52,7 @@ struct KeywordRule: Codable, Hashable, Sendable {
 // MARK: - Weights Configuration
 
 /// Default weight configuration for keyword scoring
-struct WeightsConfig: Codable, Hashable, Sendable {
+struct WeightsConfig: Hashable, Sendable {
     let payDue: Int           // +100
     let totalPayable: Int     // +40
     let total: Int            // +20
@@ -68,6 +68,34 @@ struct WeightsConfig: Codable, Hashable, Sendable {
         vat: -50,
         net: -30
     )
+}
+
+// MARK: - WeightsConfig Codable (nonisolated for SwiftData compatibility)
+
+extension WeightsConfig: Codable {
+    private enum CodingKeys: String, CodingKey {
+        case payDue, totalPayable, total, discount, vat, net
+    }
+
+    nonisolated init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.payDue = try container.decode(Int.self, forKey: .payDue)
+        self.totalPayable = try container.decode(Int.self, forKey: .totalPayable)
+        self.total = try container.decode(Int.self, forKey: .total)
+        self.discount = try container.decode(Int.self, forKey: .discount)
+        self.vat = try container.decode(Int.self, forKey: .vat)
+        self.net = try container.decode(Int.self, forKey: .net)
+    }
+
+    nonisolated func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(payDue, forKey: .payDue)
+        try container.encode(totalPayable, forKey: .totalPayable)
+        try container.encode(total, forKey: .total)
+        try container.encode(discount, forKey: .discount)
+        try container.encode(vat, forKey: .vat)
+        try container.encode(net, forKey: .net)
+    }
 }
 
 // MARK: - Document Region
@@ -126,7 +154,7 @@ struct LayoutHints: Codable, Hashable, Sendable {
 // MARK: - Vendor Keyword Overrides
 
 /// Vendor-specific keyword overrides that supplement/replace global keywords
-struct VendorKeywordOverrides: Codable, Hashable, Sendable {
+struct VendorKeywordOverrides: Hashable, Sendable {
     let payDue: [KeywordRule]
     let dueDate: [KeywordRule]
     let total: [KeywordRule]
@@ -150,6 +178,32 @@ struct VendorKeywordOverrides: Codable, Hashable, Sendable {
     }
 
     static let empty = VendorKeywordOverrides()
+}
+
+// MARK: - VendorKeywordOverrides Codable (nonisolated for SwiftData compatibility)
+
+extension VendorKeywordOverrides: Codable {
+    private enum CodingKeys: String, CodingKey {
+        case payDue, dueDate, total, negative, disabledGlobalPhrases
+    }
+
+    nonisolated init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.payDue = try container.decode([KeywordRule].self, forKey: .payDue)
+        self.dueDate = try container.decode([KeywordRule].self, forKey: .dueDate)
+        self.total = try container.decode([KeywordRule].self, forKey: .total)
+        self.negative = try container.decode([KeywordRule].self, forKey: .negative)
+        self.disabledGlobalPhrases = try container.decode([String].self, forKey: .disabledGlobalPhrases)
+    }
+
+    nonisolated func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(payDue, forKey: .payDue)
+        try container.encode(dueDate, forKey: .dueDate)
+        try container.encode(total, forKey: .total)
+        try container.encode(negative, forKey: .negative)
+        try container.encode(disabledGlobalPhrases, forKey: .disabledGlobalPhrases)
+    }
 }
 
 // MARK: - Vendor Stats

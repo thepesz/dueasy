@@ -218,12 +218,13 @@ struct SubscriptionPaywallView: View {
 
         Task {
             do {
-                // TODO: Implement actual purchase flow with StoreKit
-                // For now, just show placeholder
-                try await Task.sleep(for: .seconds(2))
+                // ITERATION 2: Implement actual purchase flow with StoreKit
+                // For Iteration 1, in-app purchases are deferred.
+                // This placeholder shows user feedback until StoreKit integration.
+                try await Task.sleep(for: .seconds(1))
                 await MainActor.run {
                     isPurchasing = false
-                    errorMessage = "In-app purchases not yet implemented. Add StoreKit integration in Phase 4."
+                    errorMessage = L10n.Subscription.comingSoon.localized
                     showError = true
                 }
             } catch {

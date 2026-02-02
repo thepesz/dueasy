@@ -1,12 +1,15 @@
 import Foundation
+import SwiftData
 import os.log
 
 /// Use case for updating an existing document.
 /// Syncs changes with calendar and notifications.
 /// Recalculates vendorFingerprint and documentCategory when vendor name or NIP changes.
+/// Also syncs linked recurring instances when due date changes.
 struct UpdateDocumentUseCase: Sendable {
 
     private let repository: DocumentRepositoryProtocol
+    private let modelContext: ModelContext
     private let calendarService: CalendarServiceProtocol
     private let notificationService: NotificationServiceProtocol
     private let vendorFingerprintService: VendorFingerprintServiceProtocol
@@ -15,12 +18,14 @@ struct UpdateDocumentUseCase: Sendable {
 
     init(
         repository: DocumentRepositoryProtocol,
+        modelContext: ModelContext,
         calendarService: CalendarServiceProtocol,
         notificationService: NotificationServiceProtocol,
         vendorFingerprintService: VendorFingerprintServiceProtocol,
         classifierService: DocumentClassifierServiceProtocol
     ) {
         self.repository = repository
+        self.modelContext = modelContext
         self.calendarService = calendarService
         self.notificationService = notificationService
         self.vendorFingerprintService = vendorFingerprintService
@@ -106,6 +111,20 @@ struct UpdateDocumentUseCase: Sendable {
             }
         }
 
+        // EDGE CASE FIX: Sync linked recurring instance when due date changes
+        // If this document is linked to a recurring instance, update the instance's
+        // finalDueDate and its calendar event to stay synchronized
+        if dueDateChanged, let instanceId = document.recurringInstanceId {
+            await syncRecurringInstanceDueDate(
+                instanceId: instanceId,
+                newDueDate: dueDate,
+                oldDueDate: oldDueDate,
+                vendorName: title,
+                amount: amount,
+                currency: currency
+            )
+        }
+
         // Update notifications if due date or offsets changed
         if document.notificationsEnabled, let newDueDate = dueDate {
             let notificationTitle = "Invoice Due: \(title)"
@@ -151,5 +170,85 @@ struct UpdateDocumentUseCase: Sendable {
         formatter.currencyCode = currency
         let amountString = formatter.string(from: NSDecimalNumber(decimal: amount)) ?? "\(amount)"
         return "Payment of \(amountString) is due"
+    }
+
+    // MARK: - Recurring Instance Sync
+
+    /// Syncs the linked recurring instance when a document's due date changes.
+    /// This prevents desynchronization between the document and its recurring instance.
+    ///
+    /// Updates:
+    /// 1. Instance's finalDueDate to match the document
+    /// 2. Instance's calendar event (if exists) to reflect new date
+    @MainActor
+    private func syncRecurringInstanceDueDate(
+        instanceId: UUID,
+        newDueDate: Date?,
+        oldDueDate: Date?,
+        vendorName: String,
+        amount: Decimal,
+        currency: String
+    ) async {
+        logger.info("Syncing recurring instance due date change: instance=\(instanceId)")
+
+        // Fetch the linked instance
+        let instanceDescriptor = FetchDescriptor<RecurringInstance>(
+            predicate: #Predicate<RecurringInstance> { $0.id == instanceId }
+        )
+
+        do {
+            guard let instance = try modelContext.fetch(instanceDescriptor).first else {
+                logger.warning("Linked recurring instance not found: \(instanceId)")
+                return
+            }
+
+            // Update instance's finalDueDate
+            instance.finalDueDate = newDueDate
+            instance.markUpdated()
+
+            logger.debug("Updated recurring instance finalDueDate: \(instance.periodKey)")
+
+            // Update calendar event if exists
+            if let eventId = instance.calendarEventId, let newDate = newDueDate {
+                let calendarStatus = await calendarService.authorizationStatus
+                if calendarStatus.hasWriteAccess {
+                    do {
+                        let eventTitle = formatRecurringEventTitle(
+                            vendorName: vendorName,
+                            amount: amount,
+                            currency: currency
+                        )
+                        let eventNotes = "Recurring payment managed by DuEasy"
+
+                        try await calendarService.updateEvent(
+                            eventId: eventId,
+                            title: eventTitle,
+                            dueDate: newDate,
+                            notes: eventNotes
+                        )
+
+                        logger.info("Updated recurring instance calendar event for new due date")
+                    } catch {
+                        logger.warning("Failed to update recurring instance calendar event: \(error.localizedDescription)")
+                        // Don't fail the whole operation for calendar issues
+                    }
+                }
+            }
+
+            try modelContext.save()
+            logger.info("Recurring instance synced with document due date change")
+
+        } catch {
+            logger.error("Failed to sync recurring instance due date: \(error.localizedDescription)")
+            // Don't throw - this is a secondary operation
+        }
+    }
+
+    private func formatRecurringEventTitle(vendorName: String, amount: Decimal, currency: String) -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.currencyCode = currency
+        let amountString = formatter.string(from: NSDecimalNumber(decimal: amount)) ?? "\(amount)"
+        return "Recurring: \(vendorName) - \(amountString)"
     }
 }

@@ -46,10 +46,20 @@ final class RecurringTemplate {
 
     // MARK: - Amount Rules (Optional, learned over time)
 
-    /// Minimum expected amount (nil if not yet learned)
+    /// Minimum expected amount stored as string to preserve decimal precision.
+    /// CRITICAL FIX: Using String instead of Double to prevent precision loss
+    /// for values like 123.45 which cannot be exactly represented in binary floating point.
+    private var amountMinString: String?
+
+    /// Maximum expected amount stored as string to preserve decimal precision.
+    private var amountMaxString: String?
+
+    /// Legacy Double storage (kept for migration from older schema versions)
+    /// Will be migrated to String on first access through the computed properties
+    /// Note: Not marked deprecated to avoid warnings in migration code paths
     var amountMinValue: Double?
 
-    /// Maximum expected amount (nil if not yet learned)
+    /// Legacy Double storage (kept for migration from older schema versions)
     var amountMaxValue: Double?
 
     /// Currency code for amount validation
@@ -95,32 +105,51 @@ final class RecurringTemplate {
         set { documentCategoryRaw = newValue.rawValue }
     }
 
-    /// Amount range as Decimal values
+    /// Amount range as Decimal values with precision preservation.
+    /// CRITICAL FIX: Stores as String internally to prevent floating point precision loss.
     var amountMin: Decimal? {
         get {
-            guard let value = amountMinValue else { return nil }
-            return Decimal(value)
+            // First try String storage (new format)
+            if let str = amountMinString, let decimal = Decimal(string: str) {
+                return decimal
+            }
+            // Fallback to legacy Double storage (migrate on write)
+            if let value = amountMinValue {
+                return Decimal(value)
+            }
+            return nil
         }
         set {
             if let newValue = newValue {
-                amountMinValue = NSDecimalNumber(decimal: newValue).doubleValue
+                amountMinString = "\(newValue)"
             } else {
-                amountMinValue = nil
+                amountMinString = nil
             }
+            // Clear legacy storage
+            amountMinValue = nil
         }
     }
 
     var amountMax: Decimal? {
         get {
-            guard let value = amountMaxValue else { return nil }
-            return Decimal(value)
+            // First try String storage (new format)
+            if let str = amountMaxString, let decimal = Decimal(string: str) {
+                return decimal
+            }
+            // Fallback to legacy Double storage (migrate on write)
+            if let value = amountMaxValue {
+                return Decimal(value)
+            }
+            return nil
         }
         set {
             if let newValue = newValue {
-                amountMaxValue = NSDecimalNumber(decimal: newValue).doubleValue
+                amountMaxString = "\(newValue)"
             } else {
-                amountMaxValue = nil
+                amountMaxString = nil
             }
+            // Clear legacy storage
+            amountMaxValue = nil
         }
     }
 
@@ -164,8 +193,11 @@ final class RecurringTemplate {
         self.dueDayOfMonth = dueDayOfMonth
         self.toleranceDays = toleranceDays
         self.reminderOffsetsDays = reminderOffsetsDays
-        self.amountMinValue = amountMin != nil ? NSDecimalNumber(decimal: amountMin!).doubleValue : nil
-        self.amountMaxValue = amountMax != nil ? NSDecimalNumber(decimal: amountMax!).doubleValue : nil
+        // CRITICAL FIX: Store amounts as String to preserve decimal precision
+        self.amountMinString = amountMin.map { "\($0)" }
+        self.amountMaxString = amountMax.map { "\($0)" }
+        self.amountMinValue = nil  // Don't use legacy storage for new templates
+        self.amountMaxValue = nil
         self.currency = currency
         self.iban = iban
         self.isActive = isActive

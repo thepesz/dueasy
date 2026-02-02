@@ -9,8 +9,11 @@ struct RecurringOverviewView: View {
     @State private var viewModel: RecurringOverviewViewModel?
     @State private var showDeleteConfirmation: Bool = false
     @State private var templateToDelete: RecurringTemplate?
+
+    #if DEBUG
     @State private var isManuallyLinking: Bool = false
     @State private var linkingResult: String?
+    #endif
 
     var body: some View {
         NavigationStack {
@@ -30,7 +33,8 @@ struct RecurringOverviewView: View {
                     }
                 }
 
-                // DEBUG: Manual linking button
+                #if DEBUG
+                // DEBUG-only: Manual linking button for testing/fixing document linkage
                 ToolbarItem(placement: .primaryAction) {
                     Button {
                         Task {
@@ -42,6 +46,7 @@ struct RecurringOverviewView: View {
                     }
                     .disabled(isManuallyLinking)
                 }
+                #endif
             }
             .confirmationDialog(
                 L10n.Recurring.deleteTemplate.localized,
@@ -59,6 +64,7 @@ struct RecurringOverviewView: View {
             } message: {
                 Text(L10n.Recurring.deleteTemplateConfirm.localized)
             }
+            #if DEBUG
             .alert("Link Documents", isPresented: Binding(
                 get: { linkingResult != nil },
                 set: { if !$0 { linkingResult = nil } }
@@ -69,6 +75,7 @@ struct RecurringOverviewView: View {
                     Text(result)
                 }
             }
+            #endif
         }
         .task {
             if viewModel == nil {
@@ -84,7 +91,8 @@ struct RecurringOverviewView: View {
     @ViewBuilder
     private func content(_ viewModel: RecurringOverviewViewModel) -> some View {
         ScrollView {
-            VStack(spacing: Spacing.lg) {
+            // PERFORMANCE: Use LazyVStack for potentially long lists of templates and instances
+            LazyVStack(spacing: Spacing.lg) {
                 // Upcoming instances section
                 if viewModel.hasUpcomingInstances {
                     upcomingSection(viewModel)
@@ -204,7 +212,8 @@ struct RecurringOverviewView: View {
         }
     }
 
-    // MARK: - Manual Linking
+    #if DEBUG
+    // MARK: - Manual Linking (DEBUG only)
 
     private func manuallyLinkDocuments() async {
         isManuallyLinking = true
@@ -223,11 +232,14 @@ struct RecurringOverviewView: View {
 
         isManuallyLinking = false
     }
+    #endif
 }
 
 // MARK: - Upcoming Instance Card
 
 struct UpcomingInstanceCard: View {
+    @Environment(AppEnvironment.self) private var environment
+
     let instance: RecurringInstance
     let template: RecurringTemplate
     let onMarkAsPaid: () -> Void
@@ -271,7 +283,7 @@ struct UpcomingInstanceCard: View {
     }
 
     private var dueDateText: String {
-        let days = instance.daysUntilDue
+        let days = instance.daysUntilDue(using: environment.recurringDateService)
         if days == 0 {
             return L10n.RecurringInstance.dueToday.localized
         } else if days > 0 {
@@ -282,7 +294,7 @@ struct UpcomingInstanceCard: View {
     }
 
     private var dueDateColor: Color {
-        let days = instance.daysUntilDue
+        let days = instance.daysUntilDue(using: environment.recurringDateService)
         if days < 0 {
             return AppColors.error
         } else if days <= 3 {

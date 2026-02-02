@@ -23,20 +23,22 @@ struct FetchRecurringInstancesForMonthUseCase: Sendable {
         // Generate the period key for this month (YYYY-MM format)
         let periodKey = String(format: "%04d-%02d", year, month)
 
-        logger.info("📅 Fetching recurring instances for period: \(periodKey)")
+        logger.debug("Fetching recurring instances for period: \(periodKey)")
 
-        // DEBUG: First fetch ALL instances to see what's in the database
+        #if DEBUG
+        // DEBUG-only: Fetch ALL instances to see what's in the database
         let allDescriptor = FetchDescriptor<RecurringInstance>()
         let allInstances = try modelContext.fetch(allDescriptor)
-        logger.info("📅 DEBUG: Total recurring instances in database: \(allInstances.count)")
+        logger.debug("Total recurring instances in database: \(allInstances.count)")
         for inst in allInstances {
-            logger.info("📅 DEBUG: Instance periodKey=\(inst.periodKey), id=\(inst.id.uuidString), templateId=\(inst.templateId.uuidString)")
+            logger.debug("Instance periodKey=\(inst.periodKey), id=\(inst.id.uuidString), templateId=\(inst.templateId.uuidString)")
         }
 
-        // DEBUG: Also check templates
+        // DEBUG-only: Also check templates
         let templateDescriptor = FetchDescriptor<RecurringTemplate>()
         let allTemplates = try modelContext.fetch(templateDescriptor)
         logger.debug("Total recurring templates in database: \(allTemplates.count)")
+        #endif
 
         // Fetch instances for this period
         let descriptor = FetchDescriptor<RecurringInstance>(
@@ -46,7 +48,7 @@ struct FetchRecurringInstancesForMonthUseCase: Sendable {
 
         let instances = try modelContext.fetch(descriptor)
 
-        logger.info("Found \(instances.count) recurring instances for period: \(periodKey)")
+        logger.debug("Found \(instances.count) recurring instances for period: \(periodKey)")
 
         // Group by day of month
         var grouped: [Int: [RecurringInstance]] = [:]
@@ -61,7 +63,7 @@ struct FetchRecurringInstancesForMonthUseCase: Sendable {
             grouped[day]?.append(instance)
         }
 
-        logger.info("📅 Grouped recurring instances into \(grouped.count) days")
+        logger.debug("Grouped recurring instances into \(grouped.count) days")
 
         return grouped
     }

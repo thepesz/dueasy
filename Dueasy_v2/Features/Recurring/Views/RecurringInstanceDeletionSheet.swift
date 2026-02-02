@@ -16,6 +16,7 @@ struct RecurringInstanceDeletionSheet: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(AppEnvironment.self) private var appEnvironment
 
     @Bindable var viewModel: RecurringDeletionViewModel
 
@@ -254,7 +255,7 @@ struct RecurringInstanceDeletionSheet: View {
 
     @ViewBuilder
     private func daysIndicator(for instance: RecurringInstance) -> some View {
-        let days = instance.daysUntilDue
+        let days = instance.daysUntilDue(using: appEnvironment.recurringDateService)
 
         if days == 0 {
             Text(L10n.RecurringInstance.dueToday.localized)

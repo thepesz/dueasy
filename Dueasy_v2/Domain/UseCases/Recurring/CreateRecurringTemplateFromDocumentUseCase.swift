@@ -17,6 +17,7 @@ final class CreateRecurringTemplateFromDocumentUseCase: @unchecked Sendable {
     private let matcherService: RecurringMatcherServiceProtocol
     private let fingerprintService: VendorFingerprintServiceProtocol
     private let classifierService: DocumentClassifierServiceProtocol
+    private let dateService: RecurringDateServiceProtocol
     private let logger = Logger(subsystem: "com.dueasy.app", category: "CreateRecurringTemplate")
 
     /// Default reminder offsets
@@ -33,13 +34,15 @@ final class CreateRecurringTemplateFromDocumentUseCase: @unchecked Sendable {
         schedulerService: RecurringSchedulerServiceProtocol,
         matcherService: RecurringMatcherServiceProtocol,
         fingerprintService: VendorFingerprintServiceProtocol,
-        classifierService: DocumentClassifierServiceProtocol
+        classifierService: DocumentClassifierServiceProtocol,
+        dateService: RecurringDateServiceProtocol = RecurringDateService()
     ) {
         self.templateService = templateService
         self.schedulerService = schedulerService
         self.matcherService = matcherService
         self.fingerprintService = fingerprintService
         self.classifierService = classifierService
+        self.dateService = dateService
     }
 
     /// Creates a recurring template from a document.
@@ -100,15 +103,17 @@ final class CreateRecurringTemplateFromDocumentUseCase: @unchecked Sendable {
         logger.info("Created recurring template: \(template.id)")
 
         // Step 4: Generate instances for next N months
+        // includeHistorical: true to handle templates created from historical documents
         let instances = try await schedulerService.generateInstances(
             for: template,
-            monthsAhead: Self.defaultMonthsAhead
+            monthsAhead: Self.defaultMonthsAhead,
+            includeHistorical: true
         )
 
         logger.info("Generated \(instances.count) recurring instances")
 
         // Step 5: Match current document to the appropriate instance
-        let periodKey = RecurringInstance.periodKey(for: document.dueDate!)
+        let periodKey = dateService.periodKey(for: document.dueDate!)
         if let matchingInstance = instances.first(where: { $0.periodKey == periodKey }) {
             try await matcherService.attachDocument(
                 document,

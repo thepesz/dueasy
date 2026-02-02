@@ -10,7 +10,19 @@ import UIKit
 import FirebaseFunctions
 #endif
 
-/// Firebase Cloud Functions gateway for OpenAI-powered document analysis
+/// Firebase Cloud Functions gateway for OpenAI-powered document analysis.
+///
+/// ## Rate Limiting and Retry
+///
+/// This gateway implements exponential backoff retry for transient errors:
+/// - HTTP 429 (Too Many Requests) - rate limit exceeded
+/// - HTTP 5xx (Server Errors) - transient server issues
+/// - Network timeouts
+///
+/// Retry behavior is controlled by `CloudRetryConfiguration`:
+/// - Default: 3 retries with 1s, 2s, 4s delays
+/// - Jitter added to prevent thundering herd
+/// - Privacy-safe logging of retry events
 final class FirebaseCloudExtractionGateway: CloudExtractionGatewayProtocol {
 
     // MARK: - Properties
@@ -20,11 +32,17 @@ final class FirebaseCloudExtractionGateway: CloudExtractionGatewayProtocol {
     #endif
 
     private let authService: AuthServiceProtocol
+    private let retryConfig: CloudRetryConfiguration
+    private let logger = Logger(subsystem: "com.dueasy.app", category: "CloudExtraction")
 
     // MARK: - Initialization
 
-    init(authService: AuthServiceProtocol) {
+    init(
+        authService: AuthServiceProtocol,
+        retryConfig: CloudRetryConfiguration = .default
+    ) {
         self.authService = authService
+        self.retryConfig = retryConfig
         #if canImport(FirebaseFunctions)
         // Use Europe region for GDPR compliance - functions deployed to europe-west1
         self.functions = Functions.functions(region: "europe-west1")
@@ -67,8 +85,8 @@ final class FirebaseCloudExtractionGateway: CloudExtractionGatewayProtocol {
             "mode": "textOnly"
         ]
 
-        let result = try await functions.httpsCallable("analyzeDocument").call(payload)
-        return try parseAnalysisResult(from: result.data)
+        // Use retry wrapper for resilient API calls
+        return try await executeWithRetry(functionName: "analyzeDocument", payload: payload)
         #else
         throw AppError.featureUnavailable("Firebase SDK not available")
         #endif
@@ -96,12 +114,139 @@ final class FirebaseCloudExtractionGateway: CloudExtractionGatewayProtocol {
             "mode": "withImages"
         ]
 
-        let result = try await functions.httpsCallable("analyzeDocumentWithImages").call(payload)
-        return try parseAnalysisResult(from: result.data)
+        // Use retry wrapper for resilient API calls
+        return try await executeWithRetry(functionName: "analyzeDocumentWithImages", payload: payload)
         #else
         throw AppError.featureUnavailable("Firebase SDK not available")
         #endif
     }
+
+    // MARK: - Retry Logic
+
+    #if canImport(FirebaseFunctions)
+    /// Executes a Firebase Function call with exponential backoff retry.
+    ///
+    /// Handles the following transient errors:
+    /// - Rate limiting (HTTP 429 / FunctionsErrorCode.resourceExhausted)
+    /// - Server errors (HTTP 5xx / FunctionsErrorCode.internal, .unavailable)
+    /// - Network timeouts
+    ///
+    /// - Parameters:
+    ///   - functionName: Name of the Firebase Function to call
+    ///   - payload: Request payload dictionary
+    /// - Returns: Parsed `DocumentAnalysisResult`
+    /// - Throws: `CloudExtractionError` after max retries or on non-retryable errors
+    private func executeWithRetry(
+        functionName: String,
+        payload: [String: Any]
+    ) async throws -> DocumentAnalysisResult {
+
+        var lastError: Error?
+        var attempt = 0
+
+        // Total attempts = 1 (initial) + maxRetries
+        let totalAttempts = 1 + retryConfig.maxRetries
+
+        while attempt < totalAttempts {
+            attempt += 1
+
+            do {
+                let result = try await functions.httpsCallable(functionName).call(payload)
+
+                // PRIVACY: Log success metrics only
+                if attempt > 1 {
+                    PrivacyLogger.cloud.info("Cloud extraction succeeded after \(attempt) attempts")
+                }
+
+                return try parseAnalysisResult(from: result.data)
+
+            } catch {
+                lastError = error
+                let cloudError = mapFirebaseError(error)
+
+                // Check if error is retryable
+                guard cloudError.isRetryable else {
+                    // PRIVACY: Log error type, not content
+                    PrivacyLogger.cloud.warning("Cloud extraction failed with non-retryable error: type=\(String(describing: type(of: cloudError)))")
+                    throw cloudError
+                }
+
+                // Check if we have retries left
+                guard attempt < totalAttempts else {
+                    // PRIVACY: Log final failure without sensitive data
+                    PrivacyLogger.cloud.error("Cloud extraction failed after \(attempt) attempts, error type=\(String(describing: type(of: cloudError)))")
+                    throw cloudError
+                }
+
+                // Calculate delay with exponential backoff
+                let delay = retryConfig.delay(forAttempt: attempt)
+
+                // PRIVACY: Log retry event without sensitive data
+                PrivacyLogger.cloud.info("Cloud extraction retry: attempt=\(attempt)/\(totalAttempts), delay=\(String(format: "%.2f", delay))s, errorType=\(cloudError.isRateLimitError ? "rateLimit" : "transient")")
+
+                // Wait before retry
+                try await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
+            }
+        }
+
+        // Should not reach here, but handle edge case
+        throw lastError.map { mapFirebaseError($0) } ?? CloudExtractionError.invalidResponse
+    }
+
+    /// Maps Firebase Functions errors to CloudExtractionError.
+    /// Handles FunctionsErrorCode cases for proper retry classification.
+    private func mapFirebaseError(_ error: Error) -> CloudExtractionError {
+        // Check for Firebase Functions specific errors
+        let nsError = error as NSError
+
+        // Firebase Functions errors have domain "com.firebase.functions"
+        if nsError.domain == "com.firebase.functions" || nsError.domain.contains("FIRFunctions") {
+            // FunctionsErrorCode raw values:
+            // 8 = resourceExhausted (429 rate limit)
+            // 13 = internal (500)
+            // 14 = unavailable (503)
+            // 4 = deadlineExceeded (timeout)
+            switch nsError.code {
+            case 8: // resourceExhausted - Rate limit
+                return .rateLimitExceeded
+            case 4: // deadlineExceeded - Timeout
+                return .timeout
+            case 13, 14: // internal, unavailable - Server errors
+                return .serverError(statusCode: nsError.code == 13 ? 500 : 503, message: nsError.localizedDescription)
+            case 16: // unauthenticated
+                return .authenticationRequired
+            case 7: // permissionDenied
+                return .subscriptionRequired
+            default:
+                // Check if it's a network-related error
+                if nsError.localizedDescription.lowercased().contains("network") ||
+                   nsError.localizedDescription.lowercased().contains("connection") {
+                    return .networkError(error)
+                }
+                return .serverError(statusCode: nsError.code, message: nsError.localizedDescription)
+            }
+        }
+
+        // Handle URLError for network issues
+        if let urlError = error as? URLError {
+            switch urlError.code {
+            case .timedOut:
+                return .timeout
+            case .notConnectedToInternet, .networkConnectionLost:
+                return .networkError(error)
+            default:
+                return .networkError(error)
+            }
+        }
+
+        // Generic error mapping
+        if nsError.domain == NSURLErrorDomain {
+            return .networkError(error)
+        }
+
+        return .serverError(statusCode: -1, message: error.localizedDescription)
+    }
+    #endif
 
     // MARK: - Private Helpers
 

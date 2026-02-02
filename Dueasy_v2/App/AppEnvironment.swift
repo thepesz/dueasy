@@ -33,6 +33,35 @@ enum AppTier: String, Sendable {
     }
 }
 
+// MARK: - Lazy Service Box
+
+/// Thread-safe lazy initialization wrapper for heavy services.
+/// Uses @MainActor isolation for thread safety in SwiftUI context.
+/// This avoids loading heavy services at app startup.
+@MainActor
+final class LazyService<T> {
+    private var _value: T?
+    private let factory: () -> T
+
+    init(_ factory: @escaping () -> T) {
+        self.factory = factory
+    }
+
+    var value: T {
+        if let existing = _value {
+            return existing
+        }
+        let newValue = factory()
+        _value = newValue
+        return newValue
+    }
+
+    /// Check if the service has been initialized without triggering initialization
+    var isInitialized: Bool {
+        _value != nil
+    }
+}
+
 // MARK: - App Environment
 
 /// Central dependency container for DuEasy.
@@ -43,6 +72,11 @@ enum AppTier: String, Sendable {
 /// Tier Support:
 /// - Free tier: Local-only analysis with NoOp auth/subscription services
 /// - Pro tier: Cloud AI analysis via Firebase (Iteration 2)
+///
+/// Performance Optimization:
+/// - Heavy services (LayoutFirstInvoiceParser) use lazy initialization
+/// - Cloud services only initialized for Pro tier when first accessed
+/// - Free tier users never load cloud analysis infrastructure
 @MainActor
 @Observable
 final class AppEnvironment {
@@ -60,15 +94,25 @@ final class AppEnvironment {
 
     let documentRepository: DocumentRepositoryProtocol
 
-    // MARK: - Core Services
+    // MARK: - Core Services (Eagerly Initialized - Lightweight)
 
     let fileStorageService: FileStorageServiceProtocol
     let ocrService: OCRServiceProtocol
-    let documentAnalysisService: DocumentAnalysisServiceProtocol
     let calendarService: CalendarServiceProtocol
     let notificationService: NotificationServiceProtocol
     let syncService: SyncServiceProtocol
     let cryptoService: CryptoServiceProtocol
+
+    // MARK: - Core Services (Lazily Initialized - Heavy)
+
+    /// Document analysis service - lazily initialized because LayoutFirstInvoiceParser
+    /// loads multiple sub-parsers and regex patterns that are expensive at startup.
+    private let _lazyDocumentAnalysisService: LazyService<DocumentAnalysisServiceProtocol>
+
+    /// Public accessor that triggers lazy initialization on first access
+    var documentAnalysisService: DocumentAnalysisServiceProtocol {
+        _lazyDocumentAnalysisService.value
+    }
 
     // MARK: - Learning Services
 
@@ -80,12 +124,14 @@ final class AppEnvironment {
 
     // MARK: - Recurring Payment Services
 
+    let recurringDateService: RecurringDateServiceProtocol
     let vendorFingerprintService: VendorFingerprintServiceProtocol
     let documentClassifierService: DocumentClassifierServiceProtocol
     let recurringTemplateService: RecurringTemplateServiceProtocol
     let recurringSchedulerService: RecurringSchedulerServiceProtocol
     let recurringMatcherService: RecurringMatcherServiceProtocol
     let recurringDetectionService: RecurringDetectionServiceProtocol
+    let recurringIntegrityService: RecurringIntegrityService
 
     // MARK: - Cloud Integration Services (Phase 1 Foundation)
 
@@ -99,10 +145,15 @@ final class AppEnvironment {
     /// Pro tier: StoreKitSubscriptionService (Iteration 2)
     let subscriptionService: SubscriptionServiceProtocol
 
-    /// Document analysis router for provider selection.
-    /// Free tier: LocalOnlyAnalysisRouter (always local)
-    /// Pro tier: HybridAnalysisRouter (Iteration 2)
-    let analysisRouter: DocumentAnalysisRouterProtocol
+    /// Document analysis router - lazily initialized for Pro tier.
+    /// Free tier uses LocalOnlyAnalysisRouter (lightweight).
+    /// Pro tier uses HybridAnalysisRouter with cloud gateway (heavy).
+    private let _lazyAnalysisRouter: LazyService<DocumentAnalysisRouterProtocol>
+
+    /// Public accessor for analysis router
+    var analysisRouter: DocumentAnalysisRouterProtocol {
+        _lazyAnalysisRouter.value
+    }
 
     // MARK: - Settings
 
@@ -112,9 +163,17 @@ final class AppEnvironment {
 
     let globalKeywordConfig: GlobalKeywordConfig
 
+    // MARK: - Diagnostics
+
+    /// Check which lazy services have been initialized (for debugging/testing)
+    var lazyServiceStatus: (documentAnalysis: Bool, analysisRouter: Bool) {
+        (_lazyDocumentAnalysisService.isInitialized, _lazyAnalysisRouter.isInitialized)
+    }
+
     // MARK: - Initialization
 
     /// Initialize AppEnvironment with all dependencies.
+    /// Heavy services use lazy initialization to reduce startup time.
     /// - Parameters:
     ///   - modelContext: SwiftData model context
     ///   - tier: Application tier (default: .free)
@@ -129,21 +188,23 @@ final class AppEnvironment {
         let configDescriptor = FetchDescriptor<GlobalKeywordConfig>(
             sortBy: [SortDescriptor(\.version, order: .reverse)]
         )
+        let loadedConfig: GlobalKeywordConfig
         do {
             let configs = try modelContext.fetch(configDescriptor)
             if let latestConfig = configs.first {
-                self.globalKeywordConfig = latestConfig
+                loadedConfig = latestConfig
             } else {
                 // Fallback: create default v1 if none exists
                 let defaultConfig = GlobalKeywordConfig.createDefaultV1()
                 modelContext.insert(defaultConfig)
                 try modelContext.save()
-                self.globalKeywordConfig = defaultConfig
+                loadedConfig = defaultConfig
             }
         } catch {
             // Critical failure: create v1 without saving
-            self.globalKeywordConfig = GlobalKeywordConfig.createDefaultV1()
+            loadedConfig = GlobalKeywordConfig.createDefaultV1()
         }
+        self.globalKeywordConfig = loadedConfig
 
         // Initialize keyword learning service
         self.keywordLearningService = KeywordLearningService()
@@ -166,23 +227,16 @@ final class AppEnvironment {
         // Initialize crypto service first (needed by file storage)
         self.cryptoService = IOSDataProtectionCryptoService() // iOS file protection wrapper
 
-        // Initialize services with local implementations (Iteration 1)
-        // In Iteration 2, these can be swapped with backend implementations
+        // Initialize lightweight services eagerly
         self.fileStorageService = LocalFileStorageService(cryptoService: cryptoService)
         self.ocrService = AppleVisionOCRService()
-
-        // Pass keyword learning service and global config to parsing service
-        // Using LayoutFirstInvoiceParser for anchor-based extraction (A3 architecture)
-        self.documentAnalysisService = LayoutFirstInvoiceParser(
-            keywordLearningService: keywordLearningService,
-            globalKeywordConfig: globalKeywordConfig
-        )
-
         self.calendarService = EventKitCalendarService()
         self.notificationService = LocalNotificationService()
         self.syncService = NoOpSyncService() // No-op for Iteration 1
 
-        // Initialize recurring payment services
+        // Initialize recurring payment services (lightweight)
+        // MVVM Pure: RecurringDateService extracts date logic from RecurringInstance model
+        self.recurringDateService = RecurringDateService()
         self.vendorFingerprintService = VendorFingerprintService()
         self.documentClassifierService = DocumentClassifierService()
 
@@ -190,20 +244,22 @@ final class AppEnvironment {
         let templateService = RecurringTemplateService(modelContext: modelContext)
         self.recurringTemplateService = templateService
 
-        // Scheduler service needs modelContext, notification service, calendar service, and settings
+        // Scheduler service needs modelContext, notification service, calendar service, settings, and date service
         let schedulerService = RecurringSchedulerService(
             modelContext: modelContext,
             notificationService: notificationService,
             calendarService: calendarService,
-            settingsManager: settingsManager
+            settingsManager: settingsManager,
+            dateService: recurringDateService
         )
         self.recurringSchedulerService = schedulerService
 
-        // Matcher service needs modelContext, template service, and scheduler service
+        // Matcher service needs modelContext, template service, scheduler service, and date service
         self.recurringMatcherService = RecurringMatcherService(
             modelContext: modelContext,
             templateService: templateService,
-            schedulerService: schedulerService
+            schedulerService: schedulerService,
+            dateService: recurringDateService
         )
 
         // Detection service needs modelContext, template service, and classifier service
@@ -213,46 +269,75 @@ final class AppEnvironment {
             classifierService: documentClassifierService
         )
 
-        // Initialize tier-specific services
+        // CRITICAL FIX: Integrity service for cleaning up orphaned references
+        self.recurringIntegrityService = RecurringIntegrityService(
+            modelContext: modelContext,
+            calendarService: calendarService,
+            notificationService: notificationService
+        )
+
+        // LAZY INITIALIZATION: LayoutFirstInvoiceParser
+        // This is a heavy service with multiple sub-parsers and regex patterns.
+        // Defer initialization until first document scan to reduce app startup time.
+        let capturedKeywordService = self.keywordLearningService
+        let capturedConfig = loadedConfig
+        self._lazyDocumentAnalysisService = LazyService {
+            PrivacyLogger.app.info("Lazy init: LayoutFirstInvoiceParser")
+            return LayoutFirstInvoiceParser(
+                keywordLearningService: capturedKeywordService,
+                globalKeywordConfig: capturedConfig
+            )
+        }
+
+        // Initialize tier-specific auth/subscription services (lightweight)
         switch tier {
         case .pro:
-            // Pro tier - Firebase + cloud features (Phase 3)
             #if canImport(FirebaseAuth) && canImport(FirebaseFunctions)
-            // Firebase SDK available - use real implementations
             let firebaseAuth = FirebaseAuthService()
             self.authService = firebaseAuth
             self.subscriptionService = FirebaseSubscriptionService(authService: firebaseAuth)
-
-            // Create cloud gateway for OpenAI analysis
-            let cloudGateway = FirebaseCloudExtractionGateway(authService: firebaseAuth)
-
-            // Use hybrid router for intelligent local/cloud routing
-            self.analysisRouter = HybridAnalysisRouter(
-                localService: documentAnalysisService,
-                cloudGateway: cloudGateway,
-                settingsManager: settingsManager,
-                config: .default
-            )
-            PrivacyLogger.app.info("AppEnvironment initialized for tier: Pro (Firebase active)")
             #else
-            // Firebase SDK not available - fall back to no-op (development/testing)
             self.authService = NoOpAuthService()
             self.subscriptionService = NoOpSubscriptionService()
-            self.analysisRouter = LocalOnlyAnalysisRouter(
-                localService: documentAnalysisService
-            )
-            PrivacyLogger.app.warning("AppEnvironment initialized for tier: Pro (Firebase SDK not available, using local-only)")
             #endif
 
         case .free:
-            // Free tier - all local, no cloud features
             self.authService = NoOpAuthService()
             self.subscriptionService = NoOpSubscriptionService()
-            self.analysisRouter = LocalOnlyAnalysisRouter(
-                localService: documentAnalysisService
-            )
-            PrivacyLogger.app.info("AppEnvironment initialized for tier: Free")
         }
+
+        // LAZY INITIALIZATION: Analysis Router
+        // For Pro tier, this creates HybridAnalysisRouter with cloud gateway (heavy).
+        // For Free tier, this creates LocalOnlyAnalysisRouter (lightweight but still deferred).
+        let capturedTier = tier
+        let capturedAuthService = self.authService
+        let capturedSettingsManager = self.settingsManager
+        let lazyDocAnalysis = self._lazyDocumentAnalysisService
+
+        self._lazyAnalysisRouter = LazyService {
+            switch capturedTier {
+            case .pro:
+                #if canImport(FirebaseAuth) && canImport(FirebaseFunctions)
+                PrivacyLogger.app.info("Lazy init: HybridAnalysisRouter (Pro tier)")
+                let cloudGateway = FirebaseCloudExtractionGateway(authService: capturedAuthService)
+                return HybridAnalysisRouter(
+                    localService: lazyDocAnalysis.value,
+                    cloudGateway: cloudGateway,
+                    settingsManager: capturedSettingsManager,
+                    config: .default
+                )
+                #else
+                PrivacyLogger.app.warning("Lazy init: LocalOnlyAnalysisRouter (Pro tier, Firebase unavailable)")
+                return LocalOnlyAnalysisRouter(localService: lazyDocAnalysis.value)
+                #endif
+
+            case .free:
+                PrivacyLogger.app.info("Lazy init: LocalOnlyAnalysisRouter (Free tier)")
+                return LocalOnlyAnalysisRouter(localService: lazyDocAnalysis.value)
+            }
+        }
+
+        PrivacyLogger.app.info("AppEnvironment initialized for tier: \(tier.displayName) (heavy services deferred)")
     }
 
     // MARK: - Use Case Factory Methods
@@ -294,21 +379,27 @@ final class AppEnvironment {
         )
     }
 
-    /// Creates a MarkAsPaidUseCase with injected dependencies
+    /// Creates a MarkAsPaidUseCase with injected dependencies.
+    /// CRITICAL FIX: Now includes modelContext for recurring instance sync.
     func makeMarkAsPaidUseCase() -> MarkAsPaidUseCase {
         MarkAsPaidUseCase(
             repository: documentRepository,
-            notificationService: notificationService
+            notificationService: notificationService,
+            modelContext: modelContext
         )
     }
 
-    /// Creates a DeleteDocumentUseCase with injected dependencies
+    /// Creates a DeleteDocumentUseCase with injected dependencies.
+    /// CRITICAL FIX: Now includes recurring services to handle linkage cleanup before deletion.
     func makeDeleteDocumentUseCase() -> DeleteDocumentUseCase {
         DeleteDocumentUseCase(
             repository: documentRepository,
             fileStorageService: fileStorageService,
             calendarService: calendarService,
-            notificationService: notificationService
+            notificationService: notificationService,
+            modelContext: modelContext,
+            recurringSchedulerService: recurringSchedulerService,
+            recurringTemplateService: recurringTemplateService
         )
     }
 
@@ -316,6 +407,7 @@ final class AppEnvironment {
     func makeUpdateDocumentUseCase() -> UpdateDocumentUseCase {
         UpdateDocumentUseCase(
             repository: documentRepository,
+            modelContext: modelContext,
             calendarService: calendarService,
             notificationService: notificationService,
             vendorFingerprintService: vendorFingerprintService,
@@ -376,7 +468,8 @@ final class AppEnvironment {
             schedulerService: recurringSchedulerService,
             matcherService: recurringMatcherService,
             fingerprintService: vendorFingerprintService,
-            classifierService: documentClassifierService
+            classifierService: documentClassifierService,
+            dateService: recurringDateService
         )
     }
 
@@ -392,7 +485,8 @@ final class AppEnvironment {
     func makeLinkExistingDocumentsUseCase() -> LinkExistingDocumentsUseCase {
         LinkExistingDocumentsUseCase(
             documentRepository: SwiftDataDocumentRepository(modelContext: modelContext),
-            schedulerService: recurringSchedulerService
+            schedulerService: recurringSchedulerService,
+            dateService: recurringDateService
         )
     }
 
@@ -430,8 +524,10 @@ final class AppEnvironment {
         DeactivateRecurringTemplateUseCase(
             modelContext: modelContext,
             templateService: recurringTemplateService,
+            schedulerService: recurringSchedulerService,
             notificationService: notificationService,
-            calendarService: calendarService
+            calendarService: calendarService,
+            settingsManager: settingsManager
         )
     }
 
@@ -450,7 +546,8 @@ final class AppEnvironment {
             modelContext: modelContext,
             templateService: recurringTemplateService,
             notificationService: notificationService,
-            calendarService: calendarService
+            calendarService: calendarService,
+            dateService: recurringDateService
         )
     }
 
@@ -474,19 +571,57 @@ final class AppEnvironment {
             documentRepository: documentRepository,
             recurringTemplateService: recurringTemplateService,
             recurringSchedulerService: recurringSchedulerService,
+            recurringDateService: recurringDateService,
             appTier: appTier
         )
     }
 
     // MARK: - Versioning and Migration
 
+    private let migrationLogger = Logger(subsystem: "com.dueasy.app", category: "StartupMigrations")
+
     /// Run vendor profile migrations on app startup
     /// Call this after AppEnvironment is initialized
     func runStartupMigrations() async throws {
+        migrationLogger.info("=== APP STARTUP MIGRATIONS START ===")
+
+        // Existing migrations
+        migrationLogger.info("Running vendor profile migrations...")
         try await vendorMigrationService.migrateVendorsIfNeeded(to: globalKeywordConfig)
 
         // Backfill vendorFingerprint and documentCategory for existing documents
+        migrationLogger.info("Running vendor fingerprint backfill...")
         try await backfillVendorFingerprints()
+
+        // CRITICAL FIX: Migrate absolute file paths to relative paths
+        // iOS container paths change with app updates, breaking absolute path references.
+        // This migration extracts relative paths from any existing absolute paths.
+        migrationLogger.info("Running file path migration (absolute to relative)...")
+        do {
+            try await migrateFilePathsToRelative()
+        } catch {
+            migrationLogger.error("File path migration failed: \(error.localizedDescription)")
+            // Continue app startup - migration failure is not fatal
+        }
+
+        // CRITICAL FIX: Run recurring payment integrity checks
+        // This cleans up orphaned references that can occur when templates/instances are deleted
+        migrationLogger.info("Running recurring payment integrity checks...")
+        do {
+            let result = try await recurringIntegrityService.runIntegrityChecks()
+            migrationLogger.info("Integrity checks complete: \(result.totalIssuesFixed) issues found and resolved")
+            if result.hasIssues {
+                migrationLogger.info("  - Orphaned instances removed: \(result.orphanedInstancesRemoved)")
+                migrationLogger.info("  - Orphaned document refs cleared: \(result.orphanedDocumentReferencesCleared)")
+                migrationLogger.info("  - Orphaned candidates removed: \(result.orphanedCandidatesRemoved)")
+                migrationLogger.info("  - Amounts migrated: \(result.amountPrecisionMigrations)")
+            }
+        } catch {
+            migrationLogger.error("Integrity checks failed: \(error.localizedDescription)")
+            // Continue app startup even if integrity checks fail - don't rethrow
+        }
+
+        migrationLogger.info("=== APP STARTUP MIGRATIONS COMPLETE ===")
     }
 
     /// Get migration statistics for monitoring
@@ -496,9 +631,17 @@ final class AppEnvironment {
 
     // MARK: - Vendor Fingerprint Backfill
 
+    /// Batch size for fingerprint backfill to prevent UI freezes.
+    /// Processing documents in smaller batches allows the main thread to handle UI updates.
+    private static let backfillBatchSize = 50
+
     /// Backfills vendorFingerprint and documentCategory for existing documents that don't have them.
     /// This is a one-time migration to fix documents created before fingerprint support was added.
     /// Safe to call multiple times - only updates documents with nil fingerprint.
+    ///
+    /// PERFORMANCE: Uses batch processing with Task.yield() to prevent UI freezes
+    /// when processing hundreds of documents. Documents are processed in batches of 50,
+    /// with explicit yielding between batches to allow UI thread responsiveness.
     func backfillVendorFingerprints() async throws {
         let logger = Logger(subsystem: "com.dueasy.app", category: "FingerprintBackfill")
 
@@ -514,38 +657,188 @@ final class AppEnvironment {
             return
         }
 
-        logger.info("Backfilling vendorFingerprint for \(documentsToBackfill.count) documents")
+        let totalCount = documentsToBackfill.count
+        let batchSize = Self.backfillBatchSize
+
+        // PRIVACY: Log only counts, not document contents
+        logger.info("Backfilling vendorFingerprint for \(totalCount) documents in batches of \(batchSize)")
 
         var backfilledCount = 0
-        for document in documentsToBackfill {
-            // Skip documents without a title (empty drafts)
-            guard !document.title.isEmpty else {
-                logger.debug("Skipping document \(document.id) - no title")
-                continue
+        var skippedCount = 0
+        var batchNumber = 0
+
+        // Process in batches to avoid UI freeze
+        for batchStart in stride(from: 0, to: totalCount, by: batchSize) {
+            batchNumber += 1
+            let batchEnd = min(batchStart + batchSize, totalCount)
+            let batch = documentsToBackfill[batchStart..<batchEnd]
+
+            // Process this batch
+            for document in batch {
+                // Skip documents without a title (empty drafts)
+                guard !document.title.isEmpty else {
+                    skippedCount += 1
+                    continue
+                }
+
+                // Generate fingerprint
+                let fingerprint = vendorFingerprintService.generateFingerprint(
+                    vendorName: document.title,
+                    nip: document.vendorNIP
+                )
+                document.vendorFingerprint = fingerprint
+
+                // Classify document category
+                let classification = documentClassifierService.classify(
+                    vendorName: document.title,
+                    ocrText: nil,
+                    amount: document.amount
+                )
+                document.documentCategoryRaw = classification.category.rawValue
+
+                backfilledCount += 1
             }
 
-            // Generate fingerprint
-            let fingerprint = vendorFingerprintService.generateFingerprint(
-                vendorName: document.title,
-                nip: document.vendorNIP
-            )
-            document.vendorFingerprint = fingerprint
+            // CRITICAL: Yield to allow UI updates between batches
+            // This prevents the main thread from being blocked when processing
+            // hundreds of documents, avoiding UI freeze and watchdog termination.
+            await Task.yield()
 
-            // Classify document category
-            let classification = documentClassifierService.classify(
-                vendorName: document.title,
-                ocrText: nil,
-                amount: document.amount
-            )
-            document.documentCategoryRaw = classification.category.rawValue
-
-            backfilledCount += 1
-            logger.debug("Backfilled document: fingerprint=\(fingerprint.prefix(16))..., category=\(classification.category.rawValue)")
+            // Log batch progress (privacy-safe: only counts)
+            let progress = Double(batchEnd) / Double(totalCount) * 100
+            logger.info("Batch \(batchNumber) complete: \(batchEnd)/\(totalCount) (\(Int(progress))%)")
         }
 
-        // Save changes
+        // Save all changes after processing
         try modelContext.save()
-        logger.info("Successfully backfilled \(backfilledCount) documents with vendor fingerprints")
+
+        // Final summary (privacy-safe logging)
+        logger.info("Fingerprint backfill complete: \(backfilledCount) updated, \(skippedCount) skipped (empty drafts)")
+    }
+
+    // MARK: - File Path Migration
+
+    /// Batch size for file path migration to prevent UI freezes.
+    private static let filePathMigrationBatchSize = 50
+
+    /// Migrates documents with absolute file paths to relative paths.
+    ///
+    /// iOS container paths (e.g., `/var/mobile/Containers/Data/Application/{UUID}/Documents/...`)
+    /// change with app updates. Storing absolute paths breaks file access after updates.
+    ///
+    /// This migration:
+    /// 1. Finds documents where `sourceFileURL` contains an absolute path (starts with `/`)
+    /// 2. Extracts the relative path (portion after `/Documents/`)
+    /// 3. Updates the stored path to use only the relative portion
+    ///
+    /// **Safe to run multiple times** - only processes documents with absolute paths.
+    /// **Non-destructive** - if path extraction fails, the original path is preserved.
+    ///
+    /// **Privacy:** Logs only counts and migration status, never file paths or document content.
+    func migrateFilePathsToRelative() async throws {
+        let logger = Logger(subsystem: "com.dueasy.app", category: "FilePathMigration")
+
+        // Fetch ALL documents (we need to check sourceFileURL in memory since
+        // SwiftData predicates can't easily check for string prefix on optionals)
+        let allDescriptor = FetchDescriptor<FinanceDocument>()
+        let allDocuments = try modelContext.fetch(allDescriptor)
+
+        // Filter to documents with absolute paths (start with /)
+        // The computed property getter now returns the resolved path,
+        // but we need to check if the STORED value is absolute.
+        // We do this by checking if reassigning the same value changes it
+        // (if it's absolute, the setter will convert to relative)
+        var documentsNeedingMigration: [FinanceDocument] = []
+
+        for document in allDocuments {
+            guard let currentPath = document.sourceFileURL else { continue }
+
+            // Check if path looks like an absolute iOS container path
+            // These contain patterns like "/var/mobile/Containers" or "/Users/.../CoreSimulator"
+            if currentPath.hasPrefix("/") && currentPath.contains("/Documents/") {
+                documentsNeedingMigration.append(document)
+            }
+        }
+
+        if documentsNeedingMigration.isEmpty {
+            logger.info("No documents need file path migration - all paths are already relative")
+            return
+        }
+
+        let totalCount = documentsNeedingMigration.count
+        let batchSize = Self.filePathMigrationBatchSize
+
+        // PRIVACY: Log only counts, not paths or document details
+        logger.info("Migrating \(totalCount) documents from absolute to relative file paths")
+
+        var migratedCount = 0
+        var skippedCount = 0
+        var batchNumber = 0
+
+        // Process in batches to prevent UI freeze
+        for batchStart in stride(from: 0, to: totalCount, by: batchSize) {
+            batchNumber += 1
+            let batchEnd = min(batchStart + batchSize, totalCount)
+            let batch = documentsNeedingMigration[batchStart..<batchEnd]
+
+            for document in batch {
+                guard let absolutePath = document.sourceFileURL else {
+                    skippedCount += 1
+                    continue
+                }
+
+                // Extract relative path from absolute path
+                // Look for "/Documents/" marker and take everything after it
+                if let range = absolutePath.range(of: "/Documents/") {
+                    let relativePath = String(absolutePath[range.upperBound...])
+
+                    // Verify the relative path is non-empty and looks reasonable
+                    if !relativePath.isEmpty && !relativePath.hasPrefix("/") {
+                        // The setter will normalize and store the relative path
+                        // We set it directly to avoid going through the getter which builds full path
+                        document.sourceFileURL = relativePath
+                        document.markUpdated()
+                        migratedCount += 1
+                    } else {
+                        logger.warning("Skipped migration: extracted path was invalid")
+                        skippedCount += 1
+                    }
+                } else {
+                    // Path is absolute but doesn't contain /Documents/ - unusual case
+                    // Try to extract just the last path components as a fallback
+                    let url = URL(fileURLWithPath: absolutePath)
+                    let filename = url.lastPathComponent
+
+                    // Check if it's in a subdirectory we recognize
+                    let parentDir = url.deletingLastPathComponent().lastPathComponent
+                    if parentDir == "ScannedDocuments" || parentDir.count == 36 { // UUID length
+                        // Looks like ScannedDocuments/UUID or just a UUID directory
+                        let relativePath = parentDir == "ScannedDocuments"
+                            ? "ScannedDocuments/\(filename)"
+                            : "ScannedDocuments/\(parentDir)/\(filename)"
+                        document.sourceFileURL = relativePath
+                        document.markUpdated()
+                        migratedCount += 1
+                    } else {
+                        logger.warning("Skipped migration: could not determine relative path structure")
+                        skippedCount += 1
+                    }
+                }
+            }
+
+            // Yield to allow UI updates
+            await Task.yield()
+
+            // Log batch progress (privacy-safe)
+            let progress = Double(batchEnd) / Double(totalCount) * 100
+            logger.info("File path migration batch \(batchNumber): \(batchEnd)/\(totalCount) (\(Int(progress))%)")
+        }
+
+        // Save all changes
+        try modelContext.save()
+
+        // Final summary (privacy-safe)
+        logger.info("File path migration complete: \(migratedCount) migrated, \(skippedCount) skipped")
     }
 
     // MARK: - Keyword Learning Integration

@@ -58,16 +58,19 @@ final class RecurringMatcherService: RecurringMatcherServiceProtocol {
     private let modelContext: ModelContext
     private let templateService: RecurringTemplateServiceProtocol
     private let schedulerService: RecurringSchedulerServiceProtocol
+    private let dateService: RecurringDateServiceProtocol
     private let logger = Logger(subsystem: "com.dueasy.app", category: "RecurringMatcher")
 
     init(
         modelContext: ModelContext,
         templateService: RecurringTemplateServiceProtocol,
-        schedulerService: RecurringSchedulerServiceProtocol
+        schedulerService: RecurringSchedulerServiceProtocol,
+        dateService: RecurringDateServiceProtocol = RecurringDateService()
     ) {
         self.modelContext = modelContext
         self.templateService = templateService
         self.schedulerService = schedulerService
+        self.dateService = dateService
     }
 
     // MARK: - Matching
@@ -101,18 +104,37 @@ final class RecurringMatcherService: RecurringMatcherServiceProtocol {
         }
 
         // Find the matching instance for this due date
-        let periodKey = RecurringInstance.periodKey(for: dueDate)
-        guard let instance = try await schedulerService.fetchInstance(templateId: template.id, periodKey: periodKey) else {
-            // No instance for this period - might be a new period, generate instances
-            let instances = try await schedulerService.generateInstances(for: template, monthsAhead: 3)
-            guard let newInstance = instances.first(where: { $0.periodKey == periodKey }) else {
-                logger.debug("No instance generated for period \(periodKey)")
-                return nil
-            }
-            return try await tryMatch(document: document, template: template, instance: newInstance, dueDate: dueDate)
+        let periodKey = dateService.periodKey(for: dueDate)
+
+        // CRITICAL FIX: Handle race condition where concurrent documents for the same
+        // vendor/period can both trigger instance generation, creating duplicates.
+        // We use a pattern of: fetch -> generate if missing -> re-fetch to handle races.
+        if let existingInstance = try await schedulerService.fetchInstance(templateId: template.id, periodKey: periodKey) {
+            logger.info("MATCH: Found existing instance for period \(periodKey)")
+            return try await tryMatch(document: document, template: template, instance: existingInstance, dueDate: dueDate)
         }
 
-        return try await tryMatch(document: document, template: template, instance: instance, dueDate: dueDate)
+        // No instance for this period - generate instances (may race with concurrent call)
+        logger.info("MATCH: No instance for period \(periodKey), generating...")
+        let generatedInstances = try await schedulerService.generateInstances(for: template, monthsAhead: 3, includeHistorical: false)
+
+        // CRITICAL FIX: Re-fetch to handle concurrent generation race condition
+        // Another thread may have created the instance while we were generating.
+        // The re-fetch ensures we use the existing instance rather than creating duplicates.
+        if let finalInstance = try await schedulerService.fetchInstance(templateId: template.id, periodKey: periodKey) {
+            logger.info("MATCH: Found instance after generation (may have been created concurrently)")
+            return try await tryMatch(document: document, template: template, instance: finalInstance, dueDate: dueDate)
+        }
+
+        // If still not found after re-fetch, check our generated instances
+        // This handles the case where generation succeeded but fetch has race timing issues
+        guard let newInstance = generatedInstances.first(where: { $0.periodKey == periodKey }) else {
+            logger.warning("MATCH: Failed to generate or find instance for period \(periodKey)")
+            return nil
+        }
+
+        logger.info("MATCH: Using newly generated instance from generation batch")
+        return try await tryMatch(document: document, template: template, instance: newInstance, dueDate: dueDate)
     }
 
     private func tryMatch(
@@ -127,12 +149,11 @@ final class RecurringMatcherService: RecurringMatcherServiceProtocol {
             return nil
         }
 
-        // Check due date tolerance
-        let daysDifference = Calendar.current.dateComponents(
-            [.day],
+        // Check due date tolerance - use fixed timezone calendar for consistency
+        let daysDifference = dateService.daysBetween(
             from: instance.expectedDueDate,
             to: dueDate
-        ).day ?? Int.max
+        )
 
         guard abs(daysDifference) <= template.toleranceDays else {
             logger.debug("Due date outside tolerance: \(daysDifference) days (tolerance: \(template.toleranceDays))")

@@ -1,10 +1,13 @@
 import Foundation
 import Observation
+import os.log
 
-/// Manages app settings using UserDefaults.
-/// Settings are local key-value pairs, not synced to backend.
+/// Manages app settings using UserDefaults and Keychain.
+/// Regular settings use UserDefaults, security-sensitive settings use Keychain.
 @Observable
 final class SettingsManager: Sendable {
+
+    private let logger = Logger(subsystem: "com.dueasy.app", category: "Settings")
 
     // MARK: - Keys
 
@@ -27,22 +30,29 @@ final class SettingsManager: Sendable {
         static let showExtractionEvidence = "showExtractionEvidence"
         static let enableVendorTemplates = "enableVendorTemplates"
 
-        // Cloud analysis settings (Pro tier - Phase 1 Foundation)
-        static let cloudAnalysisEnabled = "cloudAnalysisEnabled"
-        static let highAccuracyMode = "highAccuracyMode"
-        static let cloudVaultEnabled = "cloudVaultEnabled"
+        // DEPRECATED: Cloud analysis settings moved to Keychain
+        // Keep for migration purposes
+        static let legacyCloudAnalysisEnabled = "cloudAnalysisEnabled"
+        static let legacyHighAccuracyMode = "highAccuracyMode"
+        static let legacyCloudVaultEnabled = "cloudVaultEnabled"
 
         // Recurring payments settings
         static let syncRecurringToiOSCalendar = "syncRecurringToiOSCalendar"
+
+        // Migration tracking
+        static let keychainMigrationCompleted = "keychainMigrationCompleted"
     }
 
-    // MARK: - UserDefaults
+    // MARK: - Dependencies
 
     private let defaults: UserDefaults
+    private let keychainService: KeychainService
 
-    init(defaults: UserDefaults = .standard) {
+    init(defaults: UserDefaults = .standard, keychainService: KeychainService = KeychainService()) {
         self.defaults = defaults
+        self.keychainService = keychainService
         registerDefaults()
+        migrateToKeychainIfNeeded()
     }
 
     private func registerDefaults() {
@@ -63,14 +73,63 @@ final class SettingsManager: Sendable {
             Keys.showExtractionEvidence: true,
             Keys.enableVendorTemplates: true,
 
-            // Cloud analysis defaults (Pro tier)
-            Keys.cloudAnalysisEnabled: true,  // Enabled for testing - should be opt-in in production
-            Keys.highAccuracyMode: false,     // Use local-with-assist by default
-            Keys.cloudVaultEnabled: false,    // Cloud backup disabled by default
+            // Cloud analysis settings are now in Keychain (security-sensitive)
+            // Defaults are handled in the property getters
 
             // Recurring payments defaults
             Keys.syncRecurringToiOSCalendar: false // iOS Calendar sync disabled by default (opt-in)
         ])
+    }
+
+    // MARK: - Keychain Migration
+
+    /// Migrates security-sensitive settings from UserDefaults to Keychain.
+    /// This is a one-time migration that runs on first launch after the update.
+    private func migrateToKeychainIfNeeded() {
+        guard !defaults.bool(forKey: Keys.keychainMigrationCompleted) else {
+            return
+        }
+
+        logger.info("Starting Keychain migration for security-sensitive settings...")
+
+        // Migrate cloudAnalysisEnabled
+        if defaults.object(forKey: Keys.legacyCloudAnalysisEnabled) != nil {
+            let value = defaults.bool(forKey: Keys.legacyCloudAnalysisEnabled)
+            do {
+                try keychainService.save(key: KeychainService.CloudKeys.cloudAnalysisEnabled, value: value)
+                defaults.removeObject(forKey: Keys.legacyCloudAnalysisEnabled)
+                logger.debug("Migrated cloudAnalysisEnabled to Keychain")
+            } catch {
+                logger.error("Failed to migrate cloudAnalysisEnabled: \(error.localizedDescription)")
+            }
+        }
+
+        // Migrate highAccuracyMode
+        if defaults.object(forKey: Keys.legacyHighAccuracyMode) != nil {
+            let value = defaults.bool(forKey: Keys.legacyHighAccuracyMode)
+            do {
+                try keychainService.save(key: KeychainService.CloudKeys.highAccuracyMode, value: value)
+                defaults.removeObject(forKey: Keys.legacyHighAccuracyMode)
+                logger.debug("Migrated highAccuracyMode to Keychain")
+            } catch {
+                logger.error("Failed to migrate highAccuracyMode: \(error.localizedDescription)")
+            }
+        }
+
+        // Migrate cloudVaultEnabled
+        if defaults.object(forKey: Keys.legacyCloudVaultEnabled) != nil {
+            let value = defaults.bool(forKey: Keys.legacyCloudVaultEnabled)
+            do {
+                try keychainService.save(key: KeychainService.CloudKeys.cloudVaultEnabled, value: value)
+                defaults.removeObject(forKey: Keys.legacyCloudVaultEnabled)
+                logger.debug("Migrated cloudVaultEnabled to Keychain")
+            } catch {
+                logger.error("Failed to migrate cloudVaultEnabled: \(error.localizedDescription)")
+            }
+        }
+
+        defaults.set(true, forKey: Keys.keychainMigrationCompleted)
+        logger.info("Keychain migration completed")
     }
 
     // MARK: - Reminder Settings
@@ -210,7 +269,7 @@ final class SettingsManager: Sendable {
         set { defaults.set(newValue, forKey: Keys.enableVendorTemplates) }
     }
 
-    // MARK: - Cloud Analysis Settings (Pro Tier)
+    // MARK: - Cloud Analysis Settings (Pro Tier - Stored in Keychain)
 
     /// Enable cloud-based AI analysis for documents.
     ///
@@ -229,28 +288,76 @@ final class SettingsManager: Sendable {
     /// - User can disable at any time
     /// - No raw document text is retained in cloud
     ///
+    /// **Security Note**: Stored in Keychain (not UserDefaults) to protect
+    /// user consent state from unauthorized access on compromised devices.
+    ///
     /// Default: false (requires explicit opt-in and Pro tier)
     var cloudAnalysisEnabled: Bool {
-        get { defaults.bool(forKey: Keys.cloudAnalysisEnabled) }
-        set { defaults.set(newValue, forKey: Keys.cloudAnalysisEnabled) }
+        get {
+            do {
+                return try keychainService.loadBool(key: KeychainService.CloudKeys.cloudAnalysisEnabled) ?? false
+            } catch {
+                logger.error("Failed to load cloudAnalysisEnabled from Keychain: \(error.localizedDescription)")
+                return false
+            }
+        }
+        set {
+            do {
+                try keychainService.save(key: KeychainService.CloudKeys.cloudAnalysisEnabled, value: newValue)
+            } catch {
+                logger.error("Failed to save cloudAnalysisEnabled to Keychain: \(error.localizedDescription)")
+            }
+        }
     }
 
     /// Enable high accuracy mode (always use cloud analysis).
     /// Requires Pro subscription and cloudAnalysisEnabled.
     /// When enabled, all documents are analyzed by cloud AI.
+    ///
+    /// **Security Note**: Stored in Keychain for security.
+    ///
     /// Default: false (use local-with-assist by default)
     var highAccuracyMode: Bool {
-        get { defaults.bool(forKey: Keys.highAccuracyMode) }
-        set { defaults.set(newValue, forKey: Keys.highAccuracyMode) }
+        get {
+            do {
+                return try keychainService.loadBool(key: KeychainService.CloudKeys.highAccuracyMode) ?? false
+            } catch {
+                logger.error("Failed to load highAccuracyMode from Keychain: \(error.localizedDescription)")
+                return false
+            }
+        }
+        set {
+            do {
+                try keychainService.save(key: KeychainService.CloudKeys.highAccuracyMode, value: newValue)
+            } catch {
+                logger.error("Failed to save highAccuracyMode to Keychain: \(error.localizedDescription)")
+            }
+        }
     }
 
     /// Enable cloud vault for document backup.
     /// Requires Pro subscription. When enabled, documents are
     /// encrypted and synced to cloud storage.
+    ///
+    /// **Security Note**: Stored in Keychain for security.
+    ///
     /// Default: false (local-only storage)
     var cloudVaultEnabled: Bool {
-        get { defaults.bool(forKey: Keys.cloudVaultEnabled) }
-        set { defaults.set(newValue, forKey: Keys.cloudVaultEnabled) }
+        get {
+            do {
+                return try keychainService.loadBool(key: KeychainService.CloudKeys.cloudVaultEnabled) ?? false
+            } catch {
+                logger.error("Failed to load cloudVaultEnabled from Keychain: \(error.localizedDescription)")
+                return false
+            }
+        }
+        set {
+            do {
+                try keychainService.save(key: KeychainService.CloudKeys.cloudVaultEnabled, value: newValue)
+            } catch {
+                logger.error("Failed to save cloudVaultEnabled to Keychain: \(error.localizedDescription)")
+            }
+        }
     }
 
     // MARK: - Recurring Payments Settings
@@ -285,6 +392,7 @@ final class SettingsManager: Sendable {
 
     /// Resets all settings to defaults
     func resetToDefaults() {
+        // Reset UserDefaults settings
         defaults.removeObject(forKey: Keys.defaultReminderOffsets)
         defaults.removeObject(forKey: Keys.defaultCalendarId)
         defaults.removeObject(forKey: Keys.useInvoicesCalendar)
@@ -299,13 +407,19 @@ final class SettingsManager: Sendable {
         defaults.removeObject(forKey: Keys.reviewThreshold)
         defaults.removeObject(forKey: Keys.showExtractionEvidence)
         defaults.removeObject(forKey: Keys.enableVendorTemplates)
-        // Cloud analysis settings
-        defaults.removeObject(forKey: Keys.cloudAnalysisEnabled)
-        defaults.removeObject(forKey: Keys.highAccuracyMode)
-        defaults.removeObject(forKey: Keys.cloudVaultEnabled)
         // Recurring payments settings
         defaults.removeObject(forKey: Keys.syncRecurringToiOSCalendar)
-        // Note: Not resetting onboarding
+
+        // Reset Keychain settings (security-sensitive)
+        do {
+            try keychainService.delete(key: KeychainService.CloudKeys.cloudAnalysisEnabled)
+            try keychainService.delete(key: KeychainService.CloudKeys.highAccuracyMode)
+            try keychainService.delete(key: KeychainService.CloudKeys.cloudVaultEnabled)
+        } catch {
+            logger.error("Failed to reset Keychain settings: \(error.localizedDescription)")
+        }
+
+        // Note: Not resetting onboarding or migration flags
         registerDefaults()
     }
 }

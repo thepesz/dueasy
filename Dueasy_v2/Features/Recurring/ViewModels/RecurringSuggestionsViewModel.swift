@@ -63,8 +63,8 @@ final class RecurringSuggestionsViewModel {
             let template = try await detectCandidatesUseCase.acceptCandidate(candidate)
             logger.info("Accepted suggestion, created template: \(template.id)")
 
-            // Generate instances for the new template
-            let instances = try await schedulerService.generateInstances(for: template, monthsAhead: 3)
+            // Generate instances for the new template (includeHistorical for linking existing docs)
+            let instances = try await schedulerService.generateInstances(for: template, monthsAhead: 3, includeHistorical: true)
             logger.info("Generated \(instances.count) instances for new template")
 
             // Remove from suggestions

@@ -101,7 +101,7 @@ struct DocumentListView: View {
                 set: { if !$0 { viewModel?.showRecurringDeletionSheet = false } }
             )) {
                 if let vm = viewModel,
-                   let document = vm.documentPendingDeletion,
+                   vm.documentPendingDeletion != nil,
                    let deletionVM = recurringDeletionViewModel {
                     RecurringDocumentDeletionSheet(viewModel: deletionVM) { result in
                         #if DEBUG

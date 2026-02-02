@@ -1,70 +1,8 @@
 import Foundation
 import SwiftData
 
-/// Review mode for a field based on confidence level.
-/// Determines UI treatment and user interaction requirements.
-enum ReviewMode: String, Codable, Sendable {
-    /// High confidence - auto-filled with minimal UI
-    case autoFilled = "autoFilled"
-
-    /// Medium confidence - pre-filled but review suggested
-    case suggested = "suggested"
-
-    /// Low confidence - must review, cannot skip
-    case required = "required"
-
-    /// Human-readable description
-    var description: String {
-        switch self {
-        case .autoFilled:
-            return "Auto-filled (high confidence)"
-        case .suggested:
-            return "Review suggested"
-        case .required:
-            return "Review required"
-        }
-    }
-}
-
-/// Feedback for a single field extraction.
-/// Privacy-first: stores only metadata, not actual values.
-struct FieldFeedback: Codable, Sendable, Equatable {
-
-    /// Original confidence score from extraction (0.0-1.0)
-    let originalConfidence: Double
-
-    /// Index of the alternative selected by user, or nil if kept original
-    /// -1 means user manually entered a value not in alternatives
-    let alternativeSelected: Int?
-
-    /// Whether user made any correction to this field
-    let correctionMade: Bool
-
-    /// Review mode that was applied to this field
-    let reviewMode: ReviewMode
-
-    /// Extraction method used for original value
-    let extractionMethod: ExtractionMethod?
-
-    /// Whether field was ultimately accepted (used for accuracy metrics)
-    let wasAccepted: Bool
-
-    init(
-        originalConfidence: Double,
-        alternativeSelected: Int? = nil,
-        correctionMade: Bool,
-        reviewMode: ReviewMode,
-        extractionMethod: ExtractionMethod? = nil,
-        wasAccepted: Bool = true
-    ) {
-        self.originalConfidence = originalConfidence
-        self.alternativeSelected = alternativeSelected
-        self.correctionMade = correctionMade
-        self.reviewMode = reviewMode
-        self.extractionMethod = extractionMethod
-        self.wasAccepted = wasAccepted
-    }
-}
+// Note: FieldFeedback and ReviewMode are defined in FieldFeedback.swift
+// to avoid Swift 6 strict concurrency warnings with @Model classes.
 
 /// Privacy-first parsing feedback record.
 /// Stores only metadata about corrections, NOT actual field values.
@@ -139,10 +77,10 @@ final class ParsingFeedback {
     var vendorNameFeedback: FieldFeedback? {
         get {
             guard let data = vendorNameFeedbackData else { return nil }
-            return try? JSONDecoder().decode(FieldFeedback.self, from: data)
+            return Self.decodeFieldFeedback(from: data)
         }
         set {
-            vendorNameFeedbackData = try? JSONEncoder().encode(newValue)
+            vendorNameFeedbackData = Self.encodeFieldFeedback(newValue)
         }
     }
 
@@ -150,10 +88,10 @@ final class ParsingFeedback {
     var amountFeedback: FieldFeedback? {
         get {
             guard let data = amountFeedbackData else { return nil }
-            return try? JSONDecoder().decode(FieldFeedback.self, from: data)
+            return Self.decodeFieldFeedback(from: data)
         }
         set {
-            amountFeedbackData = try? JSONEncoder().encode(newValue)
+            amountFeedbackData = Self.encodeFieldFeedback(newValue)
         }
     }
 
@@ -161,10 +99,10 @@ final class ParsingFeedback {
     var dueDateFeedback: FieldFeedback? {
         get {
             guard let data = dueDateFeedbackData else { return nil }
-            return try? JSONDecoder().decode(FieldFeedback.self, from: data)
+            return Self.decodeFieldFeedback(from: data)
         }
         set {
-            dueDateFeedbackData = try? JSONEncoder().encode(newValue)
+            dueDateFeedbackData = Self.encodeFieldFeedback(newValue)
         }
     }
 
@@ -172,10 +110,10 @@ final class ParsingFeedback {
     var nipFeedback: FieldFeedback? {
         get {
             guard let data = nipFeedbackData else { return nil }
-            return try? JSONDecoder().decode(FieldFeedback.self, from: data)
+            return Self.decodeFieldFeedback(from: data)
         }
         set {
-            nipFeedbackData = try? JSONEncoder().encode(newValue)
+            nipFeedbackData = Self.encodeFieldFeedback(newValue)
         }
     }
 
@@ -183,10 +121,10 @@ final class ParsingFeedback {
     var documentNumberFeedback: FieldFeedback? {
         get {
             guard let data = documentNumberFeedbackData else { return nil }
-            return try? JSONDecoder().decode(FieldFeedback.self, from: data)
+            return Self.decodeFieldFeedback(from: data)
         }
         set {
-            documentNumberFeedbackData = try? JSONEncoder().encode(newValue)
+            documentNumberFeedbackData = Self.encodeFieldFeedback(newValue)
         }
     }
 
@@ -194,11 +132,25 @@ final class ParsingFeedback {
     var bankAccountFeedback: FieldFeedback? {
         get {
             guard let data = bankAccountFeedbackData else { return nil }
-            return try? JSONDecoder().decode(FieldFeedback.self, from: data)
+            return Self.decodeFieldFeedback(from: data)
         }
         set {
-            bankAccountFeedbackData = try? JSONEncoder().encode(newValue)
+            bankAccountFeedbackData = Self.encodeFieldFeedback(newValue)
         }
+    }
+
+    // MARK: - Nonisolated Helpers for Codable Operations
+    // These helpers allow Codable operations to work correctly with Swift 6 strict concurrency
+    // since JSONDecoder/JSONEncoder operations don't need main actor isolation.
+
+    /// Decodes FieldFeedback from JSON data in a nonisolated context
+    private nonisolated static func decodeFieldFeedback(from data: Data) -> FieldFeedback? {
+        try? JSONDecoder().decode(FieldFeedback.self, from: data)
+    }
+
+    /// Encodes FieldFeedback to JSON data in a nonisolated context
+    private nonisolated static func encodeFieldFeedback(_ feedback: FieldFeedback?) -> Data? {
+        try? JSONEncoder().encode(feedback)
     }
 
     /// Count of fields that were corrected

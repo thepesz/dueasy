@@ -113,7 +113,7 @@ final class CalendarViewModel {
         isLoading = true
         error = nil
 
-        logger.info("📅 CalendarViewModel.loadDocuments() called for month: \(self.currentMonthNumber), year: \(self.currentYear)")
+        logger.debug("Loading documents for month: \(self.currentMonthNumber), year: \(self.currentYear)")
 
         do {
             // Fetch documents
@@ -126,7 +126,7 @@ final class CalendarViewModel {
                 year: currentYear
             )
 
-            logger.info("📅 Fetched \(self.documentsByDay.values.flatMap { $0 }.count) documents for calendar")
+            logger.debug("Fetched \(self.documentsByDay.values.flatMap { $0 }.count) documents for calendar")
 
             // Fetch recurring instances
             recurringByDay = try await fetchRecurringInstancesUseCase.execute(
@@ -139,15 +139,17 @@ final class CalendarViewModel {
             )
 
             let totalRecurringInstances = recurringByDay.values.flatMap { $0 }.count
-            logger.info("📅 Fetched \(totalRecurringInstances) recurring instances for calendar")
-            logger.info("📅 Recurring instances by day: \(self.recurringByDay.keys.sorted().map { "Day \($0): \(self.recurringByDay[$0]?.count ?? 0)" }.joined(separator: ", "))")
+            logger.debug("Fetched \(totalRecurringInstances) recurring instances for calendar")
+            #if DEBUG
+            logger.debug("Recurring instances by day: \(self.recurringByDay.keys.sorted().map { "Day \($0): \(self.recurringByDay[$0]?.count ?? 0)" }.joined(separator: ", "))")
+            #endif
 
         } catch let appError as AppError {
             error = appError
-            logger.error("📅 CalendarViewModel error: \(appError.localizedDescription)")
+            logger.error("CalendarViewModel error: \(appError.localizedDescription)")
         } catch {
             self.error = .repositoryFetchFailed(error.localizedDescription)
-            logger.error("📅 CalendarViewModel error: \(error.localizedDescription)")
+            logger.error("CalendarViewModel error: \(error.localizedDescription)")
         }
 
         isLoading = false

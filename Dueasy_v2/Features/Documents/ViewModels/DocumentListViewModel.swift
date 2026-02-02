@@ -1,8 +1,44 @@
 import Foundation
 import Observation
-import SwiftUI
+// CRITICAL FIX: Removed SwiftUI import - MVVM violation
+// ViewModels must not depend on SwiftUI to maintain testability and architecture separation
 import Combine
 import os.log
+
+// MARK: - ViewModel Error Handling Guidelines
+//
+// Error handling in ViewModels follows these patterns:
+//
+// 1. USER-INITIATED ACTIONS (save, delete, etc.):
+//    - ALWAYS set `self.error` to surface the error in UI via ErrorBanner
+//    - Example: deleteDocument(), updateDocument(), acceptSuggestion()
+//
+// 2. BACKGROUND TASKS (auto-detection, sync):
+//    - Log the error but DON'T set `self.error`
+//    - Background tasks should not interrupt the user's flow
+//    - Example: runRecurringDetectionAsync() - logs but doesn't show error
+//
+// 3. DATA LOADING (initial load, refresh):
+//    - Set `self.error` for critical failures that prevent content display
+//    - Log but don't surface for non-critical issues
+//    - Example: loadDocuments() sets error, but partial failures may be logged only
+//
+// 4. OPTIONAL FEATURES (calendar sync, notifications):
+//    - Log errors but continue operation
+//    - Don't fail the whole operation for secondary feature issues
+//    - Example: Calendar event creation fails but document still saves
+//
+// Usage Pattern:
+// ```swift
+// do {
+//     try await someOperation()
+// } catch {
+//     // For user action: surface error
+//     self.error = .repositorySaveFailed(error.localizedDescription)
+//     // OR for background: log only
+//     logger.error("Background operation failed: \(error.localizedDescription)")
+// }
+// ```
 
 /// ViewModel for the document list screen.
 /// Manages document fetching, filtering, search, and recurring payment auto-detection.
@@ -320,45 +356,33 @@ final class DocumentListViewModel {
             return
         }
 
-        // PRIVACY: Log only metrics, not vendor names or fingerprints
-        logger.info("=== ACCEPT SUGGESTION START ===")
-        logger.info("Candidate: \(PrivacyLogger.candidateMetrics(confidence: candidate.confidenceScore, documentCount: candidate.documentCount))")
-        logger.info("Fingerprint: \(PrivacyLogger.sanitizeFingerprint(candidate.vendorFingerprint))")
-        logger.info("Reminders: \(reminderOffsets.count) offsets")
-        logger.info("Duration: \(durationMonths) months")
+        logger.debug("Accepting suggestion: docs=\(candidate.documentCount), confidence=\(String(format: "%.2f", candidate.confidenceScore))")
 
         do {
             // Step 1: Create template from candidate
-            logger.info("STEP 1: Creating template from candidate...")
+            logger.debug("Creating template from candidate...")
             let template = try await detectUseCase.acceptCandidate(candidate, reminderOffsets: reminderOffsets)
-            // PRIVACY: Log only template ID and sanitized fingerprint
-            logger.info("Template created: id=\(template.id), fingerprint=\(PrivacyLogger.sanitizeFingerprint(template.vendorFingerprint))")
+            logger.debug("Template created: id=\(template.id)")
 
-            // Step 2: Generate instances for the new template
-            logger.info("STEP 2: Generating instances...")
-            let instances = try await scheduler.generateInstances(for: template, monthsAhead: durationMonths)
-            logger.info("Generated \(instances.count) recurring instances")
+            // Step 2: Generate instances for the new template (includeHistorical for linking existing docs)
+            logger.debug("Generating instances...")
+            let instances = try await scheduler.generateInstances(for: template, monthsAhead: durationMonths, includeHistorical: true)
+            logger.debug("Generated \(instances.count) recurring instances")
 
             // Step 3: Link existing documents to the generated instances
-            logger.info("STEP 3: Linking existing documents...")
             if let linkUseCase = linkExistingDocumentsUseCase {
-                logger.info("LinkExistingDocumentsUseCase is available, executing...")
                 let linkedCount = try await linkUseCase.execute(template: template, toleranceDays: template.toleranceDays)
-                logger.info("LINK RESULT: \(linkedCount) documents linked to template")
+                logger.debug("Linked \(linkedCount) documents to template")
             } else {
-                logger.error("LinkExistingDocumentsUseCase is NIL - documents will NOT be linked!")
+                logger.error("LinkExistingDocumentsUseCase unavailable - documents will not be linked")
             }
 
             // Remove from suggestions
             suggestedCandidates.removeAll { $0.id == candidate.id }
-            logger.info("Removed candidate from suggestions")
 
             // Refresh documents to show updated recurring linkage
-            logger.info("STEP 4: Refreshing documents...")
             await loadDocuments()
-            logger.info("Documents refreshed")
-
-            logger.info("=== ACCEPT SUGGESTION COMPLETE ===")
+            logger.info("Suggestion accepted successfully")
 
         } catch {
             logger.error("ACCEPT SUGGESTION FAILED: \(error.localizedDescription)")
@@ -408,15 +432,11 @@ final class DocumentListViewModel {
     /// This matches iOS Calendar's two-step deletion UX.
     func deleteDocument(_ document: FinanceDocument) async {
         // PRIVACY: Log only document ID, not title (contains vendor name)
-        logger.info("=== DELETE DOCUMENT - STEP 1 ===")
-        logger.info("Document ID: \(document.id)")
-        logger.info("Document hasTitle: \(document.title.count > 0)")
+        logger.debug("Delete document initiated: \(document.id)")
 
         // Always show initial confirmation first (like iOS Calendar)
         documentPendingDeletion = document
         showDeleteConfirmation = true
-
-        logger.info("Showing initial delete confirmation alert")
     }
 
     /// Step 2: Called after user confirms initial deletion.
@@ -428,8 +448,7 @@ final class DocumentListViewModel {
             return
         }
 
-        logger.info("=== DELETE DOCUMENT - STEP 2 ===")
-        logger.info("Document ID: \(document.id)")
+        logger.debug("Confirming delete for document: \(document.id)")
 
         // CRITICAL FIX: Fetch fresh document data from the database before checking recurring status.
         // SwiftData caches objects in memory, and after batch operations like linking documents
@@ -438,40 +457,34 @@ final class DocumentListViewModel {
         // the database has the correct linked value.
         var documentToCheck = document
         if let repository = documentRepository {
-            logger.info("FETCH_FRESH: Getting fresh document from database before checking recurring status...")
             do {
                 if let freshDocument = try await repository.fetchFresh(documentId: document.id) {
                     documentToCheck = freshDocument
                     // Update the pending deletion reference to use fresh data
                     documentPendingDeletion = freshDocument
-                    logger.info("FETCH_FRESH: Got fresh document data")
+                    logger.debug("Fetched fresh document data for deletion check")
                 } else {
-                    logger.warning("FETCH_FRESH: Document not found in database - using cached version")
+                    logger.warning("Document not found in database - using cached version")
                 }
             } catch {
-                logger.error("FETCH_FRESH: Failed to fetch fresh document: \(error.localizedDescription) - using cached version")
+                logger.error("Failed to fetch fresh document: \(error.localizedDescription) - using cached version")
             }
-        } else {
-            logger.warning("FETCH_FRESH: No repository available for fresh fetch - using cached values")
         }
 
-        logger.info("recurringInstanceId: \(documentToCheck.recurringInstanceId?.uuidString ?? "nil")")
-        logger.info("recurringTemplateId: \(documentToCheck.recurringTemplateId?.uuidString ?? "nil")")
+        logger.debug("Recurring check: instanceId=\(documentToCheck.recurringInstanceId?.uuidString ?? "nil"), templateId=\(documentToCheck.recurringTemplateId?.uuidString ?? "nil")")
 
         // Check if document is linked to recurring payment
         let hasInstanceId = documentToCheck.recurringInstanceId != nil
         let hasTemplateId = documentToCheck.recurringTemplateId != nil
         let isLinkedToRecurring = hasInstanceId || hasTemplateId
 
-        logger.info("isLinkedToRecurring: \(isLinkedToRecurring)")
-
         if isLinkedToRecurring {
             // Document is linked to recurring payment - show step 2 options
-            logger.info("DECISION: Document IS linked to recurring - showing options sheet")
+            logger.debug("Document linked to recurring - showing options sheet")
             showRecurringDeletionSheet = true
         } else {
             // Not recurring - execute standard deletion immediately
-            logger.info("DECISION: Document is NOT linked to recurring - executing standard deletion")
+            logger.debug("Document not recurring - executing standard deletion")
             await executeStandardDeletion(documentToCheck)
             documentPendingDeletion = nil
         }
@@ -479,7 +492,7 @@ final class DocumentListViewModel {
 
     /// Cancels the deletion flow and clears pending state.
     func cancelDeleteDocument() {
-        logger.info("Delete cancelled by user")
+        logger.debug("Delete cancelled by user")
         documentPendingDeletion = nil
         showDeleteConfirmation = false
         showRecurringDeletionSheet = false
@@ -488,7 +501,7 @@ final class DocumentListViewModel {
     /// Executes standard deletion without recurring checks.
     /// Called after recurring deletion modal completes.
     func executeStandardDeletion(_ document: FinanceDocument) async {
-        logger.info("🗑️ DELETE: Executing standard deletion for document \(document.id)")
+        logger.debug("Executing standard deletion for document \(document.id)")
         do {
             try await deleteUseCase.execute(documentId: document.id)
             // Refresh list after deletion

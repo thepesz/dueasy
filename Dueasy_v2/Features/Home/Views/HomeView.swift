@@ -757,6 +757,7 @@ struct HomeView: View {
                 documentRepository: environment.documentRepository,
                 recurringTemplateService: environment.recurringTemplateService,
                 recurringSchedulerService: environment.recurringSchedulerService,
+                recurringDateService: environment.recurringDateService,
                 appTier: environment.appTier
             )
         )

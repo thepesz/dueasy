@@ -129,10 +129,11 @@ final class RecurringDetectionService: RecurringDetectionServiceProtocol {
         }
 
         let threshold = Self.suggestionThreshold
+        // CRITICAL FIX: Include snoozed state in predicate - we'll check expiration below
         let descriptor = FetchDescriptor<RecurringCandidate>(
             predicate: #Predicate<RecurringCandidate> {
                 $0.confidenceScore >= threshold &&
-                ($0.suggestionStateRaw == "none" || $0.suggestionStateRaw == "suggested")
+                ($0.suggestionStateRaw == "none" || $0.suggestionStateRaw == "suggested" || $0.suggestionStateRaw == "snoozed")
             },
             sortBy: [SortDescriptor(\.confidenceScore, order: .reverse)]
         )
@@ -147,6 +148,7 @@ final class RecurringDetectionService: RecurringDetectionServiceProtocol {
 
         // Filter by additional criteria that can't be expressed in predicate
         let beforeFilterCount = candidates.count
+        var needsSave = false
         candidates = candidates.filter { candidate in
             // Must be time-eligible
             guard candidate.isTimeEligible else {
@@ -160,7 +162,20 @@ final class RecurringDetectionService: RecurringDetectionServiceProtocol {
                 return false
             }
 
-            // If snoozed, check if snooze period has passed
+            // CRITICAL FIX: Properly handle snoozed state
+            if candidate.suggestionState == .snoozed {
+                if let snoozedUntil = candidate.snoozedUntil, Date() < snoozedUntil {
+                    logger.debug("Filtering out candidate: still snoozed until \(snoozedUntil)")
+                    return false  // Still snoozed
+                } else {
+                    // Snooze expired, reset to suggested
+                    logger.debug("Snooze expired, resetting candidate to suggested state")
+                    candidate.resetSuggestionState()
+                    needsSave = true
+                }
+            }
+
+            // For suggested state, check if we should re-show (cooldown period)
             if candidate.suggestionState == .suggested,
                let lastSuggested = candidate.lastSuggestedAt {
                 let daysSinceSuggestion = Calendar.current.dateComponents(
@@ -169,7 +184,7 @@ final class RecurringDetectionService: RecurringDetectionServiceProtocol {
                     to: Date()
                 ).day ?? 0
 
-                // Don't show again too soon
+                // Don't show again too soon (7 day cooldown between showings)
                 if daysSinceSuggestion < 7 {
                     logger.debug("Filtering out candidate: suggested too recently (\(daysSinceSuggestion) days ago)")
                     return false
@@ -177,6 +192,11 @@ final class RecurringDetectionService: RecurringDetectionServiceProtocol {
             }
 
             return true
+        }
+
+        // Save any state changes (e.g., snoozed -> suggested transitions)
+        if needsSave {
+            try modelContext.save()
         }
 
         logger.info("After filtering: \(candidates.count) candidates (filtered out \(beforeFilterCount - candidates.count))")
@@ -202,17 +222,17 @@ final class RecurringDetectionService: RecurringDetectionServiceProtocol {
     }
 
     func snoozeCandidate(_ candidate: RecurringCandidate) async throws {
-        // Reset to "none" state so it can be suggested again later
-        candidate.resetSuggestionState()
+        // CRITICAL FIX: Use proper snoozed state instead of resetting to none
+        candidate.snooze(days: Self.snoozeDays)
         try modelContext.save()
         // PRIVACY: Log only metrics, not vendor names
-        logger.info("Snoozed recurring candidate: confidence=\(String(format: "%.2f", candidate.confidenceScore)), docs=\(candidate.documentCount)")
+        logger.info("Snoozed recurring candidate for \(Self.snoozeDays) days: confidence=\(String(format: "%.2f", candidate.confidenceScore)), docs=\(candidate.documentCount)")
     }
 
     // MARK: - Batch Analysis
 
     func runDetectionAnalysis() async throws -> Int {
-        logger.info("=== RECURRING DETECTION ANALYSIS START ===")
+        logger.debug("Starting recurring detection analysis")
 
         // Find all vendors with 2+ documents that don't have templates
         let vendorGroups = try await findVendorsForAnalysis()
@@ -256,12 +276,7 @@ final class RecurringDetectionService: RecurringDetectionServiceProtocol {
             }
         }
 
-        logger.info("=== RECURRING DETECTION ANALYSIS COMPLETE ===")
-        logger.info("Summary:")
-        logger.info("  - Vendors analyzed: \(vendorGroups.count)")
-        logger.info("  - Candidates updated: \(updatedCount)")
-        logger.info("  - Skipped (template exists): \(skippedTemplateExists)")
-        logger.info("  - Skipped (no pattern): \(skippedNoPattern)")
+        logger.debug("Detection analysis complete: vendors=\(vendorGroups.count), updated=\(updatedCount), skipped(template)=\(skippedTemplateExists), skipped(noPattern)=\(skippedNoPattern)")
 
         return updatedCount
     }

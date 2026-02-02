@@ -41,7 +41,8 @@ struct RecurringSuggestionsView: View {
     @ViewBuilder
     private func content(_ viewModel: RecurringSuggestionsViewModel) -> some View {
         ScrollView {
-            VStack(spacing: Spacing.lg) {
+            // PERFORMANCE: Use LazyVStack for potentially long lists of suggestions
+            LazyVStack(spacing: Spacing.lg) {
                 if viewModel.hasSuggestions {
                     ForEach(viewModel.suggestions, id: \.id) { candidate in
                         SuggestionCard(

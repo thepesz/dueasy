@@ -6,14 +6,16 @@ import os.log
 /// Generates instances ahead of time (default: 3 months) and manages notification lifecycle.
 /// Optionally syncs to iOS Calendar based on user settings.
 protocol RecurringSchedulerServiceProtocol: Sendable {
-    /// Generates future instances for a template.
+    /// Generates instances for a template.
     /// - Parameters:
     ///   - template: The recurring template
     ///   - monthsAhead: Number of months to generate ahead (default: 3)
+    ///   - includeHistorical: Whether to generate instances for past months (default: false)
     /// - Returns: Array of generated instances
     func generateInstances(
         for template: RecurringTemplate,
-        monthsAhead: Int
+        monthsAhead: Int,
+        includeHistorical: Bool
     ) async throws -> [RecurringInstance]
 
     /// Schedules notifications for an instance.
@@ -88,41 +90,54 @@ final class RecurringSchedulerService: RecurringSchedulerServiceProtocol {
     private let notificationService: NotificationServiceProtocol
     private let calendarService: CalendarServiceProtocol
     private let settingsManager: SettingsManager
+    private let dateService: RecurringDateServiceProtocol
     private let logger = Logger(subsystem: "com.dueasy.app", category: "RecurringScheduler")
 
     /// Default number of months to generate instances ahead
-    static let defaultMonthsAhead = 3
+    nonisolated static let defaultMonthsAhead = 3
 
     init(
         modelContext: ModelContext,
         notificationService: NotificationServiceProtocol,
         calendarService: CalendarServiceProtocol,
-        settingsManager: SettingsManager
+        settingsManager: SettingsManager,
+        dateService: RecurringDateServiceProtocol = RecurringDateService()
     ) {
         self.modelContext = modelContext
         self.notificationService = notificationService
         self.calendarService = calendarService
         self.settingsManager = settingsManager
+        self.dateService = dateService
     }
 
     // MARK: - Instance Generation
 
     func generateInstances(
         for template: RecurringTemplate,
-        monthsAhead: Int = defaultMonthsAhead
+        monthsAhead: Int = defaultMonthsAhead,
+        includeHistorical: Bool = false
     ) async throws -> [RecurringInstance] {
-        let calendar = Calendar.current
-        let today = Date()
+        // CRITICAL: Use fixed timezone calendar for consistent period key generation
+        let today = dateService.startOfDay(for: Date())
 
         var generatedInstances: [RecurringInstance] = []
 
+        // Optionally generate historical instances (for linking existing documents)
+        if includeHistorical {
+            let historicalInstances = try await generateHistoricalInstances(
+                for: template,
+                today: today
+            )
+            generatedInstances.append(contentsOf: historicalInstances)
+        }
+
         // Generate for current month and next N months
         for monthOffset in 0...monthsAhead {
-            guard let targetMonth = calendar.date(byAdding: .month, value: monthOffset, to: today) else {
+            guard let targetMonth = dateService.addMonths(monthOffset, to: today) else {
                 continue
             }
 
-            let periodKey = RecurringInstance.periodKey(for: targetMonth)
+            let periodKey = dateService.periodKey(for: targetMonth)
 
             // Check if instance already exists for this period
             if let existingInstance = try await fetchInstance(templateId: template.id, periodKey: periodKey) {
@@ -131,7 +146,7 @@ final class RecurringSchedulerService: RecurringSchedulerServiceProtocol {
             }
 
             // Calculate expected due date
-            guard let expectedDueDate = RecurringInstance.expectedDueDate(
+            guard let expectedDueDate = dateService.expectedDueDate(
                 periodKey: periodKey,
                 dayOfMonth: template.dueDayOfMonth
             ) else {
@@ -159,7 +174,7 @@ final class RecurringSchedulerService: RecurringSchedulerServiceProtocol {
         }
 
         try modelContext.save()
-        logger.info("📅 Saved \(generatedInstances.count) recurring instances to SwiftData")
+        logger.info("Saved \(generatedInstances.count) recurring instances to SwiftData")
 
         // Schedule notifications and optionally sync to iOS Calendar for future instances
         for instance in generatedInstances where instance.status == .expected && instance.expectedDueDate >= today {
@@ -171,6 +186,89 @@ final class RecurringSchedulerService: RecurringSchedulerServiceProtocol {
         }
 
         return generatedInstances
+    }
+
+    // MARK: - Historical Instance Generation
+
+    /// Generates historical instances for documents that predate the current month.
+    /// This ensures existing documents from past months can be linked to instances.
+    private func generateHistoricalInstances(
+        for template: RecurringTemplate,
+        today: Date
+    ) async throws -> [RecurringInstance] {
+        var historicalInstances: [RecurringInstance] = []
+
+        // Find earliest document date for this template
+        guard let earliestDate = try await findEarliestDocumentDate(for: template) else {
+            logger.debug("No historical documents found for template")
+            return historicalInstances
+        }
+
+        // Calculate months between earliest date and today
+        let monthsBack = dateService.calendar.dateComponents([.month], from: earliestDate, to: today).month ?? 0
+
+        if monthsBack <= 0 {
+            logger.debug("No historical months to generate (earliest date is current month)")
+            return historicalInstances
+        }
+
+        logger.info("Generating historical instances: \(monthsBack) months back from earliest document")
+
+        // Generate instances for historical months (from earliest to today, excluding current month)
+        for offset in (1...monthsBack).reversed() {
+            guard let targetMonth = dateService.addMonths(-offset, to: today) else {
+                continue
+            }
+
+            let periodKey = dateService.periodKey(for: targetMonth)
+
+            // Check if instance already exists for this period
+            if try await fetchInstance(templateId: template.id, periodKey: periodKey) != nil {
+                continue
+            }
+
+            // Calculate expected due date for this historical month
+            guard let expectedDueDate = dateService.expectedDueDate(
+                periodKey: periodKey,
+                dayOfMonth: template.dueDayOfMonth
+            ) else {
+                continue
+            }
+
+            // Create historical instance
+            let instance = RecurringInstance(
+                templateId: template.id,
+                periodKey: periodKey,
+                expectedDueDate: expectedDueDate,
+                expectedAmount: template.amountMin
+            )
+
+            modelContext.insert(instance)
+            historicalInstances.append(instance)
+
+            logger.debug("Generated historical instance: \(periodKey)")
+        }
+
+        if !historicalInstances.isEmpty {
+            try modelContext.save()
+            logger.info("Generated \(historicalInstances.count) historical instances")
+        }
+
+        return historicalInstances
+    }
+
+    /// Finds the earliest due date among documents linked to this template.
+    /// Used to determine how far back to generate historical instances.
+    private func findEarliestDocumentDate(for template: RecurringTemplate) async throws -> Date? {
+        let vendorFingerprint = template.vendorFingerprint
+        let descriptor = FetchDescriptor<FinanceDocument>(
+            predicate: #Predicate<FinanceDocument> { $0.vendorFingerprint == vendorFingerprint },
+            sortBy: [SortDescriptor(\.dueDate)]
+        )
+
+        let documents = try modelContext.fetch(descriptor)
+        // Find earliest due date
+        return documents.compactMap { $0.dueDate }.min()
     }
 
     // MARK: - Notification Management
@@ -389,8 +487,8 @@ final class RecurringSchedulerService: RecurringSchedulerServiceProtocol {
 
     func markOverdueInstancesAsMissed() async throws -> Int {
         let today = Date()
-        let calendar = Calendar.current
-        let yesterday = calendar.date(byAdding: .day, value: -1, to: today) ?? today
+        // Use fixed timezone calendar for consistency
+        let yesterday = dateService.addDays(-1, to: today) ?? today
 
         // Find expected instances with due dates in the past
         let descriptor = FetchDescriptor<RecurringInstance>(

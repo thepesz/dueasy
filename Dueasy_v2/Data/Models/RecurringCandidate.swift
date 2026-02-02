@@ -114,6 +114,10 @@ final class RecurringCandidate {
     /// When the suggestion was accepted (if accepted)
     var acceptedAt: Date?
 
+    /// Date until which the candidate is snoozed.
+    /// Only valid when suggestionState == .snoozed
+    var snoozedUntil: Date?
+
     /// ID of the template created from this candidate (if accepted)
     var createdTemplateId: UUID?
 
@@ -187,8 +191,16 @@ final class RecurringCandidate {
     /// Whether this candidate should be shown as a suggestion
     var shouldShowSuggestion: Bool {
         // Not if already accepted or dismissed
-        guard suggestionState == .none || suggestionState == .suggested else {
+        guard suggestionState == .none || suggestionState == .suggested || suggestionState == .snoozed else {
             return false
+        }
+
+        // If snoozed, check if snooze period has expired
+        if suggestionState == .snoozed {
+            if let snoozedUntil = snoozedUntil, Date() < snoozedUntil {
+                return false  // Still snoozed
+            }
+            // Snooze expired - will be shown (state updated in fetchSuggestionCandidates)
         }
 
         // Not if category is hard-rejected
@@ -263,6 +275,7 @@ final class RecurringCandidate {
         self.suggestionCount = 0
         self.dismissedAt = nil
         self.acceptedAt = nil
+        self.snoozedUntil = nil
         self.createdTemplateId = nil
         self.createdAt = Date()
         self.updatedAt = Date()
@@ -345,10 +358,35 @@ final class RecurringCandidate {
         markUpdated()
     }
 
-    /// Resets the suggestion state (e.g., after snooze period)
-    func resetSuggestionState() {
-        suggestionState = .none
+    /// Snoozes the suggestion for the specified number of days.
+    /// - Parameter days: Number of days to snooze (default: 7)
+    func snooze(days: Int = 7) {
+        let snoozeInterval = TimeInterval(days * 24 * 60 * 60)
+        snoozedUntil = Date().addingTimeInterval(snoozeInterval)
+        suggestionState = .snoozed
+        lastSuggestedAt = nil  // Clear so it doesn't appear in current suggestions
         markUpdated()
+    }
+
+    /// Resets the suggestion state (e.g., after snooze period expires)
+    func resetSuggestionState() {
+        suggestionState = .suggested
+        snoozedUntil = nil
+        markUpdated()
+    }
+
+    /// Checks if snooze has expired and resets state if needed.
+    /// Returns true if the candidate is now available for suggestion.
+    func checkAndResetExpiredSnooze() -> Bool {
+        if suggestionState == .snoozed {
+            if let snoozedUntil = snoozedUntil, Date() >= snoozedUntil {
+                // Snooze expired, reset to suggested
+                resetSuggestionState()
+                return true
+            }
+            return false  // Still snoozed
+        }
+        return suggestionState == .none || suggestionState == .suggested
     }
 }
 
@@ -362,7 +400,10 @@ enum SuggestionState: String, Codable, Sendable {
     /// Currently being shown as a suggestion
     case suggested
 
-    /// User dismissed the suggestion
+    /// User snoozed the suggestion (will re-suggest after snooze period)
+    case snoozed
+
+    /// User dismissed the suggestion (permanent)
     case dismissed
 
     /// User accepted the suggestion (template was created)

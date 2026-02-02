@@ -666,6 +666,7 @@
 "subscription.manageInAppStore" = "Zarządzaj w App Store";
 "subscription.cancelSubscription" = "Anuluj subskrypcję";
 "subscription.cancelFooter" = "Aby anulować lub zmodyfikować subskrypcję, użyj ustawień App Store. Zmiany wejdą w życie na koniec bieżącego okresu rozliczeniowego.";
+"subscription.comingSoon" = "Subskrypcje premium wkrotce. Bądź na bieżąco!";
 
 // MARK: - Home Screen (Glance Dashboard)
 

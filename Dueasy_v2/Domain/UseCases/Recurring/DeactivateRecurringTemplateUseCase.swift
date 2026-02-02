@@ -20,20 +20,26 @@ final class DeactivateRecurringTemplateUseCase: @unchecked Sendable {
 
     private let modelContext: ModelContext
     private let templateService: RecurringTemplateServiceProtocol
+    private let schedulerService: RecurringSchedulerServiceProtocol
     private let notificationService: NotificationServiceProtocol
     private let calendarService: CalendarServiceProtocol
+    private let settingsManager: SettingsManager
     private let logger = Logger(subsystem: "com.dueasy.app", category: "DeactivateRecurringTemplate")
 
     init(
         modelContext: ModelContext,
         templateService: RecurringTemplateServiceProtocol,
+        schedulerService: RecurringSchedulerServiceProtocol,
         notificationService: NotificationServiceProtocol,
-        calendarService: CalendarServiceProtocol
+        calendarService: CalendarServiceProtocol,
+        settingsManager: SettingsManager
     ) {
         self.modelContext = modelContext
         self.templateService = templateService
+        self.schedulerService = schedulerService
         self.notificationService = notificationService
         self.calendarService = calendarService
+        self.settingsManager = settingsManager
     }
 
     /// Deactivates a recurring template and cancels all future instances.
@@ -109,16 +115,97 @@ final class DeactivateRecurringTemplateUseCase: @unchecked Sendable {
         return cancelledCount
     }
 
-    /// Reactivates a previously deactivated template.
-    /// This is a convenience method for a future "Reactivate" feature.
-    /// - Parameter templateId: The ID of the template to reactivate
+    /// Reactivates a previously deactivated template and regenerates future instances.
+    /// When a template is reactivated:
+    /// 1. Template isActive is set to true
+    /// 2. New instances are generated for the next 12 months
+    /// 3. Calendar events are created for new instances (if calendar sync is enabled)
+    /// 4. Notifications are scheduled for new instances
+    ///
+    /// - Parameters:
+    ///   - templateId: The ID of the template to reactivate
+    ///   - reminderOffsets: Optional new reminder offsets (uses template defaults if nil)
     @MainActor
-    func reactivate(templateId: UUID) async throws {
+    func reactivate(templateId: UUID, reminderOffsets: [Int]? = nil) async throws {
         guard let template = try await templateService.fetchTemplate(byId: templateId) else {
             throw RecurringError.templateNotFound
         }
 
+        guard !template.isActive else {
+            logger.info("Template \(templateId) is already active")
+            return
+        }
+
+        logger.info("Reactivating template: \(templateId)")
+
+        // Reactivate template
         try await templateService.updateTemplate(template, reminderOffsets: nil, toleranceDays: nil, isActive: true)
-        logger.info("Reactivated template: \(templateId)")
+
+        // Update reminder offsets if provided
+        if let newOffsets = reminderOffsets {
+            template.reminderOffsetsDays = newOffsets
+            template.markUpdated()
+            try modelContext.save()
+        }
+
+        // Regenerate instances for reactivated template
+        logger.info("Regenerating instances for reactivated template...")
+        let instances = try await schedulerService.generateInstances(
+            for: template,
+            monthsAhead: 12,  // Generate 12 months ahead
+            includeHistorical: false  // Don't regenerate historical instances
+        )
+        logger.info("Generated \(instances.count) instances for reactivated template")
+
+        // Create calendar events for the new instances if calendar sync is enabled
+        if settingsManager.syncRecurringToiOSCalendar {
+            let calendarStatus = await calendarService.authorizationStatus
+            if calendarStatus.hasWriteAccess {
+                var calendarEventsCreated = 0
+                for instance in instances where instance.calendarEventId == nil && instance.status == .expected {
+                    do {
+                        let eventTitle = formatCalendarEventTitle(template: template, instance: instance)
+                        let eventNotes = formatCalendarEventNotes(template: template)
+
+                        let eventId = try await calendarService.createEvent(
+                            title: eventTitle,
+                            dueDate: instance.effectiveDueDate,
+                            notes: eventNotes,
+                            calendarId: settingsManager.invoicesCalendarId
+                        )
+
+                        instance.calendarEventId = eventId
+                        calendarEventsCreated += 1
+                    } catch {
+                        logger.warning("Failed to create calendar event for instance \(instance.periodKey): \(error.localizedDescription)")
+                    }
+                }
+
+                if calendarEventsCreated > 0 {
+                    try modelContext.save()
+                    logger.info("Created \(calendarEventsCreated) calendar events for reactivated template")
+                }
+            }
+        }
+
+        logger.info("Template reactivated successfully with \(instances.count) new instances")
+    }
+
+    // MARK: - Private Helpers
+
+    private func formatCalendarEventTitle(template: RecurringTemplate, instance: RecurringInstance) -> String {
+        let vendorName = template.vendorDisplayName
+        if let amount = instance.effectiveAmount {
+            let formatter = NumberFormatter()
+            formatter.numberStyle = .currency
+            formatter.currencyCode = template.currency
+            let amountString = formatter.string(from: NSDecimalNumber(decimal: amount)) ?? "\(amount)"
+            return "Recurring: \(vendorName) - \(amountString)"
+        }
+        return "Recurring: \(vendorName)"
+    }
+
+    private func formatCalendarEventNotes(template: RecurringTemplate) -> String {
+        "Recurring payment managed by DuEasy. Due day: \(template.dueDayOfMonth)"
     }
 }

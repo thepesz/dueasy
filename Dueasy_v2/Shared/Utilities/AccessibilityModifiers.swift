@@ -86,10 +86,7 @@ extension FinanceDocument {
         parts.append("Status: \(status.displayName)")
 
         // Due date
-        if let dueDate = dueDate {
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateStyle = .long
-
+        if dueDate != nil {
             if let days = daysUntilDue {
                 if days < 0 {
                     parts.append("\(abs(days)) days overdue")

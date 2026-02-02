@@ -115,14 +115,30 @@ final class HybridAnalysisRouter: DocumentAnalysisRouterProtocol {
         // Extract OCR text from result
         let ocrText = buildOCRText(from: ocrResult)
 
+        // PRIVACY: Log only metrics, not OCR content
+        PrivacyLogger.cloud.info("Cloud analysis started: textLength=\(ocrText.count), imageCount=\(images.count)")
+
         // Try text-only first (privacy-first)
         do {
-            return try await cloudGateway.analyzeText(
+            let result = try await cloudGateway.analyzeText(
                 ocrText: ocrText,
                 documentType: documentType,
                 languageHints: ["pl", "en"],
                 currencyHints: ["PLN", "EUR", "USD"]
             )
+
+            // PRIVACY: Log success metrics only
+            PrivacyLogger.cloud.info("Cloud analysis completed: hasVendor=\(result.vendorName != nil), hasAmount=\(result.amount != nil), hasDate=\(result.dueDate != nil)")
+
+            return result
+        } catch let error as CloudExtractionError {
+            // Log error type for monitoring (privacy-safe)
+            if error.isRateLimitError {
+                PrivacyLogger.cloud.warning("Cloud analysis rate limited after retries")
+            } else {
+                PrivacyLogger.cloud.warning("Cloud text-only analysis failed: errorType=\(error.isRetryable ? "retryable" : "permanent")")
+            }
+            throw error
         } catch {
             logger.warning("Cloud text-only analysis failed, will not use images for privacy")
             throw error

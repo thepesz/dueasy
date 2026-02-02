@@ -130,19 +130,14 @@ final class RecurringInstance {
         return effectiveDueDate < Date()
     }
 
-    /// Days until due date (negative if overdue)
-    var daysUntilDue: Int {
-        let calendar = Calendar.current
-        let components = calendar.dateComponents([.day], from: calendar.startOfDay(for: Date()), to: calendar.startOfDay(for: effectiveDueDate))
-        return components.day ?? 0
-    }
-
-    /// Year-month extracted from period key
+    /// Year-month extracted from period key.
+    /// Returns nil if periodKey is not in valid "YYYY-MM" format.
     var yearMonth: (year: Int, month: Int)? {
         let parts = periodKey.split(separator: "-")
         guard parts.count == 2,
               let year = Int(parts[0]),
-              let month = Int(parts[1]) else {
+              let month = Int(parts[1]),
+              month >= 1, month <= 12 else {
             return nil
         }
         return (year, month)
@@ -257,46 +252,6 @@ final class RecurringInstance {
         markUpdated()
     }
 
-    // MARK: - Period Key Generation
-
-    /// Generates a period key from a date
-    static func periodKey(for date: Date) -> String {
-        let calendar = Calendar.current
-        let year = calendar.component(.year, from: date)
-        let month = calendar.component(.month, from: date)
-        return String(format: "%04d-%02d", year, month)
-    }
-
-    /// Generates the expected due date for a given period and day of month
-    static func expectedDueDate(periodKey: String, dayOfMonth: Int) -> Date? {
-        let parts = periodKey.split(separator: "-")
-        guard parts.count == 2,
-              let year = Int(parts[0]),
-              let month = Int(parts[1]) else {
-            return nil
-        }
-
-        var components = DateComponents()
-        components.year = year
-        components.month = month
-        components.day = min(dayOfMonth, daysInMonth(year: year, month: month))
-
-        return Calendar.current.date(from: components)
-    }
-
-    /// Returns the number of days in a given month
-    private static func daysInMonth(year: Int, month: Int) -> Int {
-        var components = DateComponents()
-        components.year = year
-        components.month = month + 1
-        components.day = 0
-
-        guard let date = Calendar.current.date(from: components) else {
-            return 28 // Fallback
-        }
-
-        return Calendar.current.component(.day, from: date)
-    }
 }
 
 // MARK: - Recurring Instance Status
@@ -349,5 +304,20 @@ enum RecurringInstanceStatus: String, Codable, CaseIterable, Identifiable, Senda
         case .paid, .missed, .cancelled:
             return false
         }
+    }
+}
+
+// MARK: - View Helpers
+
+extension RecurringInstance {
+    /// Calculates days until due date using the provided date service.
+    /// This is a helper for views that need to display "days until due" without
+    /// violating MVVM separation (model remains "dumb", logic is in service).
+    ///
+    /// - Parameter dateService: The date service to use for calculation
+    /// - Returns: Number of days until due (negative if overdue)
+    func daysUntilDue(using dateService: RecurringDateServiceProtocol) -> Int {
+        let today = dateService.startOfDay(for: Date())
+        return dateService.daysBetween(from: today, to: expectedDueDate)
     }
 }

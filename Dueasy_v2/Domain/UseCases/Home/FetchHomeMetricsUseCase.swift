@@ -14,6 +14,7 @@ final class FetchHomeMetricsUseCase: Sendable {
     private let documentRepository: DocumentRepositoryProtocol
     private let recurringTemplateService: RecurringTemplateServiceProtocol
     private let recurringSchedulerService: RecurringSchedulerServiceProtocol
+    private let recurringDateService: RecurringDateServiceProtocol
     private let appTier: AppTier
     private let logger = Logger(subsystem: "com.dueasy.app", category: "FetchHomeMetrics")
 
@@ -21,11 +22,13 @@ final class FetchHomeMetricsUseCase: Sendable {
         documentRepository: DocumentRepositoryProtocol,
         recurringTemplateService: RecurringTemplateServiceProtocol,
         recurringSchedulerService: RecurringSchedulerServiceProtocol,
+        recurringDateService: RecurringDateServiceProtocol,
         appTier: AppTier
     ) {
         self.documentRepository = documentRepository
         self.recurringTemplateService = recurringTemplateService
         self.recurringSchedulerService = recurringSchedulerService
+        self.recurringDateService = recurringDateService
         self.appTier = appTier
     }
 
@@ -140,7 +143,9 @@ final class FetchHomeMetricsUseCase: Sendable {
         if let instance = nextInstance,
            let template = activeTemplates.first(where: { $0.id == instance.templateId }) {
             nextRecurringVendor = template.vendorDisplayName
-            nextRecurringDaysUntil = instance.daysUntilDue
+            // Calculate days until due using dateService (MVVM compliance)
+            let daysUntil = recurringDateService.daysBetween(from: today, to: instance.expectedDueDate)
+            nextRecurringDaysUntil = daysUntil
         } else {
             nextRecurringVendor = nil
             nextRecurringDaysUntil = nil

@@ -22,18 +22,21 @@ final class DeleteFutureRecurringInstancesUseCase: @unchecked Sendable {
     private let templateService: RecurringTemplateServiceProtocol
     private let notificationService: NotificationServiceProtocol
     private let calendarService: CalendarServiceProtocol
+    private let dateService: RecurringDateServiceProtocol
     private let logger = Logger(subsystem: "com.dueasy.app", category: "DeleteFutureRecurringInstances")
 
     init(
         modelContext: ModelContext,
         templateService: RecurringTemplateServiceProtocol,
         notificationService: NotificationServiceProtocol,
-        calendarService: CalendarServiceProtocol
+        calendarService: CalendarServiceProtocol,
+        dateService: RecurringDateServiceProtocol = RecurringDateService()
     ) {
         self.modelContext = modelContext
         self.templateService = templateService
         self.notificationService = notificationService
         self.calendarService = calendarService
+        self.dateService = dateService
     }
 
     /// Deletes all future recurring instances for a template.
@@ -136,7 +139,7 @@ final class DeleteFutureRecurringInstancesUseCase: @unchecked Sendable {
         deactivateTemplate: Bool = true
     ) async throws -> Int {
         // Parse period key to date
-        guard let fromDate = RecurringInstance.expectedDueDate(periodKey: fromPeriodKey, dayOfMonth: 1) else {
+        guard let fromDate = dateService.expectedDueDate(periodKey: fromPeriodKey, dayOfMonth: 1) else {
             logger.error("Invalid period key: \(fromPeriodKey)")
             throw RecurringError.schedulingFailed(reason: "Invalid period key format")
         }

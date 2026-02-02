@@ -10,6 +10,12 @@ import os
 /// - All files and directories are excluded from iCloud backup
 /// - Uses crypto service for optional AES encryption (Iteration 2)
 ///
+/// ## Path Strategy
+/// This service returns **relative paths** (e.g., `ScannedDocuments/ABC123`) instead of
+/// absolute paths. This prevents file access issues after iOS app updates, which change
+/// the container UUID. The caller is responsible for building the full URL using
+/// `FileManager.documentDirectory` when needed.
+///
 /// Iteration 1: Uses crypto service for file protection only.
 /// Iteration 2: Will use crypto service for AES encryption before writing.
 final class LocalFileStorageService: FileStorageServiceProtocol, @unchecked Sendable {
@@ -17,25 +23,36 @@ final class LocalFileStorageService: FileStorageServiceProtocol, @unchecked Send
     private let fileManager = FileManager.default
     private let cryptoService: CryptoServiceProtocol
 
+    /// Subdirectory name within Documents where scanned files are stored.
+    /// This is the prefix for all relative paths returned by this service.
+    private static let scannedDocumentsSubdirectory = "ScannedDocuments"
+
     init(cryptoService: CryptoServiceProtocol) {
         self.cryptoService = cryptoService
     }
 
-    /// Directory for storing documents
-    private var documentsDirectory: URL {
-        let paths = fileManager.urls(for: .documentDirectory, in: .userDomainMask)
-        let documentsDirectory = paths[0].appendingPathComponent("ScannedDocuments", isDirectory: true)
+    /// Base documents directory (system Documents folder).
+    private var baseDocumentsDirectory: URL {
+        fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
+    }
+
+    /// Directory for storing scanned documents (absolute URL for file operations).
+    private var scannedDocumentsDirectory: URL {
+        let directory = baseDocumentsDirectory.appendingPathComponent(
+            Self.scannedDocumentsSubdirectory,
+            isDirectory: true
+        )
 
         // Create directory if it doesn't exist
-        if !fileManager.fileExists(atPath: documentsDirectory.path) {
-            try? fileManager.createDirectory(at: documentsDirectory, withIntermediateDirectories: true)
+        if !fileManager.fileExists(atPath: directory.path) {
+            try? fileManager.createDirectory(at: directory, withIntermediateDirectories: true)
 
             // PRIVACY: Exclude directory from backup
-            excludeFromBackup(documentsDirectory)
+            excludeFromBackup(directory)
             PrivacyLogger.logStorageMetrics(operation: "create_directory", pageCount: 0, success: true)
         }
 
-        return documentsDirectory
+        return directory
     }
 
     // MARK: - FileStorageServiceProtocol
@@ -46,7 +63,7 @@ final class LocalFileStorageService: FileStorageServiceProtocol, @unchecked Send
         }
 
         let documentId = UUID().uuidString
-        let documentDirectory = documentsDirectory.appendingPathComponent(documentId, isDirectory: true)
+        let documentDirectory = scannedDocumentsDirectory.appendingPathComponent(documentId, isDirectory: true)
 
         do {
             // Create document directory
@@ -91,7 +108,8 @@ final class LocalFileStorageService: FileStorageServiceProtocol, @unchecked Send
             // PRIVACY: Log only metrics, not document ID or path
             PrivacyLogger.logStorageMetrics(operation: "save", pageCount: images.count, success: true)
 
-            return documentDirectory.path
+            // Return RELATIVE path: ScannedDocuments/{documentId}
+            return "\(Self.scannedDocumentsSubdirectory)/\(documentId)"
         } catch let error as AppError {
             PrivacyLogger.logStorageMetrics(operation: "save", pageCount: images.count, success: false)
             throw error
@@ -105,7 +123,7 @@ final class LocalFileStorageService: FileStorageServiceProtocol, @unchecked Send
     func saveDocumentFile(data: Data, fileExtension: String) async throws -> String {
         let documentId = UUID().uuidString
         let filename = "\(documentId).\(fileExtension)"
-        let fileURL = documentsDirectory.appendingPathComponent(filename)
+        let fileURL = scannedDocumentsDirectory.appendingPathComponent(filename)
 
         do {
             // Encrypt data (pass-through in Iteration 1, AES in Iteration 2)
@@ -119,7 +137,8 @@ final class LocalFileStorageService: FileStorageServiceProtocol, @unchecked Send
             // PRIVACY: Log only success, not filename
             PrivacyLogger.logStorageMetrics(operation: "save_file", pageCount: 1, success: true)
 
-            return fileURL.path
+            // Return RELATIVE path: ScannedDocuments/{filename}
+            return "\(Self.scannedDocumentsSubdirectory)/\(filename)"
         } catch {
             PrivacyLogger.logStorageMetrics(operation: "save_file", pageCount: 1, success: false)
             PrivacyLogger.storage.error("Failed to save document file: \(error.localizedDescription)")
@@ -128,7 +147,7 @@ final class LocalFileStorageService: FileStorageServiceProtocol, @unchecked Send
     }
 
     func loadDocumentFile(urlString: String) async throws -> Data {
-        let fileURL = URL(fileURLWithPath: urlString)
+        let fileURL = resolveToAbsoluteURL(urlString)
 
         guard fileManager.fileExists(atPath: fileURL.path) else {
             throw AppError.fileStorageNotFound(urlString)
@@ -155,7 +174,7 @@ final class LocalFileStorageService: FileStorageServiceProtocol, @unchecked Send
     }
 
     func loadDocumentImages(urlString: String) async throws -> [UIImage] {
-        let documentURL = URL(fileURLWithPath: urlString)
+        let documentURL = resolveToAbsoluteURL(urlString)
 
         // Check if it's a directory (multi-page scan)
         var isDirectory: ObjCBool = false
@@ -174,7 +193,7 @@ final class LocalFileStorageService: FileStorageServiceProtocol, @unchecked Send
     }
 
     func deleteDocumentFile(urlString: String) async throws {
-        let fileURL = URL(fileURLWithPath: urlString)
+        let fileURL = resolveToAbsoluteURL(urlString)
 
         guard fileManager.fileExists(atPath: fileURL.path) else {
             // Already deleted or doesn't exist - not an error
@@ -193,7 +212,26 @@ final class LocalFileStorageService: FileStorageServiceProtocol, @unchecked Send
     }
 
     func fileExists(urlString: String) -> Bool {
-        fileManager.fileExists(atPath: urlString)
+        let fileURL = resolveToAbsoluteURL(urlString)
+        return fileManager.fileExists(atPath: fileURL.path)
+    }
+
+    // MARK: - Path Resolution
+
+    /// Resolves a path string to an absolute URL.
+    /// Handles both relative paths (e.g., `ScannedDocuments/ABC123`) and
+    /// absolute paths (for backward compatibility with existing data).
+    ///
+    /// - Parameter pathString: Either a relative path or absolute path
+    /// - Returns: Absolute URL to the file/directory
+    private func resolveToAbsoluteURL(_ pathString: String) -> URL {
+        // Check if it's already an absolute path
+        if pathString.hasPrefix("/") {
+            return URL(fileURLWithPath: pathString)
+        }
+
+        // It's a relative path - prepend the Documents directory
+        return baseDocumentsDirectory.appendingPathComponent(pathString)
     }
 
     // MARK: - Private Helpers

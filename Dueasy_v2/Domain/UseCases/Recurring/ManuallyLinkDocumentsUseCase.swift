@@ -26,7 +26,7 @@ final class ManuallyLinkDocumentsUseCase: @unchecked Sendable {
     /// - Returns: Number of documents successfully linked
     @MainActor
     func execute() async throws -> Int {
-        logger.info("=== MANUAL LINKING START ===")
+        logger.debug("Starting manual document linking")
 
         // Get all templates
         let templates = try await templateService.fetchAllTemplates()
@@ -82,7 +82,7 @@ final class ManuallyLinkDocumentsUseCase: @unchecked Sendable {
                         matchingInstance.markAsPaid()
                     }
 
-                    logger.info("  ✅ Linked document \(document.id) to instance \(matchingInstance.id)")
+                    logger.debug("Linked document \(document.id) to instance \(matchingInstance.id)")
                     totalLinked += 1
                 }
             }
@@ -95,7 +95,7 @@ final class ManuallyLinkDocumentsUseCase: @unchecked Sendable {
             logger.info("SAVE SUCCESS: All document linkages persisted")
         }
 
-        logger.info("=== MANUAL LINKING COMPLETE: \(totalLinked) documents linked ===")
+        logger.info("Manual linking complete: \(totalLinked) documents linked")
         return totalLinked
     }
 

@@ -245,14 +245,43 @@ final class RecurringTemplateService: RecurringTemplateServiceProtocol {
     // MARK: - Template Deletion
 
     func deleteTemplate(_ template: RecurringTemplate) async throws {
-        // Delete all instances for this template
         let templateId = template.id
+
+        // Fetch all instances for this template
         let instanceDescriptor = FetchDescriptor<RecurringInstance>(
             predicate: #Predicate<RecurringInstance> { $0.templateId == templateId }
         )
         let instances = try modelContext.fetch(instanceDescriptor)
+
+        logger.info("Deleting template \(templateId): \(instances.count) instances will be removed")
+
+        // CRITICAL FIX: Clear linkage from all documents linked to these instances
         for instance in instances {
+            if let documentId = instance.matchedDocumentId {
+                let docDescriptor = FetchDescriptor<FinanceDocument>(
+                    predicate: #Predicate<FinanceDocument> { $0.id == documentId }
+                )
+                if let document = try modelContext.fetch(docDescriptor).first {
+                    logger.debug("Clearing recurring linkage from document \(documentId)")
+                    document.recurringInstanceId = nil
+                    document.recurringTemplateId = nil
+                    document.markUpdated()
+                }
+            }
             modelContext.delete(instance)
+        }
+
+        // Also clear linkage from documents linked to the template but not to a specific instance
+        // This can happen if instance creation failed after template linkage
+        let docsWithTemplateDescriptor = FetchDescriptor<FinanceDocument>(
+            predicate: #Predicate<FinanceDocument> { $0.recurringTemplateId == templateId }
+        )
+        let documentsWithTemplate = try modelContext.fetch(docsWithTemplateDescriptor)
+        for document in documentsWithTemplate {
+            logger.debug("Clearing orphaned template linkage from document \(document.id)")
+            document.recurringInstanceId = nil
+            document.recurringTemplateId = nil
+            document.markUpdated()
         }
 
         // Delete the template
@@ -260,7 +289,7 @@ final class RecurringTemplateService: RecurringTemplateServiceProtocol {
         try modelContext.save()
 
         // PRIVACY: Don't log vendor name
-        logger.info("Deleted recurring template (id=\(templateId)) and \(instances.count) instances")
+        logger.info("Deleted recurring template (id=\(templateId)), \(instances.count) instances, and cleared \(documentsWithTemplate.count) document linkages")
     }
 }
 

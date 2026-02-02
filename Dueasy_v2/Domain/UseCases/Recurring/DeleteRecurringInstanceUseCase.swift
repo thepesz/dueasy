@@ -47,17 +47,27 @@ final class DeleteRecurringInstanceUseCase: @unchecked Sendable {
             throw RecurringError.instanceNotFound
         }
 
-        // If there's a linked document, clear its recurring linkage
+        // CRITICAL FIX: If there's a linked document, clear its recurring linkage with proper error handling
         if let documentId = instance.matchedDocumentId {
             let documentDescriptor = FetchDescriptor<FinanceDocument>(
                 predicate: #Predicate<FinanceDocument> { $0.id == documentId }
             )
-            if let document = try modelContext.fetch(documentDescriptor).first {
+            let documents = try modelContext.fetch(documentDescriptor)
+
+            if documents.isEmpty {
+                // Document was deleted but instance still had reference - this is acceptable
+                // The instance will be deleted below, so the orphaned reference is cleaned up
+                logger.warning("CLEANUP: Document \(documentId) not found - may have been deleted already. Instance reference will be removed with instance deletion.")
+            } else if let document = documents.first {
+                // Clear the document's recurring linkage
+                logger.info("CLEANUP: Clearing recurring linkage from document \(documentId)")
                 document.recurringInstanceId = nil
                 document.recurringTemplateId = nil
                 document.markUpdated()
                 logger.debug("Cleared recurring linkage from document: \(documentId)")
             }
+        } else {
+            logger.debug("CLEANUP: Instance has no linked document")
         }
 
         // Cancel notifications

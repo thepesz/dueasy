@@ -74,25 +74,33 @@ struct DuEasyApp: App {
             fatalError("Failed to initialize SwiftData ModelContainer: \(error)")
         }
 
-        // Initialize app environment with all services (Pro tier for testing)
+        // Initialize app environment with all services
+        // Production: Use .free tier by default
+        // DEBUG: Use .pro tier for testing cloud features
+        #if DEBUG
         let environment = AppEnvironment(modelContext: modelContainer.mainContext, tier: .pro)
+        #else
+        let environment = AppEnvironment(modelContext: modelContainer.mainContext, tier: .free)
+        #endif
         _appEnvironment = State(initialValue: environment)
 
+        #if DEBUG
         // TESTING: Force enable cloud analysis for testing
         environment.settingsManager.cloudAnalysisEnabled = true
-        PrivacyLogger.app.info("🧪 TESTING: Cloud analysis force-enabled")
+        PrivacyLogger.app.info("TESTING: Cloud analysis force-enabled")
 
         // Sign in anonymously for testing (Pro tier)
         Task { @MainActor in
             do {
                 try await environment.authService.signInAnonymously()
                 if let userId = await environment.authService.currentUserId {
-                    PrivacyLogger.app.info("✅ Signed in anonymously: \(userId)")
+                    PrivacyLogger.app.info("TESTING: Signed in anonymously: \(userId)")
                 }
             } catch {
-                PrivacyLogger.app.error("Failed to sign in anonymously: \(error.localizedDescription)")
+                PrivacyLogger.app.error("TESTING: Anonymous auth failed - \(error.localizedDescription)")
             }
         }
+        #endif
 
         PrivacyLogger.app.info("DuEasy app initialized")
     }

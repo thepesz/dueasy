@@ -31,42 +31,44 @@ enum PrivacyLogger {
     #endif
 
     // MARK: - Category Loggers
+    // Logger is Sendable, so these can be safely accessed from any isolation context.
+    // Marked nonisolated to allow access from actors without warnings.
 
     /// Logger for OCR-related operations
-    static let ocr = Logger(subsystem: subsystem, category: "OCR")
+    nonisolated static let ocr = Logger(subsystem: subsystem, category: "OCR")
 
     /// Logger for parsing and extraction operations
-    static let parsing = Logger(subsystem: subsystem, category: "Parsing")
+    nonisolated static let parsing = Logger(subsystem: subsystem, category: "Parsing")
 
     /// Logger for file storage operations
-    static let storage = Logger(subsystem: subsystem, category: "Storage")
+    nonisolated static let storage = Logger(subsystem: subsystem, category: "Storage")
 
     /// Logger for security-related operations
-    static let security = Logger(subsystem: subsystem, category: "Security")
+    nonisolated static let security = Logger(subsystem: subsystem, category: "Security")
 
     /// Logger for calendar operations
-    static let calendar = Logger(subsystem: subsystem, category: "Calendar")
+    nonisolated static let calendar = Logger(subsystem: subsystem, category: "Calendar")
 
     /// Logger for notification operations
-    static let notifications = Logger(subsystem: subsystem, category: "Notifications")
+    nonisolated static let notifications = Logger(subsystem: subsystem, category: "Notifications")
 
     /// Logger for vendor profile operations
-    static let vendor = Logger(subsystem: subsystem, category: "Vendor")
+    nonisolated static let vendor = Logger(subsystem: subsystem, category: "Vendor")
 
     /// Logger for app lifecycle operations
-    static let app = Logger(subsystem: subsystem, category: "App")
+    nonisolated static let app = Logger(subsystem: subsystem, category: "App")
 
     /// Logger for recurring payment operations
-    static let recurring = Logger(subsystem: subsystem, category: "Recurring")
+    nonisolated static let recurring = Logger(subsystem: subsystem, category: "Recurring")
 
     /// Logger for document operations
-    static let document = Logger(subsystem: subsystem, category: "Document")
+    nonisolated static let document = Logger(subsystem: subsystem, category: "Document")
 
     /// Logger for cloud/backend operations
-    static let cloud = Logger(subsystem: subsystem, category: "Cloud")
+    nonisolated static let cloud = Logger(subsystem: subsystem, category: "Cloud")
 
     /// Logger for learning/ML operations
-    static let learning = Logger(subsystem: subsystem, category: "Learning")
+    nonisolated static let learning = Logger(subsystem: subsystem, category: "Learning")
 
     // MARK: - Sanitization Helpers
 

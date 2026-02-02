@@ -570,6 +570,7 @@ struct CalendarDayCell: View {
 
 struct RecurringInstanceRow: View {
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(AppEnvironment.self) private var environment
 
     let instance: RecurringInstance
     let onMarkAsPaid: () -> Void
@@ -679,7 +680,7 @@ struct RecurringInstanceRow: View {
 
     private var dueLabel: some View {
         Group {
-            let days = instance.daysUntilDue
+            let days = instance.daysUntilDue(using: environment.recurringDateService)
             if days == 0 {
                 Text(L10n.RecurringInstance.dueToday.localized)
                     .foregroundStyle(AppColors.warning)

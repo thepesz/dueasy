@@ -128,30 +128,67 @@ final class SwiftDataDocumentRepository: DocumentRepositoryProtocol, @unchecked 
     }
 
     func fetch(dueDateBetween startDate: Date, and endDate: Date) async throws -> [FinanceDocument] {
-        // Fetch all and filter since Predicate doesn't support optional unwrapping well
-        let allDocuments = try await fetchAll()
-        return allDocuments.filter { document in
-            guard let dueDate = document.dueDate else { return false }
-            return dueDate >= startDate && dueDate <= endDate
-        }.sorted { ($0.dueDate ?? .distantFuture) < ($1.dueDate ?? .distantFuture) }
+        // Try database-level filtering first for better performance
+        // SwiftData predicates can handle optional date comparisons when structured correctly
+        do {
+            let predicate = #Predicate<FinanceDocument> { document in
+                document.dueDate != nil &&
+                document.dueDate! >= startDate &&
+                document.dueDate! <= endDate
+            }
+
+            let descriptor = FetchDescriptor<FinanceDocument>(
+                predicate: predicate,
+                sortBy: [SortDescriptor(\.dueDate, order: .forward)]
+            )
+
+            return try modelContext.fetch(descriptor)
+        } catch {
+            // Fallback to in-memory filtering if predicate fails
+            logger.warning("Date range predicate failed, falling back to in-memory filter: \(error.localizedDescription)")
+            let allDocuments = try await fetchAll()
+            return allDocuments.filter { document in
+                guard let dueDate = document.dueDate else { return false }
+                return dueDate >= startDate && dueDate <= endDate
+            }.sorted { ($0.dueDate ?? .distantFuture) < ($1.dueDate ?? .distantFuture) }
+        }
     }
 
     func fetchOverdue() async throws -> [FinanceDocument] {
         let now = Date()
-        // Fetch all and filter since Predicate doesn't support optional unwrapping well
-        let allDocuments = try await fetchAll()
-        return allDocuments.filter { document in
-            guard let dueDate = document.dueDate else { return false }
-            return dueDate < now &&
-                document.status != .paid &&
-                document.status != .archived
-        }.sorted { ($0.dueDate ?? .distantFuture) < ($1.dueDate ?? .distantFuture) }
+        let paidStatus = DocumentStatus.paid.rawValue
+        let archivedStatus = DocumentStatus.archived.rawValue
+
+        // Try database-level filtering first for better performance
+        do {
+            let predicate = #Predicate<FinanceDocument> { document in
+                document.dueDate != nil &&
+                document.dueDate! < now &&
+                document.statusRaw != paidStatus &&
+                document.statusRaw != archivedStatus
+            }
+
+            let descriptor = FetchDescriptor<FinanceDocument>(
+                predicate: predicate,
+                sortBy: [SortDescriptor(\.dueDate, order: .forward)]
+            )
+
+            return try modelContext.fetch(descriptor)
+        } catch {
+            // Fallback to in-memory filtering if predicate fails
+            logger.warning("Overdue predicate failed, falling back to in-memory filter: \(error.localizedDescription)")
+            let allDocuments = try await fetchAll()
+            return allDocuments.filter { document in
+                guard let dueDate = document.dueDate else { return false }
+                return dueDate < now &&
+                    document.status != .paid &&
+                    document.status != .archived
+            }.sorted { ($0.dueDate ?? .distantFuture) < ($1.dueDate ?? .distantFuture) }
+        }
     }
 
     func fetch(byVendorFingerprint vendorFingerprint: String) async throws -> [FinanceDocument] {
-        logger.info("=== FETCH BY VENDOR FINGERPRINT ===")
-        logger.info("Searching for fingerprint: '\(vendorFingerprint.prefix(32))...'")
-        logger.info("Full fingerprint length: \(vendorFingerprint.count)")
+        logger.debug("Fetching documents by vendor fingerprint: \(vendorFingerprint.prefix(16))...")
 
         let predicate = #Predicate<FinanceDocument> { document in
             document.vendorFingerprint == vendorFingerprint
@@ -163,25 +200,23 @@ final class SwiftDataDocumentRepository: DocumentRepositoryProtocol, @unchecked 
 
         do {
             let results = try modelContext.fetch(descriptor)
-            logger.info("Fetch returned \(results.count) documents")
+            logger.debug("Vendor fingerprint fetch returned \(results.count) documents")
 
-            // DIAGNOSTIC: If no results, check what fingerprints exist
+            #if DEBUG
+            // DEBUG-only: Diagnostic logging for fingerprint matching issues
             if results.isEmpty {
-                logger.warning("NO MATCHES - checking what fingerprints exist in database...")
+                logger.debug("No matches for fingerprint - checking database...")
                 let allDescriptor = FetchDescriptor<FinanceDocument>()
                 let allDocs = try modelContext.fetch(allDescriptor)
-                logger.warning("Total documents: \(allDocs.count)")
+                logger.debug("Total documents: \(allDocs.count)")
                 for doc in allDocs {
                     if let fp = doc.vendorFingerprint {
                         let matches = fp == vendorFingerprint
-                        // PRIVACY: Don't log title or full fingerprint
-                        logger.warning("  Doc id=\(doc.id): hasFingerprint=true, fpPrefix=\(fp.prefix(8))..., MATCHES=\(matches)")
-                    } else {
-                        // PRIVACY: Don't log title
-                        logger.warning("  Doc id=\(doc.id): hasFingerprint=false")
+                        logger.debug("  Doc id=\(doc.id): fpPrefix=\(fp.prefix(8))..., matches=\(matches)")
                     }
                 }
             }
+            #endif
 
             return results
         } catch {

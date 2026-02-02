@@ -5,6 +5,17 @@ import SwiftData
 /// Represents an invoice, contract, or receipt with associated metadata.
 ///
 /// Schema includes Iteration 2 nullable fields to prevent migration pain later.
+///
+/// ## Path Storage Strategy
+/// iOS container paths change with app updates (the UUID-based container path changes).
+/// To prevent broken file references, we store only the **relative path** (filename/subdirectory)
+/// and build the full URL dynamically at runtime using `FileManager.documentDirectory`.
+///
+/// **Example:**
+/// - Stored: `"ScannedDocuments/ABC123/page_000.jpg"` (relative path)
+/// - Runtime: `/var/mobile/Containers/Data/Application/{UUID}/Documents/ScannedDocuments/ABC123/page_000.jpg`
+///
+/// This ensures file access works after app updates when the container UUID changes.
 @Model
 final class FinanceDocument {
 
@@ -41,8 +52,11 @@ final class FinanceDocument {
     /// Optional notes
     var notes: String?
 
-    /// Local file path for scanned document
-    var sourceFileURL: String?
+    /// Relative path for scanned document (filename or subdirectory path within Documents).
+    /// **IMPORTANT:** This stores only the relative path, not the full absolute path.
+    /// Use `resolvedSourceFileURL` to get the full runtime URL.
+    /// Use `sourceFileURL` computed property for backward-compatible get/set.
+    private var sourceFileRelativePath: String?
 
     /// Invoice/document number
     var documentNumber: String?
@@ -124,6 +138,94 @@ final class FinanceDocument {
         set { amountValue = NSDecimalNumber(decimal: newValue).doubleValue }
     }
 
+    // MARK: - File Path Computed Properties
+
+    /// Documents directory URL (computed fresh each time to handle container changes).
+    private static var documentsDirectory: URL {
+        FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+    }
+
+    /// Full runtime URL for the source file.
+    /// Builds the absolute path dynamically from the stored relative path.
+    /// Returns nil if no source file is associated.
+    var resolvedSourceFileURL: URL? {
+        guard let relativePath = sourceFileRelativePath, !relativePath.isEmpty else {
+            return nil
+        }
+        return Self.documentsDirectory.appendingPathComponent(relativePath)
+    }
+
+    /// Computed property for backward-compatible get/set of source file path.
+    ///
+    /// **Getter:** Returns the full absolute path string (built dynamically from relative path).
+    /// **Setter:** Extracts and stores only the relative path from the input.
+    ///
+    /// This property maintains API compatibility with existing code that reads/writes
+    /// full path strings, while internally storing only the relative path.
+    ///
+    /// **Note:** The setter handles both:
+    /// - Full absolute paths (extracts path relative to Documents directory)
+    /// - Relative paths (stores as-is)
+    var sourceFileURL: String? {
+        get {
+            // Return full path for backward compatibility with file operations
+            return resolvedSourceFileURL?.path
+        }
+        set {
+            guard let newPath = newValue, !newPath.isEmpty else {
+                sourceFileRelativePath = nil
+                return
+            }
+
+            // Extract relative path from the input
+            sourceFileRelativePath = Self.extractRelativePath(from: newPath)
+        }
+    }
+
+    /// Extracts the relative path component from a full path string.
+    /// Handles both absolute paths (containing Documents directory) and relative paths.
+    ///
+    /// **Examples:**
+    /// - Input: `/var/mobile/.../Documents/ScannedDocuments/ABC123`
+    ///   Output: `ScannedDocuments/ABC123`
+    /// - Input: `ScannedDocuments/ABC123`
+    ///   Output: `ScannedDocuments/ABC123`
+    /// - Input: `/var/mobile/.../Documents/file.pdf`
+    ///   Output: `file.pdf`
+    private static func extractRelativePath(from path: String) -> String {
+        let documentsPath = documentsDirectory.path
+
+        // Check if the path contains the Documents directory path
+        if path.hasPrefix(documentsPath) {
+            // Extract everything after Documents directory
+            var relativePath = String(path.dropFirst(documentsPath.count))
+            // Remove leading slash if present
+            if relativePath.hasPrefix("/") {
+                relativePath = String(relativePath.dropFirst())
+            }
+            return relativePath
+        }
+
+        // Check for common iOS container path patterns and extract relative portion
+        // Pattern: /var/mobile/Containers/Data/Application/{UUID}/Documents/...
+        // or: /Users/.../Library/Developer/CoreSimulator/.../Documents/...
+        if let range = path.range(of: "/Documents/") {
+            return String(path[range.upperBound...])
+        }
+
+        // Already a relative path or unknown format - use filename as fallback
+        // This handles edge cases and prevents data loss
+        let url = URL(fileURLWithPath: path)
+        if path.contains("/") && !path.hasPrefix("/") {
+            // Looks like a relative path already
+            return path
+        }
+
+        // Last resort: extract just the last path component(s)
+        // For directory paths like "UUID-STRING" (our document IDs), keep the full identifier
+        return url.lastPathComponent
+    }
+
     /// Whether this document is overdue
     var isOverdue: Bool {
         guard let dueDate = dueDate, status != .paid else { return false }
@@ -177,7 +279,12 @@ final class FinanceDocument {
         self.updatedAt = Date()
         self.statusRaw = status.rawValue
         self.notes = notes
-        self.sourceFileURL = sourceFileURL
+        // Extract relative path from input (handles both absolute and relative paths)
+        if let path = sourceFileURL, !path.isEmpty {
+            self.sourceFileRelativePath = Self.extractRelativePath(from: path)
+        } else {
+            self.sourceFileRelativePath = nil
+        }
         self.documentNumber = documentNumber
         self.vendorAddress = vendorAddress
         self.vendorNIP = vendorNIP

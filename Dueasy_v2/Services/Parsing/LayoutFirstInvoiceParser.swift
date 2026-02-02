@@ -165,7 +165,7 @@ final class LayoutFirstInvoiceParser: DocumentAnalysisServiceProtocol, @unchecke
         PrivacyLogger.logFieldExtractionMetrics(
             fieldType: "vendor",
             extractionMethod: vendorExtraction.method.rawValue,
-            confidence: vendorExtraction.confidence ?? 0,
+            confidence: vendorExtraction.confidence,
             candidatesCount: vendorCandidatesList.count
         )
         PrivacyLogger.logParsingMetrics(fieldsFound: fieldsFound, totalFields: 4, confidence: overallConfidence)

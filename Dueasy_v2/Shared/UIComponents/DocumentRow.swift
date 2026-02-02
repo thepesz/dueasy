@@ -167,7 +167,7 @@ struct DocumentRow: View {
         label += ", \(formattedAmount)"
         label += ", Status: \(document.status.displayName)"
 
-        if let dueDate = document.dueDate {
+        if document.dueDate != nil {
             if let days = document.daysUntilDue {
                 if days < 0 {
                     label += ", \(abs(days)) days overdue"
