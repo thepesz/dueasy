@@ -46,6 +46,7 @@ final class DocumentReviewViewModel {
     // Recurring payment settings
     var isRecurringPayment: Bool = false
     var recurringToleranceDays: Int = 3
+    var recurringMonthsAhead: Int = 3
     var showRecurringCategoryWarning: Bool = false
     var recurringCategoryWarningMessage: String = ""
     var isCreatingRecurringTemplate: Bool = false
@@ -629,20 +630,15 @@ final class DocumentReviewViewModel {
             amount: amountDecimal
         )
 
-        // Update document category
+        // Update document category (for UI display only, never blocks operations)
         document.documentCategory = classification.category
 
-        // Check if this is a risky category
-        if classification.category.isHardRejectedForAutoDetection {
-            showRecurringCategoryWarning = true
-            recurringCategoryWarningMessage = L10n.Recurring.warningFuelRetail.localized
-        } else if classification.category == .unknown && classification.confidence < 0.3 {
-            showRecurringCategoryWarning = true
-            recurringCategoryWarningMessage = L10n.Recurring.warningNoPattern.localized
-        } else {
-            showRecurringCategoryWarning = false
-            recurringCategoryWarningMessage = ""
-        }
+        // ARCHITECTURAL DECISION: Category warnings removed.
+        // Keyword-based classification is too brittle. User will manually select
+        // category in future UI. For now, trust user intent - if they mark as
+        // recurring, we respect that regardless of category.
+        showRecurringCategoryWarning = false
+        recurringCategoryWarningMessage = ""
     }
 
     /// Creates a recurring template after document is saved
@@ -667,7 +663,8 @@ final class DocumentReviewViewModel {
             let result = try await useCase.execute(
                 document: document,
                 reminderOffsets: Array(reminderOffsets).sorted(by: >),
-                toleranceDays: recurringToleranceDays
+                toleranceDays: recurringToleranceDays,
+                monthsAhead: recurringMonthsAhead
             )
 
             logger.info("Created recurring template: \(result.template.id), instances: \(result.instances.count)")

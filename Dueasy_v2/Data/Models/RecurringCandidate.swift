@@ -203,10 +203,8 @@ final class RecurringCandidate {
             // Snooze expired - will be shown (state updated in fetchSuggestionCandidates)
         }
 
-        // Not if category is hard-rejected
-        guard !documentCategory.isHardRejectedForAutoDetection else {
-            return false
-        }
+        // ARCHITECTURAL DECISION: Category filtering removed.
+        // User will manually choose category in future. Trust pattern detection.
 
         // Must meet confidence threshold
         guard confidenceScore >= 0.75 else {

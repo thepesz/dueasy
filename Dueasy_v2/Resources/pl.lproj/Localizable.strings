@@ -487,6 +487,8 @@
 "recurring.settingsTitle" = "Ustawienia cykliczności";
 "recurring.toleranceDays" = "Dni tolerancji";
 "recurring.toleranceDaysDescription" = "Dni przed/po terminie do dopasowania";
+"recurring.monthsAheadSetting" = "Miesiące do przodu";
+"recurring.monthsAheadSettingDescription" = "Jak daleko generować płatności";
 "recurring.warningFuelRetail" = "To wygląda na zakup paliwa lub detaliczny. Czy na pewno jest to płatność cykliczna?";
 "recurring.warningNoPattern" = "Ten dostawca nie ma regularnego wzorca płatności.";
 

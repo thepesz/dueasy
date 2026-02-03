@@ -156,11 +156,10 @@ final class RecurringDetectionService: RecurringDetectionServiceProtocol {
                 return false
             }
 
-            // Must not be hard-rejected category
-            guard !candidate.documentCategory.isHardRejectedForAutoDetection else {
-                logger.debug("Filtering out candidate: hard-rejected category (\(candidate.documentCategoryRaw))")
-                return false
-            }
+            // ARCHITECTURAL DECISION: Category filtering removed.
+            // Keyword-based classification is too brittle and misses legitimate vendors.
+            // User will manually select category in future UI. For now, trust the
+            // recurring pattern detection (3+ docs, similar amounts, regular intervals).
 
             // CRITICAL FIX: Properly handle snoozed state
             if candidate.suggestionState == .snoozed {

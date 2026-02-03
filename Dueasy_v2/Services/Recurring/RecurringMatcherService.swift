@@ -28,7 +28,7 @@ protocol RecurringMatcherServiceProtocol: Sendable {
     /// Validates whether a document is eligible for recurring matching.
     /// - Parameter document: The document to validate
     /// - Returns: Validation result with reason if rejected
-    func validateForMatching(document: FinanceDocument) -> MatchValidationResult
+    func validateForMatching(document: FinanceDocument, templateExists: Bool) -> MatchValidationResult
 }
 
 /// Result of a recurring match operation
@@ -76,24 +76,31 @@ final class RecurringMatcherService: RecurringMatcherServiceProtocol {
     // MARK: - Matching
 
     func match(document: FinanceDocument) async throws -> RecurringMatchResult? {
-        // Validate document is eligible for matching
-        let validation = validateForMatching(document: document)
-        guard validation.isEligible else {
-            logger.info("Document not eligible for recurring match: \(validation.reason ?? "unknown")")
-            return nil
-        }
-
-        guard let vendorFingerprint = document.vendorFingerprint else {
+        // CRITICAL FIX: Check basic requirements first (fingerprint, due date)
+        guard let vendorFingerprint = document.vendorFingerprint, !vendorFingerprint.isEmpty else {
+            logger.debug("Document missing vendor fingerprint")
             return nil
         }
 
         guard let dueDate = document.dueDate else {
+            logger.debug("Document missing due date")
             return nil
         }
 
-        // Find template for this vendor
+        // CRITICAL FIX: Find template BEFORE category validation
+        // If a template exists, the user explicitly created it, so we should match
+        // even if the category is normally hard-rejected (retail, fuel, etc.)
         guard let template = try await templateService.fetchTemplate(byVendorFingerprint: vendorFingerprint) else {
             logger.debug("No recurring template found for vendor fingerprint")
+            return nil
+        }
+
+        // CRITICAL FIX: Now validate category restrictions
+        // If template exists, skip category check (user explicitly marked as recurring)
+        // This allows matching retail/fuel categories when user manually creates template
+        let validation = validateForMatching(document: document, templateExists: true)
+        guard validation.isEligible else {
+            logger.info("Document not eligible for recurring match: \(validation.reason ?? "unknown")")
             return nil
         }
 
@@ -230,7 +237,7 @@ final class RecurringMatcherService: RecurringMatcherServiceProtocol {
 
     // MARK: - Validation
 
-    func validateForMatching(document: FinanceDocument) -> MatchValidationResult {
+    func validateForMatching(document: FinanceDocument, templateExists: Bool = false) -> MatchValidationResult {
         // Must have vendor fingerprint
         guard let fingerprint = document.vendorFingerprint, !fingerprint.isEmpty else {
             return .rejected(reason: "Missing vendor fingerprint")
@@ -241,13 +248,13 @@ final class RecurringMatcherService: RecurringMatcherServiceProtocol {
             return .rejected(reason: "Missing due date")
         }
 
-        // Hard reject categories that should never match
-        if document.documentCategory.isHardRejectedForAutoDetection {
-            // Still allow matching if user explicitly marked as recurring
-            if document.recurringTemplateId == nil {
-                return .rejected(reason: "Category \(document.documentCategory.rawValue) is excluded from recurring matching")
-            }
-        }
+        // ARCHITECTURAL DECISION: Category restrictions removed.
+        // User knows their invoices best. If they create a recurring template,
+        // we match it regardless of category. Keyword-based classification is
+        // too brittle (misses vendors like LANTECH) and will be replaced with
+        // manual category selection in future UI.
+        //
+        // Classification still runs for UI display, but NEVER blocks matching.
 
         return .eligible
     }

@@ -807,6 +807,28 @@ struct DocumentReviewView: View {
                     .pickerStyle(.segmented)
                     .frame(width: 160)
                 }
+
+                // Months ahead picker
+                HStack {
+                    VStack(alignment: .leading, spacing: Spacing.xxs) {
+                        Text(L10n.Recurring.monthsAheadSetting.localized)
+                            .font(Typography.subheadline)
+                        Text(L10n.Recurring.monthsAheadSettingDescription.localized)
+                            .font(Typography.caption1)
+                            .foregroundStyle(.secondary)
+                    }
+
+                    Spacer()
+
+                    Picker("", selection: $viewModel.recurringMonthsAhead) {
+                        Text("3").tag(3)
+                        Text("6").tag(6)
+                        Text("9").tag(9)
+                        Text("12").tag(12)
+                    }
+                    .pickerStyle(.segmented)
+                    .frame(width: 160)
+                }
             }
         }
     }

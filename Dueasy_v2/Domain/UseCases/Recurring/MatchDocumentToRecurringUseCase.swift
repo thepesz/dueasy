@@ -104,13 +104,7 @@ final class MatchDocumentToRecurringUseCase: @unchecked Sendable {
             return false
         }
 
-        // Check validation first
-        let validation = matcherService.validateForMatching(document: document)
-        guard validation.isEligible else {
-            return false
-        }
-
-        // Try to match
+        // Try to match (validation happens inside match() now)
         if let _ = try await matcherService.match(document: document) {
             return true
         }

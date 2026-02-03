@@ -40,6 +40,9 @@ struct MainTabView: View {
                     documentListInitialFilter = .overdue
                     documentListRefreshTrigger += 1  // Force refresh to apply new filter
                     selectedTab = .documents
+                },
+                onNavigateToScan: {
+                    showingAddDocument = true
                 }
             )
                 .environment(environment)

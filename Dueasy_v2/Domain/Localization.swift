@@ -501,6 +501,8 @@ enum L10n {
         static let settingsTitle = "recurring.settingsTitle"
         static let toleranceDays = "recurring.toleranceDays"
         static let toleranceDaysDescription = "recurring.toleranceDaysDescription"
+        static let monthsAheadSetting = "recurring.monthsAheadSetting"
+        static let monthsAheadSettingDescription = "recurring.monthsAheadSettingDescription"
         static let warningFuelRetail = "recurring.warningFuelRetail"
         static let warningNoPattern = "recurring.warningNoPattern"
 

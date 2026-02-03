@@ -50,12 +50,14 @@ final class CreateRecurringTemplateFromDocumentUseCase: @unchecked Sendable {
     ///   - document: The source document (must have vendor name and due date)
     ///   - reminderOffsets: Reminder offsets in days before due date (default: [7, 1, 0])
     ///   - toleranceDays: Tolerance for matching due dates (default: 3)
+    ///   - monthsAhead: Number of months ahead to generate instances (default: 3)
     /// - Returns: The created template and generated instances
     @MainActor
     func execute(
         document: FinanceDocument,
         reminderOffsets: [Int]? = nil,
-        toleranceDays: Int? = nil
+        toleranceDays: Int? = nil,
+        monthsAhead: Int? = nil
     ) async throws -> CreateRecurringResult {
         logger.info("Creating recurring template from document: \(document.id)")
 
@@ -104,9 +106,10 @@ final class CreateRecurringTemplateFromDocumentUseCase: @unchecked Sendable {
 
         // Step 4: Generate instances for next N months
         // includeHistorical: true to handle templates created from historical documents
+        let effectiveMonthsAhead = monthsAhead ?? Self.defaultMonthsAhead
         let instances = try await schedulerService.generateInstances(
             for: template,
-            monthsAhead: Self.defaultMonthsAhead,
+            monthsAhead: effectiveMonthsAhead,
             includeHistorical: true
         )
 
@@ -123,15 +126,10 @@ final class CreateRecurringTemplateFromDocumentUseCase: @unchecked Sendable {
             logger.info("Attached document to instance: \(periodKey)")
         }
 
-        // Check if this is a "risky" category for recurring
-        let categoryWarning: CategoryWarning?
-        if document.documentCategory.isHardRejectedForAutoDetection {
-            categoryWarning = .fuelRetailCategory
-        } else if document.documentCategory == .unknown {
-            categoryWarning = .unknownCategory
-        } else {
-            categoryWarning = nil
-        }
+        // ARCHITECTURAL DECISION: Category warnings removed.
+        // User knows their invoices best. No warnings for category.
+        // Manual category selection will be added in future UI.
+        let categoryWarning: CategoryWarning? = nil
 
         return CreateRecurringResult(
             template: template,

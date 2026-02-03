@@ -50,11 +50,25 @@ struct FetchRecurringInstancesForMonthUseCase: Sendable {
 
         logger.debug("Found \(instances.count) recurring instances for period: \(periodKey)")
 
+        // Filter out matched instances - they should not appear in calendar
+        // because the matched document already appears in the documents section.
+        // Only show: expected (placeholders), paid, missed, cancelled
+        let filteredInstances = instances.filter { instance in
+            // Matched instances should be hidden - the document is already shown
+            if instance.status == .matched {
+                logger.debug("Filtering out matched instance: \(instance.periodKey), docId: \(instance.matchedDocumentId?.uuidString ?? "nil")")
+                return false
+            }
+            return true
+        }
+
+        logger.debug("After filtering matched: \(filteredInstances.count) instances")
+
         // Group by day of month
         var grouped: [Int: [RecurringInstance]] = [:]
         let calendar = Calendar.current
 
-        for instance in instances {
+        for instance in filteredInstances {
             let day = calendar.component(.day, from: instance.effectiveDueDate)
 
             if grouped[day] == nil {
@@ -87,6 +101,8 @@ struct FetchRecurringInstancesForMonthUseCase: Sendable {
     }
 
     /// Gets summary information for recurring instances in a month.
+    /// Note: Matched instances are filtered out by execute() since the document is already shown.
+    /// Therefore matchedCount will always be 0 in the returned summaries.
     /// - Parameters:
     ///   - month: The month (1-12)
     ///   - year: The year
@@ -97,19 +113,20 @@ struct FetchRecurringInstancesForMonthUseCase: Sendable {
 
         return grouped.mapValues { instances in
             let expectedCount = instances.filter { $0.status == .expected }.count
-            let matchedCount = instances.filter { $0.status == .matched }.count
+            // matchedCount is always 0 because matched instances are filtered out in execute()
+            // to avoid duplicate display (the document already appears in documents section)
+            let matchedCount = 0
             let paidCount = instances.filter { $0.status == .paid }.count
             let missedCount = instances.filter { $0.status == .missed }.count
             let overdueCount = instances.filter { $0.isOverdue }.count
 
-            // Determine priority: overdue > expected > matched > paid > missed
+            // Determine priority: overdue > expected > paid > missed
+            // Note: matched is not possible since those instances are filtered out
             let priority: CalendarRecurringPriority
             if overdueCount > 0 {
                 priority = .overdue
             } else if expectedCount > 0 {
                 priority = .expected
-            } else if matchedCount > 0 {
-                priority = .matched
             } else if paidCount > 0 {
                 priority = .paid
             } else {

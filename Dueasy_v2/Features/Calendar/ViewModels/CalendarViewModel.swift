@@ -82,11 +82,12 @@ final class CalendarViewModel {
         return recurringByDay[day] ?? []
     }
 
-    /// Combined item count for selected day (documents + non-matched recurring instances)
+    /// Combined item count for selected day (documents + recurring instances)
+    /// Note: Matched instances are already filtered out by FetchRecurringInstancesForMonthUseCase
+    /// so we don't need to filter here - no double counting will occur.
     var selectedDayTotalCount: Int {
         let docCount = selectedDayDocuments.count
-        // Only count recurring instances that are NOT matched (to avoid double counting)
-        let recurringCount = selectedDayRecurringInstances.filter { $0.status != .matched }.count
+        let recurringCount = selectedDayRecurringInstances.count
         return docCount + recurringCount
     }
 

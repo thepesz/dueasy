@@ -367,7 +367,11 @@ final class AppEnvironment {
         )
     }
 
-    /// Creates a FinalizeInvoiceUseCase with injected dependencies
+    /// Creates a FinalizeInvoiceUseCase with injected dependencies.
+    /// CRITICAL FIX: Now includes recurring services for automatic matching of new documents
+    /// to existing recurring instances. This ensures that when a user scans a new invoice
+    /// for a vendor that already has a recurring template, the document is automatically
+    /// linked to the appropriate recurring instance instead of creating a duplicate.
     func makeFinalizeInvoiceUseCase() -> FinalizeInvoiceUseCase {
         FinalizeInvoiceUseCase(
             repository: documentRepository,
@@ -375,7 +379,10 @@ final class AppEnvironment {
             notificationService: notificationService,
             settingsManager: settingsManager,
             vendorFingerprintService: vendorFingerprintService,
-            classifierService: documentClassifierService
+            classifierService: documentClassifierService,
+            recurringMatcherService: recurringMatcherService,
+            recurringTemplateService: recurringTemplateService,
+            recurringSchedulerService: recurringSchedulerService
         )
     }
 

@@ -484,6 +484,8 @@
 "recurring.settingsTitle" = "Recurring Settings";
 "recurring.toleranceDays" = "Tolerance Days";
 "recurring.toleranceDaysDescription" = "Days before/after due date for matching";
+"recurring.monthsAheadSetting" = "Months Ahead";
+"recurring.monthsAheadSettingDescription" = "How far ahead to generate payments";
 "recurring.warningFuelRetail" = "This looks like a fuel or retail purchase. Are you sure it's recurring?";
 "recurring.warningNoPattern" = "This vendor does not have a regular payment pattern.";
 

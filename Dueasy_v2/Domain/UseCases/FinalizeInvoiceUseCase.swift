@@ -4,6 +4,7 @@ import os.log
 /// Use case for finalizing an invoice document.
 /// Validates fields, creates calendar event, and schedules notifications.
 /// Also sets vendorFingerprint and documentCategory for recurring payment detection.
+/// CRITICAL: Automatically matches documents to existing recurring instances.
 struct FinalizeInvoiceUseCase: Sendable {
 
     private let repository: DocumentRepositoryProtocol
@@ -12,6 +13,9 @@ struct FinalizeInvoiceUseCase: Sendable {
     private let settingsManager: SettingsManager
     private let vendorFingerprintService: VendorFingerprintServiceProtocol
     private let classifierService: DocumentClassifierServiceProtocol
+    private let recurringMatcherService: RecurringMatcherServiceProtocol?
+    private let recurringTemplateService: RecurringTemplateServiceProtocol?
+    private let recurringSchedulerService: RecurringSchedulerServiceProtocol?
     private let logger = Logger(subsystem: "com.dueasy.app", category: "FinalizeInvoice")
 
     init(
@@ -20,7 +24,10 @@ struct FinalizeInvoiceUseCase: Sendable {
         notificationService: NotificationServiceProtocol,
         settingsManager: SettingsManager,
         vendorFingerprintService: VendorFingerprintServiceProtocol,
-        classifierService: DocumentClassifierServiceProtocol
+        classifierService: DocumentClassifierServiceProtocol,
+        recurringMatcherService: RecurringMatcherServiceProtocol? = nil,
+        recurringTemplateService: RecurringTemplateServiceProtocol? = nil,
+        recurringSchedulerService: RecurringSchedulerServiceProtocol? = nil
     ) {
         self.repository = repository
         self.calendarService = calendarService
@@ -28,6 +35,9 @@ struct FinalizeInvoiceUseCase: Sendable {
         self.settingsManager = settingsManager
         self.vendorFingerprintService = vendorFingerprintService
         self.classifierService = classifierService
+        self.recurringMatcherService = recurringMatcherService
+        self.recurringTemplateService = recurringTemplateService
+        self.recurringSchedulerService = recurringSchedulerService
     }
 
     /// Finalizes a document with validated data.
@@ -103,8 +113,25 @@ struct FinalizeInvoiceUseCase: Sendable {
         document.documentCategoryRaw = classification.category.rawValue
         logger.info("Classified document as category: \(classification.category.rawValue), confidence: \(String(format: "%.2f", classification.confidence))")
 
-        // Create calendar event if not skipped
-        if !skipCalendar {
+        // CRITICAL FIX: Attempt to match document to existing recurring instance
+        // This must happen BEFORE creating calendar events to avoid duplicates.
+        // If the document matches a recurring instance, the instance already has notifications
+        // and calendar events - we should link them rather than creating new ones.
+        var wasMatchedToRecurring = false
+        if let matcherService = recurringMatcherService {
+            logger.info("RecurringMatcherService available - attempting automatic match")
+            wasMatchedToRecurring = await attemptRecurringMatch(
+                document: document,
+                matcherService: matcherService
+            )
+        } else {
+            logger.warning("RecurringMatcherService is NIL - automatic matching DISABLED. App may need rebuild.")
+        }
+
+        // Create calendar event if not skipped AND not matched to recurring
+        // If matched to recurring, the instance's calendar event will be used
+        let shouldCreateCalendarEvent = !skipCalendar && !wasMatchedToRecurring
+        if shouldCreateCalendarEvent {
             logger.info("Attempting to create calendar event (skipCalendar=false)")
             let calendarStatus = await calendarService.authorizationStatus
             logger.info("Calendar authorization status: hasWriteAccess=\(calendarStatus.hasWriteAccess)")
@@ -170,35 +197,41 @@ struct FinalizeInvoiceUseCase: Sendable {
             } else {
                 logger.warning("Calendar does not have write access - skipping event creation")
             }
+        } else if wasMatchedToRecurring {
+            logger.info("Calendar event skipped - document matched to recurring instance (uses instance calendar)")
         } else {
             logger.info("Calendar event creation skipped (skipCalendar=true)")
         }
 
-        // Schedule notifications
-        let notificationStatus = await notificationService.authorizationStatus
-        logger.info("Notification authorization: isAuthorized=\(notificationStatus.isAuthorized), enabled=\(document.notificationsEnabled)")
+        // Schedule notifications (skip if matched to recurring - instance has its own notifications)
+        if !wasMatchedToRecurring {
+            let notificationStatus = await notificationService.authorizationStatus
+            logger.info("Notification authorization: isAuthorized=\(notificationStatus.isAuthorized), enabled=\(document.notificationsEnabled)")
 
-        if notificationStatus.isAuthorized && document.notificationsEnabled {
-            // PRIVACY: Hide vendor name if setting is enabled (default: ON)
-            let notificationTitle = settingsManager.hideSensitiveDetails ? "Invoice Due" : "Invoice Due: \(title)"
-            let notificationBody = formatNotificationBody(amount: amount, currency: currency)
+            if notificationStatus.isAuthorized && document.notificationsEnabled {
+                // PRIVACY: Hide vendor name if setting is enabled (default: ON)
+                let notificationTitle = settingsManager.hideSensitiveDetails ? "Invoice Due" : "Invoice Due: \(title)"
+                let notificationBody = formatNotificationBody(amount: amount, currency: currency)
 
-            do {
-                // Use updateReminders to handle both creation and updates (cancels old ones first)
-                let scheduledIds = try await notificationService.updateReminders(
-                    documentId: document.id.uuidString,
-                    title: notificationTitle,
-                    body: notificationBody,
-                    dueDate: dueDate,
-                    reminderOffsets: document.reminderOffsetsDays
-                )
-                logger.info("Updated \(scheduledIds.count) notification reminders (old ones cancelled)")
-            } catch {
-                logger.error("Failed to update notifications: \(error.localizedDescription)")
-                // Don't fail for notification issues
+                do {
+                    // Use updateReminders to handle both creation and updates (cancels old ones first)
+                    let scheduledIds = try await notificationService.updateReminders(
+                        documentId: document.id.uuidString,
+                        title: notificationTitle,
+                        body: notificationBody,
+                        dueDate: dueDate,
+                        reminderOffsets: document.reminderOffsetsDays
+                    )
+                    logger.info("Updated \(scheduledIds.count) notification reminders (old ones cancelled)")
+                } catch {
+                    logger.error("Failed to update notifications: \(error.localizedDescription)")
+                    // Don't fail for notification issues
+                }
+            } else {
+                logger.warning("Notifications not updated - not authorized or disabled")
             }
         } else {
-            logger.warning("Notifications not updated - not authorized or disabled")
+            logger.info("Notifications skipped - document matched to recurring instance (uses instance notifications)")
         }
 
         // Update status to scheduled
@@ -253,5 +286,60 @@ struct FinalizeInvoiceUseCase: Sendable {
         formatter.currencyCode = currency
         let amountString = formatter.string(from: NSDecimalNumber(decimal: amount)) ?? "\(amount)"
         return "Payment of \(amountString) is due"
+    }
+
+    // MARK: - Recurring Payment Matching
+
+    /// Attempts to match the document to an existing recurring template instance.
+    /// This is the CRITICAL fix for automatic matching of new invoices to existing recurring patterns.
+    ///
+    /// - Parameters:
+    ///   - document: The document to match (must have vendorFingerprint and dueDate set)
+    ///   - matcherService: The recurring matcher service
+    /// - Returns: True if the document was matched to an instance, false otherwise
+    private func attemptRecurringMatch(
+        document: FinanceDocument,
+        matcherService: RecurringMatcherServiceProtocol
+    ) async -> Bool {
+        // Validate document has required fields for matching
+        guard let fingerprint = document.vendorFingerprint, !fingerprint.isEmpty else {
+            logger.debug("Skipping recurring match - no vendor fingerprint")
+            return false
+        }
+
+        guard document.dueDate != nil else {
+            logger.debug("Skipping recurring match - no due date")
+            return false
+        }
+
+        // Document must not already be linked to a recurring template
+        if document.recurringTemplateId != nil {
+            logger.debug("Skipping recurring match - document already linked to template")
+            return false
+        }
+
+        logger.info("Attempting automatic recurring match for document")
+
+        do {
+            // Use the matcher service to find and attach to matching instance
+            if let matchResult = try await matcherService.match(document: document) {
+                // Match found - attach the document to the instance
+                try await matcherService.attachDocument(
+                    document,
+                    to: matchResult.instance,
+                    template: matchResult.template
+                )
+
+                logger.info("AUTO-MATCHED document to recurring instance: period=\(matchResult.instance.periodKey), score=\(String(format: "%.2f", matchResult.matchScore)), reason=\(matchResult.matchReason)")
+                return true
+            } else {
+                logger.debug("No matching recurring instance found for document")
+                return false
+            }
+        } catch {
+            // Log but don't fail the finalization - matching is a nice-to-have
+            logger.error("Recurring match failed: \(error.localizedDescription)")
+            return false
+        }
     }
 }

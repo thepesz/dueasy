@@ -35,6 +35,9 @@ struct HomeView: View {
     /// Callback for navigating to Documents tab with overdue filter
     var onNavigateToOverdue: (() -> Void)?
 
+    /// Callback for navigating to scan/add document
+    var onNavigateToScan: (() -> Void)?
+
     var body: some View {
         NavigationStack {
             Group {
@@ -712,7 +715,7 @@ struct HomeView: View {
 
             // Link to scan
             Button {
-                // Navigate to scan
+                onNavigateToScan?()
             } label: {
                 HStack(spacing: Spacing.xs) {
                     Image(systemName: "doc.viewfinder")
