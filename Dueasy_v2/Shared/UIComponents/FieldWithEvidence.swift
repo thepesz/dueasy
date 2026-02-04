@@ -54,10 +54,8 @@ struct FieldWithEvidence: View {
                 .lineLimit(1...3)
                 .reviewModeBorder(reviewMode)
 
-            // Evidence indicator
-            if let evidence = evidence {
-                EvidenceIndicator(bbox: evidence, confidence: confidence)
-            }
+            // NOTE: EvidenceIndicator removed for clean production UI
+            // The evidence data is still available for internal use but not displayed
 
             // Alternatives row (if multiple candidates available)
             if alternatives.count > 1 {
@@ -148,9 +146,12 @@ struct ConfidenceBadge: View {
     }
 }
 
-// MARK: - Evidence Indicator
+// MARK: - Evidence Indicator (UNUSED in Production)
 
 /// Shows where in the document a field value was found.
+/// NOTE: This component is NOT used in production UI.
+/// It remains available for debug builds or future analytics features.
+/// All usages have been removed for a clean, minimal user experience.
 struct EvidenceIndicator: View {
 
     let bbox: BoundingBox
@@ -199,6 +200,7 @@ struct EvidenceIndicator: View {
 // MARK: - Alternatives Row
 
 /// Horizontal scrolling row of alternative extraction candidates.
+/// NOTE: Production UI - shows clean "Other possibilities" label.
 struct AlternativesRow: View {
 
     let alternatives: [ExtractionCandidate]
@@ -207,7 +209,7 @@ struct AlternativesRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.xxs) {
-            Text("Alternatives")
+            Text(L10n.Review.otherPossibilities.localized)
                 .font(Typography.caption2)
                 .foregroundStyle(.tertiary)
 
@@ -231,11 +233,12 @@ struct AlternativesRow: View {
 // MARK: - Alternative Chip
 
 /// Tappable chip showing an alternative extraction candidate.
+/// NOTE: Production UI - shows only the value and confidence dots, no technical details.
 struct AlternativeChip: View {
 
     let value: String
     let confidence: Double
-    let source: String
+    let source: String  // Kept for API compatibility but not displayed
     let isSelected: Bool
     let onTap: () -> Void
 
@@ -243,26 +246,19 @@ struct AlternativeChip: View {
 
     var body: some View {
         Button(action: onTap) {
-            VStack(alignment: .leading, spacing: 2) {
+            HStack(spacing: Spacing.xs) {
                 Text(truncatedValue)
                     .font(Typography.caption1.weight(.medium))
                     .foregroundStyle(isSelected ? .white : .primary)
                     .lineLimit(1)
 
-                HStack(spacing: 4) {
-                    // Confidence indicator dots
-                    HStack(spacing: 2) {
-                        ForEach(0..<3) { index in
-                            Circle()
-                                .fill(dotColor(for: index))
-                                .frame(width: 4, height: 4)
-                        }
+                // Confidence indicator dots only - no technical source text
+                HStack(spacing: 2) {
+                    ForEach(0..<3) { index in
+                        Circle()
+                            .fill(dotColor(for: index))
+                            .frame(width: 4, height: 4)
                     }
-
-                    Text(truncatedSource)
-                        .font(Typography.caption2)
-                        .foregroundStyle(isSelected ? .white.opacity(0.8) : .secondary)
-                        .lineLimit(1)
                 }
             }
             .padding(.horizontal, Spacing.sm)
@@ -282,23 +278,10 @@ struct AlternativeChip: View {
     }
 
     private var truncatedValue: String {
-        if value.count > 25 {
-            return String(value.prefix(22)) + "..."
+        if value.count > 30 {
+            return String(value.prefix(27)) + "..."
         }
         return value
-    }
-
-    private var truncatedSource: String {
-        // Clean up source description
-        let cleaned = source
-            .replacingOccurrences(of: "anchor-", with: "")
-            .replacingOccurrences(of: "region: ", with: "")
-            .replacingOccurrences(of: "pattern: ", with: "")
-
-        if cleaned.count > 15 {
-            return String(cleaned.prefix(12)) + "..."
-        }
-        return cleaned
     }
 
     private func dotColor(for index: Int) -> Color {
@@ -382,22 +365,20 @@ struct DateFieldWithEvidence: View {
             )
             .datePickerStyle(.compact)
             .labelsHidden()
+            .environment(\.locale, LocalizationManager.shared.currentLocale)
 
             // Past date warning
             if showPastDateWarning {
                 HStack(spacing: Spacing.xxs) {
                     Image(systemName: "exclamationmark.triangle.fill")
                         .font(.caption)
-                    Text("This date is in the past")
+                    Text(L10n.Review.dueDatePast.localized)
                         .font(Typography.caption1)
                 }
                 .foregroundStyle(AppColors.warning)
             }
 
-            // Evidence indicator
-            if let evidence = evidence {
-                EvidenceIndicator(bbox: evidence, confidence: confidence)
-            }
+            // NOTE: EvidenceIndicator removed for clean production UI
 
             // Date alternatives
             if alternatives.count > 1 {
@@ -419,15 +400,16 @@ struct DateAlternativesRow: View {
     let selected: Date
     let onSelect: (DateCandidate) -> Void
 
-    private let dateFormatter: DateFormatter = {
+    private var dateFormatter: DateFormatter {
         let formatter = DateFormatter()
+        formatter.locale = LocalizationManager.shared.currentLocale
         formatter.dateStyle = .medium
         return formatter
-    }()
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.xxs) {
-            Text("Other dates found")
+            Text(L10n.Review.otherDatesFound.localized)
                 .font(Typography.caption2)
                 .foregroundStyle(.tertiary)
 
@@ -447,18 +429,21 @@ struct DateAlternativesRow: View {
     }
 }
 
+/// Date alternative chip for production UI.
+/// NOTE: Shows only the date and relative day info, no technical extraction details.
 struct DateAlternativeChip: View {
 
     let date: Date
-    let reason: String
+    let reason: String  // Kept for API compatibility but not displayed
     let isSelected: Bool
     let onTap: () -> Void
 
-    private let dateFormatter: DateFormatter = {
+    private var dateFormatter: DateFormatter {
         let formatter = DateFormatter()
+        formatter.locale = LocalizationManager.shared.currentLocale
         formatter.dateFormat = "dd.MM.yy"
         return formatter
-    }()
+    }
 
     var body: some View {
         Button(action: onTap) {
@@ -467,7 +452,8 @@ struct DateAlternativeChip: View {
                     .font(Typography.caption1.weight(.medium))
                     .foregroundStyle(isSelected ? .white : .primary)
 
-                Text(truncatedReason)
+                // Show user-friendly relative date instead of technical reason
+                Text(relativeDateDescription)
                     .font(Typography.caption2)
                     .foregroundStyle(isSelected ? .white.opacity(0.8) : .secondary)
                     .lineLimit(1)
@@ -478,13 +464,40 @@ struct DateAlternativeChip: View {
             .clipShape(RoundedRectangle(cornerRadius: CornerRadius.sm, style: .continuous))
         }
         .buttonStyle(.plain)
+        .accessibilityLabel("\(dateFormatter.string(from: date)), \(relativeDateDescription)")
     }
 
-    private var truncatedReason: String {
-        if reason.count > 20 {
-            return String(reason.prefix(17)) + "..."
+    /// User-friendly relative date description
+    private var relativeDateDescription: String {
+        var calendar = Calendar.current
+        calendar.locale = LocalizationManager.shared.currentLocale
+        let today = calendar.startOfDay(for: Date())
+        let targetDate = calendar.startOfDay(for: date)
+
+        guard let daysDifference = calendar.dateComponents([.day], from: today, to: targetDate).day else {
+            return ""
         }
-        return reason
+
+        switch daysDifference {
+        case ..<0:
+            let absDays = abs(daysDifference)
+            if absDays == 1 {
+                return L10n.Review.dateYesterday.localized
+            }
+            return L10n.Review.dateDaysAgo.localized(with: absDays)
+        case 0:
+            return L10n.Review.dateToday.localized
+        case 1:
+            return L10n.Review.dateTomorrow.localized
+        case 2...7:
+            return L10n.Review.dateInDays.localized(with: daysDifference)
+        case 8...14:
+            return L10n.Review.dateNextWeek.localized
+        case 15...30:
+            return L10n.Review.dateInWeeks.localized(with: daysDifference / 7)
+        default:
+            return L10n.Review.dateInMonths.localized(with: daysDifference / 30)
+        }
     }
 }
 
@@ -556,6 +569,8 @@ struct AmountFieldWithEvidence: View {
 
 // MARK: - Amount Alternatives Row
 
+/// Amount alternatives row for production UI.
+/// NOTE: Shows clean "Other amounts found" label.
 struct AmountAlternativesRow: View {
 
     let alternatives: [(Decimal, String)]
@@ -565,7 +580,7 @@ struct AmountAlternativesRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.xxs) {
-            Text("Detected amounts")
+            Text(L10n.Review.otherAmountsFound.localized)
                 .font(Typography.caption2)
                 .foregroundStyle(.tertiary)
 

@@ -2,29 +2,43 @@ import Foundation
 import UIKit
 
 /// Routes document analysis to appropriate provider (local or cloud).
-/// Implements the routing logic based on tier, settings, and document complexity.
 ///
-/// Routing Strategy:
-/// 1. Free tier: Always local analysis
-/// 2. Pro tier (local-with-assist): Local first, cloud fallback on low confidence
-/// 3. Pro tier (always-cloud): Cloud primary, local fallback on network failure
+/// ## Routing Strategy (Cloud-First for All Users)
 ///
-/// The router handles:
-/// - Provider selection based on tier and settings
-/// - Graceful fallback between providers
-/// - Result merging when multiple providers are used
-/// - Confidence thresholds for routing decisions
+/// Both Free and Pro users follow the same cloud-first routing logic:
+/// 1. **If online and backend available**: Try cloud extraction first
+///    - Backend enforces monthly limits (Free: 3/month, Pro: 100/month)
+///    - If limit exceeded: propagate rate limit error to UI
+/// 2. **If offline or backend error (not rate limit)**: Fall back to local analysis
+/// 3. **If cloud analysis disabled in settings**: Use local-only
+///
+/// ## Key Design Decisions
+///
+/// - **NO client-side monthly limit enforcement** - Backend is source of truth
+/// - **Free tier gets cloud extraction** (within backend-enforced limits)
+/// - **Graceful degradation** to local when offline/backend errors
+/// - **Rate limit errors propagate** to UI (not silent fallback)
+///
+/// ## ExtractionMode Tracking
+///
+/// Results include `extractionMode` field:
+/// - `.cloud` - Cloud AI extraction succeeded
+/// - `.localFallback` - Backend error caused fallback
+/// - `.offlineFallback` - Device offline
+/// - `.localOnly` - Cloud disabled in settings
 protocol DocumentAnalysisRouterProtocol: Sendable {
 
     /// Analyze document with automatic routing.
-    /// Routes to appropriate provider(s) based on tier and settings.
+    /// Routes to appropriate provider(s) based on settings and availability.
     /// - Parameters:
     ///   - ocrResult: Pre-extracted OCR result with text and line data
     ///   - images: Original document images (for cloud vision if needed)
     ///   - documentType: Expected document type for parsing hints
-    ///   - forceCloud: Override routing to use cloud (Pro tier only)
+    ///   - forceCloud: Override routing to use cloud (ignored if offline)
     /// - Returns: Best analysis result from available providers
-    /// - Throws: `AppError` if all providers fail
+    /// - Throws: `CloudExtractionError.rateLimitExceeded` if monthly limit exceeded,
+    ///           `CloudExtractionError.authenticationRequired` if sign-in needed,
+    ///           `AppError` if all providers fail
     func analyzeDocument(
         ocrResult: OCRResult,
         images: [UIImage],
@@ -32,11 +46,11 @@ protocol DocumentAnalysisRouterProtocol: Sendable {
         forceCloud: Bool
     ) async throws -> DocumentAnalysisResult
 
-    /// Current analysis mode based on tier and settings.
+    /// Current analysis mode based on settings.
     var analysisMode: AnalysisMode { get }
 
     /// Check if cloud analysis is currently available.
-    /// Returns false if not Pro, not signed in, or offline.
+    /// Returns false if not signed in or offline.
     var isCloudAvailable: Bool { get async }
 
     /// Routing statistics for debugging and analytics.
@@ -46,22 +60,27 @@ protocol DocumentAnalysisRouterProtocol: Sendable {
 // MARK: - Analysis Mode
 
 /// Analysis mode determines routing behavior.
+/// Note: Cloud extraction is available to ALL users (within backend-enforced limits).
 enum AnalysisMode: String, Sendable, Codable {
-    /// Free tier - always use local parsing
+
+    /// Local-only parsing (cloud disabled in settings)
     case localOnly = "local_only"
 
-    /// Pro tier default - local first, cloud fallback on low confidence
-    case localWithCloudAssist = "local_with_cloud_assist"
+    /// Cloud-first with local fallback (default for all users)
+    /// Tries cloud extraction first, falls back to local on errors.
+    /// Backend enforces monthly limits (Free: 3, Pro: 100).
+    case cloudWithLocalFallback = "cloud_with_local_fallback"
 
-    /// Pro tier option - always use cloud for maximum accuracy
+    /// Always use cloud for maximum accuracy.
+    /// Falls back to local only if offline.
     case alwaysCloud = "always_cloud"
 
     var displayName: String {
         switch self {
         case .localOnly:
             return "Local Only"
-        case .localWithCloudAssist:
-            return "Smart (Local + Cloud)"
+        case .cloudWithLocalFallback:
+            return "Smart (Cloud + Local)"
         case .alwaysCloud:
             return "Maximum Accuracy"
         }
@@ -71,20 +90,10 @@ enum AnalysisMode: String, Sendable, Codable {
         switch self {
         case .localOnly:
             return "All processing happens on your device. Fast and private."
-        case .localWithCloudAssist:
-            return "Uses on-device parsing first. Falls back to cloud AI when confidence is low."
+        case .cloudWithLocalFallback:
+            return "Uses cloud AI for best accuracy. Falls back to on-device when offline."
         case .alwaysCloud:
             return "Always uses cloud AI for highest accuracy. Requires internet connection."
-        }
-    }
-
-    /// Whether this mode requires Pro subscription
-    var requiresPro: Bool {
-        switch self {
-        case .localOnly:
-            return false
-        case .localWithCloudAssist, .alwaysCloud:
-            return true
         }
     }
 }
@@ -102,13 +111,13 @@ struct RoutingStats: Sendable {
     /// Documents analyzed with cloud
     var cloudAssisted: Int = 0
 
-    /// Cloud fallbacks due to low local confidence
+    /// Cloud fallbacks due to low local confidence (deprecated - kept for compatibility)
     var cloudFallbacks: Int = 0
 
     /// Local fallbacks due to cloud failure
     var localFallbacks: Int = 0
 
-    /// Average local confidence when cloud was used
+    /// Average local confidence when cloud was used (deprecated - kept for compatibility)
     var avgLocalConfidenceBeforeCloud: Double = 0.0
 
     /// Cloud success rate
@@ -117,7 +126,7 @@ struct RoutingStats: Sendable {
         return Double(cloudAssisted - localFallbacks) / Double(cloudAssisted)
     }
 
-    /// Percentage of documents needing cloud assist
+    /// Percentage of documents using cloud
     var cloudAssistRate: Double {
         guard totalRouted > 0 else { return 0.0 }
         return Double(cloudAssisted) / Double(totalRouted)
@@ -129,13 +138,11 @@ struct RoutingStats: Sendable {
 /// Configuration for routing decisions.
 struct RoutingConfiguration: Sendable {
 
-    /// Minimum local confidence to skip cloud assist
-    /// Below this threshold, cloud is consulted (if available)
-    var cloudAssistThreshold: Double = 0.99  // Set to 0.99 for testing - forces cloud for almost all scans
+    /// Minimum local confidence to skip cloud assist (deprecated - cloud-first routing)
+    var cloudAssistThreshold: Double = 0.99
 
-    /// Minimum confidence to consider a result usable
-    /// Below this, we try another provider
-    var minimumAcceptableConfidence: Double = 0.99  // Set to 0.99 for testing - forces cloud assist
+    /// Minimum confidence to consider a result usable (deprecated - cloud-first routing)
+    var minimumAcceptableConfidence: Double = 0.99
 
     /// Maximum wait time for cloud analysis before falling back
     var cloudTimeoutSeconds: TimeInterval = 30.0
@@ -154,7 +161,6 @@ struct RoutingConfiguration: Sendable {
 
     /// Speed-optimized configuration
     static let fast = RoutingConfiguration(
-        cloudAssistThreshold: 0.90,
         cloudTimeoutSeconds: 15.0,
         preferSpeed: true,
         retryCloudOnError: false,
@@ -163,8 +169,6 @@ struct RoutingConfiguration: Sendable {
 
     /// Accuracy-optimized configuration
     static let accurate = RoutingConfiguration(
-        cloudAssistThreshold: 0.60,
-        minimumAcceptableConfidence: 0.40,
         cloudTimeoutSeconds: 60.0,
         retryCloudOnError: true,
         maxCloudRetries: 3

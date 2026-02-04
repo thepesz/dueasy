@@ -1,25 +1,31 @@
 /**
  * DuEasy Cloud Functions
  *
- * Provides AI-powered document analysis for Pro tier users.
+ * Provides AI-powered document analysis for all users with tier-based limits.
  * Privacy-first: Only processes OCR text, never full images.
  *
  * Functions:
  * - analyzeDocument: Extract fields from invoice OCR text using OpenAI
  * - analyzeDocumentWithImages: Fallback for low-confidence scenarios (opt-in)
- * - getSubscriptionStatus: Verify user subscription status
- * - restorePurchases: Restore previous purchases
+ * - getSubscriptionStatus: Verify user subscription status via RevenueCat
+ * - getUsageInfo: Get current usage and limit info
+ * - revenueCatWebhook: Handle RevenueCat subscription events
  */
 
-const {onCall, HttpsError} = require('firebase-functions/v2/https');
+const {onCall, onRequest, HttpsError} = require('firebase-functions/v2/https');
 const {setGlobalOptions} = require('firebase-functions/v2');
 const {defineString} = require('firebase-functions/params');
 const admin = require('firebase-admin');
 const OpenAI = require('openai');
 
+// Import usage and subscription modules
+const {checkAndIncrementUsage, decrementUsage, getUsage, MONTHLY_LIMITS} = require('./usageCounter');
+const {getUserTier, getSubscriptionDetails, handleWebhookEvent, invalidateCache} = require('./revenueCat');
+
 // Define parameters for environment config
 const openaiApiKey = defineString('OPENAI_API_KEY');
-const openaiModel = defineString('OPENAI_MODEL', {default: 'gpt-5-mini'});
+const openaiModel = defineString('OPENAI_MODEL', {default: 'gpt-4o-mini'});
+const revenueCatWebhookSecret = defineString('REVENUECAT_WEBHOOK_SECRET', {default: ''});
 
 // Initialize Firebase Admin
 admin.initializeApp();
@@ -41,16 +47,15 @@ function getOpenAIClient() {
   return openai;
 }
 
-// Rate limiting cache (in-memory, resets on cold start)
-const rateLimits = new Map();
-const RATE_LIMIT_PER_DAY = 100;
-const RATE_LIMIT_PER_HOUR = 20;
-
 /**
  * Analyze document using OCR text only (privacy-first approach).
  *
  * This is the PRIMARY method - keeps images on device.
  * Only OCR text is sent to cloud for AI analysis.
+ *
+ * Rate limiting:
+ * - Free tier: 3 extractions/month
+ * - Pro tier: 100 extractions/month
  *
  * @param {Object} data - Request data
  * @param {string} data.ocrText - Pre-extracted OCR text
@@ -69,54 +74,64 @@ exports.analyzeDocument = onCall({
   // Verify authentication
   if (!auth) {
     throw new HttpsError(
-      'unauthenticated',
-      'Authentication required for AI analysis'
+        'unauthenticated',
+        'Authentication required for AI analysis',
     );
   }
 
-  // Check rate limits
-  await checkRateLimit(auth.uid);
+  const uid = auth.uid;
+
+  // Check and increment monthly usage limit
+  const usageResult = await checkAndIncrementUsage(uid);
+
+  if (!usageResult.allowed) {
+    // Monthly limit exceeded - return structured error for iOS paywall
+    console.log('Rate limit exceeded for user:', uid, usageResult.error.data);
+
+    throw new HttpsError(
+        'resource-exhausted',
+        'Monthly extraction limit exceeded',
+        usageResult.error.data, // { used, limit, tier, resetDateISO }
+    );
+  }
 
   // Validate input
   const {ocrText, documentType, languageHints, currencyHints} = data;
 
   if (!ocrText || typeof ocrText !== 'string') {
+    // Decrement usage since we're not processing
+    await decrementUsage(uid);
     throw new HttpsError(
-      'invalid-argument',
-      'OCR text is required and must be a string'
+        'invalid-argument',
+        'OCR text is required and must be a string',
     );
   }
 
   if (ocrText.length > 100000) {
+    // Decrement usage since we're not processing
+    await decrementUsage(uid);
     throw new HttpsError(
-      'invalid-argument',
-      'OCR text too long (max 100,000 characters)'
+        'invalid-argument',
+        'OCR text too long (max 100,000 characters)',
     );
   }
 
-  // TESTING: Temporarily skip Pro subscription check
-  // TODO: Re-enable this check after testing
-  // const hasPro = await checkProSubscription(auth.uid);
-  // if (!hasPro) {
-  //   throw new HttpsError(
-  //     'permission-denied',
-  //     'Pro subscription required for AI analysis. Please upgrade to continue.'
-  //   );
-  // }
-  console.log('⚠️ TESTING MODE: Skipping Pro subscription check for user:', auth.uid);
-
   try {
     console.log('Starting AI analysis', {
-      userId: auth.uid,
+      userId: uid,
+      tier: usageResult.tier,
+      used: usageResult.used,
+      limit: usageResult.limit,
+      remaining: usageResult.remaining,
       documentType: documentType || 'invoice',
       textLength: ocrText.length,
     });
 
     // Build system prompt
     const systemPrompt = buildSystemPrompt(
-      documentType || 'invoice',
-      languageHints || ['pl', 'en'],
-      currencyHints || ['PLN', 'EUR', 'USD']
+        documentType || 'invoice',
+        languageHints || ['pl', 'en'],
+        currencyHints || ['PLN', 'EUR', 'USD'],
     );
 
     // Call OpenAI
@@ -141,7 +156,8 @@ exports.analyzeDocument = onCall({
 
     // Log usage for cost tracking (no PII)
     console.log('AI analysis completed', {
-      userId: auth.uid,
+      userId: uid,
+      tier: usageResult.tier,
       tokensUsed: completion.usage.total_tokens,
       promptTokens: completion.usage.prompt_tokens,
       completionTokens: completion.usage.completion_tokens,
@@ -150,14 +166,24 @@ exports.analyzeDocument = onCall({
     });
 
     // Update user usage statistics
-    await updateUsageStats(auth.uid, completion.usage.total_tokens);
+    await updateUsageStats(uid, completion.usage.total_tokens);
 
-    // Return structured result
-    return formatAnalysisResult(result);
+    // Return structured result with usage info
+    const analysisResult = formatAnalysisResult(result);
+    analysisResult.usageInfo = {
+      used: usageResult.used,
+      limit: usageResult.limit,
+      remaining: usageResult.remaining,
+      tier: usageResult.tier,
+    };
 
+    return analysisResult;
   } catch (error) {
+    // Decrement usage on failure so user isn't charged for failed attempt
+    await decrementUsage(uid);
+
     console.error('OpenAI API error', {
-      userId: auth.uid,
+      userId: uid,
       error: error.message,
       stack: error.stack,
     });
@@ -165,22 +191,22 @@ exports.analyzeDocument = onCall({
     // Handle specific OpenAI errors
     if (error.status === 429) {
       throw new HttpsError(
-        'resource-exhausted',
-        'AI service rate limit exceeded. Please try again in a few minutes.'
+          'resource-exhausted',
+          'AI service rate limit exceeded. Please try again in a few minutes.',
       );
     }
 
     if (error.status === 401) {
       throw new HttpsError(
-        'internal',
-        'AI service configuration error. Please contact support.'
+          'internal',
+          'AI service configuration error. Please contact support.',
       );
     }
 
     throw new HttpsError(
-      'internal',
-      'Failed to analyze document with AI. Please try again.',
-      error.message
+        'internal',
+        'Failed to analyze document with AI. Please try again.',
+        error.message,
     );
   }
 });
@@ -188,6 +214,7 @@ exports.analyzeDocument = onCall({
 /**
  * Analyze with cropped images (fallback for low-confidence scenarios).
  * User must explicitly opt-in to send image data.
+ * Pro subscription required for image analysis.
  *
  * @param {Object} data - Request data
  * @param {string} data.ocrText - OCR text (may be null)
@@ -207,26 +234,43 @@ exports.analyzeDocumentWithImages = onCall({
     throw new HttpsError('unauthenticated', 'Authentication required');
   }
 
-  await checkRateLimit(auth.uid);
+  const uid = auth.uid;
+
+  // Check usage limit
+  const usageResult = await checkAndIncrementUsage(uid);
+  if (!usageResult.allowed) {
+    throw new HttpsError(
+        'resource-exhausted',
+        'Monthly extraction limit exceeded',
+        usageResult.error.data,
+    );
+  }
+
+  // Image analysis requires Pro subscription
+  const tier = await getUserTier(uid);
+  if (tier !== 'pro') {
+    await decrementUsage(uid);
+    throw new HttpsError(
+        'permission-denied',
+        'Pro subscription required for image analysis',
+    );
+  }
 
   const {ocrText, images, documentType, languageHints} = data;
 
   if (!images || !Array.isArray(images) || images.length === 0) {
+    await decrementUsage(uid);
     throw new HttpsError('invalid-argument', 'At least one image required');
   }
 
   if (images.length > 5) {
+    await decrementUsage(uid);
     throw new HttpsError('invalid-argument', 'Maximum 5 images allowed');
-  }
-
-  const hasPro = await checkProSubscription(auth.uid);
-  if (!hasPro) {
-    throw new HttpsError('permission-denied', 'Pro subscription required');
   }
 
   try {
     console.log('Starting vision analysis', {
-      userId: auth.uid,
+      userId: uid,
       imageCount: images.length,
       hasOcrText: !!ocrText,
     });
@@ -236,16 +280,16 @@ exports.analyzeDocumentWithImages = onCall({
       {
         role: 'system',
         content: buildSystemPrompt(
-          documentType || 'invoice',
-          languageHints || ['pl', 'en'],
-          ['PLN', 'EUR', 'USD']
+            documentType || 'invoice',
+            languageHints || ['pl', 'en'],
+            ['PLN', 'EUR', 'USD'],
         ),
       },
       {
         role: 'user',
         content: [
           ocrText ? {type: 'text', text: `OCR Text:\n${ocrText}`} : null,
-          ...images.map(img => ({
+          ...images.map((img) => ({
             type: 'image_url',
             image_url: {
               url: `data:image/jpeg;base64,${img}`,
@@ -258,7 +302,7 @@ exports.analyzeDocumentWithImages = onCall({
 
     // Call OpenAI Vision
     const completion = await getOpenAIClient().chat.completions.create({
-      model: 'gpt-5-mini', // Using gpt-5-mini
+      model: 'gpt-4o-mini',
       temperature: 0.1,
       response_format: {type: 'json_object'},
       messages: messages,
@@ -267,32 +311,40 @@ exports.analyzeDocumentWithImages = onCall({
     const result = JSON.parse(completion.choices[0].message.content);
 
     console.log('Vision analysis completed', {
-      userId: auth.uid,
+      userId: uid,
       tokensUsed: completion.usage.total_tokens,
       model: completion.model,
     });
 
-    await updateUsageStats(auth.uid, completion.usage.total_tokens);
+    await updateUsageStats(uid, completion.usage.total_tokens);
 
-    return formatAnalysisResult(result);
+    const analysisResult = formatAnalysisResult(result);
+    analysisResult.usageInfo = {
+      used: usageResult.used,
+      limit: usageResult.limit,
+      remaining: usageResult.remaining,
+      tier: usageResult.tier,
+    };
 
+    return analysisResult;
   } catch (error) {
+    await decrementUsage(uid);
+
     console.error('Vision analysis error', {
-      userId: auth.uid,
+      userId: uid,
       error: error.message,
     });
 
     throw new HttpsError(
-      'internal',
-      'Failed to analyze images. Please try again.',
-      error.message
+        'internal',
+        'Failed to analyze images. Please try again.',
+        error.message,
     );
   }
 });
 
 /**
- * Get subscription status for user.
- * Verifies App Store receipts and returns entitlements.
+ * Get subscription status for user via RevenueCat.
  */
 exports.getSubscriptionStatus = onCall({
   cors: true,
@@ -304,74 +356,26 @@ exports.getSubscriptionStatus = onCall({
   }
 
   try {
-    const userDoc = await admin.firestore()
-      .collection('users')
-      .doc(auth.uid)
-      .get();
+    const details = await getSubscriptionDetails(auth.uid);
+    const usage = await getUsage(auth.uid);
 
-    if (!userDoc.exists) {
-      // New user - default to free tier
-      return {
-        status: 'free',
-        tier: 'free',
-        expiresAt: null,
-        willAutoRenew: false,
-        productId: null,
-        originalPurchaseDate: null,
-        isTrialPeriod: false,
-        isInGracePeriod: false,
-      };
-    }
-
-    const userData = userDoc.data();
-    const subscription = userData.subscription || {};
-
-    // Check if subscription is expired
-    if (subscription.expiresAt) {
-      const expiryDate = new Date(subscription.expiresAt);
-      const now = new Date();
-
-      if (expiryDate < now && !subscription.isInGracePeriod) {
-        // Subscription expired
-        return {
-          status: 'expired',
-          tier: 'free',
-          expiresAt: subscription.expiresAt,
-          willAutoRenew: false,
-          productId: subscription.productId,
-          originalPurchaseDate: subscription.originalPurchaseDate,
-          isTrialPeriod: false,
-          isInGracePeriod: false,
-        };
-      }
-    }
-
-    // Active subscription
-    if (subscription.tier === 'pro') {
-      return {
-        status: 'pro',
-        tier: 'pro',
-        expiresAt: subscription.expiresAt || null,
-        willAutoRenew: subscription.willAutoRenew !== false,
-        productId: subscription.productId || null,
-        originalPurchaseDate: subscription.originalPurchaseDate || null,
-        isTrialPeriod: subscription.isTrialPeriod === true,
-        isInGracePeriod: subscription.isInGracePeriod === true,
-      };
-    }
-
-    // Default to free
     return {
-      status: 'free',
-      tier: 'free',
-      expiresAt: null,
-      willAutoRenew: false,
-      productId: null,
-      originalPurchaseDate: null,
-      isTrialPeriod: false,
-      isInGracePeriod: false,
+      status: details.tier,
+      tier: details.tier,
+      isActive: details.isActive,
+      expiresAt: details.entitlement?.expiresDate || null,
+      willAutoRenew: details.entitlement?.willRenew || false,
+      productId: details.entitlement?.productIdentifier || null,
+      originalPurchaseDate: details.entitlement?.purchaseDate || null,
+      isTrialPeriod: details.entitlement?.periodType === 'trial',
+      isInGracePeriod: details.entitlement?.periodType === 'grace',
+      source: details.source,
+      usage: {
+        used: usage.count,
+        limit: usage.limit,
+        remaining: usage.limit - usage.count,
+      },
     };
-
   } catch (error) {
     console.error('Error fetching subscription status', {
       userId: auth.uid,
@@ -379,16 +383,52 @@ exports.getSubscriptionStatus = onCall({
     });
 
     throw new HttpsError(
-      'internal',
-      'Failed to fetch subscription status',
-      error.message
+        'internal',
+        'Failed to fetch subscription status',
+        error.message,
+    );
+  }
+});
+
+/**
+ * Get current usage information for user.
+ */
+exports.getUsageInfo = onCall({
+  cors: true,
+}, async (request) => {
+  const {auth} = request;
+
+  if (!auth) {
+    throw new HttpsError('unauthenticated', 'Authentication required');
+  }
+
+  try {
+    const usage = await getUsage(auth.uid);
+
+    return {
+      used: usage.count,
+      limit: usage.limit,
+      remaining: usage.limit - usage.count,
+      tier: usage.tier,
+      limits: MONTHLY_LIMITS,
+    };
+  } catch (error) {
+    console.error('Error fetching usage info', {
+      userId: auth.uid,
+      error: error.message,
+    });
+
+    throw new HttpsError(
+        'internal',
+        'Failed to fetch usage info',
+        error.message,
     );
   }
 });
 
 /**
  * Restore previous purchases.
- * Verifies App Store receipts and restores entitlements.
+ * Invalidates cache and returns fresh subscription status.
  */
 exports.restorePurchases = onCall({
   cors: true,
@@ -399,14 +439,62 @@ exports.restorePurchases = onCall({
     throw new HttpsError('unauthenticated', 'Authentication required');
   }
 
-  // TODO: Implement StoreKit server-side receipt validation
-  // For now, just return current status
-  console.log('Restore purchases requested', {userId: auth.uid});
+  // Invalidate cache to force fresh lookup
+  invalidateCache(auth.uid);
+
+  // Get fresh subscription details
+  const details = await getSubscriptionDetails(auth.uid);
+
+  console.log('Restore purchases requested', {
+    userId: auth.uid,
+    tier: details.tier,
+  });
 
   return {
     success: true,
-    message: 'Receipt validation not yet implemented',
+    tier: details.tier,
+    isActive: details.isActive,
   };
+});
+
+/**
+ * RevenueCat webhook endpoint for subscription events.
+ * Updates local subscription state when RevenueCat notifies of changes.
+ */
+exports.revenueCatWebhook = onRequest({
+  cors: false, // Webhooks don't need CORS
+}, async (req, res) => {
+  // Verify webhook secret if configured
+  const secret = revenueCatWebhookSecret.value();
+  if (secret) {
+    const authHeader = req.headers['authorization'];
+    if (authHeader !== `Bearer ${secret}`) {
+      console.warn('RevenueCat webhook: Invalid authorization');
+      res.status(401).send('Unauthorized');
+      return;
+    }
+  }
+
+  if (req.method !== 'POST') {
+    res.status(405).send('Method not allowed');
+    return;
+  }
+
+  try {
+    const event = req.body;
+
+    if (!event || !event.type) {
+      res.status(400).send('Invalid webhook payload');
+      return;
+    }
+
+    await handleWebhookEvent(event);
+
+    res.status(200).send('OK');
+  } catch (error) {
+    console.error('RevenueCat webhook error:', error);
+    res.status(500).send('Internal error');
+  }
 });
 
 // ============================================================================
@@ -552,74 +640,6 @@ function buildCandidates(candidates) {
 }
 
 /**
- * Check if user has Pro subscription.
- */
-async function checkProSubscription(userId) {
-  try {
-    const userDoc = await admin.firestore()
-      .collection('users')
-      .doc(userId)
-      .get();
-
-    if (!userDoc.exists) {
-      return false;
-    }
-
-    const subscription = userDoc.data().subscription;
-    if (!subscription || subscription.tier !== 'pro') {
-      return false;
-    }
-
-    // Check expiration
-    if (subscription.expiresAt) {
-      const expiryDate = new Date(subscription.expiresAt);
-      const now = new Date();
-
-      if (expiryDate < now && !subscription.isInGracePeriod) {
-        return false;
-      }
-    }
-
-    return true;
-
-  } catch (error) {
-    console.error('Error checking subscription', {userId, error: error.message});
-    return false;
-  }
-}
-
-/**
- * Check rate limits for user.
- */
-async function checkRateLimit(userId) {
-  const now = Date.now();
-  const hourKey = `${userId}:hour:${Math.floor(now / 3600000)}`;
-  const dayKey = `${userId}:day:${Math.floor(now / 86400000)}`;
-
-  // Check hourly limit
-  const hourCount = rateLimits.get(hourKey) || 0;
-  if (hourCount >= RATE_LIMIT_PER_HOUR) {
-    throw new HttpsError(
-      'resource-exhausted',
-      `Rate limit exceeded. Maximum ${RATE_LIMIT_PER_HOUR} requests per hour.`
-    );
-  }
-
-  // Check daily limit
-  const dayCount = rateLimits.get(dayKey) || 0;
-  if (dayCount >= RATE_LIMIT_PER_DAY) {
-    throw new HttpsError(
-      'resource-exhausted',
-      `Daily limit exceeded. Maximum ${RATE_LIMIT_PER_DAY} requests per day.`
-    );
-  }
-
-  // Increment counters
-  rateLimits.set(hourKey, hourCount + 1);
-  rateLimits.set(dayKey, dayCount + 1);
-}
-
-/**
  * Update user usage statistics.
  */
 async function updateUsageStats(userId, tokensUsed) {
@@ -633,7 +653,6 @@ async function updateUsageStats(userId, tokensUsed) {
         totalTokens: admin.firestore.FieldValue.increment(tokensUsed),
       },
     }, {merge: true});
-
   } catch (error) {
     console.error('Error updating usage stats', {userId, error: error.message});
     // Don't throw - this is not critical

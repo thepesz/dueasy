@@ -14,8 +14,15 @@ import FirebaseFunctions
 // MARK: - App Tier
 
 /// Application tier determining available features.
-/// Free tier: Local-only analysis, no cloud features.
-/// Pro tier: Cloud AI analysis, cloud vault, enhanced accuracy.
+///
+/// ## Cloud Extraction Access
+///
+/// Both tiers have access to cloud extraction with backend-enforced limits:
+/// - Free tier: 3 cloud extractions per month
+/// - Pro tier: 100 cloud extractions per month
+///
+/// Backend is the single source of truth for usage limits.
+/// No client-side enforcement.
 enum AppTier: String, Sendable {
     case free
     case pro
@@ -27,9 +34,20 @@ enum AppTier: String, Sendable {
         }
     }
 
-    /// Whether cloud features are available at this tier
-    var hasCloudFeatures: Bool {
+    /// Whether premium cloud features are available at this tier.
+    /// Note: Basic cloud extraction is available to all tiers (within limits).
+    /// This refers to premium features like cloud vault, priority processing, etc.
+    var hasPremiumCloudFeatures: Bool {
         self == .pro
+    }
+
+    /// Monthly cloud extraction limit for this tier.
+    /// Note: This is informational only. Backend enforces actual limits.
+    var monthlyCloudExtractionLimit: Int {
+        switch self {
+        case .free: return 3
+        case .pro: return 100
+        }
     }
 }
 
@@ -87,8 +105,22 @@ final class AppEnvironment {
 
     // MARK: - App Tier
 
-    /// Current application tier (free or pro)
-    let appTier: AppTier
+    /// Base tier set at initialization (used when subscription service unavailable).
+    /// In production with RevenueCat, use `currentTier` instead which queries subscription state.
+    private let baseTier: AppTier
+
+    /// Current application tier (free or pro).
+    /// Dynamically determined from subscription service when available.
+    /// Falls back to baseTier if subscription check fails.
+    var appTier: AppTier {
+        // For synchronous access, we use the cached tier from subscription changes
+        // The actual tier is determined asynchronously by subscription service
+        return _cachedTier ?? baseTier
+    }
+
+    /// Cached tier updated from subscription service status changes.
+    /// This allows synchronous access to current tier while subscription is managed asynchronously.
+    private var _cachedTier: AppTier?
 
     // MARK: - Repositories
 
@@ -146,9 +178,20 @@ final class AppEnvironment {
     /// Pro tier: StoreKitSubscriptionService (Iteration 2)
     let subscriptionService: SubscriptionServiceProtocol
 
-    /// Document analysis router - lazily initialized for Pro tier.
-    /// Free tier uses LocalOnlyAnalysisRouter (lightweight).
-    /// Pro tier uses HybridAnalysisRouter with cloud gateway (heavy).
+    /// Authentication bootstrapper for managing Firebase auth state.
+    /// Guarantees a Firebase user exists (anonymous or linked) before any cloud extraction requests.
+    /// Provides observable state for UI (isSignedIn, isAppleLinked, currentUserEmail).
+    let authBootstrapper: AuthBootstrapper
+
+    // MARK: - Network Services
+
+    /// Network connectivity monitor for routing decisions.
+    /// Tracks device online/offline state using NWPathMonitor.
+    let networkMonitor: NetworkMonitor
+
+    /// Document analysis router - lazily initialized.
+    /// All tiers use HybridAnalysisRouter with cloud-first routing.
+    /// Backend enforces monthly limits (Free: 3, Pro: 100).
     private let _lazyAnalysisRouter: LazyService<DocumentAnalysisRouterProtocol>
 
     /// Public accessor for analysis router
@@ -159,6 +202,14 @@ final class AppEnvironment {
     // MARK: - Settings
 
     let settingsManager: SettingsManager
+
+    // MARK: - Backup Services
+
+    /// Local backup service for export/import functionality
+    let backupService: BackupServiceProtocol
+
+    /// iCloud auto-backup service for automatic encrypted backups
+    let iCloudBackupService: iCloudBackupService
 
     // MARK: - Configuration
 
@@ -180,7 +231,8 @@ final class AppEnvironment {
     ///   - tier: Application tier (default: .free)
     init(modelContext: ModelContext, tier: AppTier = .free) {
         self.modelContext = modelContext
-        self.appTier = tier
+        self.baseTier = tier
+        self._cachedTier = nil // Will be set from subscription service
 
         // Initialize settings manager first (other services may depend on it)
         self.settingsManager = SettingsManager()
@@ -297,55 +349,109 @@ final class AppEnvironment {
             )
         }
 
-        // Initialize tier-specific auth/subscription services (lightweight)
-        switch tier {
-        case .pro:
-            #if canImport(FirebaseAuth) && canImport(FirebaseFunctions)
-            let firebaseAuth = FirebaseAuthService()
-            self.authService = firebaseAuth
-            self.subscriptionService = FirebaseSubscriptionService(authService: firebaseAuth)
-            #else
-            self.authService = NoOpAuthService()
-            self.subscriptionService = NoOpSubscriptionService()
-            #endif
+        // Initialize auth service (always Firebase when available, for cloud extraction)
+        #if canImport(FirebaseAuth) && canImport(FirebaseFunctions)
+        let firebaseAuth = FirebaseAuthService()
+        self.authService = firebaseAuth
+        #else
+        self.authService = NoOpAuthService()
+        #endif
 
-        case .free:
-            self.authService = NoOpAuthService()
-            self.subscriptionService = NoOpSubscriptionService()
-        }
+        // Initialize subscription service based on environment
+        // Production: Use RevenueCat for real subscription management
+        // Debug/Testing: Use NoOp or Firebase for testing different tiers
+        #if canImport(RevenueCat)
+        // Production: RevenueCat handles all subscription management
+        // Tier is determined by entitlement state, NOT hard-coded
+        self.subscriptionService = RevenueCatSubscriptionService()
+        PrivacyLogger.app.info("Using RevenueCat subscription service")
+        #elseif canImport(FirebaseAuth) && canImport(FirebaseFunctions)
+        // Fallback: Firebase-based subscription service
+        self.subscriptionService = FirebaseSubscriptionService(authService: firebaseAuth)
+        PrivacyLogger.app.info("Using Firebase subscription service (RevenueCat unavailable)")
+        #else
+        // No subscription SDK available - free tier only
+        self.subscriptionService = NoOpSubscriptionService()
+        PrivacyLogger.app.warning("No subscription SDK available - free tier only")
+        #endif
+
+        // Initialize auth bootstrapper with the auth service
+        self.authBootstrapper = AuthBootstrapper(authService: authService)
+
+        // Initialize network monitor
+        // Start monitoring immediately so network status is available for first extraction
+        self.networkMonitor = NetworkMonitor()
+        self.networkMonitor.startMonitoring()
+        PrivacyLogger.app.info("Network monitor started")
 
         // LAZY INITIALIZATION: Analysis Router
-        // For Pro tier, this creates HybridAnalysisRouter with cloud gateway (heavy).
-        // For Free tier, this creates LocalOnlyAnalysisRouter (lightweight but still deferred).
-        let capturedTier = tier
+        // All tiers use HybridAnalysisRouter with cloud-first routing.
+        // Backend enforces monthly limits (Free: 3, Pro: 100).
+        // NO client-side tier-based routing - backend is source of truth.
         let capturedAuthService = self.authService
         let capturedSettingsManager = self.settingsManager
+        let capturedNetworkMonitor: NetworkMonitorProtocol = self.networkMonitor
         let lazyDocAnalysis = self._lazyDocumentAnalysisService
 
         self._lazyAnalysisRouter = LazyService {
-            switch capturedTier {
-            case .pro:
-                #if canImport(FirebaseAuth) && canImport(FirebaseFunctions)
-                PrivacyLogger.app.info("Lazy init: HybridAnalysisRouter (Pro tier)")
-                let cloudGateway = FirebaseCloudExtractionGateway(authService: capturedAuthService)
-                return HybridAnalysisRouter(
-                    localService: lazyDocAnalysis.value,
-                    cloudGateway: cloudGateway,
-                    settingsManager: capturedSettingsManager,
-                    config: .default
-                )
-                #else
-                PrivacyLogger.app.warning("Lazy init: LocalOnlyAnalysisRouter (Pro tier, Firebase unavailable)")
-                return LocalOnlyAnalysisRouter(localService: lazyDocAnalysis.value)
-                #endif
-
-            case .free:
-                PrivacyLogger.app.info("Lazy init: LocalOnlyAnalysisRouter (Free tier)")
-                return LocalOnlyAnalysisRouter(localService: lazyDocAnalysis.value)
-            }
+            #if canImport(FirebaseAuth) && canImport(FirebaseFunctions)
+            PrivacyLogger.app.info("Lazy init: HybridAnalysisRouter (cloud-first routing for all tiers)")
+            let cloudGateway = FirebaseCloudExtractionGateway(authService: capturedAuthService)
+            return HybridAnalysisRouter(
+                localService: lazyDocAnalysis.value,
+                cloudGateway: cloudGateway,
+                networkMonitor: capturedNetworkMonitor,
+                settingsManager: capturedSettingsManager,
+                config: .default
+            )
+            #else
+            PrivacyLogger.app.warning("Lazy init: LocalOnlyAnalysisRouter (Firebase SDK unavailable)")
+            return LocalOnlyAnalysisRouter(localService: lazyDocAnalysis.value)
+            #endif
         }
 
+        // Initialize backup services
+        let localBackupService = LocalBackupService(modelContainer: modelContext.container)
+        self.backupService = localBackupService
+        self.iCloudBackupService = Dueasy_v2.iCloudBackupService(
+            backupService: localBackupService,
+            keychain: KeychainService()
+        )
+        PrivacyLogger.app.info("Backup services initialized")
+
+        // Start observing subscription status changes
+        // This updates _cachedTier whenever subscription state changes
+        startSubscriptionObservation()
+
         PrivacyLogger.app.info("AppEnvironment initialized for tier: \(tier.displayName) (heavy services deferred)")
+    }
+
+    // MARK: - Subscription Observation
+
+    /// Start observing subscription status changes to keep cached tier in sync.
+    /// Called during initialization and whenever subscription service is ready.
+    private func startSubscriptionObservation() {
+        Task { [weak self] in
+            guard let self = self else { return }
+
+            // Initial subscription check
+            let initialStatus = await self.subscriptionService.subscriptionStatus
+            await MainActor.run {
+                self._cachedTier = initialStatus.tier == .pro ? .pro : .free
+                PrivacyLogger.app.info("Initial subscription tier: \(self._cachedTier?.displayName ?? "unknown")")
+            }
+
+            // Listen for ongoing status changes
+            for await status in self.subscriptionService.statusChanges() {
+                await MainActor.run {
+                    let newTier: AppTier = status.tier == .pro ? .pro : .free
+                    if self._cachedTier != newTier {
+                        self._cachedTier = newTier
+                        PrivacyLogger.app.info("Subscription tier changed to: \(newTier.displayName)")
+                    }
+                }
+            }
+        }
     }
 
     // MARK: - Use Case Factory Methods
@@ -908,22 +1014,28 @@ final class AppEnvironment {
 
     // MARK: - Tier Convenience Methods
 
-    /// Check if cloud features are available
-    var hasCloudFeatures: Bool {
-        appTier.hasCloudFeatures
+    /// Check if premium cloud features are available (cloud vault, priority, etc.)
+    /// Note: Basic cloud extraction is available to all tiers.
+    var hasPremiumCloudFeatures: Bool {
+        appTier.hasPremiumCloudFeatures
     }
 
-    /// Check if cloud analysis is currently available
-    /// Requires: Pro tier + signed in + network
+    /// Check if cloud analysis is currently available.
+    /// Requires: signed in + network (available to all tiers within limits)
     var isCloudAnalysisAvailable: Bool {
         get async {
-            guard hasCloudFeatures else { return false }
             return await analysisRouter.isCloudAvailable
         }
     }
 
-    /// Current analysis mode based on tier and settings
+    /// Current analysis mode based on settings
     var currentAnalysisMode: AnalysisMode {
         analysisRouter.analysisMode
+    }
+
+    /// Monthly cloud extraction limit for current tier (informational only).
+    /// Backend enforces actual limits.
+    var monthlyCloudExtractionLimit: Int {
+        appTier.monthlyCloudExtractionLimit
     }
 }

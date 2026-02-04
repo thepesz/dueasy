@@ -73,6 +73,33 @@ final class DocumentReviewViewModel {
     var showDueDateWarning: Bool = false
     var validationErrors: [String] = []
 
+    // MARK: - Extraction Progress (Network-Aware)
+
+    /// Current extraction progress state
+    var extractionProgress: ExtractionProgress = .idle
+
+    /// Extraction failure details (for UI display)
+    var extractionFailure: ExtractionFailure?
+
+    /// Whether to show paywall sheet (user tapped upgrade button in banner)
+    var shouldShowPaywall: Bool = false
+
+    /// Rate limit info for banner display.
+    /// Set when cloud extraction rate limit was exceeded and local fallback was used.
+    /// When non-nil, the UI should show an informative banner with upgrade option.
+    var rateLimitInfo: RateLimitInfo?
+
+    /// Whether rate limit banner should be shown.
+    /// True when extraction completed with rate limit fallback mode.
+    var shouldShowRateLimitBanner: Bool {
+        analysisResult?.extractionMode.isRateLimited == true || rateLimitInfo != nil
+    }
+
+    /// Message to display in rate limit banner
+    var rateLimitBannerMessage: String {
+        rateLimitInfo?.bannerMessage ?? analysisResult?.rateLimitInfo?.bannerMessage ?? ""
+    }
+
     // Permission state
     var calendarPermissionGranted: Bool = false
     var notificationPermissionGranted: Bool = false
@@ -288,13 +315,25 @@ final class DocumentReviewViewModel {
         isProcessingOCR = true
         hasProcessedOCR = true  // Mark as processed immediately to prevent re-runs
         error = nil
+        extractionFailure = nil
+        shouldShowPaywall = false
+        rateLimitInfo = nil
         reviewStartTime = Date()
 
+        // Update progress state
+        extractionProgress = .ocrProcessing
+
         do {
+            // Update progress: now extracting
+            extractionProgress = .extracting(mode: nil)
+
             var result = try await extractUseCase.execute(
                 images: images,
                 documentType: document.type
             )
+
+            // Update progress: now parsing
+            extractionProgress = .parsing
 
             // Apply vendor template if available and enabled
             if settingsManager.enableVendorTemplates,
@@ -309,21 +348,111 @@ final class DocumentReviewViewModel {
             ocrText = result.rawOCRText ?? "" // Store for keyword learning
 
             // PRIVACY: Only log metrics, not actual data (PII + financial)
-            logger.info("OCR/Parsing result: hasVendor=\(result.vendorName != nil), hasAmount=\(result.amount != nil), hasDueDate=\(result.dueDate != nil), confidence=\(result.overallConfidence)")
+            logger.info("OCR/Parsing result: hasVendor=\(result.vendorName != nil), hasAmount=\(result.amount != nil), hasDueDate=\(result.dueDate != nil), confidence=\(result.overallConfidence), mode=\(result.extractionMode.rawValue)")
 
             // Populate fields and determine review modes
             populateFieldsFromResult(result)
 
+            // Check if rate limit fallback was used - update rateLimitInfo for banner display
+            if result.extractionMode.isRateLimited, let limitInfo = result.rateLimitInfo {
+                self.rateLimitInfo = limitInfo
+                logger.info("Extraction used rate limit fallback: \(limitInfo.used)/\(limitInfo.limit)")
+            }
+
+            // Mark extraction as completed
+            extractionProgress = .completed(result: ExtractionResult(
+                mode: result.extractionMode,
+                confidence: result.overallConfidence,
+                hasExtractedFields: result.vendorName != nil || result.amount != nil || result.dueDate != nil
+            ))
+
+        } catch let cloudError as CloudExtractionError {
+            // Handle cloud extraction errors with proper categorization
+            handleCloudExtractionError(cloudError)
+
         } catch let appError as AppError {
             logger.error("OCR failed with AppError: \(appError.localizedDescription)")
             error = appError
+            extractionFailure = .from(appError)
+            extractionProgress = .failed(extractionFailure!)
             // Still allow manual entry even if OCR fails
+
         } catch {
             logger.error("OCR failed with error: \(error.localizedDescription)")
             self.error = .ocrFailed(error.localizedDescription)
+            extractionFailure = ExtractionFailure(
+                type: .unknown,
+                message: error.localizedDescription,
+                underlyingError: error.localizedDescription,
+                canRetry: true,
+                shouldShowPaywall: false,
+                rateLimitInfo: nil
+            )
+            extractionProgress = .failed(extractionFailure!)
         }
 
         isProcessingOCR = false
+    }
+
+    /// Handles CloudExtractionError with proper categorization.
+    ///
+    /// NOTE: Rate limit errors are now handled by the router with local fallback,
+    /// so they should not reach here. If they do, we still handle gracefully.
+    private func handleCloudExtractionError(_ error: CloudExtractionError) {
+        logger.error("Cloud extraction error: \(error.localizedDescription)")
+
+        // Create failure from cloud error
+        extractionFailure = .from(error)
+
+        switch error {
+        case .rateLimitExceeded(let used, let limit, let resetDate):
+            // NOTE: This should not normally be reached since router now falls back to local.
+            // If it does reach here (e.g., local fallback also failed), show banner not blocking paywall.
+            logger.warning("Rate limit error reached ViewModel (should have been handled by router): \(used)/\(limit)")
+
+            self.rateLimitInfo = RateLimitInfo(used: used, limit: limit, resetDate: resetDate)
+            // Do NOT show blocking paywall - user can still continue with manual entry
+            // Banner will be shown via shouldShowRateLimitBanner computed property
+
+            // Map to AppError for legacy error handling
+            self.error = .cloudServiceUnavailable
+            extractionProgress = .failed(extractionFailure!)
+
+        case .authenticationRequired:
+            // User needs to sign in
+            self.error = .authenticationRequired
+            extractionProgress = .failed(extractionFailure!)
+
+        case .networkError, .timeout, .backendUnavailable:
+            // Network/backend issue - user can retry
+            // Note: The router already fell back to local if possible
+            // If we get here, it means the error propagated
+            self.error = .cloudServiceUnavailable
+            extractionProgress = .failed(extractionFailure!)
+
+        default:
+            // Other errors
+            self.error = .unknown(error.localizedDescription)
+            extractionProgress = .failed(extractionFailure!)
+        }
+    }
+
+    /// Shows the paywall (called when user taps Upgrade button in rate limit banner).
+    func showUpgradePaywall() {
+        shouldShowPaywall = true
+        logger.info("User requested upgrade from rate limit banner")
+    }
+
+    /// Dismisses the paywall.
+    func dismissPaywall() {
+        shouldShowPaywall = false
+        // Note: rateLimitInfo is kept for banner display
+    }
+
+    /// Dismisses the rate limit banner (user chose to continue with local extraction).
+    func dismissRateLimitBanner() {
+        rateLimitInfo = nil
+        logger.info("User dismissed rate limit banner, continuing with local extraction")
     }
 
     /// Populate fields from analysis result and set review modes

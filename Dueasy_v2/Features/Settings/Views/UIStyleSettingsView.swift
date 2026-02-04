@@ -1,7 +1,21 @@
 import SwiftUI
 
-/// Settings view for selecting UI style proposals
-/// Allows users to choose different visual styles for Home and Other Views independently
+// MARK: - INTERNAL USE ONLY
+// This view is NOT exposed in production. The app is locked to Midnight Aurora style.
+// Kept for internal testing and future style expansion if needed.
+// Do not add navigation links to this view in production settings.
+
+/// Settings view for selecting UI style proposals.
+///
+/// **PRODUCTION NOTE**: This view is currently disabled in production.
+/// The app uses Midnight Aurora style exclusively. This code is preserved
+/// for future use if style switching is re-enabled.
+///
+/// To re-enable style switching:
+/// 1. Update SettingsManager.uiStyleHome and uiStyleOtherViews to read from UserDefaults
+/// 2. Add a navigation link to this view in SettingsView
+/// 3. Remove the hardcoded .midnightAurora returns in SettingsManager
+@available(*, deprecated, message: "Style switching is disabled in production. App uses Midnight Aurora exclusively.")
 struct UIStyleSettingsView: View {
 
     @Environment(AppEnvironment.self) private var environment

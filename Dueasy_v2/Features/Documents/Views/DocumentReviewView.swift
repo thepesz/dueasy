@@ -67,6 +67,22 @@ struct DocumentReviewView: View {
                         .opacity(appeared ? 1 : 0)
                         .animation(reduceMotion ? .none : .easeOut(duration: 0.3), value: appeared)
 
+                    // Rate limit banner - shown when cloud extraction limit exceeded
+                    // User gets local extraction but is informed about upgrade option
+                    if viewModel.shouldShowRateLimitBanner {
+                        RateLimitBanner(
+                            rateLimitInfo: viewModel.rateLimitInfo ?? viewModel.analysisResult?.rateLimitInfo,
+                            onUpgrade: {
+                                viewModel.showUpgradePaywall()
+                            },
+                            onDismiss: {
+                                viewModel.dismissRateLimitBanner()
+                            }
+                        )
+                        .opacity(appeared ? 1 : 0)
+                        .animation(reduceMotion ? .none : .easeOut(duration: 0.3), value: appeared)
+                    }
+
                     // OCR status
                     if viewModel.isProcessingOCR {
                         ocrProcessingView
@@ -176,6 +192,16 @@ struct DocumentReviewView: View {
             )
             .presentationDetents([.medium, .large])
             .presentationDragIndicator(.visible)
+        }
+        // Paywall sheet - shown when user taps "Upgrade to Pro" button in rate limit banner.
+        // User is NOT blocked by rate limit - they can continue with local extraction.
+        // This sheet provides an upgrade path when they choose to see it.
+        .sheet(isPresented: $viewModel.shouldShowPaywall) {
+            SubscriptionPaywallView(requiredFeature: "Cloud AI Analysis")
+                .environment(environment)
+                .onDisappear {
+                    viewModel.dismissPaywall()
+                }
         }
     }
 
@@ -376,13 +402,7 @@ struct DocumentReviewView: View {
 
                     // Show confidence badge if extraction happened
                     if viewModel.showExtractionEvidence && viewModel.vendorConfidence > 0 {
-                        HStack(spacing: Spacing.xs) {
-                            ConfidenceBadge(confidence: viewModel.vendorConfidence, reviewMode: viewModel.vendorReviewMode)
-
-                            if let evidence = viewModel.vendorEvidence {
-                                EvidenceIndicator(bbox: evidence, confidence: viewModel.vendorConfidence)
-                            }
-                        }
+                        ConfidenceBadge(confidence: viewModel.vendorConfidence, reviewMode: viewModel.vendorReviewMode)
                     }
                 }
             }
@@ -458,6 +478,7 @@ struct DocumentReviewView: View {
                         )
                         .datePickerStyle(.compact)
                         .labelsHidden()
+                        .environment(\.locale, LocalizationManager.shared.currentLocale)
                         .onChange(of: viewModel.dueDate) { _, _ in
                             viewModel.checkDueDateWarning()
                         }
@@ -467,13 +488,7 @@ struct DocumentReviewView: View {
 
                     // Show confidence badge if extraction happened
                     if viewModel.showExtractionEvidence && viewModel.dueDateConfidence > 0 {
-                        HStack(spacing: Spacing.xs) {
-                            ConfidenceBadge(confidence: viewModel.dueDateConfidence, reviewMode: viewModel.dueDateReviewMode)
-
-                            if let evidence = viewModel.dueDateEvidence {
-                                EvidenceIndicator(bbox: evidence, confidence: viewModel.dueDateConfidence)
-                            }
-                        }
+                        ConfidenceBadge(confidence: viewModel.dueDateConfidence, reviewMode: viewModel.dueDateReviewMode)
                     }
 
                     if viewModel.showDueDateWarning {
@@ -524,13 +539,7 @@ struct DocumentReviewView: View {
 
                     // Show confidence badge if extraction happened
                     if viewModel.showExtractionEvidence && viewModel.documentNumberConfidence > 0 {
-                        HStack(spacing: Spacing.xs) {
-                            ConfidenceBadge(confidence: viewModel.documentNumberConfidence, reviewMode: viewModel.documentNumberReviewMode)
-
-                            if let evidence = viewModel.documentNumberEvidence {
-                                EvidenceIndicator(bbox: evidence, confidence: viewModel.documentNumberConfidence)
-                            }
-                        }
+                        ConfidenceBadge(confidence: viewModel.documentNumberConfidence, reviewMode: viewModel.documentNumberReviewMode)
                     }
                 }
             }
@@ -572,13 +581,7 @@ struct DocumentReviewView: View {
 
                     // Show confidence badge if extraction happened
                     if viewModel.showExtractionEvidence && viewModel.nipConfidence > 0 {
-                        HStack(spacing: Spacing.xs) {
-                            ConfidenceBadge(confidence: viewModel.nipConfidence, reviewMode: viewModel.nipReviewMode)
-
-                            if let evidence = viewModel.nipEvidence {
-                                EvidenceIndicator(bbox: evidence, confidence: viewModel.nipConfidence)
-                            }
-                        }
+                        ConfidenceBadge(confidence: viewModel.nipConfidence, reviewMode: viewModel.nipReviewMode)
                     }
                 }
             }
@@ -620,13 +623,7 @@ struct DocumentReviewView: View {
 
                     // Show confidence badge if extraction happened
                     if viewModel.showExtractionEvidence && viewModel.bankAccountConfidence > 0 {
-                        HStack(spacing: Spacing.xs) {
-                            ConfidenceBadge(confidence: viewModel.bankAccountConfidence, reviewMode: viewModel.bankAccountReviewMode)
-
-                            if let evidence = viewModel.bankAccountEvidence {
-                                EvidenceIndicator(bbox: evidence, confidence: viewModel.bankAccountConfidence)
-                            }
-                        }
+                        ConfidenceBadge(confidence: viewModel.bankAccountConfidence, reviewMode: viewModel.bankAccountReviewMode)
                     }
                 }
             }
@@ -892,6 +889,7 @@ struct DocumentReviewView: View {
     /// Format date for copying to clipboard
     private func formatDateForCopy(_ date: Date) -> String {
         let formatter = DateFormatter()
+        formatter.locale = LocalizationManager.shared.currentLocale
         formatter.dateStyle = .medium
         formatter.timeStyle = .none
         return formatter.string(from: date)
@@ -1009,37 +1007,34 @@ struct ReminderChip: View {
 
 // MARK: - Amount Suggestion Chip
 
+/// Amount suggestion chip for production UI.
+/// NOTE: Shows only the formatted amount, no technical extraction context.
 struct AmountSuggestionChip: View {
     let amount: Decimal
-    let context: String
+    let context: String  // Kept for API compatibility but not displayed
     let currency: String
     let isSelected: Bool
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(formattedAmount)
-                    .font(Typography.listRowAmount())
-                    .foregroundStyle(isSelected ? .white : .primary)
-
-                Text(truncatedContext)
-                    .font(Typography.stat)
-                    .foregroundStyle(isSelected ? .white.opacity(0.8) : .secondary)
-                    .lineLimit(1)
-            }
-            .padding(.horizontal, Spacing.sm)
-            .padding(.vertical, Spacing.xs)
-            .background(isSelected ? AppColors.primary : AppColors.secondaryBackground)
-            .clipShape(RoundedRectangle(cornerRadius: CornerRadius.sm, style: .continuous))
-            .overlay {
-                if isSelected {
-                    RoundedRectangle(cornerRadius: CornerRadius.sm, style: .continuous)
-                        .strokeBorder(AppColors.primary, lineWidth: 2)
+            Text(formattedAmount)
+                .font(Typography.listRowAmount())
+                .foregroundStyle(isSelected ? .white : .primary)
+                .padding(.horizontal, Spacing.sm)
+                .padding(.vertical, Spacing.xs)
+                .background(isSelected ? AppColors.primary : AppColors.secondaryBackground)
+                .clipShape(RoundedRectangle(cornerRadius: CornerRadius.sm, style: .continuous))
+                .overlay {
+                    if isSelected {
+                        RoundedRectangle(cornerRadius: CornerRadius.sm, style: .continuous)
+                            .strokeBorder(AppColors.primary, lineWidth: 2)
+                    }
                 }
-            }
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(formattedAmount)
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 
     private var formattedAmount: String {
@@ -1047,16 +1042,6 @@ struct AmountSuggestionChip: View {
         formatter.numberStyle = .currency
         formatter.currencyCode = currency
         return formatter.string(from: NSDecimalNumber(decimal: amount)) ?? "\(amount)"
-    }
-
-    private var truncatedContext: String {
-        let cleaned = context
-            .replacingOccurrences(of: "\n", with: " ")
-            .trimmingCharacters(in: .whitespaces)
-        if cleaned.count > 30 {
-            return String(cleaned.prefix(30)) + "..."
-        }
-        return cleaned
     }
 }
 

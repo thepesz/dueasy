@@ -75,17 +75,37 @@ protocol CloudExtractionGatewayProtocol: Sendable {
 // MARK: - Cloud Extraction Errors
 
 /// Errors specific to cloud-based document extraction.
+///
+/// ## Rate Limit Handling
+///
+/// When `rateLimitExceeded` is thrown:
+/// - **DO NOT** silently fall back to local extraction
+/// - **DO** propagate to ViewModel for paywall presentation
+/// - This preserves the monetization model
+///
+/// The associated values in `rateLimitExceeded` allow the UI to show:
+/// - How many extractions were used
+/// - What the monthly limit is
+/// - When the limit resets
 enum CloudExtractionError: LocalizedError {
     case notAvailable
     case authenticationRequired
     case subscriptionRequired
     case networkError(Error)
-    case rateLimitExceeded
+
+    /// Monthly extraction limit exceeded.
+    /// - Parameters:
+    ///   - used: Number of extractions used this month
+    ///   - limit: Maximum extractions allowed for the user's tier
+    ///   - resetDate: When the monthly limit resets (start of next month)
+    case rateLimitExceeded(used: Int, limit: Int, resetDate: Date?)
+
     case serverError(statusCode: Int, message: String)
     case invalidResponse
     case timeout
     case imageUploadFailed
     case analysisIncomplete(partialResult: DocumentAnalysisResult?)
+    case backendUnavailable
 
     var errorDescription: String? {
         switch self {
@@ -97,8 +117,8 @@ enum CloudExtractionError: LocalizedError {
             return "Pro subscription required for cloud analysis"
         case .networkError(let error):
             return "Network error: \(error.localizedDescription)"
-        case .rateLimitExceeded:
-            return "Too many requests. Please try again later."
+        case .rateLimitExceeded(let used, let limit, _):
+            return "Monthly limit reached (\(used)/\(limit) extractions used)"
         case .serverError(let statusCode, let message):
             return "Server error (\(statusCode)): \(message)"
         case .invalidResponse:
@@ -112,23 +132,30 @@ enum CloudExtractionError: LocalizedError {
                 return "Analysis partially completed"
             }
             return "Analysis incomplete"
+        case .backendUnavailable:
+            return "Cloud service is temporarily unavailable"
         }
     }
 
-    /// Whether the error is recoverable with retry
+    /// Whether the error is recoverable with retry.
+    /// Note: Rate limit is NOT retryable - it requires user action (upgrade or wait).
     var isRetryable: Bool {
         switch self {
-        case .networkError, .timeout, .rateLimitExceeded:
+        case .networkError, .timeout:
             return true
         case .serverError(let statusCode, _):
             return statusCode >= 500 // Server errors may be transient
+        case .rateLimitExceeded:
+            // CRITICAL: Rate limit is NOT retryable
+            // User must upgrade or wait for reset
+            return false
         default:
             return false
         }
     }
 
-    /// Whether this is a rate limit error (HTTP 429).
-    /// Used for metrics and logging classification.
+    /// Whether this is a rate limit error (monthly limit exceeded).
+    /// Used for routing decisions - must NOT fall back to local silently.
     var isRateLimitError: Bool {
         if case .rateLimitExceeded = self {
             return true
@@ -137,18 +164,38 @@ enum CloudExtractionError: LocalizedError {
     }
 
     /// Suggested delay before retry (in seconds).
-    /// For rate limiting, returns longer delays.
+    /// Returns nil for non-retryable errors.
     var suggestedRetryDelay: TimeInterval? {
         switch self {
-        case .rateLimitExceeded:
-            return 2.0 // Start with 2 seconds for rate limits
         case .networkError, .timeout:
             return 1.0 // 1 second for transient network issues
         case .serverError(let statusCode, _) where statusCode >= 500:
             return 1.0
+        case .rateLimitExceeded:
+            // No retry delay - user action required
+            return nil
         default:
             return nil
         }
+    }
+
+    /// User-facing message for rate limit errors.
+    /// Includes upgrade prompt and reset date if available.
+    var rateLimitMessage: String? {
+        guard case .rateLimitExceeded(let used, let limit, let resetDate) = self else {
+            return nil
+        }
+
+        var message = "You've used all \(limit) cloud extractions this month."
+
+        if let reset = resetDate {
+            let formatter = DateFormatter()
+            formatter.dateStyle = .medium
+            message += " Your limit resets on \(formatter.string(from: reset))."
+        }
+
+        message += " Upgrade to Pro for 100 extractions/month."
+        return message
     }
 }
 

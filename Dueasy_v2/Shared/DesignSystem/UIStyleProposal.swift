@@ -2,23 +2,33 @@ import SwiftUI
 
 // MARK: - UI Style Proposal System
 //
+// PRODUCTION STATUS: App is locked to MIDNIGHT AURORA style.
+// Style switching is disabled in production UI but the architecture
+// is preserved for future use.
+//
 // Three dramatically different UI style proposals for DuEasy:
 //
-// 1. MIDNIGHT AURORA - Dark-first, vibrant gradients, glassmorphism, depth
+// 1. MIDNIGHT AURORA (PRODUCTION) - Dark-first, vibrant gradients, glassmorphism, depth
 //    Inspired by: Apple Music, Spotify, premium banking apps
 //    Personality: Bold, confident, premium
 //
-// 2. PAPER MINIMAL - Ultra-clean, high contrast, flat design, typographic focus
+// 2. PAPER MINIMAL (INTERNAL) - Ultra-clean, high contrast, flat design, typographic focus
 //    Inspired by: Apple Notes, Things 3, iA Writer
 //    Personality: Calm, focused, professional
 //
-// 3. WARM FINANCE - Warm neutrals, subtle textures, card-heavy, approachable
+// 3. WARM FINANCE (INTERNAL) - Warm neutrals, subtle textures, card-heavy, approachable
 //    Inspired by: Apple Health, Mint, personal finance apps
 //    Personality: Friendly, trustworthy, organized
+//
+// To re-enable style switching:
+// 1. Update SettingsManager.uiStyleHome/uiStyleOtherViews to read from UserDefaults
+// 2. Add UIStyleSettingsView navigation link in SettingsView
+// 3. Update availableStyles array below if exposing more styles
 
-/// The UI styles available in the app
-/// Currently implementing: Default (current style) and Midnight Aurora (new premium style)
-/// Paper Minimal and Warm Finance are in code but not exposed in the picker yet
+/// The UI styles available in the app.
+///
+/// **PRODUCTION**: App uses `.midnightAurora` exclusively.
+/// Other styles are preserved for internal testing and future expansion.
 enum UIStyleProposal: String, Codable, Identifiable {
     /// Current/original app style - warm luxury aesthetic
     case defaultStyle = "default"

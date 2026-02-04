@@ -1404,17 +1404,20 @@ struct AuroraToggleRow: View {
     let subtitle: String?
     @Binding var isOn: Bool
     let showDivider: Bool
+    let isDisabled: Bool
 
     init(
         _ title: String,
         subtitle: String? = nil,
         isOn: Binding<Bool>,
-        showDivider: Bool = true
+        showDivider: Bool = true,
+        isDisabled: Bool = false
     ) {
         self.title = title
         self.subtitle = subtitle
         self._isOn = isOn
         self.showDivider = showDivider
+        self.isDisabled = isDisabled
     }
 
     var body: some View {
@@ -1424,12 +1427,12 @@ struct AuroraToggleRow: View {
                     VStack(alignment: .leading, spacing: Spacing.xxs) {
                         Text(title)
                             .font(Typography.body)
-                            .foregroundStyle(Color.white)
+                            .foregroundStyle(isDisabled ? Color.white.opacity(0.4) : Color.white)
 
                         if let subtitle = subtitle {
                             Text(subtitle)
                                 .font(Typography.caption1)
-                                .foregroundStyle(Color.white.opacity(0.6))
+                                .foregroundStyle(isDisabled ? Color.white.opacity(0.3) : Color.white.opacity(0.6))
                         }
                     }
 
@@ -1438,6 +1441,7 @@ struct AuroraToggleRow: View {
                     Toggle("", isOn: $isOn)
                         .labelsHidden()
                         .tint(Color(red: 0.3, green: 0.5, blue: 1.0))
+                        .disabled(isDisabled)
                 }
                 .padding(.horizontal, Spacing.md)
                 .padding(.vertical, Spacing.sm)
@@ -1451,6 +1455,7 @@ struct AuroraToggleRow: View {
             }
         } else {
             Toggle(title, isOn: $isOn)
+                .disabled(isDisabled)
         }
     }
 }

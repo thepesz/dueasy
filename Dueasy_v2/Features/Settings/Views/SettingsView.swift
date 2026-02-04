@@ -156,8 +156,28 @@ struct SettingsView: View {
                     EmptyView()
                 })
 
-                // Appearance section
-                auroraAppearanceSection
+                // Backup section
+                AuroraListSection(content: {
+                    AuroraNavigationRow(showDivider: false) {
+                        BackupSettingsView()
+                            .environment(environment)
+                            .environment(\.uiStyle, currentStyle)
+                    } label: {
+                        AuroraSettingsRow(
+                            icon: "externaldrive.fill",
+                            iconColor: .cyan,
+                            title: L10n.Backup.title.localized,
+                            subtitle: backupSummary
+                        )
+                    }
+                }, header: {
+                    Text(L10n.Backup.section.localized)
+                }, footer: {
+                    EmptyView()
+                })
+
+                // Account section
+                auroraAccountSection
 
                 // Language & Currency section
                 auroraLanguageCurrencySection
@@ -199,82 +219,6 @@ struct SettingsView: View {
     }
 
     @ViewBuilder
-    private var auroraAppearanceSection: some View {
-        AuroraListSection(content: {
-            // Demo links (for reference)
-            AuroraNavigationRow(showDivider: true) {
-                MidnightAuroraHomeDemo()
-            } label: {
-                AuroraSettingsRow(
-                    icon: "moon.stars.fill",
-                    iconColor: AuroraPalette.accentBlue,
-                    title: "Proposal 1: Midnight Aurora (Home)",
-                    subtitle: "Bold, premium, luxurious"
-                )
-            }
-
-            AuroraNavigationRow(showDivider: true) {
-                MidnightAuroraOtherDemo()
-            } label: {
-                AuroraSettingsRow(
-                    icon: "moon.stars.fill",
-                    iconColor: AuroraPalette.accentPurple,
-                    title: "Proposal 1: Midnight Aurora (Other)",
-                    subtitle: "Document list view"
-                )
-            }
-
-            AuroraNavigationRow(showDivider: true) {
-                PaperMinimalHomeDemo()
-            } label: {
-                AuroraSettingsRow(
-                    icon: "doc.plaintext.fill",
-                    iconColor: .gray,
-                    title: "Proposal 2: Paper Minimal (Home)",
-                    subtitle: "Calm, focused, professional"
-                )
-            }
-
-            AuroraNavigationRow(showDivider: true) {
-                PaperMinimalOtherDemo()
-            } label: {
-                AuroraSettingsRow(
-                    icon: "doc.plaintext.fill",
-                    iconColor: Color.white.opacity(0.8),
-                    title: "Proposal 2: Paper Minimal (Other)",
-                    subtitle: "Document list view"
-                )
-            }
-
-            AuroraNavigationRow(showDivider: true) {
-                WarmFinanceHomeDemo()
-            } label: {
-                AuroraSettingsRow(
-                    icon: "heart.fill",
-                    iconColor: Color(red: 0.0, green: 0.6, blue: 0.6),
-                    title: "Proposal 3: Warm Finance (Home)",
-                    subtitle: "Friendly, trustworthy, organized"
-                )
-            }
-
-            AuroraNavigationRow(showDivider: false) {
-                WarmFinanceOtherDemo()
-            } label: {
-                AuroraSettingsRow(
-                    icon: "heart.fill",
-                    iconColor: Color(red: 0.95, green: 0.65, blue: 0.25),
-                    title: "Proposal 3: Warm Finance (Other)",
-                    subtitle: "Document list view"
-                )
-            }
-        }, header: {
-            Text(L10n.Settings.appearanceSection.localized)
-        }, footer: {
-            EmptyView()
-        })
-    }
-
-    @ViewBuilder
     private var auroraLanguageCurrencySection: some View {
         AuroraListSection(content: {
             AuroraPickerRow(
@@ -300,6 +244,28 @@ struct SettingsView: View {
             Text(L10n.Settings.defaultsSection.localized)
         }, footer: {
             Text(L10n.Language.languageFooter.localized)
+        })
+    }
+
+    @ViewBuilder
+    private var auroraAccountSection: some View {
+        AuroraListSection(content: {
+            AuroraNavigationRow(showDivider: false) {
+                AccountSettingsView()
+                    .environment(environment)
+                    .environment(\.uiStyle, currentStyle)
+            } label: {
+                AuroraSettingsRow(
+                    icon: environment.authBootstrapper.isAppleLinked ? "person.crop.circle.fill.badge.checkmark" : "person.crop.circle",
+                    iconColor: environment.authBootstrapper.isAppleLinked ? .green : .gray,
+                    title: L10n.Auth.accountSection.localized,
+                    subtitle: accountSummary
+                )
+            }
+        }, header: {
+            Text(L10n.Auth.accountSection.localized)
+        }, footer: {
+            EmptyView()
         })
     }
 
@@ -394,78 +360,38 @@ struct SettingsView: View {
                 Text(L10n.Security.section.localized)
             }
 
-            // Appearance section (demo links for reference)
+            // Backup section
             Section {
-                // Proposal 1: Midnight Aurora
                 NavigationLink {
-                    MidnightAuroraHomeDemo()
+                    BackupSettingsView()
+                        .environment(environment)
                 } label: {
                     SettingsRow(
-                        icon: "moon.stars.fill",
-                        iconColor: AuroraPalette.accentBlue,
-                        title: "Proposal 1: Midnight Aurora (Home)",
-                        subtitle: "Bold, premium, luxurious"
-                    )
-                }
-
-                NavigationLink {
-                    MidnightAuroraOtherDemo()
-                } label: {
-                    SettingsRow(
-                        icon: "moon.stars.fill",
-                        iconColor: AuroraPalette.accentPurple,
-                        title: "Proposal 1: Midnight Aurora (Other)",
-                        subtitle: "Document list view"
-                    )
-                }
-
-                // Proposal 2: Paper Minimal
-                NavigationLink {
-                    PaperMinimalHomeDemo()
-                } label: {
-                    SettingsRow(
-                        icon: "doc.plaintext.fill",
-                        iconColor: .gray,
-                        title: "Proposal 2: Paper Minimal (Home)",
-                        subtitle: "Calm, focused, professional"
-                    )
-                }
-
-                NavigationLink {
-                    PaperMinimalOtherDemo()
-                } label: {
-                    SettingsRow(
-                        icon: "doc.plaintext.fill",
-                        iconColor: .black,
-                        title: "Proposal 2: Paper Minimal (Other)",
-                        subtitle: "Document list view"
-                    )
-                }
-
-                // Proposal 3: Warm Finance
-                NavigationLink {
-                    WarmFinanceHomeDemo()
-                } label: {
-                    SettingsRow(
-                        icon: "heart.fill",
-                        iconColor: Color(red: 0.0, green: 0.6, blue: 0.6),
-                        title: "Proposal 3: Warm Finance (Home)",
-                        subtitle: "Friendly, trustworthy, organized"
-                    )
-                }
-
-                NavigationLink {
-                    WarmFinanceOtherDemo()
-                } label: {
-                    SettingsRow(
-                        icon: "heart.fill",
-                        iconColor: Color(red: 0.95, green: 0.65, blue: 0.25),
-                        title: "Proposal 3: Warm Finance (Other)",
-                        subtitle: "Document list view"
+                        icon: "externaldrive.fill",
+                        iconColor: .cyan,
+                        title: L10n.Backup.title.localized,
+                        subtitle: backupSummary
                     )
                 }
             } header: {
-                Text(L10n.Settings.appearanceSection.localized)
+                Text(L10n.Backup.section.localized)
+            }
+
+            // Account section
+            Section {
+                NavigationLink {
+                    AccountSettingsView()
+                        .environment(environment)
+                } label: {
+                    SettingsRow(
+                        icon: environment.authBootstrapper.isAppleLinked ? "person.crop.circle.fill.badge.checkmark" : "person.crop.circle",
+                        iconColor: environment.authBootstrapper.isAppleLinked ? .green : .gray,
+                        title: L10n.Auth.accountSection.localized,
+                        subtitle: accountSummary
+                    )
+                }
+            } header: {
+                Text(L10n.Auth.accountSection.localized)
             }
 
             // Language & Currency section
@@ -583,6 +509,31 @@ struct SettingsView: View {
 
     private var recurringSummary: String {
         L10n.Recurring.templatesSection.localized
+    }
+
+    private var backupSummary: String {
+        if environment.iCloudBackupService.isEnabled {
+            if let lastBackup = environment.iCloudBackupService.lastBackupDate {
+                let formatter = RelativeDateTimeFormatter()
+                formatter.unitsStyle = .abbreviated
+                return L10n.Backup.lastBackup.localized(with: formatter.localizedString(for: lastBackup, relativeTo: Date()))
+            }
+            return L10n.Backup.iCloudEnabled.localized
+        }
+        return L10n.Backup.subtitle.localized
+    }
+
+    private var accountSummary: String {
+        if environment.authBootstrapper.isAppleLinked {
+            if let email = environment.authBootstrapper.currentUserEmail {
+                return email
+            }
+            return L10n.Auth.syncEnabled.localized
+        } else if environment.authBootstrapper.isSignedIn {
+            return L10n.Auth.guestAccount.localized
+        } else {
+            return L10n.Auth.syncDisabled.localized
+        }
     }
 }
 
@@ -1786,6 +1737,417 @@ struct PermissionSettingsView: View {
     private func openAppSettings() {
         if let settingsUrl = URL(string: UIApplication.openSettingsURLString) {
             UIApplication.shared.open(settingsUrl)
+        }
+    }
+}
+
+// MARK: - Account Settings View
+
+struct AccountSettingsView: View {
+    @Environment(AppEnvironment.self) private var environment
+    @Environment(\.uiStyle) private var style
+    @Environment(\.colorScheme) private var colorScheme
+    @State private var showSignOutConfirmation = false
+    @State private var showDeleteAccountConfirmation = false
+    @State private var isProcessing = false
+    @State private var errorMessage: String?
+    @State private var showError = false
+
+    private var isAurora: Bool {
+        style == .midnightAurora
+    }
+
+    private var authBootstrapper: AuthBootstrapper {
+        environment.authBootstrapper
+    }
+
+    var body: some View {
+        ZStack {
+            if isAurora {
+                StyledSettingsBackground()
+            }
+
+            if isAurora {
+                auroraContent
+            } else {
+                standardContent
+            }
+        }
+        .navigationTitle(L10n.Auth.accountSection.localized)
+        .navigationBarTitleDisplayMode(.inline)
+        .alert(L10n.Auth.signOutConfirmTitle.localized, isPresented: $showSignOutConfirmation) {
+            Button(L10n.Common.cancel.localized, role: .cancel) { }
+            Button(L10n.Auth.signOut.localized, role: .destructive) {
+                signOut()
+            }
+        } message: {
+            Text(L10n.Auth.signOutConfirmMessage.localized)
+        }
+        .alert(L10n.Auth.deleteAccountConfirmTitle.localized, isPresented: $showDeleteAccountConfirmation) {
+            Button(L10n.Common.cancel.localized, role: .cancel) { }
+            Button(L10n.Auth.deleteAccount.localized, role: .destructive) {
+                deleteAccount()
+            }
+        } message: {
+            Text(L10n.Auth.deleteAccountConfirmMessage.localized)
+        }
+        .alert(L10n.Common.error.localized, isPresented: $showError) {
+            Button(L10n.Common.ok.localized, role: .cancel) { }
+        } message: {
+            Text(errorMessage ?? L10n.Errors.unknown.localized)
+        }
+    }
+
+    // MARK: - Aurora Content
+
+    @ViewBuilder
+    private var auroraContent: some View {
+        ScrollView {
+            VStack(spacing: Spacing.md) {
+                // Account Status Section
+                AuroraListSection(content: {
+                    auroraAccountStatusRow
+                }, header: {
+                    Text(L10n.Auth.accountSection.localized)
+                }, footer: {
+                    if authBootstrapper.isAppleLinked {
+                        Text(L10n.Auth.syncEnabled.localized)
+                    } else {
+                        Text(L10n.Auth.syncDisabled.localized)
+                    }
+                })
+
+                // Sign In / Sign Out Section
+                if authBootstrapper.isAppleLinked {
+                    // User is signed in with Apple - show sign out option
+                    AuroraListSection(content: {
+                        auroraSignOutButton
+                    }, header: {
+                        EmptyView()
+                    }, footer: {
+                        EmptyView()
+                    })
+                } else if authBootstrapper.isSignedIn {
+                    // User is anonymous - show sign in with Apple option
+                    AuroraListSection(content: {
+                        auroraSignInWithAppleButton
+                    }, header: {
+                        EmptyView()
+                    }, footer: {
+                        Text(L10n.Auth.withoutSignInInfo.localized)
+                    })
+                }
+
+                // Delete Account Section (only for linked accounts)
+                if authBootstrapper.isAppleLinked {
+                    AuroraListSection(content: {
+                        auroraDeleteAccountButton
+                    }, header: {
+                        EmptyView()
+                    }, footer: {
+                        EmptyView()
+                    })
+                }
+            }
+            .padding(.vertical, Spacing.md)
+        }
+        .scrollIndicators(.hidden)
+    }
+
+    @ViewBuilder
+    private var auroraAccountStatusRow: some View {
+        VStack(spacing: 0) {
+            HStack(spacing: Spacing.sm) {
+                // Account icon
+                ZStack {
+                    Circle()
+                        .fill(
+                            LinearGradient(
+                                colors: authBootstrapper.isAppleLinked
+                                    ? [Color.green.opacity(0.3), Color.green.opacity(0.1)]
+                                    : [Color.gray.opacity(0.3), Color.gray.opacity(0.1)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .frame(width: 48, height: 48)
+
+                    Image(systemName: authBootstrapper.isAppleLinked ? "person.crop.circle.fill.badge.checkmark" : "person.crop.circle")
+                        .font(.title2)
+                        .foregroundStyle(authBootstrapper.isAppleLinked ? Color.green : Color.white.opacity(0.6))
+                }
+
+                VStack(alignment: .leading, spacing: Spacing.xxs) {
+                    if authBootstrapper.isAppleLinked {
+                        Text(authBootstrapper.currentUserEmail ?? L10n.Auth.signedInAs.localized)
+                            .font(Typography.listRowPrimary)
+                            .foregroundStyle(Color.white)
+
+                        Text(L10n.Auth.syncEnabled.localized)
+                            .font(Typography.listRowSecondary)
+                            .foregroundStyle(Color.green)
+                    } else if authBootstrapper.isSignedIn {
+                        Text(L10n.Auth.guestAccount.localized)
+                            .font(Typography.listRowPrimary)
+                            .foregroundStyle(Color.white)
+
+                        Text(L10n.Auth.syncDisabled.localized)
+                            .font(Typography.listRowSecondary)
+                            .foregroundStyle(Color.white.opacity(0.5))
+                    } else {
+                        Text(L10n.Auth.syncDisabled.localized)
+                            .font(Typography.listRowPrimary)
+                            .foregroundStyle(Color.white.opacity(0.6))
+                    }
+                }
+
+                Spacer()
+            }
+            .padding(.horizontal, Spacing.md)
+            .padding(.vertical, Spacing.sm)
+        }
+    }
+
+    @ViewBuilder
+    private var auroraSignInWithAppleButton: some View {
+        VStack(spacing: 0) {
+            Button {
+                signInWithApple()
+            } label: {
+                HStack {
+                    Image(systemName: "apple.logo")
+                        .font(.title3)
+                    Text(L10n.Auth.signInWithApple.localized)
+                        .font(Typography.bodyText)
+                        .fontWeight(.semibold)
+                    Spacer()
+                    if isProcessing {
+                        ProgressView()
+                            .tint(.white)
+                    }
+                }
+                .foregroundStyle(.white)
+                .padding(.horizontal, Spacing.md)
+                .padding(.vertical, Spacing.sm)
+            }
+            .buttonStyle(AuroraRowButtonStyle())
+            .disabled(isProcessing)
+        }
+    }
+
+    @ViewBuilder
+    private var auroraSignOutButton: some View {
+        VStack(spacing: 0) {
+            Button {
+                showSignOutConfirmation = true
+            } label: {
+                HStack {
+                    Image(systemName: "rectangle.portrait.and.arrow.right")
+                        .font(.title3)
+                    Text(L10n.Auth.signOut.localized)
+                        .font(Typography.bodyText)
+                    Spacer()
+                    if isProcessing {
+                        ProgressView()
+                            .tint(.white)
+                    }
+                }
+                .foregroundStyle(AuroraPalette.accentBlue)
+                .padding(.horizontal, Spacing.md)
+                .padding(.vertical, Spacing.sm)
+            }
+            .buttonStyle(AuroraRowButtonStyle())
+            .disabled(isProcessing)
+        }
+    }
+
+    @ViewBuilder
+    private var auroraDeleteAccountButton: some View {
+        VStack(spacing: 0) {
+            Button {
+                showDeleteAccountConfirmation = true
+            } label: {
+                HStack {
+                    Image(systemName: "trash")
+                        .font(.title3)
+                    Text(L10n.Auth.deleteAccount.localized)
+                        .font(Typography.bodyText)
+                    Spacer()
+                }
+                .foregroundStyle(.red)
+                .padding(.horizontal, Spacing.md)
+                .padding(.vertical, Spacing.sm)
+            }
+            .buttonStyle(AuroraRowButtonStyle())
+            .disabled(isProcessing)
+        }
+    }
+
+    // MARK: - Standard Content
+
+    @ViewBuilder
+    private var standardContent: some View {
+        List {
+            // Account Status Section
+            Section {
+                HStack(spacing: Spacing.sm) {
+                    // Account icon
+                    ZStack {
+                        Circle()
+                            .fill(authBootstrapper.isAppleLinked ? Color.green.opacity(0.2) : Color.gray.opacity(0.2))
+                            .frame(width: 48, height: 48)
+
+                        Image(systemName: authBootstrapper.isAppleLinked ? "person.crop.circle.fill.badge.checkmark" : "person.crop.circle")
+                            .font(.title2)
+                            .foregroundStyle(authBootstrapper.isAppleLinked ? .green : .secondary)
+                    }
+
+                    VStack(alignment: .leading, spacing: Spacing.xxs) {
+                        if authBootstrapper.isAppleLinked {
+                            Text(authBootstrapper.currentUserEmail ?? L10n.Auth.signedInAs.localized)
+                                .font(Typography.listRowPrimary)
+
+                            Text(L10n.Auth.syncEnabled.localized)
+                                .font(Typography.listRowSecondary)
+                                .foregroundStyle(.green)
+                        } else if authBootstrapper.isSignedIn {
+                            Text(L10n.Auth.guestAccount.localized)
+                                .font(Typography.listRowPrimary)
+
+                            Text(L10n.Auth.syncDisabled.localized)
+                                .font(Typography.listRowSecondary)
+                                .foregroundStyle(.secondary)
+                        } else {
+                            Text(L10n.Auth.syncDisabled.localized)
+                                .font(Typography.listRowPrimary)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+            } header: {
+                Text(L10n.Auth.accountSection.localized)
+            } footer: {
+                if authBootstrapper.isAppleLinked {
+                    Text(L10n.Auth.syncEnabled.localized)
+                } else {
+                    Text(L10n.Auth.syncDisabled.localized)
+                }
+            }
+
+            // Sign In / Sign Out Section
+            if authBootstrapper.isAppleLinked {
+                // User is signed in with Apple - show sign out option
+                Section {
+                    Button {
+                        showSignOutConfirmation = true
+                    } label: {
+                        HStack {
+                            Image(systemName: "rectangle.portrait.and.arrow.right")
+                            Text(L10n.Auth.signOut.localized)
+                            Spacer()
+                            if isProcessing {
+                                ProgressView()
+                            }
+                        }
+                    }
+                    .disabled(isProcessing)
+                }
+            } else if authBootstrapper.isSignedIn {
+                // User is anonymous - show sign in with Apple option
+                Section {
+                    Button {
+                        signInWithApple()
+                    } label: {
+                        HStack {
+                            Image(systemName: "apple.logo")
+                            Text(L10n.Auth.signInWithApple.localized)
+                                .fontWeight(.semibold)
+                            Spacer()
+                            if isProcessing {
+                                ProgressView()
+                            }
+                        }
+                    }
+                    .disabled(isProcessing)
+                } footer: {
+                    Text(L10n.Auth.withoutSignInInfo.localized)
+                }
+            }
+
+            // Delete Account Section (only for linked accounts)
+            if authBootstrapper.isAppleLinked {
+                Section {
+                    Button(role: .destructive) {
+                        showDeleteAccountConfirmation = true
+                    } label: {
+                        HStack {
+                            Image(systemName: "trash")
+                            Text(L10n.Auth.deleteAccount.localized)
+                        }
+                    }
+                    .disabled(isProcessing)
+                }
+            }
+        }
+        .scrollContentBackground(.hidden)
+        .listStyle(.insetGrouped)
+    }
+
+    // MARK: - Actions
+
+    private func signInWithApple() {
+        guard !isProcessing else { return }
+        isProcessing = true
+
+        Task {
+            do {
+                try await environment.authService.linkAppleCredential()
+                await authBootstrapper.refreshState()
+            } catch AuthError.appleSignInCancelled {
+                // User cancelled - no error to show
+            } catch AuthError.credentialAlreadyLinked {
+                errorMessage = L10n.Auth.credentialAlreadyLinkedMessage.localized
+                showError = true
+            } catch {
+                errorMessage = error.localizedDescription
+                showError = true
+            }
+            isProcessing = false
+        }
+    }
+
+    private func signOut() {
+        guard !isProcessing else { return }
+        isProcessing = true
+
+        Task {
+            do {
+                try await authBootstrapper.signOut()
+                // Bootstrap a new anonymous user
+                await authBootstrapper.bootstrap()
+            } catch {
+                errorMessage = error.localizedDescription
+                showError = true
+            }
+            isProcessing = false
+        }
+    }
+
+    private func deleteAccount() {
+        guard !isProcessing else { return }
+        isProcessing = true
+
+        Task {
+            do {
+                try await environment.authService.deleteAccount()
+                await authBootstrapper.refreshState()
+                // Bootstrap a new anonymous user
+                await authBootstrapper.bootstrap()
+            } catch {
+                errorMessage = error.localizedDescription
+                showError = true
+            }
+            isProcessing = false
         }
     }
 }

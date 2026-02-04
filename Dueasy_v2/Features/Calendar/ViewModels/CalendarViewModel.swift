@@ -34,6 +34,7 @@ final class CalendarViewModel {
 
     var currentMonthName: String {
         let formatter = DateFormatter()
+        formatter.locale = LocalizationManager.shared.currentLocale
         formatter.dateFormat = "LLLL yyyy"
         return formatter.string(from: currentMonth).capitalized
     }

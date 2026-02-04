@@ -167,6 +167,21 @@ enum L10n {
         static let currencyLabel = "review.currencyLabel"
         static let dueDateLabel = "review.dueDateLabel"
         static let dueDatePast = "review.dueDatePast"
+
+        // Alternatives/candidates
+        static let otherPossibilities = "review.otherPossibilities"
+        static let otherDatesFound = "review.otherDatesFound"
+        static let otherAmountsFound = "review.otherAmountsFound"
+
+        // Relative date descriptions (for date alternatives)
+        static let dateYesterday = "review.date.yesterday"
+        static let dateDaysAgo = "review.date.daysAgo"
+        static let dateToday = "review.date.today"
+        static let dateTomorrow = "review.date.tomorrow"
+        static let dateInDays = "review.date.inDays"
+        static let dateNextWeek = "review.date.nextWeek"
+        static let dateInWeeks = "review.date.inWeeks"
+        static let dateInMonths = "review.date.inMonths"
         static let invoiceNumberLabel = "review.invoiceNumberLabel"
         static let invoiceNumberPlaceholder = "review.invoiceNumberPlaceholder"
         static let nipLabel = "review.nipLabel"
@@ -259,6 +274,33 @@ enum L10n {
         static let saving = "edit.saving"
         static let required = "edit.required"
         static let optional = "edit.optional"
+
+        // Payment Status Section
+        static let paymentStatusSection = "edit.paymentStatus.section"
+        static let statusScheduled = "edit.paymentStatus.scheduled"
+        static let statusPaid = "edit.paymentStatus.paid"
+        static let paymentStatusFooter = "edit.paymentStatus.footer"
+        static let confirmMarkScheduled = "edit.paymentStatus.confirmMarkScheduled"
+        static let confirmMarkScheduledMessage = "edit.paymentStatus.confirmMarkScheduledMessage"
+
+        // Reminders Section
+        static let remindersSection = "edit.reminders.section"
+        static let remindersEnabled = "edit.reminders.enabled"
+        static let remindersDisabledWhenPaid = "edit.reminders.disabledWhenPaid"
+        static let remindersFooter = "edit.reminders.footer"
+        static let reminderOnDueDate = "edit.reminders.onDueDate"
+        static let reminderOneDayBefore = "edit.reminders.oneDayBefore"
+        static let reminderSevenDaysBefore = "edit.reminders.sevenDaysBefore"
+        static let reminderDaysBefore = "edit.reminders.daysBefore"
+
+        // Recurring Section
+        static let recurringSection = "edit.recurring.section"
+        static let recurringLinkedMessage = "edit.recurring.linkedMessage"
+        static let viewRecurringPayment = "edit.recurring.viewPayment"
+        static let unlinkFromRecurring = "edit.recurring.unlink"
+        static let unlinkConfirmTitle = "edit.recurring.unlinkConfirmTitle"
+        static let unlinkConfirmMessage = "edit.recurring.unlinkConfirmMessage"
+        static let recurringFooter = "edit.recurring.footer"
     }
 
     // MARK: - Due Dates
@@ -792,6 +834,40 @@ enum L10n {
         static let paymentTracker = "home.tagline.paymentTracker"
     }
 
+    // MARK: - Authentication
+    enum Auth {
+        static let signInWithApple = "auth.signInWithApple"
+        static let skipForNow = "auth.skipForNow"
+        static let withoutSignInInfo = "auth.withoutSignInInfo"
+        static let signInErrorTitle = "auth.signInError.title"
+        static let signInErrorGeneric = "auth.signInError.generic"
+        static let credentialAlreadyLinkedTitle = "auth.credentialAlreadyLinked.title"
+        static let credentialAlreadyLinkedMessage = "auth.credentialAlreadyLinked.message"
+        static let continueAsGuest = "auth.continueAsGuest"
+
+        // Account section in Settings
+        static let accountSection = "auth.account.section"
+        static let signedInAs = "auth.signedInAs"
+        static let guestAccount = "auth.guestAccount"
+        static let signIn = "auth.signIn"
+        static let signOut = "auth.signOut"
+        static let signOutConfirmTitle = "auth.signOut.confirmTitle"
+        static let signOutConfirmMessage = "auth.signOut.confirmMessage"
+        static let deleteAccount = "auth.deleteAccount"
+        static let deleteAccountConfirmTitle = "auth.deleteAccount.confirmTitle"
+        static let deleteAccountConfirmMessage = "auth.deleteAccount.confirmMessage"
+        static let syncEnabled = "auth.syncEnabled"
+        static let syncDisabled = "auth.syncDisabled"
+    }
+
+    // MARK: - Rate Limit
+    enum RateLimit {
+        static let bannerTitle = "rate_limit.banner.title"
+        static let bannerTitleDefault = "rate_limit.banner.title_default"
+        static let bannerSubtitle = "rate_limit.banner.subtitle"
+        static let upgradeButton = "rate_limit.banner.upgrade"
+    }
+
     // MARK: - Errors
     enum Errors {
         // File Storage
@@ -849,6 +925,99 @@ enum L10n {
         static let recoveryManualEntry = "error.recovery.manualEntry"
         static let recoveryDueDatePast = "error.recovery.dueDatePast"
     }
+
+    // MARK: - Backup
+    enum Backup {
+        // Section in Settings
+        static let section = "backup.section"
+        static let title = "backup.title"
+        static let subtitle = "backup.subtitle"
+
+        // Export
+        static let exportTitle = "backup.export.title"
+        static let exportButton = "backup.export.button"
+        static let exportDescription = "backup.export.description"
+        static let exportSuccess = "backup.export.success"
+        static let exportSuccessMessage = "backup.export.successMessage"
+        static let exporting = "backup.exporting"
+
+        // Import
+        static let importTitle = "backup.import.title"
+        static let importButton = "backup.import.button"
+        static let importDescription = "backup.import.description"
+        static let importSuccess = "backup.import.success"
+        static let importSuccessMessage = "backup.import.successMessage"
+        static let importing = "backup.importing"
+        static let importConfirmTitle = "backup.import.confirmTitle"
+        static let importConfirmMessage = "backup.import.confirmMessage"
+
+        // Password
+        static let passwordTitle = "backup.password.title"
+        static let passwordPlaceholder = "backup.password.placeholder"
+        static let passwordConfirmPlaceholder = "backup.password.confirmPlaceholder"
+        static let passwordHint = "backup.password.hint"
+        static let passwordMinLength = "backup.password.minLength"
+        static let passwordMismatch = "backup.password.mismatch"
+
+        // iCloud
+        static let iCloudSection = "backup.icloud.section"
+        static let iCloudTitle = "backup.icloud.title"
+        static let iCloudDescription = "backup.icloud.description"
+        static let iCloudEnable = "backup.icloud.enable"
+        static let iCloudDisable = "backup.icloud.disable"
+        static let iCloudEnabled = "backup.icloud.enabled"
+        static let iCloudLastBackup = "backup.icloud.lastBackup"
+        static let iCloudNeverBackedUp = "backup.icloud.neverBackedUp"
+        static let lastBackup = "backup.lastBackup"
+        static let iCloudRestore = "backup.icloud.restore"
+        static let iCloudRestoreLatest = "backup.icloud.restoreLatest"
+        static let iCloudBackupHistory = "backup.icloud.backupHistory"
+        static let iCloudNoBackups = "backup.icloud.noBackups"
+        static let iCloudBackingUp = "backup.icloud.backingUp"
+        static let iCloudSetupPassword = "backup.icloud.setupPassword"
+
+        // Results
+        static let documentsImported = "backup.results.documentsImported"
+        static let documentsCreated = "backup.results.documentsCreated"
+        static let documentsUpdated = "backup.results.documentsUpdated"
+        static let documentsSkipped = "backup.results.documentsSkipped"
+        static let templatesImported = "backup.results.templatesImported"
+        static let instancesImported = "backup.results.instancesImported"
+        static let backupDate = "backup.results.backupDate"
+        static let backupVersion = "backup.results.backupVersion"
+
+        // Errors
+        enum Errors {
+            static let passwordTooWeak = "backup.error.passwordTooWeak"
+            static let passwordMismatch = "backup.error.passwordMismatch"
+            static let encryptionFailed = "backup.error.encryptionFailed"
+            static let decryptionFailed = "backup.error.decryptionFailed"
+            static let invalidEncryptionParams = "backup.error.invalidEncryptionParams"
+            static let invalidFormat = "backup.error.invalidFormat"
+            static let versionMismatch = "backup.error.versionMismatch"
+            static let corruptedData = "backup.error.corruptedData"
+            static let emptyBackup = "backup.error.emptyBackup"
+            static let fileNotFound = "backup.error.fileNotFound"
+            static let fileReadFailed = "backup.error.fileReadFailed"
+            static let fileWriteFailed = "backup.error.fileWriteFailed"
+            static let insufficientSpace = "backup.error.insufficientSpace"
+            static let iCloudUnavailable = "backup.error.iCloudUnavailable"
+            static let iCloudAccountChanged = "backup.error.iCloudAccountChanged"
+            static let iCloudQuotaExceeded = "backup.error.iCloudQuotaExceeded"
+            static let iCloudSyncInProgress = "backup.error.iCloudSyncInProgress"
+            static let databaseError = "backup.error.databaseError"
+            static let mergeConflict = "backup.error.mergeConflict"
+        }
+
+        // Recovery
+        enum Recovery {
+            static let passwordTooWeak = "backup.recovery.passwordTooWeak"
+            static let wrongPassword = "backup.recovery.wrongPassword"
+            static let enableiCloud = "backup.recovery.enableiCloud"
+            static let freeSpace = "backup.recovery.freeSpace"
+            static let updateApp = "backup.recovery.updateApp"
+        }
+    }
 }
 
 // MARK: - Localization Manager
@@ -862,6 +1031,11 @@ final class LocalizationManager: ObservableObject {
     var bundle: Bundle {
         _bundle
     }
+
+    /// The current locale based on the app's selected language.
+    /// Use this for DatePicker, DateFormatter, and Calendar instances
+    /// to ensure dates display in the user's chosen language, not the system locale.
+    @Published private(set) var currentLocale: Locale = Locale(identifier: "pl")
 
     private init() {
         updateLanguage()
@@ -878,7 +1052,7 @@ final class LocalizationManager: ObservableObject {
         updateLanguage()
     }
 
-    /// Update the language bundle based on settings
+    /// Update the language bundle and locale based on settings
     func updateLanguage() {
         let userDefaults = UserDefaults.standard
         let languageCode = userDefaults.string(forKey: "appLanguage") ?? "pl"
@@ -894,11 +1068,15 @@ final class LocalizationManager: ObservableObject {
             localeCode = "pl"
         }
 
+        // Update the locale for DatePicker, DateFormatter, Calendar
+        currentLocale = Locale(identifier: localeCode)
+
         if let path = Bundle.main.path(forResource: localeCode, ofType: "lproj"),
            let bundle = Bundle(path: path) {
             _bundle = bundle
             #if DEBUG
             print("Localization: Loaded bundle for language '\(languageCode)' from path: \(path)")
+            print("Localization: Updated locale to '\(localeCode)' for date formatting")
             #endif
         } else {
             _bundle = .main

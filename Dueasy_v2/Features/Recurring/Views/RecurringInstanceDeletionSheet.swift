@@ -235,12 +235,14 @@ struct RecurringInstanceDeletionSheet: View {
         }
 
         let formatter = DateFormatter()
+        formatter.locale = LocalizationManager.shared.currentLocale
         formatter.dateFormat = "MMMM yyyy"
         return formatter.string(from: date)
     }
 
     private func formattedDate(_ date: Date) -> String {
         let formatter = DateFormatter()
+        formatter.locale = LocalizationManager.shared.currentLocale
         formatter.dateStyle = .long
         formatter.timeStyle = .none
         return formatter.string(from: date)

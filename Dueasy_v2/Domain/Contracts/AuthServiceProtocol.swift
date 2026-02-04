@@ -39,6 +39,13 @@ protocol AuthServiceProtocol: Sendable {
     /// - Throws: `AuthError` on failure
     func signInWithApple() async throws
 
+    /// Link Apple credential to existing anonymous user.
+    /// Preserves the existing user ID and usage counters.
+    /// - Throws: `AuthError.credentialAlreadyLinked` if Apple account is already linked to another user
+    /// - Throws: `AuthError.notSignedIn` if no user is currently signed in
+    /// - Throws: `AuthError` on other failures
+    func linkAppleCredential() async throws
+
     /// Sign out current user.
     /// Clears local credentials and Firebase session.
     /// - Throws: `AuthError` on failure
@@ -69,6 +76,7 @@ enum AuthError: LocalizedError, Equatable {
     case reauthenticationRequired
     case appleSignInCancelled
     case appleSignInFailed(String)
+    case credentialAlreadyLinked
     case networkError(String)
     case unknown(String)
 
@@ -94,6 +102,8 @@ enum AuthError: LocalizedError, Equatable {
             return "Sign in was cancelled"
         case .appleSignInFailed(let reason):
             return "Apple Sign In failed: \(reason)"
+        case .credentialAlreadyLinked:
+            return "This Apple account is already linked to another user"
         case .networkError(let message):
             return "Network error: \(message)"
         case .unknown(let message):

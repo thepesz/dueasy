@@ -65,7 +65,7 @@ struct DocumentRow: View {
 
                     // Document number if available
                     if let number = document.documentNumber, !number.isEmpty {
-                        Text("No. \(number)")
+                        Text(L10n.Detail.documentNumber.localized(with: number))
                             .font(Typography.caption1)
                             .foregroundStyle(.secondary)
                     }
@@ -157,6 +157,7 @@ struct DocumentRow: View {
 
     private func formattedDate(_ date: Date) -> String {
         let formatter = DateFormatter()
+        formatter.locale = LocalizationManager.shared.currentLocale
         formatter.dateStyle = .medium
         formatter.timeStyle = .none
         return formatter.string(from: date)
@@ -237,6 +238,7 @@ struct CompactDocumentRow: View {
 
     private func formattedDate(_ date: Date) -> String {
         let formatter = DateFormatter()
+        formatter.locale = LocalizationManager.shared.currentLocale
         formatter.dateStyle = .short
         return formatter.string(from: date)
     }

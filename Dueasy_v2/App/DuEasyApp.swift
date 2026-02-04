@@ -2,6 +2,10 @@ import SwiftUI
 import SwiftData
 import os
 
+#if canImport(RevenueCat)
+import RevenueCat
+#endif
+
 /// Main entry point for DuEasy application.
 /// Architecture: SwiftUI Views -> MVVM ViewModels -> Use Cases -> Protocol-based Services -> SwiftData
 ///
@@ -42,6 +46,13 @@ struct DuEasyApp: App {
         // Initialize Firebase for cloud integration (Pro tier)
         // Note: This will only configure Firebase if GoogleService-Info.plist is present
         FirebaseConfigurator.shared.configure(for: .pro)
+
+        // Initialize RevenueCat for subscription management
+        // CRITICAL: Must be called before any purchase operations
+        #if canImport(RevenueCat)
+        RevenueCatSubscriptionService.configure()
+        PrivacyLogger.app.info("RevenueCat SDK configured")
+        #endif
 
         // Initialize localization early
         LocalizationManager.shared.updateLanguage()
@@ -105,18 +116,6 @@ struct DuEasyApp: App {
         // TESTING: Force enable cloud analysis for testing
         environment.settingsManager.cloudAnalysisEnabled = true
         PrivacyLogger.app.info("TESTING: Cloud analysis force-enabled")
-
-        // Sign in anonymously for testing (Pro tier)
-        Task { @MainActor in
-            do {
-                try await environment.authService.signInAnonymously()
-                if let userId = await environment.authService.currentUserId {
-                    PrivacyLogger.app.info("TESTING: Signed in anonymously: \(userId)")
-                }
-            } catch {
-                PrivacyLogger.app.error("TESTING: Anonymous auth failed - \(error.localizedDescription)")
-            }
-        }
         #endif
 
         PrivacyLogger.app.info("DuEasy app initialized")
@@ -132,7 +131,11 @@ struct DuEasyApp: App {
                     .environment(\.appLockManager, appLockManager)
                     .id(appLanguage) // Force view rebuild when language changes
                     .task {
-                        // Run vendor migrations on first appear
+                        // Bootstrap authentication first - ensures Firebase user exists
+                        // before any cloud extraction requests
+                        await appEnvironment.authBootstrapper.bootstrap()
+
+                        // Run vendor migrations after auth is ready
                         do {
                             try await appEnvironment.runStartupMigrations()
                         } catch {

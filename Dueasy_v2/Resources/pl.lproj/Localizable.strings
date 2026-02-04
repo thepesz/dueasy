@@ -115,10 +115,26 @@
 "review.vendorAddressLabel" = "Adres sprzedawcy";
 "review.vendorAddressPlaceholder" = "Wprowadź adres sprzedawcy (opcjonalnie)";
 "review.amountLabel" = "Kwota";
-"review.detectedAmounts" = "Wykryte kwoty:";
+"review.detectedAmounts" = "Inne znalezione kwoty:";
 "review.currencyLabel" = "Waluta";
 "review.dueDateLabel" = "Termin płatności";
 "review.dueDatePast" = "Ta data jest w przeszłości";
+
+// Alternatives/candidates
+"review.otherPossibilities" = "Inne możliwości";
+"review.otherDatesFound" = "Inne znalezione daty";
+"review.otherAmountsFound" = "Inne znalezione kwoty";
+
+// Relative date descriptions (for date alternatives)
+"review.date.yesterday" = "Wczoraj";
+"review.date.daysAgo" = "%d dni temu";
+"review.date.today" = "Dzisiaj";
+"review.date.tomorrow" = "Jutro";
+"review.date.inDays" = "Za %d dni";
+"review.date.nextWeek" = "Za tydzień";
+"review.date.inWeeks" = "Za %d tygodni";
+"review.date.inMonths" = "Za %d miesięcy";
+
 "review.invoiceNumberLabel" = "Numer faktury";
 "review.invoiceNumberPlaceholder" = "Opcjonalnie";
 "review.nipLabel" = "NIP";
@@ -212,6 +228,33 @@
 "edit.saving" = "Zapisywanie...";
 "edit.required" = "(wymagane)";
 "edit.optional" = "(opcjonalnie)";
+
+// Payment Status Section
+"edit.paymentStatus.section" = "Status platnosci";
+"edit.paymentStatus.scheduled" = "Zaplanowana";
+"edit.paymentStatus.paid" = "Zaplacona";
+"edit.paymentStatus.footer" = "Oznacz jako zaplacona, aby wylaczyc przypomnienia i zarchiwizowac fakture.";
+"edit.paymentStatus.confirmMarkScheduled" = "Przywrocic do zaplanowanej?";
+"edit.paymentStatus.confirmMarkScheduledMessage" = "Faktura zostanie oznaczona jako niezaplacona i beda mozliwe wlaczenie powiadomien.";
+
+// Reminders Section
+"edit.reminders.section" = "Przypomnienia";
+"edit.reminders.enabled" = "Przypomnienia";
+"edit.reminders.disabledWhenPaid" = "Przypomnienia sa wylaczone dla zaplaconych faktur";
+"edit.reminders.footer" = "Otrzymuj powiadomienia przed terminem platnosci.";
+"edit.reminders.onDueDate" = "W dniu terminu";
+"edit.reminders.oneDayBefore" = "1 dzien przed";
+"edit.reminders.sevenDaysBefore" = "7 dni przed";
+"edit.reminders.daysBefore" = "%d dni przed";
+
+// Recurring Section
+"edit.recurring.section" = "Platnosc cykliczna";
+"edit.recurring.linkedMessage" = "Ta faktura jest powiazana z platnoscia cykliczna od %@";
+"edit.recurring.viewPayment" = "Zobacz platnosc cykliczna";
+"edit.recurring.unlink" = "Odlacz od cyklicznej";
+"edit.recurring.unlinkConfirmTitle" = "Odlaczyc od platnosci cyklicznej?";
+"edit.recurring.unlinkConfirmMessage" = "Ta faktura stanie sie samodzielnym dokumentem. Platnosc cykliczna bedzie nadal sledzic przyszle wystapienia.";
+"edit.recurring.footer" = "Zmiany w tej fakturze dotycza tylko tej instancji, nie przyszlych platnosci cyklicznych.";
 
 // MARK: - Due Dates
 
@@ -653,14 +696,14 @@
 "subscription.purchaseError" = "Błąd zakupu";
 "subscription.loadingStatus" = "Ładowanie statusu subskrypcji...";
 "subscription.manageSubscription" = "Zarządzaj subskrypcją";
-"subscription.upgradeFooter" = "Uaktualnij do Pro, aby uzyskać analizę AI, kopię zapasową w chmurze i zwiększoną dokładność.";
+"subscription.upgradeFooter" = "Plan Free: 3 analizy AI/miesiac. Uaktualnij do Pro: 100/miesiac, kopia w chmurze i wiecej.";
 "subscription.willRenewOn" = "Twoja subskrypcja odnowi się %@";
 "subscription.expiresOn" = "Twoja subskrypcja wygasa %@";
 "subscription.freeTrial" = "Okres próbny";
 "subscription.paymentIssue" = "Problem z płatnością";
 "subscription.active" = "Aktywna";
 "subscription.inactive" = "Nieaktywna";
-"subscription.localOnly" = "Tylko funkcje lokalne";
+"subscription.localOnly" = "3 analizy AI/miesiac";
 "subscription.status" = "Status";
 "subscription.tier" = "Poziom";
 "subscription.plan" = "Plan";
@@ -767,3 +810,123 @@
 "recurring.fuzzyMatch.selectTemplate" = "Wybierz, ktora platnosc cykliczna polaczyc:";
 "recurring.fuzzyMatch.matchedInvoices" = "%d faktur dopasowanych";
 "recurring.fuzzyMatch.dueDayInfo" = "Termin: %d dzien miesiaca";
+
+// MARK: - Authentication
+
+"auth.signInWithApple" = "Zaloguj przez Apple";
+"auth.skipForNow" = "Pomin na razie";
+"auth.withoutSignInInfo" = "Bez logowania Twoje dane pozostana tylko na tym urzadzeniu. Zaloguj sie przez Apple, aby wlaczyc synchronizacje miedzy urzadzeniami.";
+"auth.signInError.title" = "Blad logowania";
+"auth.signInError.generic" = "Nie udalo sie zalogowac. Sprobuj ponownie.";
+"auth.credentialAlreadyLinked.title" = "Konto juz polaczone";
+"auth.credentialAlreadyLinked.message" = "To konto Apple jest juz polaczone z innym uzytkownikiem DuEasy. Uzyj innego Apple ID lub skontaktuj sie z obsluga.";
+"auth.continueAsGuest" = "Kontynuuj jako gosc";
+
+// Account section in Settings
+"auth.account.section" = "Konto";
+"auth.signedInAs" = "Zalogowano";
+"auth.guestAccount" = "Konto goscia";
+"auth.signIn" = "Zaloguj sie";
+"auth.signOut" = "Wyloguj sie";
+"auth.signOut.confirmTitle" = "Wylogowac?";
+"auth.signOut.confirmMessage" = "Twoje lokalne dane pozostana na tym urzadzeniu, ale stracisz dostep do synchronizacji w chmurze do momentu ponownego zalogowania.";
+"auth.deleteAccount" = "Usun konto";
+"auth.deleteAccount.confirmTitle" = "Usunac konto?";
+"auth.deleteAccount.confirmMessage" = "To trwale usunie Twoje konto i usunie dane z synchronizacji w chmurze. Lokalne dane na tym urzadzeniu pozostana.";
+"auth.syncEnabled" = "Synchronizacja w chmurze wlaczona";
+"auth.syncDisabled" = "Synchronizacja w chmurze wylaczona";
+
+// MARK: - Rate Limit
+
+"rate_limit.banner.title" = "Limit AI osiagniety (%d/%d)";
+"rate_limit.banner.title_default" = "Limit ekstrakcji AI osiagniety";
+"rate_limit.banner.subtitle" = "Uzywam ekstrakcji offline (mniej dokladnej)";
+"rate_limit.banner.upgrade" = "Uaktualnij do Pro";
+
+// MARK: - Backup
+
+// Section in Settings
+"backup.section" = "Kopia zapasowa";
+"backup.title" = "Kopia zapasowa";
+"backup.subtitle" = "Eksportuj zaszyfrowane kopie lub przywroc z kopii";
+
+// Export
+"backup.export.title" = "Eksport kopii";
+"backup.export.button" = "Eksportuj kopie";
+"backup.export.description" = "Utworz zaszyfrowany plik kopii";
+"backup.export.success" = "Kopia wyeksportowana";
+"backup.export.successMessage" = "Plik kopii zapasowej zostal utworzony.";
+"backup.exporting" = "Eksportowanie...";
+
+// Import
+"backup.import.title" = "Import kopii";
+"backup.import.button" = "Importuj kopie";
+"backup.import.description" = "Przywroc z zaszyfrowanej kopii";
+"backup.import.success" = "Kopia zaimportowana";
+"backup.import.successMessage" = "Dane zostaly przywrocone.";
+"backup.importing" = "Importowanie...";
+"backup.import.confirmTitle" = "Importowac kopie?";
+"backup.import.confirmMessage" = "Istniejace dane zostana polaczone z danymi z kopii. Nowsze wpisy maja priorytet.";
+
+// Password
+"backup.password.title" = "Zaszyfruj kopie";
+"backup.password.placeholder" = "Haslo";
+"backup.password.confirmPlaceholder" = "Potwierdz haslo";
+"backup.password.hint" = "Wybierz silne haslo do ochrony kopii. Bedziesz go potrzebowac do przywrocenia danych.";
+"backup.password.minLength" = "Minimum 8 znakow";
+"backup.password.mismatch" = "Hasla nie pasuja do siebie";
+
+// iCloud
+"backup.icloud.section" = "Automatyczna kopia";
+"backup.icloud.title" = "Automatyczna kopia iCloud";
+"backup.icloud.description" = "Automatycznie twórz kopie zapasowe w iCloud Drive codziennie. Kopie sa szyfrowane i przechowywane przez 7 dni.";
+"backup.icloud.enable" = "Wlacz";
+"backup.icloud.disable" = "Wylacz";
+"backup.icloud.enabled" = "Kopia iCloud wlaczona";
+"backup.icloud.lastBackup" = "Ostatnia kopia: %@";
+"backup.icloud.neverBackedUp" = "Nigdy nie utworzono kopii";
+"backup.icloud.restore" = "Przywroc z iCloud";
+"backup.icloud.restoreLatest" = "Przywroc najnowsza kopie";
+"backup.icloud.backupHistory" = "Historia kopii";
+"backup.icloud.noBackups" = "Brak dostepnych kopii";
+"backup.icloud.backingUp" = "Tworzenie kopii...";
+"backup.icloud.setupPassword" = "Ustaw haslo szyfrowania";
+"backup.lastBackup" = "Ostatnia: %@";
+
+// Results
+"backup.results.documentsImported" = "Zaimportowane dokumenty";
+"backup.results.documentsCreated" = "%d dokumentow utworzonych";
+"backup.results.documentsUpdated" = "%d dokumentow zaktualizowanych";
+"backup.results.documentsSkipped" = "%d dokumentow pominietych (juz aktualne)";
+"backup.results.templatesImported" = "Zaimportowane szablony";
+"backup.results.instancesImported" = "Zaimportowane instancje";
+"backup.results.backupDate" = "Data kopii";
+"backup.results.backupVersion" = "Wersja kopii";
+
+// Errors
+"backup.error.passwordTooWeak" = "Haslo musi miec co najmniej 8 znakow";
+"backup.error.passwordMismatch" = "Hasla nie pasuja do siebie";
+"backup.error.encryptionFailed" = "Nie udalo sie zaszyfrowac kopii";
+"backup.error.decryptionFailed" = "Nie udalo sie odszyfrowac kopii. Sprawdz haslo.";
+"backup.error.invalidEncryptionParams" = "Nieprawidlowe parametry szyfrowania";
+"backup.error.invalidFormat" = "Nieprawidlowy format pliku kopii";
+"backup.error.versionMismatch" = "Wersja kopii nie jest kompatybilna z ta wersja aplikacji";
+"backup.error.corruptedData" = "Dane kopii wydaja sie uszkodzone";
+"backup.error.emptyBackup" = "Plik kopii jest pusty";
+"backup.error.fileNotFound" = "Nie znaleziono pliku kopii";
+"backup.error.fileReadFailed" = "Nie udalo sie odczytac pliku kopii";
+"backup.error.fileWriteFailed" = "Nie udalo sie zapisac pliku kopii";
+"backup.error.insufficientSpace" = "Brak wystarczajacej ilosci miejsca";
+"backup.error.iCloudUnavailable" = "iCloud nie jest dostepny. Zaloguj sie do iCloud w Ustawieniach.";
+"backup.error.iCloudAccountChanged" = "Konto iCloud zmienione. Wlacz ponownie kopie zapasowa.";
+"backup.error.iCloudQuotaExceeded" = "Pamiec iCloud jest pelna";
+"backup.error.iCloudSyncInProgress" = "Synchronizacja iCloud w toku. Sprobuj ponownie.";
+"backup.error.databaseError" = "Blad bazy danych podczas importu";
+"backup.error.mergeConflict" = "Wykryto konflikt scalania";
+
+// Recovery
+"backup.recovery.passwordTooWeak" = "Uzyj dluzszego hasla z literami i cyframi";
+"backup.recovery.wrongPassword" = "Sprawdz haslo i sprobuj ponownie";
+"backup.recovery.enableiCloud" = "Zaloguj sie do iCloud w Ustawieniach";
+"backup.recovery.freeSpace" = "Zwolnij miejsce i sprobuj ponownie";
+"backup.recovery.updateApp" = "Zaktualizuj aplikacje, aby przywrocic te kopie";

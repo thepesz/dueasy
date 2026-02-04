@@ -1,14 +1,22 @@
 import SwiftUI
+import AuthenticationServices
 import EventKit
 import UserNotifications
 import os.log
 
 /// Onboarding flow for new users.
-/// Presents value proposition and requests necessary permissions.
+/// Presents value proposition, Sign in with Apple option, and requests necessary permissions.
+///
+/// ## User Flow
+/// 1. Welcome page with app logo and value proposition
+/// 2. Feature pages (scan, calendar, security)
+/// 3. Sign in with Apple (optional) - links to anonymous Firebase user
+/// 4. Permission request page (calendar, notifications)
 struct OnboardingView: View {
 
     @Environment(AppEnvironment.self) private var environment
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.colorScheme) private var colorScheme
 
     let onComplete: () -> Void
 
@@ -18,11 +26,18 @@ struct OnboardingView: View {
     @State private var isRequestingPermission = false
     @State private var appeared = false
 
+    // Sign in with Apple state
+    @State private var isSigningInWithApple = false
+    @State private var signInError: String?
+    @State private var showSignInErrorAlert = false
+    @State private var showCredentialAlreadyLinkedAlert = false
+
     private let logger = Logger(subsystem: "com.dueasy.app", category: "Onboarding")
 
-    // Total pages: 3 info pages + 1 permission page
-    private let totalPages = 4
-    private let permissionPageIndex = 3
+    // Total pages: 3 info pages + 1 sign in page + 1 permission page
+    private let totalPages = 5
+    private let signInPageIndex = 3
+    private let permissionPageIndex = 4
 
     private var infoPages: [OnboardingPage] {
         [
@@ -30,27 +45,27 @@ struct OnboardingView: View {
                 icon: "doc.text.viewfinder",
                 title: L10n.Onboarding.scanTitle.localized,
                 description: L10n.Onboarding.scanDescription.localized,
-                color: .blue
+                color: AuroraPalette.accentBlue
             ),
             OnboardingPage(
                 icon: "calendar.badge.clock",
                 title: L10n.Onboarding.calendarTitle.localized,
                 description: L10n.Onboarding.calendarDescription.localized,
-                color: .orange
+                color: AuroraPalette.warning
             ),
             OnboardingPage(
                 icon: "lock.shield",
                 title: L10n.Onboarding.securityTitle.localized,
                 description: L10n.Onboarding.securityDescription.localized,
-                color: .green
+                color: AuroraPalette.success
             )
         ]
     }
 
     var body: some View {
         ZStack {
-            // Modern gradient background
-            GradientBackground()
+            // Aurora background
+            EnhancedMidnightAuroraBackground()
 
             VStack(spacing: 0) {
                 // Page content
@@ -60,6 +75,14 @@ struct OnboardingView: View {
                         OnboardingPageView(page: page)
                             .tag(index)
                     }
+
+                    // Sign in with Apple page
+                    SignInPageView(
+                        isSigningIn: $isSigningInWithApple,
+                        onSignInWithApple: signInWithApple,
+                        onSkip: skipSignIn
+                    )
+                    .tag(signInPageIndex)
 
                     // Permission request page
                     PermissionRequestPageView(
@@ -79,36 +102,38 @@ struct OnboardingView: View {
                     HStack(spacing: Spacing.sm) {
                         ForEach(0..<totalPages, id: \.self) { index in
                             Capsule()
-                                .fill(index == currentPage ? AppColors.primary : Color.secondary.opacity(0.3))
+                                .fill(index == currentPage ? AuroraPalette.accentBlue : Color.white.opacity(0.3))
                                 .frame(width: index == currentPage ? 24 : 8, height: 8)
                                 .animation(.spring(response: 0.3, dampingFraction: 0.7), value: currentPage)
                         }
                     }
 
                     // Action button
-                    PrimaryButton(
-                        buttonTitle,
-                        icon: currentPage == permissionPageIndex ? "arrow.right" : nil,
-                        isLoading: isRequestingPermission
-                    ) {
-                        handleButtonTap()
+                    if currentPage != signInPageIndex {
+                        PrimaryButton(
+                            buttonTitle,
+                            icon: currentPage == permissionPageIndex ? "arrow.right" : nil,
+                            isLoading: isRequestingPermission
+                        ) {
+                            handleButtonTap()
+                        }
+                        .padding(.horizontal, Spacing.xl)
+                        .disabled(isRequestingPermission)
+                        .opacity(appeared ? 1 : 0)
+                        .offset(y: appeared ? 0 : 20)
+                        .animation(reduceMotion ? .none : .spring(response: 0.5, dampingFraction: 0.8).delay(0.3), value: appeared)
                     }
-                    .padding(.horizontal, Spacing.xl)
-                    .disabled(isRequestingPermission)
-                    .opacity(appeared ? 1 : 0)
-                    .offset(y: appeared ? 0 : 20)
-                    .animation(reduceMotion ? .none : .spring(response: 0.5, dampingFraction: 0.8).delay(0.3), value: appeared)
 
-                    // Skip button (not on last page)
-                    if currentPage < permissionPageIndex {
+                    // Skip button (not on last page or sign in page)
+                    if currentPage < signInPageIndex {
                         Button(L10n.Common.skip.localized) {
-                            // Skip to permissions page
+                            // Skip to sign in page
                             withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-                                currentPage = permissionPageIndex
+                                currentPage = signInPageIndex
                             }
                         }
                         .font(Typography.subheadline.weight(.medium))
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Color.white.opacity(0.6))
                     }
                 }
                 .padding(.bottom, Spacing.xl)
@@ -126,28 +151,79 @@ struct OnboardingView: View {
                 appeared = true
             }
         }
+        .alert(L10n.Auth.signInErrorTitle.localized, isPresented: $showSignInErrorAlert) {
+            Button(L10n.Common.ok.localized, role: .cancel) { }
+            Button(L10n.Common.retry.localized) {
+                Task { await signInWithApple() }
+            }
+        } message: {
+            Text(signInError ?? L10n.Auth.signInErrorGeneric.localized)
+        }
+        .alert(L10n.Auth.credentialAlreadyLinkedTitle.localized, isPresented: $showCredentialAlreadyLinkedAlert) {
+            Button(L10n.Auth.continueAsGuest.localized) {
+                // Continue without linking
+                proceedToPermissions()
+            }
+        } message: {
+            Text(L10n.Auth.credentialAlreadyLinkedMessage.localized)
+        }
     }
 
     private var buttonTitle: String {
         if currentPage == permissionPageIndex {
-            if calendarPermissionGranted && notificationPermissionGranted {
-                return L10n.Common.getStarted.localized
-            } else {
-                return L10n.Common.getStarted.localized
-            }
+            return L10n.Common.getStarted.localized
         }
         return L10n.Common.continueButton.localized
     }
 
     private func handleButtonTap() {
-        if currentPage < permissionPageIndex {
+        if currentPage < permissionPageIndex && currentPage != signInPageIndex {
             withAnimation {
                 currentPage += 1
             }
-        } else {
+        } else if currentPage == permissionPageIndex {
             // On permission page - complete onboarding
             logger.info("Completing onboarding - calendar: \(calendarPermissionGranted), notifications: \(notificationPermissionGranted)")
             onComplete()
+        }
+    }
+
+    private func signInWithApple() async {
+        isSigningInWithApple = true
+        signInError = nil
+
+        do {
+            // Link Apple credential to existing anonymous user
+            try await environment.authService.linkAppleCredential()
+            logger.info("Apple credential linked successfully")
+
+            // Proceed to permissions
+            proceedToPermissions()
+        } catch AuthError.appleSignInCancelled {
+            // User cancelled - don't show error
+            logger.info("Apple Sign In cancelled by user")
+        } catch AuthError.credentialAlreadyLinked {
+            // Apple account already linked to another user
+            logger.warning("Apple credential already linked to another user")
+            showCredentialAlreadyLinkedAlert = true
+        } catch {
+            logger.error("Apple Sign In failed: \(error.localizedDescription)")
+            signInError = error.localizedDescription
+            showSignInErrorAlert = true
+        }
+
+        isSigningInWithApple = false
+    }
+
+    private func skipSignIn() {
+        logger.info("User skipped Apple Sign In")
+        environment.settingsManager.didSkipAppleSignIn = true
+        proceedToPermissions()
+    }
+
+    private func proceedToPermissions() {
+        withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+            currentPage = permissionPageIndex
         }
     }
 
@@ -248,7 +324,7 @@ struct OnboardingPageView: View {
                                 LinearGradient(
                                     colors: [
                                         page.color.opacity(0.6),
-                                        Color.white.opacity(colorScheme == .light ? 0.5 : 0.2),
+                                        Color.white.opacity(0.2),
                                         page.color.opacity(0.3)
                                     ],
                                     startPoint: .topLeading,
@@ -270,11 +346,12 @@ struct OnboardingPageView: View {
             VStack(spacing: Spacing.md) {
                 Text(page.title)
                     .font(Typography.title1)
+                    .foregroundStyle(Color.white)
                     .multilineTextAlignment(.center)
 
                 Text(page.description)
                     .font(Typography.body)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color.white.opacity(0.7))
                     .multilineTextAlignment(.center)
                     .lineSpacing(4)
                     .padding(.horizontal, Spacing.lg)
@@ -290,11 +367,126 @@ struct OnboardingPageView: View {
     private func glassCircle(for page: OnboardingPage) -> some View {
         if reduceTransparency {
             Circle()
-                .fill(page.color.opacity(0.15))
+                .fill(AuroraPalette.cardBacking)
         } else {
             Circle()
-                .fill(.ultraThinMaterial)
+                .fill(AuroraPalette.cardBacking)
+                .overlay {
+                    Circle().fill(AuroraPalette.cardGlass)
+                }
         }
+    }
+}
+
+// MARK: - Sign In Page View
+
+struct SignInPageView: View {
+    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+
+    @Binding var isSigningIn: Bool
+    let onSignInWithApple: () async -> Void
+    let onSkip: () -> Void
+
+    var body: some View {
+        VStack(spacing: Spacing.xl) {
+            Spacer()
+
+            // App Logo
+            VStack(spacing: Spacing.sm) {
+                // Logo
+                HStack(alignment: .bottom, spacing: 2) {
+                    Text("Du")
+                        .font(.system(
+                            size: AuroraTypography.LogoDu.size,
+                            weight: AuroraTypography.LogoDu.weight,
+                            design: AuroraTypography.LogoDu.design
+                        ))
+                        .foregroundStyle(AuroraGradients.logoDu)
+
+                    Text("Easy")
+                        .font(.system(
+                            size: AuroraTypography.LogoEasy.size,
+                            weight: AuroraTypography.LogoEasy.weight,
+                            design: AuroraTypography.LogoEasy.design
+                        ))
+                        .foregroundStyle(AuroraGradients.logoEasy)
+                }
+
+                // Tagline
+                Text(L10n.Home.paymentTracker.localized)
+                    .font(.system(
+                        size: AuroraTypography.Tagline.size,
+                        weight: AuroraTypography.Tagline.weight
+                    ))
+                    .tracking(AuroraTypography.Tagline.tracking)
+                    .foregroundStyle(AuroraPalette.textSecondary)
+                    .textCase(.uppercase)
+            }
+
+            Spacer()
+
+            // Sign In Button Section
+            VStack(spacing: Spacing.lg) {
+                // Sign in with Apple button
+                SignInWithAppleButton(
+                    onRequest: { request in
+                        request.requestedScopes = [.fullName, .email]
+                    },
+                    onCompletion: { _ in
+                        // Handled by FirebaseAuthService
+                    }
+                )
+                .signInWithAppleButtonStyle(.white)
+                .frame(height: 50)
+                .cornerRadius(CornerRadius.md)
+                .disabled(isSigningIn)
+                .opacity(isSigningIn ? 0.6 : 1.0)
+                .overlay {
+                    if isSigningIn {
+                        RoundedRectangle(cornerRadius: CornerRadius.md)
+                            .fill(Color.black.opacity(0.3))
+                            .overlay {
+                                ProgressView()
+                                    .tint(.white)
+                            }
+                    }
+                }
+                .onTapGesture {
+                    if !isSigningIn {
+                        Task { await onSignInWithApple() }
+                    }
+                }
+
+                // Skip button
+                Button(action: onSkip) {
+                    Text(L10n.Auth.skipForNow.localized)
+                        .font(Typography.body.weight(.medium))
+                        .foregroundStyle(Color.white.opacity(0.7))
+                }
+                .disabled(isSigningIn)
+
+                // Info text
+                VStack(alignment: .leading, spacing: Spacing.xs) {
+                    HStack(alignment: .top, spacing: Spacing.xs) {
+                        Image(systemName: "info.circle")
+                            .font(.caption)
+                            .foregroundStyle(AuroraPalette.textTertiary)
+
+                        Text(L10n.Auth.withoutSignInInfo.localized)
+                            .font(Typography.caption1)
+                            .foregroundStyle(AuroraPalette.textTertiary)
+                            .multilineTextAlignment(.leading)
+                    }
+                }
+                .padding(.horizontal, Spacing.lg)
+                .padding(.top, Spacing.sm)
+            }
+            .padding(.horizontal, Spacing.xl)
+
+            Spacer()
+        }
+        .padding(Spacing.md)
     }
 }
 
@@ -312,22 +504,41 @@ struct PermissionRequestPageView: View {
             Spacer()
 
             // Icon
-            Image(systemName: "checkmark.shield.fill")
-                .font(.system(size: 80))
-                .foregroundStyle(.blue)
-                .padding(Spacing.xl)
-                .background(Color.blue.opacity(0.12))
-                .clipShape(Circle())
+            ZStack {
+                Circle()
+                    .fill(AuroraPalette.cardBacking)
+                    .overlay {
+                        Circle().fill(AuroraPalette.cardGlass)
+                    }
+                    .frame(width: 120, height: 120)
+                    .overlay {
+                        Circle()
+                            .strokeBorder(
+                                LinearGradient(
+                                    colors: [AuroraPalette.accentBlue.opacity(0.6), AuroraPalette.accentBlue.opacity(0.2)],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ),
+                                lineWidth: 1.5
+                            )
+                    }
+                    .shadow(color: AuroraPalette.accentBlue.opacity(0.3), radius: 16, y: 8)
+
+                Image(systemName: "checkmark.shield.fill")
+                    .font(.system(size: 50))
+                    .foregroundStyle(AuroraPalette.accentBlue)
+            }
 
             // Title
             VStack(spacing: Spacing.sm) {
                 Text(L10n.Onboarding.permissionsTitle.localized)
                     .font(Typography.title1)
+                    .foregroundStyle(Color.white)
                     .multilineTextAlignment(.center)
 
                 Text(L10n.Onboarding.permissionsDescription.localized)
                     .font(Typography.body)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color.white.opacity(0.7))
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, Spacing.lg)
             }
@@ -360,16 +571,16 @@ struct PermissionRequestPageView: View {
             if calendarGranted && notificationGranted {
                 HStack(spacing: Spacing.xs) {
                     Image(systemName: "checkmark.circle.fill")
-                        .foregroundStyle(.green)
+                        .foregroundStyle(AuroraPalette.success)
                     Text(L10n.Onboarding.allPermissionsGranted.localized)
                         .font(Typography.subheadline)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Color.white.opacity(0.7))
                 }
                 .padding(.top, Spacing.sm)
             } else {
                 Text(L10n.Onboarding.permissionsOptional.localized)
                     .font(Typography.caption1)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color.white.opacity(0.5))
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, Spacing.lg)
                     .padding(.top, Spacing.sm)
@@ -384,9 +595,7 @@ struct PermissionRequestPageView: View {
 // MARK: - Permission Button
 
 struct PermissionButton: View {
-    @Environment(\.colorScheme) private var colorScheme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
 
     let icon: String
     let title: String
@@ -410,8 +619,8 @@ struct PermissionButton: View {
                         .fill(
                             LinearGradient(
                                 colors: isGranted
-                                    ? [Color.green.opacity(0.2), Color.green.opacity(0.05)]
-                                    : [AppColors.primary.opacity(0.2), AppColors.primary.opacity(0.05)],
+                                    ? [AuroraPalette.success.opacity(0.3), AuroraPalette.success.opacity(0.1)]
+                                    : [AuroraPalette.accentBlue.opacity(0.3), AuroraPalette.accentBlue.opacity(0.1)],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             )
@@ -420,7 +629,7 @@ struct PermissionButton: View {
 
                     Image(systemName: icon)
                         .font(.title2.weight(.medium))
-                        .foregroundStyle(isGranted ? .green : AppColors.primary)
+                        .foregroundStyle(isGranted ? AuroraPalette.success : AuroraPalette.accentBlue)
                         .symbolRenderingMode(.hierarchical)
                 }
                 .overlay {
@@ -428,8 +637,8 @@ struct PermissionButton: View {
                         .strokeBorder(
                             LinearGradient(
                                 colors: isGranted
-                                    ? [Color.green.opacity(0.5), Color.green.opacity(0.2)]
-                                    : [AppColors.primary.opacity(0.5), AppColors.primary.opacity(0.2)],
+                                    ? [AuroraPalette.success.opacity(0.5), AuroraPalette.success.opacity(0.2)]
+                                    : [AuroraPalette.accentBlue.opacity(0.5), AuroraPalette.accentBlue.opacity(0.2)],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             ),
@@ -441,11 +650,11 @@ struct PermissionButton: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(title)
                         .font(Typography.headline)
-                        .foregroundStyle(.primary)
+                        .foregroundStyle(Color.white)
 
                     Text(subtitle)
                         .font(Typography.caption1)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Color.white.opacity(0.6))
                 }
 
                 Spacer()
@@ -453,40 +662,26 @@ struct PermissionButton: View {
                 // Status indicator
                 if isLoading {
                     ProgressView()
+                        .tint(AuroraPalette.accentBlue)
                 } else if isGranted {
                     Image(systemName: "checkmark.circle.fill")
                         .font(.title2)
-                        .foregroundStyle(.green)
-                        .symbolEffect(.pulse, options: .speed(0.5))
+                        .foregroundStyle(AuroraPalette.success)
                 } else {
                     Image(systemName: "chevron.right")
                         .font(.body.weight(.semibold))
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Color.white.opacity(0.5))
                         .offset(x: isPressed ? 3 : 0)
                 }
             }
             .padding(Spacing.md)
             .background {
-                if reduceTransparency {
+                ZStack {
                     RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous)
-                        .fill(AppColors.secondaryBackground)
-                } else {
-                    ZStack {
-                        RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous)
-                            .fill(.ultraThinMaterial)
+                        .fill(AuroraPalette.cardBacking)
 
-                        RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous)
-                            .fill(
-                                LinearGradient(
-                                    colors: [
-                                        Color.white.opacity(colorScheme == .light ? 0.5 : 0.1),
-                                        Color.white.opacity(colorScheme == .light ? 0.2 : 0.02)
-                                    ],
-                                    startPoint: .top,
-                                    endPoint: .bottom
-                                )
-                            )
-                    }
+                    RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous)
+                        .fill(AuroraPalette.cardGlass)
                 }
             }
             .clipShape(RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous))
@@ -494,17 +689,14 @@ struct PermissionButton: View {
                 RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous)
                     .strokeBorder(
                         LinearGradient(
-                            colors: [
-                                Color.white.opacity(colorScheme == .light ? 0.6 : 0.2),
-                                Color.white.opacity(0.1)
-                            ],
+                            colors: [Color.white.opacity(0.25), Color.white.opacity(0.1)],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         ),
-                        lineWidth: 0.5
+                        lineWidth: 1
                     )
             }
-            .shadow(color: Color.black.opacity(0.06), radius: 8, y: 4)
+            .shadow(color: Color.black.opacity(0.3), radius: 12, y: 6)
             .scaleEffect(isPressed ? 0.98 : 1.0)
         }
         .buttonStyle(.plain)

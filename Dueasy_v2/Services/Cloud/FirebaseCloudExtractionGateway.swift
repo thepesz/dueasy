@@ -195,6 +195,17 @@ final class FirebaseCloudExtractionGateway: CloudExtractionGatewayProtocol {
 
     /// Maps Firebase Functions errors to CloudExtractionError.
     /// Handles FunctionsErrorCode cases for proper retry classification.
+    ///
+    /// ## Rate Limit Response Format
+    ///
+    /// Backend returns rate limit info in error details:
+    /// ```json
+    /// {
+    ///   "used": 3,
+    ///   "limit": 3,
+    ///   "resetDate": "2024-02-01T00:00:00Z"
+    /// }
+    /// ```
     private func mapFirebaseError(_ error: Error) -> CloudExtractionError {
         // Check for Firebase Functions specific errors
         let nsError = error as NSError
@@ -208,7 +219,13 @@ final class FirebaseCloudExtractionGateway: CloudExtractionGatewayProtocol {
             // 4 = deadlineExceeded (timeout)
             switch nsError.code {
             case 8: // resourceExhausted - Rate limit
-                return .rateLimitExceeded
+                // Extract rate limit details from error userInfo if available
+                let rateLimitInfo = extractRateLimitInfo(from: nsError)
+                return .rateLimitExceeded(
+                    used: rateLimitInfo.used,
+                    limit: rateLimitInfo.limit,
+                    resetDate: rateLimitInfo.resetDate
+                )
             case 4: // deadlineExceeded - Timeout
                 return .timeout
             case 13, 14: // internal, unavailable - Server errors
@@ -245,6 +262,55 @@ final class FirebaseCloudExtractionGateway: CloudExtractionGatewayProtocol {
         }
 
         return .serverError(statusCode: -1, message: error.localizedDescription)
+    }
+
+    /// Extracts rate limit info from Firebase error userInfo.
+    /// Falls back to defaults if info not available.
+    private func extractRateLimitInfo(from error: NSError) -> (used: Int, limit: Int, resetDate: Date?) {
+        // Firebase error details may be in userInfo under "details" key
+        var used = 0
+        var limit = 3 // Default to free tier limit
+        var resetDate: Date?
+
+        // Try to extract from userInfo
+        if let details = error.userInfo["details"] as? [String: Any] {
+            if let usedCount = details["used"] as? Int {
+                used = usedCount
+            }
+            if let limitCount = details["limit"] as? Int {
+                limit = limitCount
+            }
+            if let resetString = details["resetDate"] as? String {
+                // Parse ISO8601 date
+                let formatter = ISO8601DateFormatter()
+                resetDate = formatter.date(from: resetString)
+            }
+        }
+
+        // If we couldn't extract used, but have a limit, assume they've used all
+        if used == 0 && limit > 0 {
+            used = limit
+        }
+
+        // If no reset date, calculate start of next month
+        if resetDate == nil {
+            resetDate = calculateNextMonthStart()
+        }
+
+        return (used, limit, resetDate)
+    }
+
+    /// Calculates the start of next month for rate limit reset.
+    private func calculateNextMonthStart() -> Date {
+        let calendar = Calendar.current
+        let now = Date()
+        guard let nextMonth = calendar.date(byAdding: .month, value: 1, to: now),
+              let startOfMonth = calendar.date(from: calendar.dateComponents([.year, .month], from: nextMonth))
+        else {
+            // Fallback: return 30 days from now
+            return calendar.date(byAdding: .day, value: 30, to: now) ?? now
+        }
+        return startOfMonth
     }
     #endif
 

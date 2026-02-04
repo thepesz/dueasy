@@ -306,6 +306,7 @@ struct StyledDocumentListRow: View {
 
     private func formattedDate(_ date: Date) -> String {
         let formatter = DateFormatter()
+        formatter.locale = LocalizationManager.shared.currentLocale
         formatter.dateStyle = .medium
         formatter.timeStyle = .none
         return formatter.string(from: date)
@@ -527,13 +528,14 @@ struct StyledSearchBar: View {
     @Environment(\.uiStyle) private var style
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @FocusState private var isFocused: Bool
 
     var body: some View {
         let tokens = UIStyleTokens(style: style)
 
         HStack(spacing: Spacing.xs) {
-            // Search icon
+            // Search icon - animate color change only, not layout
             Image(systemName: "magnifyingglass")
                 .font(Typography.listRowSecondary.weight(.medium))
                 .foregroundStyle(isFocused ? tokens.primaryColor(for: colorScheme) : .secondary)
@@ -544,6 +546,8 @@ struct StyledSearchBar: View {
                 .foregroundStyle(tokens.textPrimaryColor(for: colorScheme))
                 .focused($isFocused)
                 .submitLabel(.search)
+                .textInputAutocapitalization(.never)
+                .autocorrectionDisabled()
 
             // Clear button (shown when text is not empty)
             if !text.isEmpty {
@@ -555,6 +559,7 @@ struct StyledSearchBar: View {
                         .foregroundStyle(tokens.textSecondaryColor(for: colorScheme))
                 }
                 .buttonStyle(.plain)
+                .transition(.opacity)
             }
         }
         .padding(.horizontal, Spacing.sm)
@@ -566,8 +571,10 @@ struct StyledSearchBar: View {
         .overlay {
             searchBarBorder(tokens: tokens)
         }
-        .animation(.easeInOut(duration: 0.2), value: isFocused)
-        .animation(.easeInOut(duration: 0.15), value: text.isEmpty)
+        // PERFORMANCE FIX: Only animate the clear button appearance, not the entire view
+        // Removing animations on isFocused prevents lag during keyboard transitions
+        // The keyboard notifications issue occurs when animations trigger view updates during keyboard state changes
+        .animation(reduceMotion ? nil : .easeInOut(duration: 0.15), value: text.isEmpty)
     }
 
     @ViewBuilder

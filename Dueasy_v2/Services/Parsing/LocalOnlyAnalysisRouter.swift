@@ -2,15 +2,19 @@ import Foundation
 import UIKit
 import os
 
-/// Analysis router that always uses local parsing (Free tier).
-/// Provides a simple pass-through to the local analysis service.
+/// Analysis router that always uses local parsing.
+/// Used as a fallback when Firebase SDK is not available.
 ///
-/// Routing behavior:
-/// - Always uses DocumentAnalysisServiceProtocol (local parsing)
-/// - Ignores forceCloud parameter (not available in free tier)
-/// - Never attempts cloud analysis
+/// ## Usage
 ///
-/// In Iteration 2, replace with HybridAnalysisRouter for Pro tier.
+/// This router is only used when the Firebase SDK cannot be imported.
+/// In normal builds with Firebase, HybridAnalysisRouter handles all routing
+/// with cloud-first strategy for all tiers.
+///
+/// ## ExtractionMode
+///
+/// Results from this router have `extractionMode = .localOnly` since
+/// cloud extraction is not attempted.
 final class LocalOnlyAnalysisRouter: DocumentAnalysisRouterProtocol {
 
     // MARK: - Dependencies
@@ -42,11 +46,11 @@ final class LocalOnlyAnalysisRouter: DocumentAnalysisRouterProtocol {
         forceCloud: Bool
     ) async throws -> DocumentAnalysisResult {
 
-        PrivacyLogger.parsing.info("LocalOnlyAnalysisRouter: Analyzing document with local-only router")
+        PrivacyLogger.parsing.info("LocalOnlyAnalysisRouter: Analyzing document (Firebase SDK unavailable)")
 
         // Log if cloud was requested but not available
         if forceCloud {
-            PrivacyLogger.parsing.debug("LocalOnlyAnalysisRouter: Cloud requested but not available in free tier")
+            PrivacyLogger.parsing.debug("LocalOnlyAnalysisRouter: Cloud requested but Firebase SDK not available")
         }
 
         // Update stats
@@ -63,6 +67,7 @@ final class LocalOnlyAnalysisRouter: DocumentAnalysisRouterProtocol {
             "LocalOnlyAnalysisRouter: Analysis complete, confidence=\(String(format: "%.2f", result.overallConfidence))"
         )
 
-        return result
+        // Return result with localOnly extraction mode
+        return result.withExtractionMode(.localOnly)
     }
 }

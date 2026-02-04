@@ -233,9 +233,12 @@ struct DocumentListView: View {
     @ViewBuilder
     private func documentListContent(viewModel: DocumentListViewModel) -> some View {
         ZStack {
-            // Style-aware background
+            // Style-aware background - tap to dismiss keyboard
             StyledDocumentListBackground()
                 .ignoresSafeArea()
+                .onTapGesture {
+                    dismissKeyboard()
+                }
 
             VStack(spacing: 0) {
                 // FIXED HEADER SECTION - Does NOT scroll with content
@@ -406,6 +409,8 @@ struct DocumentListView: View {
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
         .scrollIndicators(.hidden)
+        // KEYBOARD DISMISSAL: Dismiss keyboard when scrolling the document list
+        .scrollDismissesKeyboard(.interactively)
     }
 
     @ViewBuilder
@@ -430,6 +435,13 @@ struct DocumentListView: View {
             linkExistingDocumentsUseCase: environment.makeLinkExistingDocumentsUseCase(),
             documentRepository: environment.documentRepository
         )
+    }
+
+    // MARK: - Keyboard Dismissal
+
+    /// Dismisses the keyboard by resigning first responder
+    private func dismissKeyboard() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
 }
 

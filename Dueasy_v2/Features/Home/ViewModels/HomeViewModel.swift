@@ -157,6 +157,7 @@ final class HomeViewModel {
 
     private func formatShortDate(_ date: Date) -> String {
         let formatter = DateFormatter()
+        formatter.locale = LocalizationManager.shared.currentLocale
         formatter.dateStyle = .medium
         formatter.timeStyle = .none
         return formatter.string(from: date)

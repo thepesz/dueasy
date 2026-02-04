@@ -368,6 +368,7 @@ struct DocumentDetailView: View {
 
     private func formattedDate(_ date: Date) -> String {
         let formatter = DateFormatter()
+        formatter.locale = LocalizationManager.shared.currentLocale
         formatter.dateStyle = .long
         formatter.timeStyle = .none
         return formatter.string(from: date)
@@ -423,12 +424,23 @@ struct DocumentDetailView: View {
 
 // MARK: - Document Edit View
 
+/// Enhanced document edit view supporting ALL document properties:
+/// - Basic fields (vendor, amount, dates, etc.)
+/// - Payment status (scheduled/paid) with toggle
+/// - Notification settings with reminder configuration
+/// - Recurring payment management (view, unlink)
+///
+/// Architecture: Follows MVVM pattern. All state changes are validated and
+/// persisted through use cases. Status changes trigger appropriate side effects
+/// (notification scheduling/cancellation, recurring instance sync).
 struct DocumentEditView: View {
     @Environment(AppEnvironment.self) private var environment
     @Environment(\.dismiss) private var dismiss
     @Environment(\.uiStyle) private var uiStyle
 
     let document: FinanceDocument
+
+    // MARK: - Basic Fields State
 
     @State private var vendorName: String
     @State private var vendorAddress: String
@@ -439,11 +451,45 @@ struct DocumentEditView: View {
     @State private var vendorNIP: String
     @State private var bankAccountNumber: String
     @State private var notes: String
+
+    // MARK: - Payment Status State
+
+    @State private var isPaid: Bool
+    @State private var showingRevertToPaidConfirmation = false
+
+    // MARK: - Notifications State
+
+    @State private var notificationsEnabled: Bool
+    @State private var reminderOnDueDate: Bool
+    @State private var reminderOneDayBefore: Bool
+    @State private var reminderSevenDaysBefore: Bool
+
+    // MARK: - Recurring State
+
+    @State private var showingUnlinkConfirmation = false
+    @State private var isUnlinking = false
+
+    // MARK: - UI State
+
     @State private var isSaving = false
     @State private var error: AppError?
 
     private var isAurora: Bool {
         uiStyle == .midnightAurora
+    }
+
+    /// Whether this document is linked to a recurring payment
+    private var isLinkedToRecurring: Bool {
+        document.recurringTemplateId != nil
+    }
+
+    /// Computed reminder offsets based on toggle states
+    private var selectedReminderOffsets: [Int] {
+        var offsets: [Int] = []
+        if reminderSevenDaysBefore { offsets.append(7) }
+        if reminderOneDayBefore { offsets.append(1) }
+        if reminderOnDueDate { offsets.append(0) }
+        return offsets.sorted(by: >)
     }
 
     init(document: FinanceDocument) {
@@ -457,6 +503,14 @@ struct DocumentEditView: View {
         _vendorNIP = State(initialValue: document.vendorNIP ?? "")
         _bankAccountNumber = State(initialValue: document.bankAccountNumber ?? "")
         _notes = State(initialValue: document.notes ?? "")
+        _isPaid = State(initialValue: document.status == .paid)
+        _notificationsEnabled = State(initialValue: document.notificationsEnabled)
+
+        // Parse existing reminder offsets into individual toggles
+        let offsets = document.reminderOffsetsDays
+        _reminderOnDueDate = State(initialValue: offsets.contains(0))
+        _reminderOneDayBefore = State(initialValue: offsets.contains(1))
+        _reminderSevenDaysBefore = State(initialValue: offsets.contains(7))
     }
 
     var body: some View {
@@ -477,19 +531,52 @@ struct DocumentEditView: View {
                     }
                 }
                 .overlay {
-                    if isSaving {
-                        Color.black.opacity(0.3)
-                            .ignoresSafeArea()
-                            .overlay {
-                                ProgressView(L10n.Edit.saving.localized)
-                                    .padding()
-                                    .background(savingOverlayBackground)
-                                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                                    .tint(isAurora ? Color.white : nil)
-                            }
+                    if isSaving || isUnlinking {
+                        savingOverlay
                     }
                 }
+                .alert(
+                    L10n.Edit.confirmMarkScheduled.localized,
+                    isPresented: $showingRevertToPaidConfirmation
+                ) {
+                    Button(L10n.Common.cancel.localized, role: .cancel) {
+                        // Revert the toggle
+                        isPaid = true
+                    }
+                    Button(L10n.Edit.statusScheduled.localized) {
+                        // Keep the change
+                        isPaid = false
+                    }
+                } message: {
+                    Text(L10n.Edit.confirmMarkScheduledMessage.localized)
+                }
+                .alert(
+                    L10n.Edit.unlinkConfirmTitle.localized,
+                    isPresented: $showingUnlinkConfirmation
+                ) {
+                    Button(L10n.Common.cancel.localized, role: .cancel) {}
+                    Button(L10n.Edit.unlinkFromRecurring.localized, role: .destructive) {
+                        Task { await unlinkFromRecurring() }
+                    }
+                } message: {
+                    Text(L10n.Edit.unlinkConfirmMessage.localized)
+                }
         }
+    }
+
+    // MARK: - Saving Overlay
+
+    @ViewBuilder
+    private var savingOverlay: some View {
+        Color.black.opacity(0.3)
+            .ignoresSafeArea()
+            .overlay {
+                ProgressView(isUnlinking ? L10n.Common.loading.localized : L10n.Edit.saving.localized)
+                    .padding()
+                    .background(savingOverlayBackground)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .tint(isAurora ? Color.white : nil)
+            }
     }
 
     private var savingOverlayBackground: Color {
@@ -512,12 +599,14 @@ struct DocumentEditView: View {
     @ViewBuilder
     private var standardFormContent: some View {
         Form {
+            // Vendor Section
             Section(L10n.Detail.vendor.localized) {
                 TextField(L10n.Edit.vendorNamePlaceholder.localized, text: $vendorName)
                 TextField(L10n.Detail.address.localized, text: $vendorAddress, axis: .vertical)
                 TextField(L10n.Detail.nip.localized, text: $vendorNIP)
             }
 
+            // Amount Section
             Section(L10n.Detail.amount.localized) {
                 HStack {
                     TextField(L10n.Edit.amountPlaceholder.localized, text: $amount)
@@ -532,12 +621,79 @@ struct DocumentEditView: View {
                 }
             }
 
+            // Document Details Section
             Section(L10n.Edit.documentNumber.localized) {
                 DatePicker(L10n.Detail.dueDate.localized, selection: $dueDate, displayedComponents: .date)
+                    .environment(\.locale, LocalizationManager.shared.currentLocale)
                 TextField(L10n.Edit.documentNumberPlaceholder.localized, text: $documentNumber)
                 TextField(L10n.Detail.bankAccount.localized, text: $bankAccountNumber)
             }
 
+            // Payment Status Section
+            Section {
+                Picker(L10n.Edit.paymentStatusSection.localized, selection: $isPaid) {
+                    Text(L10n.Edit.statusScheduled.localized).tag(false)
+                    Text(L10n.Edit.statusPaid.localized).tag(true)
+                }
+                .pickerStyle(.segmented)
+                .onChange(of: isPaid) { oldValue, newValue in
+                    handlePaymentStatusChange(from: oldValue, to: newValue)
+                }
+            } header: {
+                Text(L10n.Edit.paymentStatusSection.localized)
+            } footer: {
+                Text(L10n.Edit.paymentStatusFooter.localized)
+            }
+
+            // Reminders Section
+            Section {
+                Toggle(L10n.Edit.remindersEnabled.localized, isOn: $notificationsEnabled)
+                    .disabled(isPaid)
+                    .tint(AppColors.primary)
+
+                if notificationsEnabled && !isPaid {
+                    Toggle(L10n.Edit.reminderSevenDaysBefore.localized, isOn: $reminderSevenDaysBefore)
+                        .tint(AppColors.primary)
+                    Toggle(L10n.Edit.reminderOneDayBefore.localized, isOn: $reminderOneDayBefore)
+                        .tint(AppColors.primary)
+                    Toggle(L10n.Edit.reminderOnDueDate.localized, isOn: $reminderOnDueDate)
+                        .tint(AppColors.primary)
+                }
+            } header: {
+                Text(L10n.Edit.remindersSection.localized)
+            } footer: {
+                Text(isPaid ? L10n.Edit.remindersDisabledWhenPaid.localized : L10n.Edit.remindersFooter.localized)
+            }
+
+            // Recurring Payment Section (conditional)
+            if isLinkedToRecurring {
+                Section {
+                    // Info row
+                    HStack(spacing: Spacing.sm) {
+                        Image(systemName: "repeat.circle.fill")
+                            .foregroundStyle(AppColors.primary)
+                            .font(.title2)
+
+                        Text(L10n.Edit.recurringLinkedMessage.localized(with: document.title))
+                            .font(Typography.body)
+                            .foregroundStyle(.secondary)
+                    }
+                    .padding(.vertical, Spacing.xxs)
+
+                    // Unlink button
+                    Button(role: .destructive) {
+                        showingUnlinkConfirmation = true
+                    } label: {
+                        Label(L10n.Edit.unlinkFromRecurring.localized, systemImage: "link.badge.minus")
+                    }
+                } header: {
+                    Text(L10n.Edit.recurringSection.localized)
+                } footer: {
+                    Text(L10n.Edit.recurringFooter.localized)
+                }
+            }
+
+            // Notes Section
             Section(L10n.Detail.notes.localized) {
                 TextField(L10n.Edit.notesPlaceholder.localized, text: $notes, axis: .vertical)
                     .lineLimit(3...10)
@@ -589,20 +745,107 @@ struct DocumentEditView: View {
                         DatePicker("", selection: $dueDate, displayedComponents: .date)
                             .labelsHidden()
                             .tint(AuroraPalette.accentBlue)
+                            .environment(\.locale, LocalizationManager.shared.currentLocale)
                     }
                     .padding(.horizontal, Spacing.md)
                     .padding(.vertical, Spacing.sm)
 
-                    Rectangle()
-                        .fill(Color.white.opacity(0.1))
-                        .frame(height: 0.5)
-                        .padding(.leading, Spacing.md)
+                    AuroraDivider()
 
                     AuroraEditField(label: L10n.Edit.documentNumberPlaceholder.localized, text: $documentNumber)
                     AuroraEditField(label: L10n.Detail.bankAccount.localized, text: $bankAccountNumber, showDivider: false)
                 }, header: {
                     Text(L10n.Edit.documentNumber.localized)
                 })
+
+                // Payment Status Section
+                AuroraListSection(content: {
+                    VStack(spacing: Spacing.sm) {
+                        Picker(L10n.Edit.paymentStatusSection.localized, selection: $isPaid) {
+                            Text(L10n.Edit.statusScheduled.localized).tag(false)
+                            Text(L10n.Edit.statusPaid.localized).tag(true)
+                        }
+                        .pickerStyle(.segmented)
+                        .onChange(of: isPaid) { oldValue, newValue in
+                            handlePaymentStatusChange(from: oldValue, to: newValue)
+                        }
+                    }
+                    .padding(.horizontal, Spacing.md)
+                    .padding(.vertical, Spacing.sm)
+                }, header: {
+                    Text(L10n.Edit.paymentStatusSection.localized)
+                }, footer: {
+                    Text(L10n.Edit.paymentStatusFooter.localized)
+                })
+
+                // Reminders Section
+                AuroraListSection(content: {
+                    AuroraToggleRow(
+                        L10n.Edit.remindersEnabled.localized,
+                        isOn: $notificationsEnabled,
+                        showDivider: notificationsEnabled && !isPaid,
+                        isDisabled: isPaid
+                    )
+
+                    if notificationsEnabled && !isPaid {
+                        AuroraToggleRow(
+                            L10n.Edit.reminderSevenDaysBefore.localized,
+                            isOn: $reminderSevenDaysBefore
+                        )
+                        AuroraToggleRow(
+                            L10n.Edit.reminderOneDayBefore.localized,
+                            isOn: $reminderOneDayBefore
+                        )
+                        AuroraToggleRow(
+                            L10n.Edit.reminderOnDueDate.localized,
+                            isOn: $reminderOnDueDate,
+                            showDivider: false
+                        )
+                    }
+                }, header: {
+                    Text(L10n.Edit.remindersSection.localized)
+                }, footer: {
+                    Text(isPaid ? L10n.Edit.remindersDisabledWhenPaid.localized : L10n.Edit.remindersFooter.localized)
+                })
+
+                // Recurring Payment Section (conditional)
+                if isLinkedToRecurring {
+                    AuroraListSection(content: {
+                        // Info row
+                        HStack(spacing: Spacing.sm) {
+                            Image(systemName: "repeat.circle.fill")
+                                .foregroundStyle(AuroraPalette.accentBlue)
+                                .font(.title2)
+
+                            Text(L10n.Edit.recurringLinkedMessage.localized(with: document.title))
+                                .font(Typography.body)
+                                .foregroundStyle(Color.white.opacity(0.7))
+                        }
+                        .padding(.horizontal, Spacing.md)
+                        .padding(.vertical, Spacing.sm)
+
+                        AuroraDivider()
+
+                        // Unlink button
+                        Button {
+                            showingUnlinkConfirmation = true
+                        } label: {
+                            HStack {
+                                Image(systemName: "link.badge.minus")
+                                    .foregroundStyle(AppColors.error)
+                                Text(L10n.Edit.unlinkFromRecurring.localized)
+                                    .foregroundStyle(AppColors.error)
+                                Spacer()
+                            }
+                            .padding(.horizontal, Spacing.md)
+                            .padding(.vertical, Spacing.sm)
+                        }
+                    }, header: {
+                        Text(L10n.Edit.recurringSection.localized)
+                    }, footer: {
+                        Text(L10n.Edit.recurringFooter.localized)
+                    })
+                }
 
                 // Notes Section
                 AuroraListSection(content: {
@@ -617,6 +860,8 @@ struct DocumentEditView: View {
         .scrollContentBackground(.hidden)
         .background { EnhancedMidnightAuroraBackground() }
     }
+
+    // MARK: - Validation
 
     private var isValid: Bool {
         !vendorName.trimmingCharacters(in: .whitespaces).isEmpty &&
@@ -646,6 +891,44 @@ struct DocumentEditView: View {
         return Decimal(string: normalized)
     }
 
+    // MARK: - Event Handlers
+
+    /// Handles payment status toggle changes.
+    /// When reverting from Paid to Scheduled, shows confirmation dialog.
+    private func handlePaymentStatusChange(from oldValue: Bool, to newValue: Bool) {
+        // Changing from Paid -> Scheduled requires confirmation
+        if oldValue == true && newValue == false {
+            showingRevertToPaidConfirmation = true
+        }
+
+        // Changing from Scheduled -> Paid disables notifications
+        if oldValue == false && newValue == true {
+            notificationsEnabled = false
+        }
+    }
+
+    // MARK: - Actions
+
+    /// Unlinks the document from its recurring payment template.
+    private func unlinkFromRecurring() async {
+        guard document.recurringInstanceId != nil else { return }
+
+        isUnlinking = true
+
+        do {
+            let unlinkUseCase = environment.makeUnlinkDocumentFromRecurringUseCase()
+            _ = try await unlinkUseCase.execute(document: document, deleteDocument: false)
+
+            isUnlinking = false
+            // Document is now unlinked - UI will update automatically
+        } catch {
+            self.error = .unknown(error.localizedDescription)
+            isUnlinking = false
+        }
+    }
+
+    /// Saves all changes to the document.
+    /// Handles: basic fields, payment status, notification settings.
     private func saveChanges() async {
         guard let finalAmount = amountDecimal else { return }
 
@@ -653,9 +936,28 @@ struct DocumentEditView: View {
         error = nil
 
         do {
+            // Update basic fields directly on document
             document.vendorAddress = vendorAddress.isEmpty ? nil : vendorAddress
             document.bankAccountNumber = bankAccountNumber.isEmpty ? nil : bankAccountNumber
 
+            // Handle payment status change
+            let statusChanged = (document.status == .paid) != isPaid
+
+            if statusChanged {
+                if isPaid {
+                    // Mark as paid using the dedicated use case
+                    let markAsPaidUseCase = environment.makeMarkAsPaidUseCase()
+                    try await markAsPaidUseCase.execute(documentId: document.id, cancelNotifications: true)
+                } else {
+                    // Revert to scheduled - manually update status
+                    document.status = .scheduled
+                }
+            }
+
+            // Update notification settings
+            document.notificationsEnabled = notificationsEnabled && !isPaid
+
+            // Use UpdateDocumentUseCase for the rest
             let updateUseCase = environment.makeUpdateDocumentUseCase()
             try await updateUseCase.execute(
                 document: document,
@@ -666,7 +968,7 @@ struct DocumentEditView: View {
                 dueDate: dueDate,
                 documentNumber: documentNumber.isEmpty ? nil : documentNumber,
                 notes: notes.isEmpty ? nil : notes,
-                reminderOffsets: document.reminderOffsetsDays
+                reminderOffsets: notificationsEnabled && !isPaid ? selectedReminderOffsets : []
             )
 
             isSaving = false
@@ -681,7 +983,7 @@ struct DocumentEditView: View {
     }
 }
 
-// MARK: - Aurora Edit Field
+// MARK: - Aurora Edit Components
 
 /// Aurora-styled text field for edit forms
 private struct AuroraEditField: View {
@@ -698,12 +1000,19 @@ private struct AuroraEditField: View {
                 .padding(.vertical, Spacing.sm)
 
             if showDivider {
-                Rectangle()
-                    .fill(Color.white.opacity(0.1))
-                    .frame(height: 0.5)
-                    .padding(.leading, Spacing.md)
+                AuroraDivider()
             }
         }
+    }
+}
+
+/// Aurora-styled divider line
+private struct AuroraDivider: View {
+    var body: some View {
+        Rectangle()
+            .fill(Color.white.opacity(0.1))
+            .frame(height: 0.5)
+            .padding(.leading, Spacing.md)
     }
 }
 

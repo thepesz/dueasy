@@ -125,6 +125,15 @@ struct DocumentAnalysisResult: Codable, Equatable, Sendable {
     /// Analysis version for schema evolution
     let version: Int
 
+    /// Extraction mode indicating how this analysis was performed.
+    /// Helps understand extraction quality and enables appropriate UI messaging.
+    let extractionMode: ExtractionMode
+
+    /// Rate limit info when cloud extraction limit was exceeded.
+    /// Present when extraction mode is `.rateLimitFallback`.
+    /// Allows UI to show informative banner about limit status.
+    let rateLimitInfo: RateLimitInfo?
+
     /// Raw text hints for debugging (optional, not stored long-term in production)
     let rawHints: String?
 
@@ -174,6 +183,8 @@ struct DocumentAnalysisResult: Codable, Equatable, Sendable {
         fieldConfidences: FieldConfidences? = nil,
         provider: String = "local",
         version: Int = 1,
+        extractionMode: ExtractionMode = .localOnly,
+        rateLimitInfo: RateLimitInfo? = nil,
         rawHints: String? = nil,
         rawOCRText: String? = nil
     ) {
@@ -208,6 +219,8 @@ struct DocumentAnalysisResult: Codable, Equatable, Sendable {
         self.fieldConfidences = fieldConfidences
         self.provider = provider
         self.version = version
+        self.extractionMode = extractionMode
+        self.rateLimitInfo = rateLimitInfo
         self.rawHints = rawHints
         self.rawOCRText = rawOCRText
     }
@@ -216,7 +229,8 @@ struct DocumentAnalysisResult: Codable, Equatable, Sendable {
     static let empty = DocumentAnalysisResult(
         overallConfidence: 0.0,
         provider: "local",
-        version: 1
+        version: 1,
+        extractionMode: .localOnly
     )
 
     // MARK: - Codable
@@ -231,7 +245,8 @@ struct DocumentAnalysisResult: Codable, Equatable, Sendable {
         case documentNumberEvidence, nipEvidence, bankAccountEvidence
         case vendorExtractionMethod, amountExtractionMethod
         case dueDateExtractionMethod, nipExtractionMethod
-        case overallConfidence, fieldConfidences, provider, version, rawHints, rawOCRText
+        case overallConfidence, fieldConfidences, provider, version
+        case extractionMode, rateLimitInfo, rawHints, rawOCRText
     }
 
     init(from decoder: Decoder) throws {
@@ -277,6 +292,8 @@ struct DocumentAnalysisResult: Codable, Equatable, Sendable {
         fieldConfidences = try container.decodeIfPresent(FieldConfidences.self, forKey: .fieldConfidences)
         provider = try container.decode(String.self, forKey: .provider)
         version = try container.decode(Int.self, forKey: .version)
+        extractionMode = try container.decodeIfPresent(ExtractionMode.self, forKey: .extractionMode) ?? .localOnly
+        rateLimitInfo = try container.decodeIfPresent(RateLimitInfo.self, forKey: .rateLimitInfo)
         rawHints = try container.decodeIfPresent(String.self, forKey: .rawHints)
         rawOCRText = try container.decodeIfPresent(String.self, forKey: .rawOCRText)
     }
@@ -324,6 +341,8 @@ struct DocumentAnalysisResult: Codable, Equatable, Sendable {
         try container.encodeIfPresent(fieldConfidences, forKey: .fieldConfidences)
         try container.encode(provider, forKey: .provider)
         try container.encode(version, forKey: .version)
+        try container.encode(extractionMode, forKey: .extractionMode)
+        try container.encodeIfPresent(rateLimitInfo, forKey: .rateLimitInfo)
         try container.encodeIfPresent(rawHints, forKey: .rawHints)
         try container.encodeIfPresent(rawOCRText, forKey: .rawOCRText)
     }
@@ -341,6 +360,8 @@ struct DocumentAnalysisResult: Codable, Equatable, Sendable {
         lhs.fieldConfidences == rhs.fieldConfidences &&
         lhs.provider == rhs.provider &&
         lhs.version == rhs.version &&
+        lhs.extractionMode == rhs.extractionMode &&
+        lhs.rateLimitInfo == rhs.rateLimitInfo &&
         lhs.rawHints == rhs.rawHints &&
         lhs.rawOCRText == rhs.rawOCRText &&
         lhs.vendorEvidence == rhs.vendorEvidence &&
@@ -382,5 +403,79 @@ struct FieldConfidences: Codable, Equatable, Sendable {
         self.documentNumber = documentNumber
         self.nip = nip
         self.bankAccount = bankAccount
+    }
+}
+
+// MARK: - Extraction Mode
+
+/// Indicates how document analysis was performed.
+/// Used for analytics, debugging, and user-facing messaging about extraction quality.
+///
+/// ## Routing Strategy
+///
+/// The app uses cloud-first routing for all users (Free and Pro):
+/// 1. If online and backend available: Try cloud extraction (backend enforces limits)
+/// 2. If offline or backend error: Fall back to local analysis
+/// 3. If rate limit exceeded: Fall back to local, but inform user with banner
+///
+/// Backend enforces monthly limits:
+/// - Free tier: 3 cloud extractions/month
+/// - Pro tier: 100 cloud extractions/month
+///
+/// When rate limit is exceeded, the router falls back to local extraction
+/// but includes `rateLimitInfo` so the UI can show an informative banner
+/// with upgrade options.
+enum ExtractionMode: String, Codable, Equatable, Sendable {
+
+    /// Cloud AI extraction was used successfully.
+    /// Highest accuracy, backend-enforced usage limits apply.
+    case cloud = "cloud"
+
+    /// Local on-device analysis was used as fallback.
+    /// Used when cloud extraction fails due to backend error (not rate limit).
+    case localFallback = "local_fallback"
+
+    /// Local analysis used because device is offline.
+    /// Best-effort extraction when no network is available.
+    case offlineFallback = "offline_fallback"
+
+    /// Local-only analysis (cloud not attempted).
+    /// Used when cloud analysis is disabled in settings.
+    case localOnly = "local_only"
+
+    /// Local analysis used because cloud extraction rate limit was exceeded.
+    /// User is informed via banner and can upgrade to Pro for more extractions.
+    /// Result includes `rateLimitInfo` with usage details.
+    case rateLimitFallback = "rate_limit_fallback"
+
+    /// User-facing description of extraction mode
+    var displayName: String {
+        switch self {
+        case .cloud:
+            return "Cloud AI"
+        case .localFallback:
+            return "Local (fallback)"
+        case .offlineFallback:
+            return "Offline"
+        case .localOnly:
+            return "Local"
+        case .rateLimitFallback:
+            return "Local (limit reached)"
+        }
+    }
+
+    /// Whether this mode indicates degraded extraction quality
+    var isDegraded: Bool {
+        switch self {
+        case .cloud:
+            return false
+        case .localFallback, .offlineFallback, .localOnly, .rateLimitFallback:
+            return true
+        }
+    }
+
+    /// Whether this mode indicates rate limit was reached
+    var isRateLimited: Bool {
+        self == .rateLimitFallback
     }
 }

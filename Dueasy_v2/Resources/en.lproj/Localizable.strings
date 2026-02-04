@@ -115,10 +115,26 @@
 "review.vendorAddressLabel" = "Vendor Address";
 "review.vendorAddressPlaceholder" = "Enter vendor address (optional)";
 "review.amountLabel" = "Amount";
-"review.detectedAmounts" = "Detected amounts:";
+"review.detectedAmounts" = "Other amounts found:";
 "review.currencyLabel" = "Currency";
 "review.dueDateLabel" = "Due Date";
 "review.dueDatePast" = "This date is in the past";
+
+// Alternatives/candidates
+"review.otherPossibilities" = "Other possibilities";
+"review.otherDatesFound" = "Other dates found";
+"review.otherAmountsFound" = "Other amounts found";
+
+// Relative date descriptions (for date alternatives)
+"review.date.yesterday" = "Yesterday";
+"review.date.daysAgo" = "%d days ago";
+"review.date.today" = "Today";
+"review.date.tomorrow" = "Tomorrow";
+"review.date.inDays" = "In %d days";
+"review.date.nextWeek" = "Next week";
+"review.date.inWeeks" = "In %d weeks";
+"review.date.inMonths" = "In %d months";
+
 "review.invoiceNumberLabel" = "Invoice Number";
 "review.invoiceNumberPlaceholder" = "Optional";
 "review.nipLabel" = "Tax ID (NIP)";
@@ -209,6 +225,33 @@
 "edit.saving" = "Saving...";
 "edit.required" = "(required)";
 "edit.optional" = "(optional)";
+
+// Payment Status Section
+"edit.paymentStatus.section" = "Payment Status";
+"edit.paymentStatus.scheduled" = "Scheduled";
+"edit.paymentStatus.paid" = "Paid";
+"edit.paymentStatus.footer" = "Mark as paid to stop reminders and archive this invoice.";
+"edit.paymentStatus.confirmMarkScheduled" = "Revert to Scheduled?";
+"edit.paymentStatus.confirmMarkScheduledMessage" = "This will mark the invoice as unpaid and allow notifications to be enabled.";
+
+// Reminders Section
+"edit.reminders.section" = "Reminders";
+"edit.reminders.enabled" = "Reminders";
+"edit.reminders.disabledWhenPaid" = "Reminders are disabled for paid invoices";
+"edit.reminders.footer" = "Receive notifications before the due date.";
+"edit.reminders.onDueDate" = "On due date";
+"edit.reminders.oneDayBefore" = "1 day before";
+"edit.reminders.sevenDaysBefore" = "7 days before";
+"edit.reminders.daysBefore" = "%d days before";
+
+// Recurring Section
+"edit.recurring.section" = "Recurring Payment";
+"edit.recurring.linkedMessage" = "This invoice is linked to a recurring payment from %@";
+"edit.recurring.viewPayment" = "View Recurring Payment";
+"edit.recurring.unlink" = "Unlink from Recurring";
+"edit.recurring.unlinkConfirmTitle" = "Unlink from Recurring?";
+"edit.recurring.unlinkConfirmMessage" = "This invoice will become a standalone document. The recurring payment will continue tracking future instances.";
+"edit.recurring.footer" = "Changes to this invoice only affect this instance, not future recurring payments.";
 
 // MARK: - Due Dates
 
@@ -650,14 +693,14 @@
 "subscription.purchaseError" = "Purchase Error";
 "subscription.loadingStatus" = "Loading subscription status...";
 "subscription.manageSubscription" = "Manage Subscription";
-"subscription.upgradeFooter" = "Upgrade to Pro for AI-powered analysis, cloud backup, and enhanced accuracy.";
+"subscription.upgradeFooter" = "Free includes 3 cloud extractions/month. Upgrade to Pro for 100/month, cloud backup, and enhanced features.";
 "subscription.willRenewOn" = "Your subscription will renew on %@";
 "subscription.expiresOn" = "Your subscription expires on %@";
 "subscription.freeTrial" = "Free Trial";
 "subscription.paymentIssue" = "Payment Issue";
 "subscription.active" = "Active";
 "subscription.inactive" = "Inactive";
-"subscription.localOnly" = "Local-only features";
+"subscription.localOnly" = "3 cloud extractions/month";
 "subscription.status" = "Status";
 "subscription.tier" = "Tier";
 "subscription.plan" = "Plan";
@@ -764,3 +807,123 @@
 "recurring.fuzzyMatch.selectTemplate" = "Select which recurring payment to link:";
 "recurring.fuzzyMatch.matchedInvoices" = "%d invoices matched";
 "recurring.fuzzyMatch.dueDayInfo" = "Due on day %d";
+
+// MARK: - Authentication
+
+"auth.signInWithApple" = "Sign in with Apple";
+"auth.skipForNow" = "Skip for now";
+"auth.withoutSignInInfo" = "Without signing in, your data stays only on this device. Sign in with Apple to enable sync across devices.";
+"auth.signInError.title" = "Sign In Error";
+"auth.signInError.generic" = "Could not sign in. Please try again.";
+"auth.credentialAlreadyLinked.title" = "Account Already Linked";
+"auth.credentialAlreadyLinked.message" = "This Apple account is already linked to another DuEasy user. Please use a different Apple ID or contact support.";
+"auth.continueAsGuest" = "Continue as Guest";
+
+// Account section in Settings
+"auth.account.section" = "Account";
+"auth.signedInAs" = "Signed in";
+"auth.guestAccount" = "Guest Account";
+"auth.signIn" = "Sign In";
+"auth.signOut" = "Sign Out";
+"auth.signOut.confirmTitle" = "Sign Out?";
+"auth.signOut.confirmMessage" = "Your local data will remain on this device, but you will lose access to cloud sync until you sign in again.";
+"auth.deleteAccount" = "Delete Account";
+"auth.deleteAccount.confirmTitle" = "Delete Account?";
+"auth.deleteAccount.confirmMessage" = "This will permanently delete your account and remove your data from cloud sync. Your local data on this device will remain.";
+"auth.syncEnabled" = "Cloud sync enabled";
+"auth.syncDisabled" = "Cloud sync disabled";
+
+// MARK: - Rate Limit
+
+"rate_limit.banner.title" = "AI Limit Reached (%d/%d)";
+"rate_limit.banner.title_default" = "AI Extraction Limit Reached";
+"rate_limit.banner.subtitle" = "Using offline extraction (less accurate)";
+"rate_limit.banner.upgrade" = "Upgrade to Pro";
+
+// MARK: - Backup
+
+// Section in Settings
+"backup.section" = "Backup";
+"backup.title" = "Backup & Restore";
+"backup.subtitle" = "Export encrypted backups or restore from backup";
+
+// Export
+"backup.export.title" = "Export Backup";
+"backup.export.button" = "Export Backup";
+"backup.export.description" = "Create encrypted backup file";
+"backup.export.success" = "Backup Exported";
+"backup.export.successMessage" = "Your backup file has been created successfully.";
+"backup.exporting" = "Exporting...";
+
+// Import
+"backup.import.title" = "Import Backup";
+"backup.import.button" = "Import Backup";
+"backup.import.description" = "Restore from encrypted backup";
+"backup.import.success" = "Backup Imported";
+"backup.import.successMessage" = "Your data has been restored successfully.";
+"backup.importing" = "Importing...";
+"backup.import.confirmTitle" = "Import Backup?";
+"backup.import.confirmMessage" = "Existing data will be merged with backup data. Newer entries will take priority.";
+
+// Password
+"backup.password.title" = "Encrypt Your Backup";
+"backup.password.placeholder" = "Password";
+"backup.password.confirmPlaceholder" = "Confirm password";
+"backup.password.hint" = "Choose a strong password to protect your backup. You will need this password to restore.";
+"backup.password.minLength" = "Minimum 8 characters";
+"backup.password.mismatch" = "Passwords do not match";
+
+// iCloud
+"backup.icloud.section" = "Automatic Backup";
+"backup.icloud.title" = "iCloud Auto-Backup";
+"backup.icloud.description" = "Automatically backup to iCloud Drive daily. Backups are encrypted and kept for 7 days.";
+"backup.icloud.enable" = "Enable";
+"backup.icloud.disable" = "Disable";
+"backup.icloud.enabled" = "iCloud backup enabled";
+"backup.icloud.lastBackup" = "Last backup: %@";
+"backup.icloud.neverBackedUp" = "Never backed up";
+"backup.icloud.restore" = "Restore from iCloud";
+"backup.icloud.restoreLatest" = "Restore Latest Backup";
+"backup.icloud.backupHistory" = "Backup History";
+"backup.icloud.noBackups" = "No backups available";
+"backup.icloud.backingUp" = "Backing up...";
+"backup.icloud.setupPassword" = "Set Encryption Password";
+"backup.lastBackup" = "Last: %@";
+
+// Results
+"backup.results.documentsImported" = "Documents imported";
+"backup.results.documentsCreated" = "%d documents created";
+"backup.results.documentsUpdated" = "%d documents updated";
+"backup.results.documentsSkipped" = "%d documents skipped (already up to date)";
+"backup.results.templatesImported" = "Templates imported";
+"backup.results.instancesImported" = "Instances imported";
+"backup.results.backupDate" = "Backup date";
+"backup.results.backupVersion" = "Backup version";
+
+// Errors
+"backup.error.passwordTooWeak" = "Password must be at least 8 characters";
+"backup.error.passwordMismatch" = "Passwords do not match";
+"backup.error.encryptionFailed" = "Failed to encrypt backup";
+"backup.error.decryptionFailed" = "Failed to decrypt backup. Check your password.";
+"backup.error.invalidEncryptionParams" = "Invalid encryption parameters";
+"backup.error.invalidFormat" = "Invalid backup file format";
+"backup.error.versionMismatch" = "Backup version is not compatible with this app version";
+"backup.error.corruptedData" = "Backup data appears to be corrupted";
+"backup.error.emptyBackup" = "Backup file is empty";
+"backup.error.fileNotFound" = "Backup file not found";
+"backup.error.fileReadFailed" = "Failed to read backup file";
+"backup.error.fileWriteFailed" = "Failed to write backup file";
+"backup.error.insufficientSpace" = "Not enough storage space";
+"backup.error.iCloudUnavailable" = "iCloud is not available. Please sign in to iCloud in Settings.";
+"backup.error.iCloudAccountChanged" = "iCloud account changed. Please re-enable backup.";
+"backup.error.iCloudQuotaExceeded" = "iCloud storage is full";
+"backup.error.iCloudSyncInProgress" = "iCloud sync in progress. Please try again.";
+"backup.error.databaseError" = "Database error during import";
+"backup.error.mergeConflict" = "Merge conflict detected";
+
+// Recovery
+"backup.recovery.passwordTooWeak" = "Use a longer password with letters and numbers";
+"backup.recovery.wrongPassword" = "Check your password and try again";
+"backup.recovery.enableiCloud" = "Sign in to iCloud in Settings";
+"backup.recovery.freeSpace" = "Free up storage space and try again";
+"backup.recovery.updateApp" = "Update the app to restore this backup";

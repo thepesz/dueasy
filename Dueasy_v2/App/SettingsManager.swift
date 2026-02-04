@@ -42,6 +42,9 @@ final class SettingsManager: Sendable {
         // Migration tracking
         static let keychainMigrationCompleted = "keychainMigrationCompleted"
 
+        // Authentication state
+        static let didSkipAppleSignIn = "didSkipAppleSignIn"
+
         // UI Style settings
         static let uiStyleHome = "uiStyleHome"
         static let uiStyleOtherViews = "uiStyleOtherViews"
@@ -215,6 +218,13 @@ final class SettingsManager: Sendable {
         set { defaults.set(newValue, forKey: Keys.hasCompletedOnboarding) }
     }
 
+    /// Whether the user skipped Apple Sign In during onboarding
+    /// Used to show the option in Settings later
+    var didSkipAppleSignIn: Bool {
+        get { defaults.bool(forKey: Keys.didSkipAppleSignIn) }
+        set { defaults.set(newValue, forKey: Keys.didSkipAppleSignIn) }
+    }
+
     // MARK: - Notifications
 
     /// Whether notifications are globally enabled
@@ -380,51 +390,46 @@ final class SettingsManager: Sendable {
     }
 
     // MARK: - UI Style Settings
+    //
+    // PRODUCTION: Style is locked to Midnight Aurora.
+    // The style switching UI has been removed from Settings.
+    // These properties return fixed values; setters are no-ops.
+    //
+    // To re-enable style switching:
+    // 1. Change the getters to read from UserDefaults using Keys.uiStyleHome/uiStyleOtherViews
+    // 2. Change the setters to write to UserDefaults
+    // 3. Add UIStyleSettingsView navigation link in SettingsView
 
-    /// UI style for the Home view
-    /// Default: .defaultStyle
+    /// UI style for the Home view.
+    /// **PRODUCTION**: Returns `.midnightAurora` (fixed).
     var uiStyleHome: UIStyleProposal {
-        get {
-            // Always use Midnight Aurora style
-            return .midnightAurora
-        }
-        set {
-            // No-op: style is fixed to Midnight Aurora
-        }
+        get { .midnightAurora }
+        set { /* No-op: style is fixed in production */ }
     }
 
-    /// UI style for other views (Documents, Calendar, Settings, etc.)
-    /// Default: .defaultStyle
+    /// UI style for other views (Documents, Calendar, Settings, etc.).
+    /// **PRODUCTION**: Returns `.midnightAurora` (fixed).
     var uiStyleOtherViews: UIStyleProposal {
-        get {
-            // Always use Midnight Aurora style
-            return .midnightAurora
-        }
-        set {
-            // No-op: style is fixed to Midnight Aurora
-        }
+        get { .midnightAurora }
+        set { /* No-op: style is fixed in production */ }
     }
 
-    /// Get the UI style for a specific context
+    /// Get the UI style for a specific context.
+    /// **PRODUCTION**: Always returns `.midnightAurora`.
     func uiStyle(for context: UIStyleContext) -> UIStyleProposal {
-        switch context {
-        case .home: return uiStyleHome
-        case .otherViews: return uiStyleOtherViews
-        }
+        .midnightAurora
     }
 
-    /// Set the UI style for a specific context
+    /// Set the UI style for a specific context.
+    /// **PRODUCTION**: No-op (style is fixed).
     func setUIStyle(_ style: UIStyleProposal, for context: UIStyleContext) {
-        switch context {
-        case .home: uiStyleHome = style
-        case .otherViews: uiStyleOtherViews = style
-        }
+        /* No-op: style is fixed in production */
     }
 
     /// Determine analysis mode based on current settings
     var analysisMode: AnalysisMode {
         guard cloudAnalysisEnabled else { return .localOnly }
-        return highAccuracyMode ? .alwaysCloud : .localWithCloudAssist
+        return highAccuracyMode ? .alwaysCloud : .cloudWithLocalFallback
     }
 
     /// Determine review mode for a field based on confidence

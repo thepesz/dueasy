@@ -203,6 +203,7 @@ struct ManualEntryView: View {
                     )
                     .datePickerStyle(.compact)
                     .labelsHidden()
+                    .environment(\.locale, LocalizationManager.shared.currentLocale)
 
                     if viewModel.showDueDateWarning {
                         HStack(spacing: Spacing.xxs) {

@@ -43,6 +43,11 @@ final class NoOpAuthService: AuthServiceProtocol {
         throw AuthError.notSignedIn
     }
 
+    func linkAppleCredential() async throws {
+        PrivacyLogger.security.debug("NoOpAuthService: linkAppleCredential called - not available in free tier")
+        throw AuthError.notSignedIn
+    }
+
     func signOut() async throws {
         // No-op - nothing to sign out
         PrivacyLogger.security.debug("NoOpAuthService: signOut called - no session to clear")
