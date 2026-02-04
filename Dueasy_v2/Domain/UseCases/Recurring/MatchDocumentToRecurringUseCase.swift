@@ -37,15 +37,16 @@ final class MatchDocumentToRecurringUseCase: @unchecked Sendable {
     func execute(document: FinanceDocument) async throws -> MatchDocumentResult? {
         logger.info("Attempting to match document to recurring: \(document.id)")
 
-        // Step 1: Generate vendor fingerprint if not present
-        if document.vendorFingerprint == nil || document.vendorFingerprint?.isEmpty == true {
-            let fingerprint = fingerprintService.generateFingerprint(
-                vendorName: document.title,
-                nip: document.vendorNIP
-            )
-            document.vendorFingerprint = fingerprint
-            logger.info("Generated vendor fingerprint")
-        }
+        // Step 1: Generate vendor fingerprint with amount bucket
+        // CRITICAL: Always regenerate with amount to ensure proper matching
+        // This separates "Santander Credit Card (500 PLN)" from "Santander Loan (1200 PLN)"
+        let fingerprintResult = fingerprintService.generateFingerprintWithMetadata(
+            vendorName: document.title,
+            nip: document.vendorNIP,
+            amount: document.amount
+        )
+        document.vendorFingerprint = fingerprintResult.fingerprint
+        logger.info("Generated vendor fingerprint with bucket: \(fingerprintResult.amountBucket ?? "none")")
 
         // Step 2: Classify document category if unknown
         if document.documentCategory == .unknown {

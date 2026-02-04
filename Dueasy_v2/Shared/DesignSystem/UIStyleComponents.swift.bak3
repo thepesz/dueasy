@@ -1,0 +1,1019 @@
+import SwiftUI
+
+// MARK: - Styled Components
+//
+// UI components that automatically adapt their appearance based on the
+// current UIStyleProposal. These wrap the base components and apply
+// style-specific tokens.
+
+// MARK: - Styled Background
+
+/// Background view that adapts to the current UI style
+struct StyledBackground: View {
+
+    @Environment(\.uiStyle) private var style
+    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    @State private var orbAnimation1: CGFloat = 0
+    @State private var orbAnimation2: CGFloat = 0
+    @State private var orbAnimation3: CGFloat = 0
+
+    var body: some View {
+        let tokens = UIStyleTokens(style: style)
+
+        ZStack {
+            // Base gradient or solid
+            if tokens.usesBackgroundGradients && !reduceTransparency {
+                LinearGradient(
+                    colors: tokens.backgroundGradientColors(for: colorScheme),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            } else {
+                tokens.backgroundColor(for: colorScheme)
+            }
+
+            // Animated orbs (Midnight Aurora only)
+            if tokens.usesAnimatedOrbs && !reduceTransparency && !reduceMotion {
+                orbsLayer(tokens: tokens)
+            }
+        }
+        .ignoresSafeArea()
+        .onAppear {
+            if !reduceMotion && style == .midnightAurora {
+                startOrbAnimations()
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func orbsLayer(tokens: UIStyleTokens) -> some View {
+        let orbColors = tokens.orbColors(for: colorScheme)
+        if orbColors.count >= 3 {
+            ZStack {
+            // Primary orb - top right
+            Circle()
+                .fill(
+                    RadialGradient(
+                        colors: [orbColors[0], orbColors[0].opacity(0)],
+                        center: .center,
+                        startRadius: 0,
+                        endRadius: 200
+                    )
+                )
+                .frame(width: 400, height: 400)
+                .blur(radius: 60)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
+                .offset(
+                    x: 80 + sin(orbAnimation1 * .pi * 2) * 30,
+                    y: -100 + cos(orbAnimation1 * .pi * 2) * 20
+                )
+
+            // Secondary orb - bottom left
+            Circle()
+                .fill(
+                    RadialGradient(
+                        colors: [orbColors[1], orbColors[1].opacity(0)],
+                        center: .center,
+                        startRadius: 0,
+                        endRadius: 180
+                    )
+                )
+                .frame(width: 360, height: 360)
+                .blur(radius: 50)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
+                .offset(
+                    x: -60 + cos(orbAnimation2 * .pi * 2) * 25,
+                    y: 80 + sin(orbAnimation2 * .pi * 2) * 30
+                )
+
+            // Tertiary orb - center
+            Circle()
+                .fill(
+                    RadialGradient(
+                        colors: [orbColors[2], orbColors[2].opacity(0)],
+                        center: .center,
+                        startRadius: 0,
+                        endRadius: 140
+                    )
+                )
+                .frame(width: 280, height: 280)
+                .blur(radius: 40)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                .offset(
+                    x: 30 + sin(orbAnimation3 * .pi * 2) * 20,
+                    y: 150 + cos(orbAnimation3 * .pi * 2) * 25
+                )
+            }
+        }
+    }
+
+    private func startOrbAnimations() {
+        withAnimation(.easeInOut(duration: 10).repeatForever(autoreverses: true)) {
+            orbAnimation1 = 1
+        }
+        withAnimation(.easeInOut(duration: 13).repeatForever(autoreverses: true).delay(1)) {
+            orbAnimation2 = 1
+        }
+        withAnimation(.easeInOut(duration: 8).repeatForever(autoreverses: true).delay(2)) {
+            orbAnimation3 = 1
+        }
+    }
+}
+
+// MARK: - Styled Card
+
+/// Card component that adapts to the current UI style
+struct StyledCard<Content: View>: View {
+
+    @Environment(\.uiStyle) private var style
+    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+
+    let accentColor: Color?
+    let content: () -> Content
+
+    init(
+        accentColor: Color? = nil,
+        @ViewBuilder content: @escaping () -> Content
+    ) {
+        self.accentColor = accentColor
+        self.content = content
+    }
+
+    var body: some View {
+        let tokens = UIStyleTokens(style: style)
+
+        content()
+            .padding(tokens.cardPadding)
+            .background {
+                cardBackground(tokens: tokens)
+            }
+            .clipShape(RoundedRectangle(cornerRadius: tokens.cardCornerRadius, style: .continuous))
+            .overlay {
+                if tokens.usesCardBorders {
+                    cardBorder(tokens: tokens)
+                }
+            }
+            .shadow(
+                color: tokens.cardShadow(for: colorScheme).color,
+                radius: tokens.cardShadow(for: colorScheme).radius,
+                y: tokens.cardShadow(for: colorScheme).y
+            )
+            .modifier(AccentGlowModifier(
+                color: accentColor,
+                enabled: tokens.usesAccentGlow,
+                colorScheme: colorScheme
+            ))
+    }
+
+    @ViewBuilder
+    private func cardBackground(tokens: UIStyleTokens) -> some View {
+        let bgColor = tokens.cardBackgroundColor(for: colorScheme)
+        let shape = RoundedRectangle(cornerRadius: tokens.cardCornerRadius, style: .continuous)
+
+        if reduceTransparency {
+            shape.fill(bgColor)
+        } else {
+            ZStack {
+                // Base fill
+                shape.fill(bgColor)
+
+                // Accent tint
+                if let accent = accentColor {
+                    shape.fill(accent.opacity(colorScheme == .dark ? 0.15 : 0.08))
+                }
+
+                // Inner highlight
+                if let gradient = tokens.cardHighlightGradient(for: colorScheme) {
+                    shape.fill(gradient)
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func cardBorder(tokens: UIStyleTokens) -> some View {
+        let shape = RoundedRectangle(cornerRadius: tokens.cardCornerRadius, style: .continuous)
+
+        if style == .midnightAurora {
+            // Gradient border for glass effect
+            shape.strokeBorder(
+                LinearGradient(
+                    colors: [
+                        Color.white.opacity(colorScheme == .dark ? 0.2 : 0.5),
+                        Color.white.opacity(colorScheme == .dark ? 0.05 : 0.15)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                ),
+                lineWidth: tokens.cardBorderWidth
+            )
+        } else {
+            shape.strokeBorder(
+                tokens.cardBorderColor(for: colorScheme),
+                lineWidth: tokens.cardBorderWidth
+            )
+        }
+    }
+}
+
+/// Modifier for accent glow effect
+private struct AccentGlowModifier: ViewModifier {
+    let color: Color?
+    let enabled: Bool
+    let colorScheme: ColorScheme
+
+    func body(content: Content) -> some View {
+        if enabled, let accentColor = color {
+            content
+                .shadow(
+                    color: accentColor.opacity(colorScheme == .dark ? 0.3 : 0.15),
+                    radius: 12,
+                    y: 4
+                )
+        } else {
+            content
+        }
+    }
+}
+
+// MARK: - Styled Status Badge
+
+/// Status badge that adapts to the current UI style
+struct StyledStatusBadge: View {
+
+    @Environment(\.uiStyle) private var style
+    @Environment(\.colorScheme) private var colorScheme
+
+    let text: String
+    let statusType: StatusType
+    let size: BadgeSize
+
+    enum StatusType {
+        case success
+        case warning
+        case error
+        case info
+        case neutral
+
+        func color(tokens: UIStyleTokens, colorScheme: ColorScheme) -> Color {
+            switch self {
+            case .success: return tokens.successColor(for: colorScheme)
+            case .warning: return tokens.warningColor(for: colorScheme)
+            case .error: return tokens.errorColor(for: colorScheme)
+            case .info: return tokens.primaryColor(for: colorScheme)
+            case .neutral: return Color.secondary
+            }
+        }
+    }
+
+    init(_ text: String, status: StatusType, size: BadgeSize = .regular) {
+        self.text = text
+        self.statusType = status
+        self.size = size
+    }
+
+    var body: some View {
+        let tokens = UIStyleTokens(style: style)
+        let statusColor = statusType.color(tokens: tokens, colorScheme: colorScheme)
+
+        HStack(spacing: 4) {
+            // Status indicator dot (Midnight Aurora)
+            if style == .midnightAurora {
+                Circle()
+                    .fill(statusColor)
+                    .frame(width: 6, height: 6)
+                    .shadow(color: statusColor.opacity(0.6), radius: 2)
+            }
+
+            Text(text)
+                .font(size.textFont)
+                .fontWeight(style == .paperMinimal ? .medium : .semibold)
+        }
+        .foregroundStyle(statusColor)
+        .padding(.horizontal, size.horizontalPadding)
+        .padding(.vertical, size.verticalPadding)
+        .background {
+            badgeBackground(tokens: tokens, statusColor: statusColor)
+        }
+    }
+
+    @ViewBuilder
+    private func badgeBackground(tokens: UIStyleTokens, statusColor: Color) -> some View {
+        let cornerRadius = tokens.badgeCornerRadius
+
+        switch style {
+        case .midnightAurora:
+            // Gradient fill with border
+            Capsule()
+                .fill(
+                    LinearGradient(
+                        colors: [
+                            statusColor.opacity(colorScheme == .dark ? 0.25 : 0.15),
+                            statusColor.opacity(colorScheme == .dark ? 0.15 : 0.08)
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+                .overlay {
+                    Capsule()
+                        .strokeBorder(statusColor.opacity(0.3), lineWidth: 1)
+                }
+
+        case .paperMinimal:
+            // Simple background with sharp corners
+            RoundedRectangle(cornerRadius: cornerRadius)
+                .fill(statusColor.opacity(0.12))
+
+        case .warmFinance:
+            // Soft pill
+            Capsule()
+                .fill(statusColor.opacity(colorScheme == .dark ? 0.2 : 0.12))
+        }
+    }
+}
+
+// MARK: - Styled Button
+
+/// Primary button that adapts to the current UI style
+struct StyledPrimaryButton: View {
+
+    @Environment(\.uiStyle) private var style
+    @Environment(\.colorScheme) private var colorScheme
+
+    let title: String
+    let icon: String?
+    let action: () -> Void
+
+    init(_ title: String, icon: String? = nil, action: @escaping () -> Void) {
+        self.title = title
+        self.icon = icon
+        self.action = action
+    }
+
+    var body: some View {
+        let tokens = UIStyleTokens(style: style)
+
+        Button(action: action) {
+            HStack(spacing: Spacing.xs) {
+                if let iconName = icon {
+                    Image(systemName: iconName)
+                        .font(.system(size: 15, weight: .semibold))
+                }
+
+                Text(title)
+                    .font(.system(size: 17, weight: tokens.titleWeight))
+            }
+            .foregroundStyle(.white)
+            .frame(maxWidth: .infinity)
+            .frame(height: 50)
+            .background {
+                buttonBackground(tokens: tokens)
+            }
+            .clipShape(RoundedRectangle(cornerRadius: tokens.buttonCornerRadius, style: .continuous))
+        }
+        .buttonStyle(.plain)
+        .shadow(
+            color: tokens.primaryColor(for: colorScheme).opacity(tokens.usesAccentGlow ? 0.3 : 0),
+            radius: 8,
+            y: 4
+        )
+    }
+
+    @ViewBuilder
+    private func buttonBackground(tokens: UIStyleTokens) -> some View {
+        let primary = tokens.primaryColor(for: colorScheme)
+
+        switch style {
+        case .midnightAurora:
+            // Vibrant gradient
+            LinearGradient(
+                colors: [
+                    primary,
+                    primary.opacity(0.85),
+                    tokens.secondaryAccent(for: colorScheme).opacity(0.3)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+
+        case .paperMinimal:
+            // Solid black/dark
+            primary
+
+        case .warmFinance:
+            // Soft gradient
+            LinearGradient(
+                colors: [primary, primary.opacity(0.9)],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+        }
+    }
+}
+
+// MARK: - Styled Section Header
+
+/// Section header that adapts to the current UI style
+struct StyledSectionHeader: View {
+
+    @Environment(\.uiStyle) private var style
+    @Environment(\.colorScheme) private var colorScheme
+
+    let title: String
+    let icon: String?
+
+    init(_ title: String, icon: String? = nil) {
+        self.title = title
+        self.icon = icon
+    }
+
+    var body: some View {
+        let tokens = UIStyleTokens(style: style)
+
+        HStack(spacing: Spacing.xs) {
+            if let iconName = icon {
+                Image(systemName: iconName)
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(tokens.primaryColor(for: colorScheme).opacity(0.7))
+            }
+
+            Text(title)
+                .font(headerFont)
+                .foregroundStyle(headerColor)
+
+            if style == .paperMinimal {
+                // Extending line
+                Rectangle()
+                    .fill(tokens.separatorColor(for: colorScheme))
+                    .frame(height: 1)
+                    .frame(maxWidth: .infinity)
+            }
+        }
+    }
+
+    private var headerFont: Font {
+        switch style {
+        case .midnightAurora:
+            return Typography.headline
+        case .paperMinimal:
+            return .system(size: 11, weight: .semibold, design: .default)
+        case .warmFinance:
+            return Typography.subheadline.weight(.semibold)
+        }
+    }
+
+    private var headerColor: Color {
+        switch style {
+        case .midnightAurora:
+            return .primary
+        case .paperMinimal:
+            return .secondary
+        case .warmFinance:
+            return .primary
+        }
+    }
+}
+
+// MARK: - Styled Hero Amount
+
+/// Large hero amount display that adapts to the current UI style
+struct StyledHeroAmount: View {
+
+    @Environment(\.uiStyle) private var style
+    @Environment(\.colorScheme) private var colorScheme
+
+    let amount: String
+
+    var body: some View {
+        let tokens = UIStyleTokens(style: style)
+
+        Text(amount)
+            .font(.system(
+                size: tokens.heroNumberSize,
+                weight: tokens.titleWeight,
+                design: tokens.heroNumberDesign
+            ))
+            .foregroundStyle(heroGradient(tokens: tokens))
+            .minimumScaleFactor(0.6)
+            .lineLimit(1)
+    }
+
+    private func heroGradient(tokens: UIStyleTokens) -> some ShapeStyle {
+        switch style {
+        case .midnightAurora:
+            // Vibrant multi-color gradient
+            return AnyShapeStyle(LinearGradient(
+                colors: [
+                    tokens.primaryColor(for: colorScheme),
+                    tokens.secondaryAccent(for: colorScheme),
+                    tokens.primaryColor(for: colorScheme).opacity(0.8)
+                ],
+                startPoint: .leading,
+                endPoint: .trailing
+            ))
+
+        case .paperMinimal:
+            // Solid color
+            return AnyShapeStyle(Color.primary)
+
+        case .warmFinance:
+            // Subtle warm gradient
+            return AnyShapeStyle(LinearGradient(
+                colors: [
+                    .primary,
+                    tokens.primaryColor(for: colorScheme)
+                ],
+                startPoint: .leading,
+                endPoint: .trailing
+            ))
+        }
+    }
+}
+
+// MARK: - Styled Document Row
+
+/// Document list row that adapts to the current UI style
+struct StyledDocumentRow: View {
+
+    @Environment(\.uiStyle) private var style
+    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+
+    let vendorName: String
+    let amount: String
+    let dueInfo: String
+    let statusType: StyledStatusBadge.StatusType
+    let statusText: String
+
+    var body: some View {
+        let tokens = UIStyleTokens(style: style)
+
+        HStack(spacing: Spacing.md) {
+            // Left content
+            VStack(alignment: .leading, spacing: Spacing.xxs) {
+                Text(vendorName)
+                    .font(Typography.body)
+                    .fontWeight(style == .paperMinimal ? .medium : .regular)
+                    .foregroundStyle(.primary)
+                    .lineLimit(1)
+
+                Text(dueInfo)
+                    .font(Typography.caption1)
+                    .foregroundStyle(.secondary)
+            }
+
+            Spacer()
+
+            // Right content
+            VStack(alignment: .trailing, spacing: Spacing.xxs) {
+                Text(amount)
+                    .font(.system(size: 17, weight: .semibold, design: tokens.heroNumberDesign).monospacedDigit())
+                    .foregroundStyle(.primary)
+
+                StyledStatusBadge(statusText, status: statusType, size: .small)
+            }
+        }
+        .padding(.horizontal, tokens.cardPadding)
+        .padding(.vertical, tokens.rowVerticalPadding)
+        .background {
+            rowBackground(tokens: tokens)
+        }
+        .clipShape(RoundedRectangle(cornerRadius: tokens.cardCornerRadius, style: .continuous))
+        .overlay {
+            if tokens.usesCardBorders && tokens.rowBackgroundStyle != .flat {
+                RoundedRectangle(cornerRadius: tokens.cardCornerRadius, style: .continuous)
+                    .strokeBorder(tokens.cardBorderColor(for: colorScheme), lineWidth: 0.5)
+            }
+        }
+        .shadow(
+            color: tokens.rowBackgroundStyle == .elevated
+                ? tokens.cardShadow(for: colorScheme).color
+                : .clear,
+            radius: tokens.rowBackgroundStyle == .elevated ? 6 : 0,
+            y: tokens.rowBackgroundStyle == .elevated ? 3 : 0
+        )
+    }
+
+    @ViewBuilder
+    private func rowBackground(tokens: UIStyleTokens) -> some View {
+        switch tokens.rowBackgroundStyle {
+        case .glassMorphism:
+            if reduceTransparency {
+                tokens.cardBackgroundColor(for: colorScheme)
+            } else {
+                ZStack {
+                    tokens.cardBackgroundColor(for: colorScheme)
+                    if let gradient = tokens.cardHighlightGradient(for: colorScheme) {
+                        gradient
+                    }
+                }
+            }
+
+        case .flat:
+            tokens.cardBackgroundColor(for: colorScheme)
+
+        case .elevated:
+            tokens.cardBackgroundColor(for: colorScheme)
+        }
+    }
+}
+
+// MARK: - Styled Divider
+
+/// Divider that adapts to the current UI style
+struct StyledDivider: View {
+
+    @Environment(\.uiStyle) private var style
+    @Environment(\.colorScheme) private var colorScheme
+
+    let inset: CGFloat
+
+    init(inset: CGFloat = 0) {
+        self.inset = inset
+    }
+
+    var body: some View {
+        let tokens = UIStyleTokens(style: style)
+
+        Rectangle()
+            .fill(tokens.separatorColor(for: colorScheme))
+            .frame(height: style == .paperMinimal ? 1 : 0.5)
+            .padding(.leading, inset)
+    }
+}
+
+// MARK: - Styled Home Background
+
+/// Home-specific background that adapts to the current UI style.
+/// Midnight Aurora uses LuxuryHomeBackground, Paper Minimal uses flat solid,
+/// Warm Finance uses subtle warm gradient.
+struct StyledHomeBackground: View {
+
+    @Environment(\.uiStyle) private var style
+    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    var body: some View {
+        let tokens = UIStyleTokens(style: style)
+
+        switch style {
+        case .defaultStyle, .midnightAurora:
+            // Use the existing LuxuryHomeBackground for both
+            LuxuryHomeBackground()
+
+        case .paperMinimal:
+            // Pure flat background with no effects
+            tokens.backgroundColor(for: colorScheme)
+                .ignoresSafeArea()
+
+        case .warmFinance:
+            // Warm subtle gradient
+            if reduceTransparency {
+                tokens.backgroundColor(for: colorScheme)
+                    .ignoresSafeArea()
+            } else {
+                LinearGradient(
+                    colors: tokens.backgroundGradientColors(for: colorScheme),
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .ignoresSafeArea()
+            }
+        }
+    }
+}
+
+// MARK: - Styled Home Card Background
+
+/// Card background for Home view that adapts to the current UI style.
+struct StyledHomeCardBackground: View {
+
+    @Environment(\.uiStyle) private var style
+    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+
+    let accentColor: Color?
+    let cardType: CardType
+
+    enum CardType {
+        case hero
+        case tile
+        case standard
+    }
+
+    init(accentColor: Color? = nil, cardType: CardType = .standard) {
+        self.accentColor = accentColor
+        self.cardType = cardType
+    }
+
+    var body: some View {
+        let tokens = UIStyleTokens(style: style)
+        let cornerRadius = tokens.cardCornerRadius
+        let shape = RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+
+        switch style {
+        case .midnightAurora:
+            // Use the existing LuxuryCardBackground
+            let luxuryStyle: LuxuryCardBackground.CardStyle = {
+                switch cardType {
+                case .hero: return .hero
+                case .tile: return .tile
+                case .standard: return .standard
+                }
+            }()
+            LuxuryCardBackground(accentColor: accentColor, style: luxuryStyle)
+
+        case .paperMinimal:
+            // Flat card with subtle border (applied in container)
+            shape.fill(tokens.cardBackgroundColor(for: colorScheme))
+
+        case .warmFinance:
+            // Warm card with subtle top highlight
+            if reduceTransparency {
+                shape.fill(tokens.cardBackgroundColor(for: colorScheme))
+            } else {
+                ZStack {
+                    shape.fill(tokens.cardBackgroundColor(for: colorScheme))
+
+                    if let gradient = tokens.cardHighlightGradient(for: colorScheme) {
+                        shape.fill(gradient)
+                    }
+
+                    if let accent = accentColor {
+                        shape.fill(accent.opacity(colorScheme == .dark ? 0.08 : 0.05))
+                    }
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Styled Home Card Container
+
+/// A complete styled card container for Home view cards.
+/// Applies background, border, and shadow based on current style.
+struct StyledHomeCard<Content: View>: View {
+
+    @Environment(\.uiStyle) private var style
+    @Environment(\.colorScheme) private var colorScheme
+
+    let accentColor: Color?
+    let cardType: StyledHomeCardBackground.CardType
+    let content: () -> Content
+
+    init(
+        accentColor: Color? = nil,
+        cardType: StyledHomeCardBackground.CardType = .standard,
+        @ViewBuilder content: @escaping () -> Content
+    ) {
+        self.accentColor = accentColor
+        self.cardType = cardType
+        self.content = content
+    }
+
+    var body: some View {
+        let tokens = UIStyleTokens(style: style)
+        let cornerRadius = tokens.cardCornerRadius
+
+        content()
+            .padding(tokens.cardPadding)
+            .background {
+                StyledHomeCardBackground(accentColor: accentColor, cardType: cardType)
+            }
+            .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+            .modifier(StyledCardBorderModifier(accentColor: accentColor, cornerRadius: cornerRadius))
+            .modifier(StyledCardShadowModifier(accentColor: accentColor, cardType: cardType))
+    }
+}
+
+/// Applies style-appropriate border to cards
+private struct StyledCardBorderModifier: ViewModifier {
+    @Environment(\.uiStyle) private var style
+    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+
+    let accentColor: Color?
+    let cornerRadius: CGFloat
+
+    func body(content: Content) -> some View {
+        let tokens = UIStyleTokens(style: style)
+
+        if reduceTransparency || !tokens.usesCardBorders {
+            content
+        } else {
+            switch style {
+            case .midnightAurora:
+                // Use the existing luxuryCardBorder modifier
+                content.luxuryCardBorder(accentColor: accentColor, cornerRadius: cornerRadius)
+
+            case .paperMinimal:
+                // Simple line border
+                content.overlay {
+                    RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                        .strokeBorder(tokens.cardBorderColor(for: colorScheme), lineWidth: 1)
+                }
+
+            case .warmFinance:
+                // No border for Warm Finance (uses shadows instead)
+                content
+            }
+        }
+    }
+}
+
+/// Applies style-appropriate shadow to cards
+private struct StyledCardShadowModifier: ViewModifier {
+    @Environment(\.uiStyle) private var style
+    @Environment(\.colorScheme) private var colorScheme
+
+    let accentColor: Color?
+    let cardType: StyledHomeCardBackground.CardType
+
+    func body(content: Content) -> some View {
+        let tokens = UIStyleTokens(style: style)
+
+        if !tokens.usesShadows {
+            content
+        } else {
+            switch style {
+            case .midnightAurora:
+                let intensity: LuxuryCardShadowModifier.ShadowIntensity = {
+                    switch cardType {
+                    case .hero: return .high
+                    case .tile: return .medium
+                    case .standard: return .medium
+                    }
+                }()
+                content.luxuryCardShadow(accentColor: accentColor, intensity: intensity)
+
+            case .paperMinimal:
+                // No shadows for Paper Minimal
+                content
+
+            case .warmFinance:
+                let shadow = tokens.cardShadow(for: colorScheme)
+                content.shadow(color: shadow.color, radius: shadow.radius, y: shadow.y)
+            }
+        }
+    }
+}
+
+// MARK: - Styled Hero Amount for Home
+
+/// Styled hero amount display that adapts to current UI style
+struct StyledHomeHeroAmount: View {
+
+    @Environment(\.uiStyle) private var style
+    @Environment(\.colorScheme) private var colorScheme
+
+    let amount: String
+
+    var body: some View {
+        let tokens = UIStyleTokens(style: style)
+
+        Text(amount)
+            .font(.system(
+                size: tokens.heroNumberSize,
+                weight: tokens.titleWeight,
+                design: tokens.heroNumberDesign
+            ))
+            .foregroundStyle(heroStyle(tokens: tokens))
+            .minimumScaleFactor(0.6)
+            .lineLimit(1)
+    }
+
+    private func heroStyle(tokens: UIStyleTokens) -> some ShapeStyle {
+        switch style {
+        case .midnightAurora:
+            // Vibrant gradient
+            return AnyShapeStyle(LinearGradient(
+                colors: [
+                    .primary,
+                    colorScheme == .light
+                        ? Color(red: 0.15, green: 0.35, blue: 0.65)
+                        : Color(red: 0.5, green: 0.7, blue: 1.0)
+                ],
+                startPoint: .leading,
+                endPoint: .trailing
+            ))
+
+        case .paperMinimal:
+            // Solid primary color
+            return AnyShapeStyle(Color.primary)
+
+        case .warmFinance:
+            // Subtle warm gradient
+            return AnyShapeStyle(LinearGradient(
+                colors: [.primary, tokens.primaryColor(for: colorScheme)],
+                startPoint: .leading,
+                endPoint: .trailing
+            ))
+        }
+    }
+}
+
+// MARK: - Styled Status Capsule for Home
+
+/// Status capsule that adapts styling to current UI style
+struct StyledHomeStatusCapsule: View {
+
+    @Environment(\.uiStyle) private var style
+    @Environment(\.colorScheme) private var colorScheme
+
+    let text: String
+    let color: Color
+
+    var body: some View {
+        let tokens = UIStyleTokens(style: style)
+
+        HStack(spacing: Spacing.xxs) {
+            // Indicator dot (Midnight Aurora style)
+            if style == .midnightAurora {
+                Circle()
+                    .fill(color)
+                    .frame(width: 6, height: 6)
+                    .shadow(color: color.opacity(0.6), radius: 2)
+            }
+
+            Text(text)
+                .font(Typography.caption1.weight(.semibold))
+                .foregroundStyle(color)
+        }
+        .padding(.horizontal, Spacing.sm)
+        .padding(.vertical, Spacing.xs)
+        .background {
+            capsuleBackground(tokens: tokens)
+        }
+        .modifier(CapsuleShadowModifier(style: style, color: color))
+    }
+
+    @ViewBuilder
+    private func capsuleBackground(tokens: UIStyleTokens) -> some View {
+        switch style {
+        case .midnightAurora:
+            Capsule()
+                .fill(
+                    LinearGradient(
+                        colors: [
+                            color.opacity(colorScheme == .light ? 0.15 : 0.25),
+                            color.opacity(colorScheme == .light ? 0.08 : 0.15)
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+                .overlay {
+                    Capsule()
+                        .strokeBorder(
+                            LinearGradient(
+                                colors: [color.opacity(0.4), color.opacity(0.1)],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            ),
+                            lineWidth: 1
+                        )
+                }
+
+        case .paperMinimal:
+            RoundedRectangle(cornerRadius: tokens.badgeCornerRadius)
+                .fill(color.opacity(0.12))
+
+        case .warmFinance:
+            Capsule()
+                .fill(color.opacity(colorScheme == .dark ? 0.2 : 0.12))
+        }
+    }
+}
+
+private struct CapsuleShadowModifier: ViewModifier {
+    let style: UIStyleProposal
+    let color: Color
+
+    func body(content: Content) -> some View {
+        if style == .midnightAurora {
+            content.shadow(color: color.opacity(0.2), radius: 4, y: 2)
+        } else {
+            content
+        }
+    }
+}
+
+// MARK: - View Modifiers
+
+extension View {
+    /// Applies the styled background for the current UI style
+    func styledBackground() -> some View {
+        background { StyledBackground() }
+    }
+
+    /// Applies the styled home background for the current UI style
+    func styledHomeBackground() -> some View {
+        background { StyledHomeBackground() }
+    }
+}

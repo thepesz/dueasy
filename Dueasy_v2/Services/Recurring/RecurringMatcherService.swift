@@ -51,7 +51,11 @@ struct MatchValidationResult {
     }
 }
 
-/// Default implementation of RecurringMatcherService
+/// Default implementation of RecurringMatcherService.
+///
+/// Note: `@MainActor` is required because SwiftData's `ModelContext` is not Sendable
+/// and must be accessed from the main actor. This constraint is inherent to SwiftData's
+/// design and cannot be avoided while using ModelContext directly.
 @MainActor
 final class RecurringMatcherService: RecurringMatcherServiceProtocol {
 
@@ -87,11 +91,30 @@ final class RecurringMatcherService: RecurringMatcherServiceProtocol {
             return nil
         }
 
-        // CRITICAL FIX: Find template BEFORE category validation
-        // If a template exists, the user explicitly created it, so we should match
-        // even if the category is normally hard-rejected (retail, fuel, etc.)
-        guard let template = try await templateService.fetchTemplate(byVendorFingerprint: vendorFingerprint) else {
-            logger.debug("No recurring template found for vendor fingerprint")
+        // CRITICAL FIX: Find template using amount-aware fingerprint matching
+        // The document's vendorFingerprint already includes amount bucket (generated in UseCase)
+        //
+        // Matching Strategy:
+        // 1. Try exact fingerprint match (vendor + NIP + amount bucket)
+        // 2. If no exact match, use findBestMatchingTemplate to find closest amount range
+        //
+        // This separates "Santander Credit Card (500 PLN)" from "Santander Loan (1200 PLN)"
+        var template = try await templateService.fetchTemplate(byVendorFingerprint: vendorFingerprint)
+
+        // If no exact match, try to find best matching template by vendor + amount range
+        if template == nil {
+            template = try await templateService.findBestMatchingTemplate(
+                vendorName: document.title,
+                nip: document.vendorNIP,
+                amount: document.amount
+            )
+            if template != nil {
+                logger.debug("Found template via amount-range matching (no exact fingerprint match)")
+            }
+        }
+
+        guard let template = template else {
+            logger.debug("No recurring template found for vendor fingerprint or amount range")
             return nil
         }
 

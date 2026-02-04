@@ -2,9 +2,14 @@ import Foundation
 
 /// Filter options for document lists.
 /// Used by both UI layer and repository layer for database-level filtering.
+///
+/// Available filters:
+/// - all: Show all documents
+/// - scheduled: Documents with scheduled status (finalized, awaiting payment)
+/// - paid: Documents marked as paid
+/// - overdue: Documents past due date that aren't paid (computed filter)
 enum DocumentFilter: String, CaseIterable, Identifiable, Sendable {
     case all
-    case pending
     case scheduled
     case paid
     case overdue
@@ -15,8 +20,6 @@ enum DocumentFilter: String, CaseIterable, Identifiable, Sendable {
         switch self {
         case .all:
             return L10n.Filters.all.localized
-        case .pending:
-            return L10n.Filters.pending.localized
         case .scheduled:
             return L10n.Filters.scheduled.localized
         case .paid:
@@ -30,8 +33,6 @@ enum DocumentFilter: String, CaseIterable, Identifiable, Sendable {
         switch self {
         case .all:
             return "doc.on.doc"
-        case .pending:
-            return "doc.badge.ellipsis"
         case .scheduled:
             return "calendar.badge.clock"
         case .paid:
@@ -47,8 +48,6 @@ enum DocumentFilter: String, CaseIterable, Identifiable, Sendable {
         switch self {
         case .all:
             return nil
-        case .pending:
-            return .draft
         case .scheduled:
             return .scheduled
         case .paid:

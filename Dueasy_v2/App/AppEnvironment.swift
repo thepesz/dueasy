@@ -132,6 +132,7 @@ final class AppEnvironment {
     let recurringMatcherService: RecurringMatcherServiceProtocol
     let recurringDetectionService: RecurringDetectionServiceProtocol
     let recurringIntegrityService: RecurringIntegrityService
+    let fingerprintMigrationService: FingerprintMigrationService
 
     // MARK: - Cloud Integration Services (Phase 1 Foundation)
 
@@ -274,6 +275,13 @@ final class AppEnvironment {
             modelContext: modelContext,
             calendarService: calendarService,
             notificationService: notificationService
+        )
+
+        // Fingerprint migration service for handling amount-bucketed fingerprints
+        self.fingerprintMigrationService = FingerprintMigrationService(
+            modelContext: modelContext,
+            fingerprintService: self.vendorFingerprintService,
+            templateService: templateService
         )
 
         // LAZY INITIALIZATION: LayoutFirstInvoiceParser
@@ -626,6 +634,21 @@ final class AppEnvironment {
         } catch {
             migrationLogger.error("Integrity checks failed: \(error.localizedDescription)")
             // Continue app startup even if integrity checks fail - don't rethrow
+        }
+
+        // FINGERPRINT MIGRATION: Backfill vendor-only fingerprints for existing templates
+        // This enables the "related templates from same vendor" feature and amount-based matching
+        migrationLogger.info("Running fingerprint migration (vendor-only fingerprints)...")
+        do {
+            let backfilledCount = try await fingerprintMigrationService.backfillVendorOnlyFingerprints()
+            if backfilledCount > 0 {
+                migrationLogger.info("Backfilled vendor-only fingerprints for \(backfilledCount) templates")
+            } else {
+                migrationLogger.info("No templates needed vendor-only fingerprint backfill")
+            }
+        } catch {
+            migrationLogger.error("Fingerprint migration failed: \(error.localizedDescription)")
+            // Continue app startup - migration failure is not fatal
         }
 
         migrationLogger.info("=== APP STARTUP MIGRATIONS COMPLETE ===")

@@ -51,6 +51,12 @@ final class DocumentReviewViewModel {
     var recurringCategoryWarningMessage: String = ""
     var isCreatingRecurringTemplate: Bool = false
 
+    // Fuzzy match state (for variable amount recurring detection)
+    var showFuzzyMatchSheet: Bool = false
+    var fuzzyMatchCandidates: [FuzzyMatchCandidate] = []
+    var pendingFuzzyMatchResult: FuzzyMatchResult?
+    var selectedFuzzyMatchTemplateId: UUID?
+
     // Analysis result
     var analysisResult: DocumentAnalysisResult?
     var ocrConfidence: Double = 0.0
@@ -605,16 +611,104 @@ final class DocumentReviewViewModel {
 
     // MARK: - Recurring Payment
 
-    /// Toggles recurring payment and checks for category warnings
+    /// Toggles recurring payment and checks for fuzzy matches and category warnings.
+    /// If a fuzzy match is found (30-50% amount difference from existing template),
+    /// sets `showFuzzyMatchSheet = true` so the View can present confirmation dialog.
     func toggleRecurringPayment(_ enabled: Bool) {
-        isRecurringPayment = enabled
-
         if enabled {
-            checkRecurringCategoryWarning()
+            // Check for fuzzy match when enabling recurring
+            Task {
+                await checkForFuzzyMatchAndEnable()
+            }
         } else {
+            isRecurringPayment = false
             showRecurringCategoryWarning = false
             recurringCategoryWarningMessage = ""
+            // Clear fuzzy match state
+            pendingFuzzyMatchResult = nil
+            fuzzyMatchCandidates = []
+            selectedFuzzyMatchTemplateId = nil
         }
+    }
+
+    /// Checks for fuzzy match candidates and either enables recurring or shows confirmation sheet.
+    private func checkForFuzzyMatchAndEnable() async {
+        guard let useCase = createRecurringTemplateUseCase else {
+            // No use case available - just enable without fuzzy check
+            isRecurringPayment = true
+            checkRecurringCategoryWarning()
+            return
+        }
+
+        // Use FuzzyMatchCheckInput DTO instead of modifying the document
+        let input = FuzzyMatchCheckInput(
+            vendorName: vendorName,
+            nip: nip.isEmpty ? nil : nip,
+            amount: amountDecimal ?? 0
+        )
+
+        do {
+            let result = try await useCase.checkForFuzzyMatch(input: input)
+            pendingFuzzyMatchResult = result
+
+            switch result {
+            case .noExistingTemplates, .autoCreateNew:
+                // Safe to create new - no user confirmation needed
+                isRecurringPayment = true
+                checkRecurringCategoryWarning()
+                logger.info("[FuzzyMatch] Auto-enabling recurring: no similar templates")
+
+            case .exactMatch(let templateId):
+                // Template already exists - link to it instead of creating new
+                selectedFuzzyMatchTemplateId = templateId
+                isRecurringPayment = true
+                logger.info("[FuzzyMatch] Exact match found - will link to existing template")
+
+            case .autoMatch(let templateId, let percentDiff):
+                // Amount is close enough (<30%) - auto-link without asking
+                selectedFuzzyMatchTemplateId = templateId
+                isRecurringPayment = true
+                logger.info("[FuzzyMatch] Auto-matching to template with \(Int(percentDiff * 100))% difference")
+
+            case .needsConfirmation(let candidates):
+                // Amount is in fuzzy zone (30-50%) - show confirmation sheet
+                fuzzyMatchCandidates = candidates
+                showFuzzyMatchSheet = true
+                logger.info("[FuzzyMatch] Showing confirmation sheet with \(candidates.count) candidates")
+            }
+        } catch {
+            // If fuzzy check fails, still allow enabling recurring
+            logger.error("[FuzzyMatch] Check failed: \(error.localizedDescription) - allowing recurring anyway")
+            isRecurringPayment = true
+            checkRecurringCategoryWarning()
+        }
+    }
+
+    /// Called when user confirms "Same Service" - link to existing template
+    func handleFuzzyMatchSameService(templateId: UUID) {
+        selectedFuzzyMatchTemplateId = templateId
+        isRecurringPayment = true
+        showFuzzyMatchSheet = false
+        logger.info("[FuzzyMatch] User confirmed same service - will link to template \(templateId)")
+    }
+
+    /// Called when user confirms "Different Service" - create new template
+    func handleFuzzyMatchDifferentService() {
+        selectedFuzzyMatchTemplateId = nil
+        isRecurringPayment = true
+        showFuzzyMatchSheet = false
+        checkRecurringCategoryWarning()
+        logger.info("[FuzzyMatch] User confirmed different service - will create new template")
+    }
+
+    /// Called when user cancels the fuzzy match sheet
+    func handleFuzzyMatchCancel() {
+        isRecurringPayment = false
+        showFuzzyMatchSheet = false
+        pendingFuzzyMatchResult = nil
+        fuzzyMatchCandidates = []
+        selectedFuzzyMatchTemplateId = nil
+        logger.info("[FuzzyMatch] User cancelled - recurring disabled")
     }
 
     /// Checks if the document category should show a warning for recurring
@@ -641,7 +735,8 @@ final class DocumentReviewViewModel {
         recurringCategoryWarningMessage = ""
     }
 
-    /// Creates a recurring template after document is saved
+    /// Creates a recurring template after document is saved.
+    /// If `selectedFuzzyMatchTemplateId` is set, links to existing template instead of creating new.
     private func createRecurringTemplate() async {
         guard let useCase = createRecurringTemplateUseCase else {
             logger.warning("CreateRecurringTemplateUseCase not available")
@@ -655,19 +750,35 @@ final class DocumentReviewViewModel {
             if let fingerprintService = vendorFingerprintService {
                 let fingerprint = fingerprintService.generateFingerprint(
                     vendorName: vendorName,
-                    nip: nip.isEmpty ? nil : nip
+                    nip: nip.isEmpty ? nil : nip,
+                    amount: amountDecimal
                 )
                 document.vendorFingerprint = fingerprint
             }
 
-            let result = try await useCase.execute(
-                document: document,
-                reminderOffsets: Array(reminderOffsets).sorted(by: >),
-                toleranceDays: recurringToleranceDays,
-                monthsAhead: recurringMonthsAhead
-            )
+            let result: CreateRecurringResult
 
-            logger.info("Created recurring template: \(result.template.id), instances: \(result.instances.count)")
+            // Check if we should link to existing template (fuzzy match selected)
+            if let templateId = selectedFuzzyMatchTemplateId {
+                // Link to existing template (same service path)
+                result = try await useCase.linkToExistingTemplate(
+                    document: document,
+                    templateId: templateId,
+                    reminderOffsets: Array(reminderOffsets).sorted(by: >),
+                    toleranceDays: recurringToleranceDays,
+                    monthsAhead: recurringMonthsAhead
+                )
+                logger.info("[FuzzyMatch] Linked to existing template: \(result.template.id)")
+            } else {
+                // Create new template (different service path or no existing templates)
+                result = try await useCase.execute(
+                    document: document,
+                    reminderOffsets: Array(reminderOffsets).sorted(by: >),
+                    toleranceDays: recurringToleranceDays,
+                    monthsAhead: recurringMonthsAhead
+                )
+                logger.info("Created recurring template: \(result.template.id), instances: \(result.instances.count)")
+            }
 
             if let warning = result.categoryWarning {
                 logger.warning("Recurring category warning: \(warning.message)")

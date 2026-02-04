@@ -19,9 +19,15 @@ final class RecurringCandidate {
     @Attribute(.unique)
     var id: UUID
 
-    /// Vendor fingerprint (same as RecurringTemplate)
+    /// Vendor fingerprint (same as RecurringTemplate) - may include amount bucket
     @Attribute(.spotlight)
     var vendorFingerprint: String
+
+    /// Vendor-only fingerprint (without amount bucket) for grouping related candidates
+    var vendorOnlyFingerprint: String?
+
+    /// Amount bucket identifier if fingerprint includes amount bucketing
+    var amountBucket: String?
 
     /// Display name for UI
     var vendorDisplayName: String

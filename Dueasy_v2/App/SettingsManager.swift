@@ -41,6 +41,10 @@ final class SettingsManager: Sendable {
 
         // Migration tracking
         static let keychainMigrationCompleted = "keychainMigrationCompleted"
+
+        // UI Style settings
+        static let uiStyleHome = "uiStyleHome"
+        static let uiStyleOtherViews = "uiStyleOtherViews"
     }
 
     // MARK: - Dependencies
@@ -77,7 +81,11 @@ final class SettingsManager: Sendable {
             // Defaults are handled in the property getters
 
             // Recurring payments defaults
-            Keys.syncRecurringToiOSCalendar: false // iOS Calendar sync disabled by default (opt-in)
+            Keys.syncRecurringToiOSCalendar: false, // iOS Calendar sync disabled by default (opt-in)
+
+            // UI Style defaults - Always use Midnight Aurora
+            Keys.uiStyleHome: UIStyleProposal.midnightAurora.rawValue,
+            Keys.uiStyleOtherViews: UIStyleProposal.midnightAurora.rawValue
         ])
     }
 
@@ -371,6 +379,48 @@ final class SettingsManager: Sendable {
         set { defaults.set(newValue, forKey: Keys.syncRecurringToiOSCalendar) }
     }
 
+    // MARK: - UI Style Settings
+
+    /// UI style for the Home view
+    /// Default: .defaultStyle
+    var uiStyleHome: UIStyleProposal {
+        get {
+            // Always use Midnight Aurora style
+            return .midnightAurora
+        }
+        set {
+            // No-op: style is fixed to Midnight Aurora
+        }
+    }
+
+    /// UI style for other views (Documents, Calendar, Settings, etc.)
+    /// Default: .defaultStyle
+    var uiStyleOtherViews: UIStyleProposal {
+        get {
+            // Always use Midnight Aurora style
+            return .midnightAurora
+        }
+        set {
+            // No-op: style is fixed to Midnight Aurora
+        }
+    }
+
+    /// Get the UI style for a specific context
+    func uiStyle(for context: UIStyleContext) -> UIStyleProposal {
+        switch context {
+        case .home: return uiStyleHome
+        case .otherViews: return uiStyleOtherViews
+        }
+    }
+
+    /// Set the UI style for a specific context
+    func setUIStyle(_ style: UIStyleProposal, for context: UIStyleContext) {
+        switch context {
+        case .home: uiStyleHome = style
+        case .otherViews: uiStyleOtherViews = style
+        }
+    }
+
     /// Determine analysis mode based on current settings
     var analysisMode: AnalysisMode {
         guard cloudAnalysisEnabled else { return .localOnly }
@@ -409,6 +459,9 @@ final class SettingsManager: Sendable {
         defaults.removeObject(forKey: Keys.enableVendorTemplates)
         // Recurring payments settings
         defaults.removeObject(forKey: Keys.syncRecurringToiOSCalendar)
+        // UI Style settings
+        defaults.removeObject(forKey: Keys.uiStyleHome)
+        defaults.removeObject(forKey: Keys.uiStyleOtherViews)
 
         // Reset Keychain settings (security-sensitive)
         do {

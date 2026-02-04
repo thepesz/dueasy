@@ -58,6 +58,7 @@ final class FetchHomeMetricsUseCase: Sendable {
                 nextRecurringVendor: nil,
                 nextRecurringDaysUntil: nil,
                 missingRecurringCount: 0,
+                firstRecurringVendorName: nil,
                 nextPayments: [],
                 monthPaidCount: 0,
                 monthDueCount: 0,
@@ -135,6 +136,10 @@ final class FetchHomeMetricsUseCase: Sendable {
         let activeTemplates = try await recurringTemplateService.fetchActiveTemplates()
         let activeRecurringCount = activeTemplates.count
 
+        // Get the first active template's compact display name for tile display
+        // Uses vendorShortName (normalized, without business suffixes) if available
+        let firstRecurringVendorName = activeTemplates.first?.compactDisplayName
+
         let upcomingInstances = try await recurringSchedulerService.fetchUpcomingInstances(limit: 10)
         let nextInstance = upcomingInstances.first { $0.status == .expected || $0.status == .matched }
         let nextRecurringVendor: String?
@@ -142,7 +147,8 @@ final class FetchHomeMetricsUseCase: Sendable {
 
         if let instance = nextInstance,
            let template = activeTemplates.first(where: { $0.id == instance.templateId }) {
-            nextRecurringVendor = template.vendorDisplayName
+            // Use compact display name (short name without business suffixes) for tile
+            nextRecurringVendor = template.compactDisplayName
             // Calculate days until due using dateService (MVVM compliance)
             let daysUntil = recurringDateService.daysBetween(from: today, to: instance.expectedDueDate)
             nextRecurringDaysUntil = daysUntil
@@ -225,6 +231,7 @@ final class FetchHomeMetricsUseCase: Sendable {
             nextRecurringVendor: nextRecurringVendor,
             nextRecurringDaysUntil: nextRecurringDaysUntil,
             missingRecurringCount: missingRecurringCount,
+            firstRecurringVendorName: firstRecurringVendorName,
             nextPayments: nextPayments,
             monthPaidCount: monthPaidCount,
             monthDueCount: monthDueCount,

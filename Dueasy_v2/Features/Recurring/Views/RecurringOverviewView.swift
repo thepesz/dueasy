@@ -2,10 +2,21 @@ import SwiftUI
 
 /// Overview screen for recurring payments.
 /// Shows templates (active/paused) and upcoming payment instances.
+///
+/// UI STYLE: Adapts to the current UI style (Midnight Aurora, Paper Minimal, Warm Finance)
+/// based on user preference from SettingsManager.uiStyleOtherViews.
 struct RecurringOverviewView: View {
 
     @Environment(AppEnvironment.self) private var environment
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.uiStyle) private var uiStyle
+
+    /// Design tokens for the current style
+    private var tokens: UIStyleTokens {
+        UIStyleTokens(style: uiStyle)
+    }
+
     @State private var viewModel: RecurringOverviewViewModel?
     @State private var showDeleteConfirmation: Bool = false
     @State private var templateToDelete: RecurringTemplate?
@@ -106,7 +117,8 @@ struct RecurringOverviewView: View {
         }
         .scrollContentBackground(.hidden)
         .background {
-            GradientBackgroundFixed()
+            // Style-aware background
+            StyledRecurringBackground()
         }
         .refreshable {
             await viewModel.loadData()
@@ -128,7 +140,7 @@ struct RecurringOverviewView: View {
                 .foregroundStyle(.primary)
 
             ForEach(viewModel.upcomingInstances) { enrichedInstance in
-                UpcomingInstanceCard(
+                StyledUpcomingInstanceCard(
                     instance: enrichedInstance.instance,
                     template: enrichedInstance.template,
                     onMarkAsPaid: {
@@ -166,10 +178,10 @@ struct RecurringOverviewView: View {
             }
 
             if viewModel.filteredTemplates.isEmpty {
-                emptyTemplatesView(showPaused: viewModel.showPausedTemplates)
+                StyledEmptyTemplatesView(showPaused: viewModel.showPausedTemplates)
             } else {
                 ForEach(viewModel.filteredTemplates, id: \.id) { template in
-                    RecurringTemplateCard(
+                    StyledRecurringTemplateCard(
                         template: template,
                         onPause: {
                             Task {
@@ -188,27 +200,6 @@ struct RecurringOverviewView: View {
                     )
                 }
             }
-        }
-    }
-
-    @ViewBuilder
-    private func emptyTemplatesView(showPaused: Bool) -> some View {
-        Card.glass {
-            VStack(spacing: Spacing.md) {
-                Image(systemName: showPaused ? "pause.circle" : "repeat.circle")
-                    .font(.system(size: 48))
-                    .foregroundStyle(.secondary)
-
-                Text(showPaused ? L10n.Recurring.pausedTemplates.localized : L10n.Recurring.noTemplates.localized)
-                    .font(Typography.headline)
-
-                Text(showPaused ? "" : L10n.Recurring.noTemplatesMessage.localized)
-                    .font(Typography.subheadline)
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, Spacing.xl)
         }
     }
 

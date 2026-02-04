@@ -15,19 +15,79 @@ import SwiftUI
 /// - Month Summary donut chart
 ///
 /// Visual Design:
-/// - Uses LuxuryHomeBackground for sophisticated, premium aesthetic
-/// - Enhanced card shadows and glass effects for depth
-/// - Subtle gradients on cards for visual hierarchy
-/// - Animated ambient effects for premium feel
+/// - Adapts to current UI style (Midnight Aurora, Paper Minimal, Warm Finance)
+/// - Midnight Aurora: LuxuryHomeBackground with glass effects
+/// - Paper Minimal: Flat solid background with sharp corners
+/// - Warm Finance: Warm gradient with soft shadows
 struct HomeView: View {
+
+    // MARK: - Typography Hierarchy
+    // Standardized font definitions for consistent visual hierarchy across all cards/sections
+
+    /// Level 1: Section/Card Titles (e.g., "Do zaplaty w ciagu 7 dni", "Zalegle", "Cykliczne")
+    private var sectionTitleFont: Font { .system(size: 12, weight: .medium) }
+    private var sectionTitleTracking: CGFloat { currentStyle == .midnightAurora ? 0.5 : 0 }
+
+    /// Level 2: Primary Content/Body Text (e.g., "Brak nadchodzacych platnosci", empty states)
+    private var bodyFont: Font { .system(size: 13) }
+
+    /// Level 3: Large Numbers/Amounts (hero amounts, overdue amounts, recurring counts)
+    private func heroNumberFont(design: Font.Design) -> Font {
+        .system(size: 24, weight: .medium, design: design).monospacedDigit()
+    }
+
+    /// Level 4: Subtitles/Secondary Info (e.g., "Wszystko oplacone", recurring subtitle)
+    private var subtitleFont: Font { .system(size: 13) }
+
+    /// Level 5: Button Text (e.g., "Sprawdz", "Zarzadzaj")
+    private var buttonFont: Font { .system(size: 13, weight: .medium) }
+
+    /// Level 6: Section Header Icons
+    private var sectionIconFont: Font { .system(size: 12) }
+
+    /// Level 7: Payment Row - Vendor Name (primary row text)
+    private var paymentRowPrimaryFont: Font { .system(size: 16, weight: .medium) }
+
+    /// Level 8: Payment Row - Due Info (secondary row text)
+    private var paymentRowSecondaryFont: Font { .system(size: 13) }
+
+    /// Level 9: Payment Row - Amount
+    private func paymentRowAmountFont(design: Font.Design) -> Font {
+        .system(size: 17, weight: .medium, design: design).monospacedDigit()
+    }
+
+    /// Level 10: Stat Row Labels/Values (month summary)
+    private var statFont: Font { Typography.caption1 }
+    private var statBoldFont: Font { Typography.caption1.weight(.bold).monospacedDigit() }
+
+    /// Level 11: Info/Footnote Text
+    private var footnoteFont: Font { Typography.footnote }
+
+    /// Level 12: Recurring Tile Content Font (14pt, 2 points larger than section title)
+    /// Used for company names and active counts in the recurring tile
+    private var recurringTileContentFont: Font { .system(size: 14, weight: .medium) }
 
     @Environment(AppEnvironment.self) private var environment
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
     @Environment(\.colorScheme) private var colorScheme
 
+    /// Current UI style from settings
+    private var currentStyle: UIStyleProposal {
+        environment.settingsManager.uiStyleHome
+    }
+
+    /// Design tokens for the current style
+    private var tokens: UIStyleTokens {
+        UIStyleTokens(style: currentStyle)
+    }
+
     @State private var viewModel: HomeViewModel?
     @State private var appeared = false
+
+    /// External trigger from MainTabView to refresh after adding documents.
+    /// When this value changes, HomeView reloads its metrics.
+    var refreshTrigger: Int = 0
 
     /// Callback for navigating to Documents tab
     var onNavigateToDocuments: (() -> Void)?
@@ -37,6 +97,9 @@ struct HomeView: View {
 
     /// Callback for navigating to scan/add document
     var onNavigateToScan: (() -> Void)?
+
+    /// State for showing the RecurringOverviewView sheet
+    @State private var showRecurringOverview: Bool = false
 
     var body: some View {
         NavigationStack {
@@ -50,6 +113,12 @@ struct HomeView: View {
             }
             .navigationTitle("")
             .navigationBarTitleDisplayMode(.inline)
+        }
+        .onChange(of: refreshTrigger) { _, _ in
+            // CRITICAL: Reload metrics when refresh is triggered (e.g., after adding a document)
+            Task {
+                await viewModel?.loadMetrics()
+            }
         }
         .task {
             setupViewModel()
@@ -139,9 +208,10 @@ struct HomeView: View {
         }
         .scrollIndicators(.hidden)
         .background {
-            // Luxury sophisticated background with animated effects
-            LuxuryHomeBackground()
+            // Style-aware background
+            StyledHomeBackground()
         }
+        .environment(\.uiStyle, currentStyle)
         .refreshable {
             await viewModel.loadMetrics()
         }
@@ -159,9 +229,10 @@ struct HomeView: View {
                 .padding()
             }
         }
-        .navigationDestination(for: FinanceDocument.self) { document in
-            DocumentDetailView(documentId: document.id)
+        .navigationDestination(for: DocumentNavigationValue.self) { navValue in
+            DocumentDetailView(documentId: navValue.documentId)
                 .environment(environment)
+                .environment(\.uiStyle, currentStyle)
         }
     }
 
@@ -170,55 +241,41 @@ struct HomeView: View {
     @ViewBuilder
     private func heroCard(viewModel: HomeViewModel) -> some View {
         VStack(alignment: .leading, spacing: Spacing.md) {
-            // Title with icon for premium feel
+            // Title with icon - LEVEL 1: Section Title
             HStack(spacing: Spacing.xs) {
                 Image(systemName: "calendar.badge.clock")
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundStyle(AppColors.primary.opacity(0.8))
+                    .font(sectionIconFont)
+                    .foregroundStyle(currentStyle == .midnightAurora ? AuroraPalette.accentBlue : tokens.primaryColor(for: colorScheme).opacity(0.8))
 
                 Text(L10n.Home.dueIn7Days.localized)
-                    .font(Typography.headline)
-                    .foregroundStyle(.secondary)
+                    .font(sectionTitleFont)
+                    .tracking(sectionTitleTracking)
+                    .foregroundStyle(tokens.textSecondaryColor(for: colorScheme))
             }
 
             if viewModel.state.hasUpcomingPayments {
-                // Amount with gradient effect
-                Text(viewModel.formattedHeroAmount)
-                    .font(.system(size: 44, weight: .bold, design: .rounded))
-                    .foregroundStyle(
-                        LinearGradient(
-                            colors: [
-                                .primary,
-                                colorScheme == .light
-                                    ? Color(red: 0.15, green: 0.35, blue: 0.65)
-                                    : Color(red: 0.5, green: 0.7, blue: 1.0)
-                            ],
-                            startPoint: .leading,
-                            endPoint: .trailing
-                        )
-                    )
-                    .minimumScaleFactor(0.7)
-                    .lineLimit(1)
+                // Amount with style-appropriate treatment - LEVEL 3: Large Numbers (handled by StyledHomeHeroAmount)
+                StyledHomeHeroAmount(amount: viewModel.formattedHeroAmount)
 
-                // Subtitle
+                // Subtitle - LEVEL 4: Subtitles/Secondary Info
                 Text(viewModel.heroSubtitle)
-                    .font(Typography.subheadline)
-                    .foregroundStyle(.secondary)
+                    .font(subtitleFont)
+                    .foregroundStyle(tokens.textSecondaryColor(for: colorScheme))
 
-                // Status capsules with enhanced styling
+                // Status capsules with styled appearance
                 if viewModel.state.overdueCount > 0 || viewModel.state.dueSoonCount > 0 {
                     HStack(spacing: Spacing.xs) {
                         if viewModel.state.overdueCount > 0 {
-                            luxuryStatusCapsule(
+                            StyledHomeStatusCapsule(
                                 text: String.localized(L10n.Home.overdue, with: viewModel.state.overdueCount),
-                                color: AppColors.error
+                                color: tokens.errorColor(for: colorScheme)
                             )
                         }
 
                         if viewModel.state.dueSoonCount > 0 {
-                            luxuryStatusCapsule(
+                            StyledHomeStatusCapsule(
                                 text: String.localized(L10n.Home.dueSoon, with: viewModel.state.dueSoonCount),
-                                color: AppColors.warning
+                                color: tokens.warningColor(for: colorScheme)
                             )
                         }
                     }
@@ -229,339 +286,319 @@ struct HomeView: View {
                     HStack(spacing: Spacing.xs) {
                         Image(systemName: "checkmark.seal.fill")
                             .font(.title2)
-                            .foregroundStyle(AppColors.success)
+                            .foregroundStyle(tokens.successColor(for: colorScheme))
 
+                        // LEVEL 2: Primary Content/Body Text
                         Text(L10n.Home.noUpcoming.localized)
-                            .font(Typography.title3)
-                            .foregroundStyle(.primary)
+                            .font(bodyFont)
+                            .foregroundStyle(tokens.textPrimaryColor(for: colorScheme))
                     }
 
+                    // LEVEL 4: Subtitles/Secondary Info
                     Text(L10n.Home.allSet.localized)
-                        .font(Typography.subheadline)
-                        .foregroundStyle(.secondary)
+                        .font(subtitleFont)
+                        .foregroundStyle(tokens.textSecondaryColor(for: colorScheme))
                 }
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(Spacing.lg)
+        .padding(tokens.cardPadding)
         .background {
-            LuxuryCardBackground(accentColor: AppColors.primary, style: .hero)
+            StyledHomeCardBackground(accentColor: tokens.primaryColor(for: colorScheme), cardType: .hero)
         }
-        .clipShape(RoundedRectangle(cornerRadius: CornerRadius.xl, style: .continuous))
-        .luxuryCardBorder(accentColor: AppColors.primary, cornerRadius: CornerRadius.xl)
-        .luxuryCardShadow(accentColor: AppColors.primary, intensity: .high)
-    }
-
-    /// Luxury status capsule with gradient background, inner glow, and shadow
-    private func luxuryStatusCapsule(text: String, color: Color) -> some View {
-        HStack(spacing: Spacing.xxs) {
-            // Animated indicator dot
-            Circle()
-                .fill(color)
-                .frame(width: 6, height: 6)
-                .shadow(color: color.opacity(0.6), radius: 2)
-
-            Text(text)
-                .font(Typography.caption1.weight(.semibold))
-                .foregroundStyle(color)
-        }
-        .padding(.horizontal, Spacing.sm)
-        .padding(.vertical, Spacing.xs)
-        .background {
-            Capsule()
-                .fill(
-                    LinearGradient(
-                        colors: [
-                            color.opacity(colorScheme == .light ? 0.15 : 0.25),
-                            color.opacity(colorScheme == .light ? 0.08 : 0.15)
-                        ],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                )
-                .overlay {
-                    // Inner glow
-                    Capsule()
-                        .strokeBorder(
-                            LinearGradient(
-                                colors: [
-                                    color.opacity(0.4),
-                                    color.opacity(0.1)
-                                ],
-                                startPoint: .top,
-                                endPoint: .bottom
-                            ),
-                            lineWidth: 1
-                        )
-                }
-        }
-        .shadow(color: color.opacity(0.2), radius: 4, y: 2)
+        .clipShape(RoundedRectangle(cornerRadius: tokens.cardCornerRadius, style: .continuous))
+        .modifier(HomeCardBorderModifier(tokens: tokens, accentColor: tokens.primaryColor(for: colorScheme)))
+        .modifier(HomeCardShadowModifier(tokens: tokens, accentColor: tokens.primaryColor(for: colorScheme), cardType: .hero))
     }
 
     // MARK: - Tile Row
 
+    /// Fixed tile height for visual consistency.
+    /// Both tiles maintain this height regardless of content state.
+    private let tileHeight: CGFloat = 160
+
     @ViewBuilder
     private func tileRow(viewModel: HomeViewModel) -> some View {
-        HStack(spacing: Spacing.sm) {
-            // Overdue Tile
+        HStack(alignment: .top, spacing: Spacing.sm) {
+            // Overdue Tile - strict height constraint
             overdueTile(viewModel: viewModel)
+                .frame(minHeight: tileHeight, maxHeight: tileHeight)
 
-            // Recurring Tile
+            // Recurring Tile - strict height constraint
             recurringTile(viewModel: viewModel)
+                .frame(minHeight: tileHeight, maxHeight: tileHeight)
         }
     }
 
     @ViewBuilder
     private func overdueTile(viewModel: HomeViewModel) -> some View {
-        let accentColor = viewModel.state.isOverdueClear ? AppColors.success : AppColors.error
+        let accentColor = viewModel.state.isOverdueClear
+            ? tokens.successColor(for: colorScheme)
+            : tokens.errorColor(for: colorScheme)
 
-        VStack(alignment: .leading, spacing: Spacing.sm) {
-            // Title with icon
+        VStack(alignment: .leading, spacing: 0) {
+            // Title with icon - LEVEL 1: Section Title
             HStack(spacing: Spacing.xs) {
                 Image(systemName: "exclamationmark.triangle.fill")
-                    .font(.system(size: 12, weight: .semibold))
-                    .foregroundStyle(accentColor.opacity(0.7))
+                    .font(sectionIconFont)
+                    .foregroundStyle(accentColor)
 
                 Text(L10n.Home.overdueTitle.localized)
-                    .font(Typography.headline)
-                    .foregroundStyle(.primary)
+                    .font(sectionTitleFont)
+                    .tracking(sectionTitleTracking)
+                    .foregroundStyle(tokens.textPrimaryColor(for: colorScheme))
             }
+            .padding(.bottom, Spacing.sm)
 
             if viewModel.state.isOverdueClear {
                 HStack(spacing: Spacing.xs) {
                     Image(systemName: "checkmark.circle.fill")
-                        .foregroundStyle(AppColors.success)
+                        .foregroundStyle(tokens.successColor(for: colorScheme))
+                    // LEVEL 2: Primary Content/Body Text
                     Text(L10n.Home.allClear.localized)
-                        .font(Typography.body)
-                        .foregroundStyle(.secondary)
+                        .font(bodyFont)
+                        .foregroundStyle(tokens.textSecondaryColor(for: colorScheme))
                 }
             } else {
+                // LEVEL 3: Large Numbers/Amounts
                 Text(viewModel.formattedOverdueAmount)
-                    .font(Typography.title2)
-                    .foregroundStyle(AppColors.error)
+                    .font(heroNumberFont(design: tokens.heroNumberDesign))
+                    .foregroundStyle(tokens.errorColor(for: colorScheme))
                     .minimumScaleFactor(0.7)
                     .lineLimit(1)
+                    .padding(.bottom, 4)
 
+                // LEVEL 4: Subtitles/Secondary Info
                 if let subtitle = viewModel.overdueSubtitle {
                     Text(subtitle)
-                        .font(Typography.caption1)
-                        .foregroundStyle(.secondary)
+                        .font(subtitleFont)
+                        .foregroundStyle(tokens.textSecondaryColor(for: colorScheme))
+                        .lineLimit(1)
                 }
+            }
 
-                Spacer()
+            Spacer(minLength: 0)
 
-                // Check CTA - prominent clickable button to navigate to overdue documents
+            // Check CTA - always show at bottom, hidden when clear
+            // LEVEL 5: Button Text
+            if !viewModel.state.isOverdueClear {
                 Button {
                     onNavigateToOverdue?()
                 } label: {
-                    HStack(spacing: Spacing.xs) {
+                    HStack(spacing: 4) {
                         Image(systemName: "checkmark.circle")
-                            .font(.system(size: 14, weight: .semibold))
+                            .font(buttonFont)
                         Text(L10n.Home.check.localized)
-                            .font(Typography.subheadline.weight(.semibold))
+                            .font(buttonFont)
                     }
                     .foregroundStyle(.white)
-                    .padding(.horizontal, Spacing.md)
-                    .padding(.vertical, Spacing.xs + 2)
-                    .background(
-                        LinearGradient(
-                            colors: [AppColors.error, AppColors.error.opacity(0.85)],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-                    .clipShape(Capsule())
-                    .shadow(color: AppColors.error.opacity(0.3), radius: 4, y: 2)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 8)
+                    .background(ctaButtonBackground(color: tokens.errorColor(for: colorScheme)))
+                    .clipShape(ctaButtonShape)
+                    .modifier(CTAButtonShadowModifier(tokens: tokens, color: tokens.errorColor(for: colorScheme)))
                 }
                 .buttonStyle(.plain)
             }
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .frame(minHeight: 130)
-        .padding(Spacing.md)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .padding(16)
         .background {
-            LuxuryCardBackground(accentColor: accentColor, style: .tile)
+            StyledHomeCardBackground(accentColor: accentColor, cardType: .tile)
         }
-        .clipShape(RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous))
-        .luxuryCardBorder(accentColor: accentColor, cornerRadius: CornerRadius.lg)
-        .luxuryCardShadow(accentColor: accentColor, intensity: .medium)
+        .clipShape(RoundedRectangle(cornerRadius: tokens.cardCornerRadius, style: .continuous))
+        .modifier(HomeCardBorderModifier(tokens: tokens, accentColor: accentColor))
+        .modifier(HomeCardShadowModifier(tokens: tokens, accentColor: accentColor, cardType: .tile))
     }
 
     @ViewBuilder
     private func recurringTile(viewModel: HomeViewModel) -> some View {
-        VStack(alignment: .leading, spacing: Spacing.sm) {
-            // Title with icon
-            HStack(spacing: Spacing.xs) {
+        let accentColor = tokens.primaryColor(for: colorScheme)
+
+        VStack(alignment: .leading, spacing: 0) {
+            // Line 1: Title with icon - LEVEL 1: Section Title (12pt)
+            HStack(spacing: 6) {
                 Image(systemName: "arrow.triangle.2.circlepath")
-                    .font(.system(size: 12, weight: .semibold))
-                    .foregroundStyle(AppColors.primary.opacity(0.7))
+                    .font(sectionIconFont)
+                    .foregroundStyle(currentStyle == .midnightAurora ? AuroraPalette.accentBlue : accentColor)
 
                 Text(L10n.Home.recurringTitle.localized)
-                    .font(Typography.headline)
-                    .foregroundStyle(.primary)
+                    .font(sectionTitleFont)
+                    .tracking(sectionTitleTracking)
+                    .foregroundStyle(tokens.textPrimaryColor(for: colorScheme))
             }
+            .padding(.bottom, Spacing.sm)
 
             if viewModel.state.hasNoRecurringTemplates {
+                // Empty state
                 Text(L10n.Home.setupRecurring.localized)
-                    .font(Typography.caption1)
-                    .foregroundStyle(.secondary)
-
-                Spacer()
-
-                // Setup CTA with enhanced styling
-                Button {
-                    // Navigate to recurring setup
-                } label: {
-                    HStack(spacing: Spacing.xxs) {
-                        Text(L10n.Home.manage.localized)
-                        Image(systemName: "chevron.right")
-                            .font(.caption2.weight(.bold))
-                    }
-                    .font(Typography.caption1.weight(.semibold))
-                    .foregroundStyle(AppColors.primary)
-                }
+                    .font(bodyFont)
+                    .foregroundStyle(tokens.textSecondaryColor(for: colorScheme))
+                    .lineLimit(2)
             } else {
-                Text(viewModel.recurringBodyText)
-                    .font(Typography.body)
-                    .foregroundStyle(.primary)
+                // Line 2: Active count (14pt medium) - e.g., "Aktywne: 2"
+                Text(viewModel.recurringActiveCountText)
+                    .font(recurringTileContentFont)
+                    .foregroundStyle(tokens.textPrimaryColor(for: colorScheme))
+                    .lineLimit(1)
+                    .padding(.bottom, 4)
 
-                if let subtitle = viewModel.recurringSubtitle {
-                    Text(subtitle)
-                        .font(Typography.caption1)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(2)
+                // Line 3: Next vendor (13pt) - e.g., "Nastepna: Lantech"
+                if let nextVendor = viewModel.recurringNextVendorText {
+                    Text(nextVendor)
+                        .font(subtitleFont)
+                        .foregroundStyle(tokens.textSecondaryColor(for: colorScheme))
+                        .lineLimit(1)
                 }
 
+                // Line 4: Days until (13pt) - e.g., "Za 12 dni"
+                if let daysUntil = viewModel.recurringDaysUntilText {
+                    Text(daysUntil)
+                        .font(subtitleFont)
+                        .foregroundStyle(tokens.textSecondaryColor(for: colorScheme))
+                        .lineLimit(1)
+                }
+
+                // Warning: Missing recurring count (if any)
                 if viewModel.state.missingRecurringCount > 0 {
                     HStack(spacing: Spacing.xxs) {
                         Image(systemName: "exclamationmark.circle.fill")
                             .font(.caption2)
                         Text(String.localized(L10n.Home.missingCount, with: viewModel.state.missingRecurringCount))
                     }
-                    .font(Typography.caption1)
-                    .foregroundStyle(AppColors.warning)
-                }
-
-                Spacer()
-
-                // Manage CTA with enhanced styling
-                Button {
-                    // Navigate to recurring management
-                } label: {
-                    HStack(spacing: Spacing.xxs) {
-                        Text(L10n.Home.manage.localized)
-                        Image(systemName: "chevron.right")
-                            .font(.caption2.weight(.bold))
-                    }
-                    .font(Typography.caption1.weight(.semibold))
-                    .foregroundStyle(AppColors.primary)
+                    .font(statFont)
+                    .foregroundStyle(tokens.warningColor(for: colorScheme))
+                    .lineLimit(1)
+                    .padding(.top, 2)
                 }
             }
+
+            Spacer(minLength: 0)
+
+            // Manage CTA - always at bottom - LEVEL 5: Button Text
+            // Opens the RecurringOverviewView as a sheet
+            Button {
+                showRecurringOverview = true
+            } label: {
+                HStack(spacing: 4) {
+                    Text(L10n.Home.manage.localized)
+                        .font(buttonFont)
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 11, weight: .medium))
+                }
+                .foregroundStyle(currentStyle == .midnightAurora ? AuroraPalette.accentBlue : accentColor)
+            }
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .frame(minHeight: 130)
-        .padding(Spacing.md)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .padding(16)
         .background {
-            LuxuryCardBackground(accentColor: AppColors.primary, style: .tile)
+            StyledHomeCardBackground(accentColor: accentColor, cardType: .tile)
         }
-        .clipShape(RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous))
-        .luxuryCardBorder(accentColor: AppColors.primary, cornerRadius: CornerRadius.lg)
-        .luxuryCardShadow(accentColor: AppColors.primary, intensity: .medium)
+        .clipShape(RoundedRectangle(cornerRadius: tokens.cardCornerRadius, style: .continuous))
+        .modifier(HomeCardBorderModifier(tokens: tokens, accentColor: accentColor))
+        .modifier(HomeCardShadowModifier(tokens: tokens, accentColor: accentColor, cardType: .tile))
+        .sheet(isPresented: $showRecurringOverview) {
+            RecurringOverviewView()
+                .environment(environment)
+        }
     }
 
     // MARK: - Next Payments Section
 
     @ViewBuilder
     private func nextPaymentsSection(viewModel: HomeViewModel) -> some View {
+        let accentColor = currentStyle == .midnightAurora
+            ? AuroraPalette.accentBlue
+            : tokens.primaryColor(for: colorScheme)
+
         VStack(alignment: .leading, spacing: Spacing.sm) {
-            // Header with icon and "See All" button
+            // Header with icon and "See All" button - LEVEL 1: Section Title
             HStack {
-                HStack(spacing: Spacing.xs) {
+                HStack(spacing: 6) {
                     Image(systemName: "clock.fill")
-                        .font(.system(size: 13, weight: .semibold))
-                        .foregroundStyle(AppColors.primary.opacity(0.7))
+                        .font(sectionIconFont)
+                        .foregroundStyle(accentColor)
 
                     Text(L10n.Home.nextPayments.localized)
-                        .font(Typography.headline)
-                        .foregroundStyle(.primary)
+                        .font(sectionTitleFont)
+                        .tracking(sectionTitleTracking)
+                        .foregroundStyle(tokens.textPrimaryColor(for: colorScheme))
                 }
 
                 Spacer()
 
-                // "See All" button - navigates to Documents tab
+                // "See All" button - navigates to Documents tab - LEVEL 5: Button Text
                 Button {
                     onNavigateToDocuments?()
                 } label: {
-                    HStack(spacing: Spacing.xxs) {
+                    HStack(spacing: 4) {
                         Text(L10n.Home.seeAllUpcoming.localized)
-                            .font(Typography.caption1.weight(.semibold))
+                            .font(buttonFont)
                         Image(systemName: "chevron.right")
-                            .font(.caption2.weight(.bold))
+                            .font(.system(size: 10, weight: .medium))
                     }
-                    .foregroundStyle(AppColors.primary)
-                    .padding(.horizontal, Spacing.sm)
-                    .padding(.vertical, Spacing.xxs)
+                    .foregroundStyle(accentColor)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
                     .background {
-                        Capsule()
-                            .fill(AppColors.primary.opacity(colorScheme == .light ? 0.1 : 0.2))
+                        seeAllButtonBackground(color: accentColor)
                     }
                 }
                 .buttonStyle(.plain)
             }
-            .padding(.horizontal, Spacing.md)
+            .padding(.horizontal, tokens.cardPadding)
 
-            // Payment rows with enhanced styling and proper visual separation
+            // Payment rows with styled appearance
             VStack(spacing: 0) {
                 ForEach(Array(viewModel.state.nextPayments.enumerated()), id: \.element.id) { index, payment in
-                    NavigationLink(value: FinanceDocument(id: payment.documentId, title: payment.vendorName)) {
+                    NavigationLink(value: DocumentNavigationValue(documentId: payment.documentId)) {
                         paymentRow(payment: payment)
-                            .padding(.vertical, Spacing.sm) // Add vertical breathing room to each row
+                            .padding(.vertical, 10)
                     }
                     .buttonStyle(.plain)
 
-                    // Divider between rows (not after last)
+                    // Divider between rows (not after last) - matches demo line 406-408
                     if index < viewModel.state.nextPayments.count - 1 {
                         Divider()
-                            .background(colorScheme == .light ? Color.gray.opacity(0.2) : Color.white.opacity(0.1))
-                            .padding(.leading, Spacing.xl)
+                            .frame(height: 1)
+                            .background(currentStyle == .midnightAurora ? Color.white.opacity(0.15) : tokens.separatorColor(for: colorScheme))
+                            .padding(.leading, 40)
                     }
                 }
             }
-            .padding(.vertical, Spacing.xs) // Reduced outer padding since rows now have internal padding
-            .padding(.horizontal, Spacing.md)
+            .padding(12)
             .background {
-                LuxuryCardBackground(accentColor: nil, style: .standard)
+                StyledHomeCardBackground(accentColor: nil, cardType: .standard)
             }
-            .clipShape(RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous))
-            .luxuryCardBorder(accentColor: nil, cornerRadius: CornerRadius.lg)
-            .luxuryCardShadow(accentColor: nil, intensity: .medium)
+            .clipShape(RoundedRectangle(cornerRadius: tokens.cardCornerRadius, style: .continuous))
+            .modifier(HomeCardBorderModifier(tokens: tokens, accentColor: nil))
+            .modifier(HomeCardShadowModifier(tokens: tokens, accentColor: nil, cardType: .standard))
         }
     }
 
     @ViewBuilder
     private func paymentRow(payment: HomePaymentItem) -> some View {
-        HStack(alignment: .center, spacing: Spacing.sm) {
-            // Vendor name and due info - takes available space but allows amount to be consistent
-            VStack(alignment: .leading, spacing: Spacing.xxs) {
+        HStack(spacing: 12) {
+            // Vendor name and due info
+            VStack(alignment: .leading, spacing: 4) {
+                // LEVEL 7: Payment Row - Vendor Name
                 Text(payment.vendorName)
-                    .font(Typography.body)
-                    .foregroundStyle(.primary)
+                    .font(paymentRowPrimaryFont)
+                    .foregroundStyle(tokens.textPrimaryColor(for: colorScheme))
                     .lineLimit(1)
 
-                // Due info
+                // LEVEL 8: Payment Row - Due Info
                 Text(dueDateLabel(for: payment))
-                    .font(Typography.caption1)
-                    .foregroundStyle(payment.isOverdue ? AppColors.error : .secondary)
+                    .font(paymentRowSecondaryFont)
+                    .foregroundStyle(payment.isOverdue ? tokens.errorColor(for: colorScheme) : tokens.textSecondaryColor(for: colorScheme))
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
 
-            // Amount - right-aligned with fixed minimum width for columnar alignment
+            Spacer()
+
+            // LEVEL 9: Payment Row - Amount
             Text(formatCurrency(payment.amount, currency: payment.currency))
-                .font(.system(size: 17, weight: .semibold, design: .rounded).monospacedDigit())
-                .foregroundStyle(.primary)
-                .frame(minWidth: 90, alignment: .trailing)
-                .lineLimit(1)
-                .minimumScaleFactor(0.8)
+                .font(paymentRowAmountFont(design: tokens.heroNumberDesign))
+                .foregroundStyle(tokens.textPrimaryColor(for: colorScheme))
         }
         .contentShape(Rectangle())
     }
@@ -580,20 +617,26 @@ struct HomeView: View {
 
     @ViewBuilder
     private func monthSummaryCard(viewModel: HomeViewModel) -> some View {
+        let accentColor = currentStyle == .midnightAurora
+            ? AuroraPalette.accentBlue
+            : tokens.primaryColor(for: colorScheme)
+
         VStack(alignment: .leading, spacing: Spacing.md) {
-            // Header with icon
+            // Header with icon - LEVEL 1: Section Title
             HStack(spacing: Spacing.xs) {
                 Image(systemName: "chart.pie.fill")
-                    .font(.system(size: 13, weight: .semibold))
-                    .foregroundStyle(AppColors.primary.opacity(0.7))
+                    .font(sectionIconFont)
+                    .foregroundStyle(accentColor.opacity(0.7))
 
                 Text(L10n.Home.thisMonth.localized)
-                    .font(Typography.headline)
-                    .foregroundStyle(.primary)
+                    .font(sectionTitleFont)
+                    .tracking(sectionTitleTracking)
+                    .foregroundStyle(tokens.textPrimaryColor(for: colorScheme))
 
                 Text("- \(L10n.Home.paymentStatus.localized)")
-                    .font(Typography.headline)
-                    .foregroundStyle(.secondary)
+                    .font(sectionTitleFont)
+                    .tracking(sectionTitleTracking)
+                    .foregroundStyle(tokens.textSecondaryColor(for: colorScheme))
             }
 
             // Content: Donut + Stats
@@ -607,75 +650,88 @@ struct HomeView: View {
                     totalCount: viewModel.state.monthTotalCount
                 )
 
-                // Stats column with enhanced styling
+                // Stats column with styled appearance - LEVEL 10: Stat Row Labels/Values
                 VStack(alignment: .leading, spacing: Spacing.sm) {
-                    luxuryStatRow(
+                    styledStatRow(
                         label: L10n.Home.Donut.paid.localized,
                         value: "\(viewModel.state.monthPaidCount)",
-                        color: AppColors.success
+                        color: tokens.successColor(for: colorScheme)
                     )
-                    luxuryStatRow(
+                    styledStatRow(
                         label: L10n.Home.Donut.due.localized,
                         value: "\(viewModel.state.monthDueCount)",
-                        color: AppColors.warning
+                        color: tokens.warningColor(for: colorScheme)
                     )
-                    luxuryStatRow(
+                    styledStatRow(
                         label: L10n.Home.Donut.overdue.localized,
                         value: "\(viewModel.state.monthOverdueCount)",
-                        color: AppColors.error
+                        color: tokens.errorColor(for: colorScheme)
                     )
                 }
             }
 
-            // Bottom line: unpaid total with enhanced styling
+            // Bottom line: unpaid total - LEVEL 11: Info/Footnote Text
             if viewModel.state.monthUnpaidTotal > 0 {
                 HStack(spacing: Spacing.xs) {
                     Image(systemName: "info.circle")
                         .font(.caption2)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(tokens.textSecondaryColor(for: colorScheme))
 
                     Text(String.localized(L10n.Home.unpaidTotal, with: viewModel.formattedMonthUnpaidTotal))
-                        .font(Typography.footnote)
-                        .foregroundStyle(.secondary)
+                        .font(footnoteFont)
+                        .foregroundStyle(tokens.textSecondaryColor(for: colorScheme))
                 }
                 .padding(.top, Spacing.xxs)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(Spacing.lg)
+        .padding(tokens.cardPadding)
         .background {
-            LuxuryCardBackground(accentColor: nil, style: .standard)
+            StyledHomeCardBackground(accentColor: nil, cardType: .standard)
         }
-        .clipShape(RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous))
-        .luxuryCardBorder(accentColor: nil, cornerRadius: CornerRadius.lg)
-        .luxuryCardShadow(accentColor: nil, intensity: .medium)
+        .clipShape(RoundedRectangle(cornerRadius: tokens.cardCornerRadius, style: .continuous))
+        .modifier(HomeCardBorderModifier(tokens: tokens, accentColor: nil))
+        .modifier(HomeCardShadowModifier(tokens: tokens, accentColor: nil, cardType: .standard))
     }
 
-    /// Luxury stat row with enhanced visual styling and glowing indicator
+    /// Styled stat row that adapts to current UI style - LEVEL 10: Stat Row Labels/Values
     @ViewBuilder
-    private func luxuryStatRow(label: String, value: String, color: Color) -> some View {
+    private func styledStatRow(label: String, value: String, color: Color) -> some View {
         HStack(spacing: Spacing.xs) {
-            // Color indicator with glow effect
-            ZStack {
-                Circle()
-                    .fill(color.opacity(0.3))
-                    .frame(width: 16, height: 16)
+            // Color indicator - style-dependent
+            if currentStyle == .midnightAurora {
+                // Glow effect for Midnight Aurora
+                ZStack {
+                    Circle()
+                        .fill(color.opacity(0.3))
+                        .frame(width: 16, height: 16)
 
+                    Circle()
+                        .fill(color)
+                        .frame(width: 8, height: 8)
+                        .shadow(color: color.opacity(0.5), radius: 2)
+                }
+            } else if currentStyle == .paperMinimal {
+                // Simple line for Paper Minimal
+                Rectangle()
+                    .fill(color)
+                    .frame(width: 12, height: 2)
+            } else {
+                // Filled circle for Warm Finance
                 Circle()
                     .fill(color)
-                    .frame(width: 8, height: 8)
-                    .shadow(color: color.opacity(0.5), radius: 2)
+                    .frame(width: 10, height: 10)
             }
 
             Text(label)
-                .font(Typography.caption1)
-                .foregroundStyle(.secondary)
+                .font(statFont)
+                .foregroundStyle(tokens.textSecondaryColor(for: colorScheme))
 
             Spacer()
 
             Text(value)
-                .font(Typography.caption1.weight(.bold).monospacedDigit())
-                .foregroundStyle(.primary)
+                .font(statBoldFont)
+                .foregroundStyle(tokens.textPrimaryColor(for: colorScheme))
         }
     }
 
@@ -683,37 +739,43 @@ struct HomeView: View {
 
     @ViewBuilder
     private var emptyState: some View {
+        let accentColor = currentStyle == .midnightAurora
+            ? AuroraPalette.accentBlue
+            : tokens.primaryColor(for: colorScheme)
+
         VStack(spacing: Spacing.xl) {
             Spacer()
 
             // Icon with glow effect
             ZStack {
                 Circle()
-                    .fill(AppColors.primary.opacity(0.15))
+                    .fill(accentColor.opacity(0.15))
                     .frame(width: 120, height: 120)
                     .blur(radius: 20)
 
                 Circle()
-                    .fill(AppColors.primary.opacity(0.1))
+                    .fill(accentColor.opacity(0.1))
                     .frame(width: 100, height: 100)
 
                 Image(systemName: "doc.text.magnifyingglass")
                     .font(.system(size: 40, weight: .light))
-                    .foregroundStyle(AppColors.primary.opacity(0.7))
+                    .foregroundStyle(accentColor.opacity(0.7))
             }
 
             VStack(spacing: Spacing.sm) {
+                // LEVEL 2: Primary Content/Body Text (empty state title is more prominent)
                 Text(L10n.Home.noPaymentsTitle.localized)
-                    .font(Typography.title3)
-                    .foregroundStyle(.primary)
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundStyle(tokens.textPrimaryColor(for: colorScheme))
 
+                // LEVEL 2: Primary Content/Body Text
                 Text(L10n.Home.noPaymentsMessage.localized)
-                    .font(Typography.body)
-                    .foregroundStyle(.secondary)
+                    .font(bodyFont)
+                    .foregroundStyle(tokens.textSecondaryColor(for: colorScheme))
                     .multilineTextAlignment(.center)
             }
 
-            // Link to scan
+            // Link to scan - LEVEL 5: Button Text
             Button {
                 onNavigateToScan?()
             } label: {
@@ -721,8 +783,8 @@ struct HomeView: View {
                     Image(systemName: "doc.viewfinder")
                     Text(L10n.Home.goToScan.localized)
                 }
-                .font(Typography.body.weight(.medium))
-                .foregroundStyle(AppColors.primary)
+                .font(buttonFont)
+                .foregroundStyle(accentColor)
             }
 
             Spacer()
@@ -737,14 +799,14 @@ struct HomeView: View {
     @ViewBuilder
     private var headerLogo: some View {
         VStack(spacing: Spacing.xs) {
-            // Large handwritten logo
+            // Large style-aware logo
             LargeHomeHandwrittenLogo()
 
-            // Tagline
-            Text(L10n.App.tagline.localized)
-                .font(.system(size: 12, weight: .medium, design: .rounded))
-                .foregroundStyle(.secondary)
-                .tracking(1.2)
+            // Tagline - adapts font design to current style
+            Text(currentStyle == .midnightAurora ? L10n.Home.paymentTracker.localized : L10n.App.tagline.localized)
+                .font(.system(size: currentStyle == .midnightAurora ? 11 : 12, weight: .medium, design: currentStyle == .midnightAurora ? .default : .rounded))
+                .foregroundStyle(tokens.textSecondaryColor(for: colorScheme))
+                .tracking(currentStyle == .midnightAurora ? 3 : 1.2)
                 .textCase(.uppercase)
         }
         .frame(maxWidth: .infinity)
@@ -778,8 +840,10 @@ struct HomeView: View {
 
 // MARK: - Large Home Handwritten Logo Component
 
-/// Large prominent handwritten logo for the Home view scrolling header.
-/// Designed to be displayed at the top of the ScrollView content with strong brand presence.
+/// Large prominent logo for the Home view scrolling header.
+/// Adapts styling based on the current UI style:
+/// - Midnight Aurora: Clean gradient text without rotation (matches demo)
+/// - Other styles: Handwritten style with italic and rotation effects
 ///
 /// Accessibility:
 /// - Respects reduceTransparency: disables blur/shadow layers
@@ -790,10 +854,11 @@ struct LargeHomeHandwrittenLogo: View {
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.uiStyle) private var style
 
     @State private var scanPosition: CGFloat = -1.0
 
-    /// Logo gradient colors - sophisticated blue tones
+    /// Logo gradient colors - sophisticated blue tones (for non-Aurora styles)
     private var logoGradient: LinearGradient {
         LinearGradient(
             colors: [
@@ -814,6 +879,32 @@ struct LargeHomeHandwrittenLogo: View {
     }
 
     var body: some View {
+        if style == .midnightAurora {
+            // Midnight Aurora style: clean gradient logo without rotation (matches demo)
+            midnightAuroraLogo
+        } else {
+            // Other styles: handwritten style with effects
+            handwrittenLogo
+        }
+    }
+
+    // MARK: - Midnight Aurora Logo (matches demo)
+
+    private var midnightAuroraLogo: some View {
+        HStack(alignment: .bottom, spacing: 2) {
+            Text("Du")
+                .font(.system(size: 42, weight: .medium, design: .default))
+                .foregroundStyle(AuroraGradients.logoDu)
+
+            Text("Easy")
+                .font(.system(size: 42, weight: .light, design: .default))
+                .foregroundStyle(AuroraGradients.logoEasy)
+        }
+    }
+
+    // MARK: - Handwritten Logo (for other styles)
+
+    private var handwrittenLogo: some View {
         ZStack {
             // Layer 1: Soft shadow for depth
             if !reduceTransparency {
@@ -989,6 +1080,138 @@ struct HomeHandwrittenLogo: View {
                 .offset(y: 1)
         }
         .kerning(-0.3)
+    }
+}
+
+// MARK: - Home Card Modifiers
+
+/// Border modifier that adapts to current style tokens
+/// NOTE: For midnightAurora, EnhancedMidnightAuroraCard already includes a border,
+/// so we do NOT add another border here to avoid double borders.
+private struct HomeCardBorderModifier: ViewModifier {
+    let tokens: UIStyleTokens
+    let accentColor: Color?
+
+    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+
+    func body(content: Content) -> some View {
+        if reduceTransparency || !tokens.usesCardBorders {
+            content
+        } else {
+            switch tokens.style {
+            case .defaultStyle:
+                // Default style uses separate border modifier
+                content.luxuryCardBorder(accentColor: accentColor, cornerRadius: tokens.cardCornerRadius)
+
+            case .midnightAurora:
+                // EnhancedMidnightAuroraCard already has border built-in (Layer 4)
+                // Do NOT add another border to avoid double borders
+                content
+
+            case .paperMinimal:
+                content.overlay {
+                    RoundedRectangle(cornerRadius: tokens.cardCornerRadius, style: .continuous)
+                        .strokeBorder(tokens.cardBorderColor(for: colorScheme), lineWidth: 1)
+                }
+
+            case .warmFinance:
+                content
+            }
+        }
+    }
+}
+
+/// Shadow modifier that adapts to current style tokens
+private struct HomeCardShadowModifier: ViewModifier {
+    let tokens: UIStyleTokens
+    let accentColor: Color?
+    let cardType: StyledHomeCardBackground.CardType
+
+    @Environment(\.colorScheme) private var colorScheme
+
+    func body(content: Content) -> some View {
+        if !tokens.usesShadows {
+            content
+        } else {
+            switch tokens.style {
+            case .defaultStyle:
+                // Original luxury shadow
+                let intensity: LuxuryCardShadowModifier.ShadowIntensity = {
+                    switch cardType {
+                    case .hero: return .high
+                    case .tile, .standard: return .medium
+                    }
+                }()
+                content.luxuryCardShadow(accentColor: accentColor, intensity: intensity)
+
+            case .midnightAurora:
+                // ENHANCED dual shadow system (from demo)
+                content
+                    .shadow(color: Color.black.opacity(0.4), radius: 12, y: 6)
+                    .shadow(color: (accentColor ?? Color.blue).opacity(0.25), radius: 20, y: 10)
+
+            case .paperMinimal:
+                content
+
+            case .warmFinance:
+                let shadow = tokens.cardShadow(for: colorScheme)
+                content.shadow(color: shadow.color, radius: shadow.radius, y: shadow.y)
+            }
+        }
+    }
+}
+
+/// CTA button shadow modifier
+private struct CTAButtonShadowModifier: ViewModifier {
+    let tokens: UIStyleTokens
+    let color: Color
+
+    func body(content: Content) -> some View {
+        if tokens.usesShadows {
+            content.shadow(color: color.opacity(0.3), radius: 4, y: 2)
+        } else {
+            content
+        }
+    }
+}
+
+// MARK: - Home View Helper Views
+
+extension HomeView {
+    /// CTA button background based on style
+    @ViewBuilder
+    func ctaButtonBackground(color: Color) -> some View {
+        if currentStyle == .paperMinimal {
+            color
+        } else {
+            LinearGradient(
+                colors: [color, color.opacity(0.85)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        }
+    }
+
+    /// CTA button shape based on style
+    var ctaButtonShape: AnyShape {
+        if currentStyle == .paperMinimal {
+            AnyShape(RoundedRectangle(cornerRadius: tokens.buttonCornerRadius, style: .continuous))
+        } else {
+            AnyShape(Capsule())
+        }
+    }
+
+    /// "See All" button background based on style
+    @ViewBuilder
+    func seeAllButtonBackground(color: Color) -> some View {
+        if currentStyle == .paperMinimal {
+            RoundedRectangle(cornerRadius: tokens.badgeCornerRadius)
+                .fill(color.opacity(colorScheme == .light ? 0.08 : 0.15))
+        } else {
+            Capsule()
+                .fill(color.opacity(colorScheme == .light ? 0.1 : 0.2))
+        }
     }
 }
 

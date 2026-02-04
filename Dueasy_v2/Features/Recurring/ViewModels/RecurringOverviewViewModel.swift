@@ -66,7 +66,18 @@ final class RecurringOverviewViewModel {
         do {
             // Load templates
             templates = try await templateService.fetchAllTemplates()
-            logger.info("Loaded \(self.templates.count) recurring templates")
+
+            // Enhanced logging for debugging "7 of 9" issue
+            let activeCount = templates.filter { $0.isActive }.count
+            let pausedCount = templates.filter { !$0.isActive }.count
+            logger.info("[RecurringOverview] Total templates fetched: \(self.templates.count)")
+            logger.info("[RecurringOverview] Active templates: \(activeCount), Paused templates: \(pausedCount)")
+
+            // Log each template's basic info for debugging (without sensitive data)
+            for (index, template) in templates.enumerated() {
+                let fpPrefix = String(template.vendorFingerprint.prefix(8))
+                logger.debug("[RecurringOverview] Template \(index + 1): id=\(template.id), fingerprint=\(fpPrefix)..., isActive=\(template.isActive)")
+            }
 
             // Load upcoming instances
             let instances = try await schedulerService.fetchUpcomingInstances(limit: 10)

@@ -10,6 +10,7 @@ struct DocumentReviewView: View {
     @Environment(AppEnvironment.self) private var environment
     @Environment(\.dismiss) private var dismiss
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.uiStyle) private var uiStyle
 
     @State private var viewModel: DocumentReviewViewModel
     @State private var showPermissionAlert = false
@@ -20,6 +21,11 @@ struct DocumentReviewView: View {
 
     let onSave: () -> Void
     let onDismiss: ((_ saved: Bool) -> Void)?
+
+    /// Whether Aurora style is active
+    private var isAurora: Bool {
+        uiStyle == .midnightAurora
+    }
 
     init(
         document: FinanceDocument,
@@ -119,7 +125,7 @@ struct DocumentReviewView: View {
             .scrollIndicators(.hidden)
             .scrollContentBackground(.hidden)
             .background {
-                GradientBackgroundFixed()
+                StyledDetailViewBackground()
             }
             .navigationTitle(L10n.Review.title.localized)
             .navigationBarTitleDisplayMode(.inline)
@@ -153,19 +159,38 @@ struct DocumentReviewView: View {
                 appeared = true
             }
         }
+        .sheet(isPresented: $viewModel.showFuzzyMatchSheet) {
+            RecurringFuzzyMatchConfirmationSheet(
+                candidates: viewModel.fuzzyMatchCandidates,
+                newAmount: viewModel.amountDecimal ?? 0,
+                currency: viewModel.currency,
+                onSameService: { templateId in
+                    viewModel.handleFuzzyMatchSameService(templateId: templateId)
+                },
+                onDifferentService: {
+                    viewModel.handleFuzzyMatchDifferentService()
+                },
+                onCancel: {
+                    viewModel.handleFuzzyMatchCancel()
+                }
+            )
+            .presentationDetents([.medium, .large])
+            .presentationDragIndicator(.visible)
+        }
     }
 
     // MARK: - Permission Prompt
 
     @ViewBuilder
     private var permissionPrompt: some View {
-        Card.glass {
+        StyledGlassCard {
             VStack(alignment: .leading, spacing: Spacing.sm) {
                 HStack(spacing: Spacing.sm) {
                     Image(systemName: "exclamationmark.triangle.fill")
                         .foregroundStyle(.orange)
                     Text(L10n.Review.permissionsNeeded.localized)
                         .font(Typography.headline)
+                        .foregroundStyle(isAurora ? Color.white : .primary)
                 }
 
                 VStack(alignment: .leading, spacing: Spacing.xs) {
@@ -176,7 +201,7 @@ struct DocumentReviewView: View {
                             Text(L10n.Review.calendarPermissionNeeded.localized)
                                 .font(Typography.caption1)
                         }
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(isAurora ? Color.white.opacity(0.6) : .secondary)
                     }
 
                     if !viewModel.notificationPermissionGranted {
@@ -186,7 +211,7 @@ struct DocumentReviewView: View {
                             Text(L10n.Review.notificationPermissionNeeded.localized)
                                 .font(Typography.caption1)
                         }
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(isAurora ? Color.white.opacity(0.6) : .secondary)
                     }
                 }
 
@@ -200,13 +225,14 @@ struct DocumentReviewView: View {
                             if viewModel.isRequestingPermissions {
                                 ProgressView()
                                     .scaleEffect(0.8)
+                                    .tint(isAurora ? Color.white : nil)
                             }
                             Text(L10n.Review.grantPermissions.localized)
                         }
                         .font(Typography.subheadline.weight(.semibold))
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, Spacing.sm)
-                        .background(AppColors.primary)
+                        .background(isAurora ? Color(red: 0.3, green: 0.5, blue: 1.0) : AppColors.primary)
                         .foregroundStyle(.white)
                         .clipShape(RoundedRectangle(cornerRadius: CornerRadius.sm, style: .continuous))
                     }
@@ -234,7 +260,7 @@ struct DocumentReviewView: View {
 
                 if viewModel.images.count > 1 {
                     Text(L10n.Review.pagesScanned.localized(with: viewModel.images.count))
-                        .font(Typography.caption1)
+                        .font(Typography.stat)
                         .foregroundStyle(.secondary)
                 }
             }
@@ -245,17 +271,19 @@ struct DocumentReviewView: View {
 
     @ViewBuilder
     private var ocrProcessingView: some View {
-        Card.glass {
+        StyledGlassCard {
             HStack(spacing: Spacing.sm) {
                 ProgressView()
+                    .tint(isAurora ? Color.white : nil)
 
                 VStack(alignment: .leading, spacing: Spacing.xxs) {
                     Text(L10n.Review.analyzing.localized)
-                        .font(Typography.subheadline)
+                        .font(Typography.listRowPrimary)
+                        .foregroundStyle(isAurora ? Color.white : .primary)
 
                     Text(L10n.Review.analyzingSubtitle.localized)
-                        .font(Typography.caption1)
-                        .foregroundStyle(.secondary)
+                        .font(Typography.listRowSecondary)
+                        .foregroundStyle(isAurora ? Color.white.opacity(0.6) : .secondary)
                 }
 
                 Spacer()
@@ -636,7 +664,7 @@ struct DocumentReviewView: View {
             if viewModel.suggestedAmounts.count > 1 {
                 VStack(alignment: .leading, spacing: Spacing.xxs) {
                     Text(L10n.Review.detectedAmounts.localized)
-                        .font(Typography.caption1)
+                        .font(Typography.sectionTitle)
                         .foregroundStyle(.secondary)
 
                     ScrollView(.horizontal, showsIndicators: false) {
@@ -663,24 +691,26 @@ struct DocumentReviewView: View {
 
     @ViewBuilder
     private var calendarSettings: some View {
-        Card.glass {
+        StyledGlassCard {
             HStack(spacing: Spacing.sm) {
                 Image(systemName: "calendar.badge.plus")
                     .font(.title2)
-                    .foregroundStyle(AppColors.primary)
+                    .foregroundStyle(isAurora ? Color(red: 0.3, green: 0.5, blue: 1.0) : AppColors.primary)
 
                 VStack(alignment: .leading, spacing: Spacing.xxs) {
                     Text(L10n.Review.addToCalendarTitle.localized)
-                        .font(Typography.subheadline.weight(.semibold))
+                        .font(Typography.listRowPrimary)
+                        .foregroundStyle(isAurora ? Color.white : .primary)
                     Text(L10n.Review.addToCalendarDescription.localized)
-                        .font(Typography.caption1)
-                        .foregroundStyle(.secondary)
+                        .font(Typography.listRowSecondary)
+                        .foregroundStyle(isAurora ? Color.white.opacity(0.6) : .secondary)
                 }
 
                 Spacer()
 
                 Toggle("", isOn: $viewModel.addToCalendar)
                     .labelsHidden()
+                    .tint(isAurora ? Color(red: 0.3, green: 0.5, blue: 1.0) : nil)
             }
         }
     }
@@ -689,15 +719,15 @@ struct DocumentReviewView: View {
 
     @ViewBuilder
     private var reminderSettings: some View {
-        Card.glass {
+        StyledGlassCard {
             VStack(alignment: .leading, spacing: Spacing.sm) {
                 Label(L10n.Review.remindersTitle.localized, systemImage: "bell.fill")
-                    .font(Typography.headline)
-                    .foregroundStyle(AppColors.primary)
+                    .font(Typography.sectionTitle)
+                    .foregroundStyle(isAurora ? Color(red: 0.3, green: 0.5, blue: 1.0) : AppColors.primary)
 
                 FlowLayout(spacing: Spacing.xs) {
                     ForEach(SettingsManager.availableReminderOffsets, id: \.self) { offset in
-                        ReminderChip(
+                        StyledReminderChip(
                             offset: offset,
                             isSelected: viewModel.reminderOffsets.contains(offset)
                         ) {
@@ -713,7 +743,7 @@ struct DocumentReviewView: View {
 
     @ViewBuilder
     private var invoicePaidSettings: some View {
-        Card.glass {
+        StyledGlassCard {
             HStack(spacing: Spacing.sm) {
                 Image(systemName: "checkmark.circle.fill")
                     .font(.title2)
@@ -721,16 +751,18 @@ struct DocumentReviewView: View {
 
                 VStack(alignment: .leading, spacing: Spacing.xxs) {
                     Text(L10n.Review.markAsPaidTitle.localized)
-                        .font(Typography.subheadline.weight(.semibold))
+                        .font(Typography.listRowPrimary)
+                        .foregroundStyle(isAurora ? Color.white : .primary)
                     Text(L10n.Review.markAsPaidDescription.localized)
-                        .font(Typography.caption1)
-                        .foregroundStyle(.secondary)
+                        .font(Typography.listRowSecondary)
+                        .foregroundStyle(isAurora ? Color.white.opacity(0.6) : .secondary)
                 }
 
                 Spacer()
 
                 Toggle("", isOn: $viewModel.markAsPaid)
                     .labelsHidden()
+                    .tint(isAurora ? Color(red: 0.3, green: 0.5, blue: 1.0) : nil)
             }
         }
     }
@@ -739,19 +771,20 @@ struct DocumentReviewView: View {
 
     @ViewBuilder
     private var recurringPaymentSettings: some View {
-        Card.glass {
+        StyledGlassCard {
             VStack(alignment: .leading, spacing: Spacing.sm) {
                 HStack(spacing: Spacing.sm) {
                     Image(systemName: "repeat.circle.fill")
                         .font(.title2)
-                        .foregroundStyle(AppColors.primary)
+                        .foregroundStyle(isAurora ? Color(red: 0.3, green: 0.5, blue: 1.0) : AppColors.primary)
 
                     VStack(alignment: .leading, spacing: Spacing.xxs) {
                         Text(L10n.Recurring.toggleTitle.localized)
-                            .font(Typography.subheadline.weight(.semibold))
+                            .font(Typography.listRowPrimary)
+                            .foregroundStyle(isAurora ? Color.white : .primary)
                         Text(L10n.Recurring.toggleDescription.localized)
-                            .font(Typography.caption1)
-                            .foregroundStyle(.secondary)
+                            .font(Typography.listRowSecondary)
+                            .foregroundStyle(isAurora ? Color.white.opacity(0.6) : .secondary)
                     }
 
                     Spacer()
@@ -761,16 +794,17 @@ struct DocumentReviewView: View {
                         set: { viewModel.toggleRecurringPayment($0) }
                     ))
                     .labelsHidden()
+                    .tint(isAurora ? Color(red: 0.3, green: 0.5, blue: 1.0) : nil)
                 }
 
                 // Show warning if category is risky
                 if viewModel.showRecurringCategoryWarning {
                     HStack(spacing: Spacing.xs) {
                         Image(systemName: "exclamationmark.triangle.fill")
-                            .font(.caption)
+                            .font(Typography.sectionIcon)
                             .foregroundStyle(AppColors.warning)
                         Text(viewModel.recurringCategoryWarningMessage)
-                            .font(Typography.caption1)
+                            .font(Typography.stat)
                             .foregroundStyle(AppColors.warning)
                     }
                 }
@@ -780,20 +814,21 @@ struct DocumentReviewView: View {
 
     @ViewBuilder
     private var recurringDetailSettings: some View {
-        Card.glass {
+        StyledGlassCard {
             VStack(alignment: .leading, spacing: Spacing.sm) {
                 Label(L10n.Recurring.settingsTitle.localized, systemImage: "gearshape.fill")
-                    .font(Typography.headline)
-                    .foregroundStyle(AppColors.primary)
+                    .font(Typography.sectionTitle)
+                    .foregroundStyle(isAurora ? Color(red: 0.3, green: 0.5, blue: 1.0) : AppColors.primary)
 
                 // Tolerance days picker
                 HStack {
                     VStack(alignment: .leading, spacing: Spacing.xxs) {
                         Text(L10n.Recurring.toleranceDays.localized)
-                            .font(Typography.subheadline)
+                            .font(Typography.bodyText)
+                            .foregroundStyle(isAurora ? Color.white : .primary)
                         Text(L10n.Recurring.toleranceDaysDescription.localized)
-                            .font(Typography.caption1)
-                            .foregroundStyle(.secondary)
+                            .font(Typography.stat)
+                            .foregroundStyle(isAurora ? Color.white.opacity(0.6) : .secondary)
                     }
 
                     Spacer()
@@ -812,10 +847,11 @@ struct DocumentReviewView: View {
                 HStack {
                     VStack(alignment: .leading, spacing: Spacing.xxs) {
                         Text(L10n.Recurring.monthsAheadSetting.localized)
-                            .font(Typography.subheadline)
+                            .font(Typography.bodyText)
+                            .foregroundStyle(isAurora ? Color.white : .primary)
                         Text(L10n.Recurring.monthsAheadSettingDescription.localized)
-                            .font(Typography.caption1)
-                            .foregroundStyle(.secondary)
+                            .font(Typography.stat)
+                            .foregroundStyle(isAurora ? Color.white.opacity(0.6) : .secondary)
                     }
 
                     Spacer()
@@ -841,9 +877,9 @@ struct DocumentReviewView: View {
             ForEach(viewModel.validationErrors, id: \.self) { error in
                 HStack(spacing: Spacing.xxs) {
                     Image(systemName: "exclamationmark.circle.fill")
-                        .font(.caption)
+                        .font(Typography.sectionIcon)
                     Text(error)
-                        .font(Typography.caption1)
+                        .font(Typography.stat)
                 }
                 .foregroundStyle(AppColors.error)
             }
@@ -923,12 +959,12 @@ struct FormField<Content: View>: View {
         VStack(alignment: .leading, spacing: Spacing.xxs) {
             HStack(spacing: Spacing.xxs) {
                 Text(label)
-                    .font(Typography.caption1)
+                    .font(Typography.sectionTitle)
                     .foregroundStyle(.secondary)
 
                 if isRequired {
                     Text("*")
-                        .font(Typography.caption1)
+                        .font(Typography.sectionTitle)
                         .foregroundStyle(AppColors.error)
                 }
             }
@@ -949,7 +985,7 @@ struct ReminderChip: View {
     var body: some View {
         Button(action: action) {
             Text(label)
-                .font(Typography.caption1)
+                .font(Typography.buttonText)
                 .foregroundStyle(isSelected ? .white : .primary)
                 .padding(.horizontal, Spacing.sm)
                 .padding(.vertical, Spacing.xs)
@@ -984,11 +1020,11 @@ struct AmountSuggestionChip: View {
         Button(action: action) {
             VStack(alignment: .leading, spacing: 2) {
                 Text(formattedAmount)
-                    .font(Typography.subheadline.weight(.semibold))
+                    .font(Typography.listRowAmount())
                     .foregroundStyle(isSelected ? .white : .primary)
 
                 Text(truncatedContext)
-                    .font(Typography.caption2)
+                    .font(Typography.stat)
                     .foregroundStyle(isSelected ? .white.opacity(0.8) : .secondary)
                     .lineLimit(1)
             }

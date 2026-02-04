@@ -324,6 +324,10 @@ enum L10n {
         static let defaultsSection = "settings.defaults.section"
         static let defaultCurrency = "settings.defaultCurrency"
 
+        // Appearance section
+        static let appearanceSection = "settings.appearance.section"
+        static let appearance = "settings.appearance"
+
         // About section
         static let aboutSection = "settings.about.section"
         static let aboutDuEasy = "settings.aboutDuEasy"
@@ -344,6 +348,29 @@ enum L10n {
         static let notificationPermissionDenied = "settings.notificationPermission.denied"
         static let openSettings = "settings.openSettings"
         static let grantPermissions = "settings.grantPermissions"
+    }
+
+    // MARK: - UI Style
+    enum UIStyle {
+        static let title = "uiStyle.title"
+        static let headerTitle = "uiStyle.headerTitle"
+        static let headerDescription = "uiStyle.headerDescription"
+        static let homeViewStyle = "uiStyle.homeViewStyle"
+        static let homeViewDescription = "uiStyle.homeViewDescription"
+        static let otherViewsStyle = "uiStyle.otherViewsStyle"
+        static let otherViewsDescription = "uiStyle.otherViewsDescription"
+        static let quickActions = "uiStyle.quickActions"
+        static let quickActionsHint = "uiStyle.quickActionsHint"
+        static let applyAll = "uiStyle.applyAll"
+
+        // Style names
+        static let defaultStyle = "uiStyle.defaultStyle"
+        static let midnightAuroraName = "uiStyle.midnightAurora.name"
+        static let midnightAuroraDescription = "uiStyle.midnightAurora.description"
+        static let paperMinimalName = "uiStyle.paperMinimal.name"
+        static let paperMinimalDescription = "uiStyle.paperMinimal.description"
+        static let warmFinanceName = "uiStyle.warmFinance.name"
+        static let warmFinanceDescription = "uiStyle.warmFinance.description"
     }
 
     // MARK: - Privacy
@@ -599,6 +626,24 @@ enum L10n {
         static let selectedDuration = "recurring.selectedDuration"
     }
 
+    // MARK: - Recurring Fuzzy Match
+    enum RecurringFuzzyMatch {
+        static let title = "recurring.fuzzyMatch.title"
+        static let subtitle = "recurring.fuzzyMatch.subtitle"
+        static let existingAmount = "recurring.fuzzyMatch.existingAmount"
+        static let newAmount = "recurring.fuzzyMatch.newAmount"
+        static let percentDifference = "recurring.fuzzyMatch.percentDifference"
+        static let sameService = "recurring.fuzzyMatch.sameService"
+        static let sameServiceDescription = "recurring.fuzzyMatch.sameServiceDescription"
+        static let differentService = "recurring.fuzzyMatch.differentService"
+        static let differentServiceDescription = "recurring.fuzzyMatch.differentServiceDescription"
+        static let question = "recurring.fuzzyMatch.question"
+        static let multipleCandidates = "recurring.fuzzyMatch.multipleCandidates"
+        static let selectTemplate = "recurring.fuzzyMatch.selectTemplate"
+        static let matchedInvoices = "recurring.fuzzyMatch.matchedInvoices"
+        static let dueDayInfo = "recurring.fuzzyMatch.dueDayInfo"
+    }
+
     // MARK: - Recurring Deletion
     enum RecurringDeletion {
         // Scenario 1: Document linked to recurring
@@ -713,6 +758,8 @@ enum L10n {
         static let recurringTitle = "home.recurring.title"
         static let activeCount = "home.recurring.active"
         static let nextRecurring = "home.recurring.next"
+        static let nextRecurringVendor = "home.recurring.nextVendor"
+        static let inDays = "home.recurring.inDays"
         static let missingCount = "home.recurring.missing"
         static let manage = "home.recurring.manage"
         static let setupRecurring = "home.recurring.setup"
@@ -740,6 +787,9 @@ enum L10n {
         static let noPaymentsTitle = "home.empty.title"
         static let noPaymentsMessage = "home.empty.message"
         static let goToScan = "home.empty.goToScan"
+
+        // Logo tagline (Midnight Aurora style)
+        static let paymentTracker = "home.tagline.paymentTracker"
     }
 
     // MARK: - Errors

@@ -2,13 +2,27 @@ import SwiftUI
 
 /// Add document entry point screen.
 /// Allows selecting document type and input method (scan, PDF, photo, manual).
+///
+/// UI STYLE: Adapts to the current UI style (Midnight Aurora, Paper Minimal, Warm Finance)
+/// based on user preference from SettingsManager.uiStyleOtherViews.
 struct AddDocumentView: View {
 
     @Environment(AppEnvironment.self) private var environment
     @Environment(\.dismiss) private var dismiss
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.colorScheme) private var colorScheme
 
     @State private var viewModel: AddDocumentViewModel
+
+    /// Current UI style from settings
+    private var currentStyle: UIStyleProposal {
+        environment.settingsManager.uiStyle(for: .otherViews)
+    }
+
+    /// Design tokens for the current style
+    private var tokens: UIStyleTokens {
+        UIStyleTokens(style: currentStyle)
+    }
     @State private var selectedType: DocumentType = .invoice
     @State private var showingScanner = false
     @State private var showingPhotoPicker = false
@@ -41,7 +55,8 @@ struct AddDocumentView: View {
             .scrollIndicators(.hidden)
             .scrollContentBackground(.hidden)
             .background {
-                GradientBackgroundFixed()
+                // Style-aware background
+                StyledAddDocumentBackground()
             }
             .navigationTitle(L10n.AddDocument.title.localized)
             .navigationBarTitleDisplayMode(.inline)
@@ -154,6 +169,8 @@ struct AddDocumentView: View {
                 appeared = true
             }
         }
+        // Apply UI style to the environment
+        .environment(\.uiStyle, currentStyle)
     }
 
     // MARK: - Document Type Section
@@ -162,8 +179,8 @@ struct AddDocumentView: View {
     private var documentTypeSection: some View {
         VStack(alignment: .leading, spacing: Spacing.md) {
             Text(L10n.AddDocument.documentType.localized)
-                .font(Typography.headline)
-                .foregroundStyle(.secondary)
+                .font(Typography.sectionTitle)
+                .foregroundStyle(currentStyle == .midnightAurora ? Color.white.opacity(0.7) : .secondary)
                 .padding(.horizontal, Spacing.xxs)
 
             ForEach(Array(DocumentType.allCases.enumerated()), id: \.element) { index, type in
@@ -193,8 +210,8 @@ struct AddDocumentView: View {
     private var inputMethodSection: some View {
         VStack(alignment: .leading, spacing: Spacing.md) {
             Text(L10n.AddDocument.selectInputMethod.localized)
-                .font(Typography.headline)
-                .foregroundStyle(.secondary)
+                .font(Typography.sectionTitle)
+                .foregroundStyle(currentStyle == .midnightAurora ? Color.white.opacity(0.7) : .secondary)
                 .padding(.horizontal, Spacing.xxs)
 
             // Grid of input method cards
@@ -259,6 +276,7 @@ struct AddDocumentView: View {
 
 struct InputMethodCard: View {
 
+    @Environment(\.uiStyle) private var style
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
@@ -267,6 +285,18 @@ struct InputMethodCard: View {
     let action: () -> Void
 
     @State private var isPressed = false
+
+    private var tokens: UIStyleTokens {
+        UIStyleTokens(style: style)
+    }
+
+    private var accentBlue: Color {
+        Color(red: 0.3, green: 0.5, blue: 1.0)
+    }
+
+    private var accentPurple: Color {
+        Color(red: 0.6, green: 0.3, blue: 0.9)
+    }
 
     var body: some View {
         Button(action: action) {
@@ -277,7 +307,9 @@ struct InputMethodCard: View {
                         .fill(
                             LinearGradient(
                                 colors: method.isRecommended
-                                    ? [AppColors.primary.opacity(0.25), AppColors.primary.opacity(0.1)]
+                                    ? (style == .midnightAurora
+                                        ? [accentBlue.opacity(0.3), accentPurple.opacity(0.2)]
+                                        : [AppColors.primary.opacity(0.25), AppColors.primary.opacity(0.1)])
                                     : [Color.gray.opacity(0.15), Color.gray.opacity(0.05)],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
@@ -287,7 +319,7 @@ struct InputMethodCard: View {
 
                     Image(systemName: method.iconName)
                         .font(.title3.weight(.medium))
-                        .foregroundStyle(method.isRecommended ? AppColors.primary : .primary)
+                        .foregroundStyle(method.isRecommended ? tokens.primaryColor(for: colorScheme) : (style == .midnightAurora ? .white : .primary))
                         .symbolRenderingMode(.hierarchical)
                 }
                 .overlay {
@@ -295,7 +327,7 @@ struct InputMethodCard: View {
                         .strokeBorder(
                             LinearGradient(
                                 colors: method.isRecommended
-                                    ? [AppColors.primary.opacity(0.6), AppColors.primary.opacity(0.2)]
+                                    ? [tokens.primaryColor(for: colorScheme).opacity(0.6), tokens.primaryColor(for: colorScheme).opacity(0.2)]
                                     : [Color.gray.opacity(0.2), Color.gray.opacity(0.1)],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
@@ -304,7 +336,7 @@ struct InputMethodCard: View {
                         )
                 }
                 .shadow(
-                    color: method.isRecommended ? AppColors.primary.opacity(0.2) : .clear,
+                    color: method.isRecommended ? tokens.primaryColor(for: colorScheme).opacity(0.2) : .clear,
                     radius: 4,
                     y: 2
                 )
@@ -312,8 +344,8 @@ struct InputMethodCard: View {
                 VStack(spacing: Spacing.xxs) {
                     HStack(spacing: Spacing.xxs) {
                         Text(method.displayName)
-                            .font(Typography.caption1.weight(.semibold))
-                            .foregroundStyle(.primary)
+                            .font(Typography.buttonText)
+                            .foregroundStyle(style == .midnightAurora ? .white : .primary)
                             .lineLimit(1)
 
                         if method.isRecommended {
@@ -322,8 +354,8 @@ struct InputMethodCard: View {
                     }
 
                     Text(method.description)
-                        .font(Typography.caption2)
-                        .foregroundStyle(.secondary)
+                        .font(Typography.stat)
+                        .foregroundStyle(style == .midnightAurora ? Color.white.opacity(0.7) : .secondary)
                         .lineLimit(2)
                         .multilineTextAlignment(.center)
                         .fixedSize(horizontal: false, vertical: true)
@@ -341,8 +373,8 @@ struct InputMethodCard: View {
                     .strokeBorder(
                         LinearGradient(
                             colors: method.isRecommended
-                                ? [AppColors.primary.opacity(0.5), AppColors.primary.opacity(0.2)]
-                                : [Color.white.opacity(colorScheme == .light ? 0.6 : 0.2), Color.white.opacity(0.1)],
+                                ? [tokens.primaryColor(for: colorScheme).opacity(0.5), tokens.primaryColor(for: colorScheme).opacity(0.2)]
+                                : [Color.white.opacity(style == .midnightAurora ? 0.2 : (colorScheme == .light ? 0.6 : 0.2)), Color.white.opacity(0.1)],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         ),
@@ -357,6 +389,8 @@ struct InputMethodCard: View {
             .scaleEffect(isPressed ? 0.97 : 1.0)
         }
         .buttonStyle(.plain)
+        .accessibilityIdentifier("InputMethod_\(method.rawValue)")
+        .accessibilityLabel(method.displayName)
         .simultaneousGesture(
             DragGesture(minimumDistance: 0)
                 .onChanged { _ in
@@ -378,23 +412,48 @@ struct InputMethodCard: View {
 
     @ViewBuilder
     private var cardBackground: some View {
-        // PERFORMANCE: Uses CardMaterial for optimized single-layer blur
-        CardMaterial(
-            cornerRadius: CornerRadius.lg,
-            addHighlight: true,
-            accentColor: method.isRecommended ? AppColors.primary : nil
-        )
+        switch style {
+        case .midnightAurora:
+            // Multi-layer dark card for Midnight Aurora
+            ZStack {
+                RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous)
+                    .fill(Color(red: 0.08, green: 0.08, blue: 0.14))
+                RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous)
+                    .fill(Color.white.opacity(0.08))
+                if method.isRecommended {
+                    RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous)
+                        .fill(
+                            LinearGradient(
+                                colors: [accentBlue.opacity(0.15), accentPurple.opacity(0.10)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                }
+            }
+        default:
+            // PERFORMANCE: Uses CardMaterial for optimized single-layer blur
+            CardMaterial(
+                cornerRadius: CornerRadius.lg,
+                addHighlight: true,
+                accentColor: method.isRecommended ? AppColors.primary : nil
+            )
+        }
     }
 
     @ViewBuilder
     private var recommendedBadge: some View {
         Text(L10n.AddDocument.recommended.localized)
-            .font(Typography.caption2.weight(.bold))
+            .font(Typography.stat.weight(.bold))
             .textCase(.uppercase)
             .foregroundStyle(.white)
             .padding(.horizontal, Spacing.xxs)
             .padding(.vertical, 2)
-            .background(AppColors.primary)
+            .background(
+                style == .midnightAurora
+                    ? LinearGradient(colors: [accentBlue, accentPurple], startPoint: .leading, endPoint: .trailing)
+                    : LinearGradient(colors: [AppColors.primary, AppColors.primary], startPoint: .leading, endPoint: .trailing)
+            )
             .clipShape(Capsule())
     }
 }
@@ -403,6 +462,7 @@ struct InputMethodCard: View {
 
 struct DocumentTypeRow: View {
 
+    @Environment(\.uiStyle) private var style
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
@@ -414,6 +474,18 @@ struct DocumentTypeRow: View {
 
     @State private var isPressed = false
 
+    private var tokens: UIStyleTokens {
+        UIStyleTokens(style: style)
+    }
+
+    private var accentBlue: Color {
+        Color(red: 0.3, green: 0.5, blue: 1.0)
+    }
+
+    private var accentPurple: Color {
+        Color(red: 0.6, green: 0.3, blue: 0.9)
+    }
+
     var body: some View {
         Button(action: onTap) {
             HStack(spacing: Spacing.md) {
@@ -424,7 +496,9 @@ struct DocumentTypeRow: View {
                             LinearGradient(
                                 colors: isEnabled
                                     ? (isSelected
-                                        ? [AppColors.primary.opacity(0.25), AppColors.primary.opacity(0.1)]
+                                        ? (style == .midnightAurora
+                                            ? [accentBlue.opacity(0.3), accentPurple.opacity(0.2)]
+                                            : [AppColors.primary.opacity(0.25), AppColors.primary.opacity(0.1)])
                                         : [Color.gray.opacity(0.15), Color.gray.opacity(0.05)])
                                     : [Color.gray.opacity(0.1), Color.gray.opacity(0.03)],
                                 startPoint: .topLeading,
@@ -437,7 +511,7 @@ struct DocumentTypeRow: View {
                         .font(.title2.weight(.medium))
                         .foregroundStyle(
                             isEnabled
-                                ? (isSelected ? AppColors.primary : .primary)
+                                ? (isSelected ? tokens.primaryColor(for: colorScheme) : (style == .midnightAurora ? .white : .primary))
                                 : .secondary.opacity(0.5)
                         )
                         .symbolRenderingMode(.hierarchical)
@@ -447,7 +521,7 @@ struct DocumentTypeRow: View {
                         .strokeBorder(
                             LinearGradient(
                                 colors: isEnabled && isSelected
-                                    ? [AppColors.primary.opacity(0.6), AppColors.primary.opacity(0.2)]
+                                    ? [tokens.primaryColor(for: colorScheme).opacity(0.6), tokens.primaryColor(for: colorScheme).opacity(0.2)]
                                     : [Color.gray.opacity(0.2), Color.gray.opacity(0.1)],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
@@ -456,20 +530,20 @@ struct DocumentTypeRow: View {
                         )
                 }
                 .shadow(
-                    color: isSelected ? AppColors.primary.opacity(0.2) : .clear,
+                    color: isSelected ? tokens.primaryColor(for: colorScheme).opacity(0.2) : .clear,
                     radius: 6,
                     y: 3
                 )
 
                 VStack(alignment: .leading, spacing: Spacing.xxs) {
                     Text(type.displayName)
-                        .font(Typography.headline)
-                        .foregroundStyle(isEnabled ? Color.primary : Color.secondary.opacity(0.5))
+                        .font(Typography.listRowPrimary)
+                        .foregroundStyle(isEnabled ? (style == .midnightAurora ? Color.white : Color.primary) : Color.secondary.opacity(0.5))
 
                     if let comingSoon = type.comingSoonMessage {
                         Text(comingSoon)
-                            .font(Typography.caption1)
-                            .foregroundStyle(.secondary)
+                            .font(Typography.listRowSecondary)
+                            .foregroundStyle(style == .midnightAurora ? Color.white.opacity(0.6) : .secondary)
                     }
                 }
 
@@ -478,26 +552,17 @@ struct DocumentTypeRow: View {
                 if isSelected && isEnabled {
                     Image(systemName: "checkmark.circle.fill")
                         .font(.title2)
-                        .foregroundStyle(AppColors.primary)
+                        .foregroundStyle(tokens.primaryColor(for: colorScheme))
                         .symbolEffect(.bounce, options: .speed(1.5), value: isSelected)
                 }
             }
             .padding(Spacing.md)
             .background {
-                // PERFORMANCE: Uses CardMaterial for optimized single-layer blur
-                CardMaterial(
-                    cornerRadius: CornerRadius.lg,
-                    addHighlight: true,
-                    accentColor: isSelected ? AppColors.primary : nil
-                )
+                rowBackground
             }
             .clipShape(RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous))
             .overlay {
-                GlassBorder(
-                    cornerRadius: CornerRadius.lg,
-                    lineWidth: isSelected ? 1.5 : 0.5,
-                    accentColor: isSelected ? AppColors.primary : nil
-                )
+                rowBorder
             }
             .shadow(
                 color: Color.black.opacity(colorScheme == .light ? 0.06 : 0.15),
@@ -525,6 +590,61 @@ struct DocumentTypeRow: View {
                     }
                 }
         )
+    }
+
+    @ViewBuilder
+    private var rowBackground: some View {
+        switch style {
+        case .midnightAurora:
+            // Multi-layer dark card for Midnight Aurora
+            ZStack {
+                RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous)
+                    .fill(Color(red: 0.08, green: 0.08, blue: 0.14))
+                RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous)
+                    .fill(Color.white.opacity(0.08))
+                if isSelected {
+                    RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous)
+                        .fill(
+                            LinearGradient(
+                                colors: [accentBlue.opacity(0.15), accentPurple.opacity(0.10)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                }
+            }
+        default:
+            // PERFORMANCE: Uses CardMaterial for optimized single-layer blur
+            CardMaterial(
+                cornerRadius: CornerRadius.lg,
+                addHighlight: true,
+                accentColor: isSelected ? AppColors.primary : nil
+            )
+        }
+    }
+
+    @ViewBuilder
+    private var rowBorder: some View {
+        switch style {
+        case .midnightAurora:
+            RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous)
+                .strokeBorder(
+                    LinearGradient(
+                        colors: isSelected
+                            ? [tokens.primaryColor(for: colorScheme).opacity(0.5), tokens.primaryColor(for: colorScheme).opacity(0.2)]
+                            : [Color.white.opacity(0.2), Color.white.opacity(0.1)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: isSelected ? 1.5 : 0.5
+                )
+        default:
+            GlassBorder(
+                cornerRadius: CornerRadius.lg,
+                lineWidth: isSelected ? 1.5 : 0.5,
+                accentColor: isSelected ? AppColors.primary : nil
+            )
+        }
     }
 }
 

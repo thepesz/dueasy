@@ -28,6 +28,16 @@ struct DuEasyApp: App {
     /// Track scene phase for app lock management
     @Environment(\.scenePhase) private var scenePhase
 
+    /// Check if running in UI test mode
+    private static var isUITestMode: Bool {
+        ProcessInfo.processInfo.arguments.contains("-UITestMode")
+    }
+
+    /// Check if database should be reset (UI tests)
+    private static var shouldResetDatabase: Bool {
+        ProcessInfo.processInfo.arguments.contains("-ResetDatabase")
+    }
+
     init() {
         // Initialize Firebase for cloud integration (Pro tier)
         // Note: This will only configure Firebase if GoogleService-Info.plist is present
@@ -36,7 +46,14 @@ struct DuEasyApp: App {
         // Initialize localization early
         LocalizationManager.shared.updateLanguage()
 
+        // UI Test Mode: Reset database if requested
+        if Self.isUITestMode && Self.shouldResetDatabase {
+            Self.resetDatabaseForTesting()
+        }
+
         // Initialize SwiftData container
+        // In UI test mode, use in-memory storage for isolation
+        let useInMemory = Self.isUITestMode && Self.shouldResetDatabase
         do {
             let schema = Schema([
                 FinanceDocument.self,
@@ -51,7 +68,7 @@ struct DuEasyApp: App {
             ])
             let modelConfiguration = ModelConfiguration(
                 schema: schema,
-                isStoredInMemoryOnly: false,
+                isStoredInMemoryOnly: useInMemory,
                 allowsSave: true
             )
             modelContainer = try ModelContainer(
@@ -167,6 +184,45 @@ struct DuEasyApp: App {
         @unknown default:
             break
         }
+    }
+
+    // MARK: - UI Testing Support
+
+    /// Resets the database by deleting all SwiftData store files.
+    /// TESTING ONLY: Called before app launch in UI test mode.
+    private static func resetDatabaseForTesting() {
+        let fileManager = FileManager.default
+
+        guard let appSupportURL = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first else {
+            return
+        }
+
+        // Find and delete all SwiftData-related files
+        guard let enumerator = fileManager.enumerator(
+            at: appSupportURL,
+            includingPropertiesForKeys: nil,
+            options: [.skipsHiddenFiles]
+        ) else { return }
+
+        for case let fileURL as URL in enumerator {
+            let ext = fileURL.pathExtension.lowercased()
+            let name = fileURL.lastPathComponent.lowercased()
+
+            if ext == "sqlite" || name.hasSuffix(".sqlite-shm") || name.hasSuffix(".sqlite-wal") ||
+               name.contains("default.store") {
+                try? fileManager.removeItem(at: fileURL)
+            }
+        }
+
+        // Also reset UserDefaults for clean test state
+        if let bundleId = Bundle.main.bundleIdentifier {
+            UserDefaults.standard.removePersistentDomain(forName: bundleId)
+            UserDefaults.standard.synchronize()
+        }
+
+        #if DEBUG
+        print("[UITest] Database reset completed")
+        #endif
     }
 
     // MARK: - Privacy & Security

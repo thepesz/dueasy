@@ -2,11 +2,24 @@ import SwiftUI
 
 /// Calendar view showing documents and recurring instances by due date.
 /// Uses a month grid with day badges indicating document counts and urgency.
+///
+/// UI STYLE: Adapts to the current UI style (Midnight Aurora, Paper Minimal, Warm Finance)
+/// based on user preference from SettingsManager.uiStyleOtherViews.
 struct CalendarView: View {
 
     @Environment(AppEnvironment.self) private var environment
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.colorScheme) private var colorScheme
+
+    /// Current UI style from settings
+    private var currentStyle: UIStyleProposal {
+        environment.settingsManager.uiStyle(for: .otherViews)
+    }
+
+    /// Design tokens for the current style
+    private var tokens: UIStyleTokens {
+        UIStyleTokens(style: currentStyle)
+    }
 
     @State private var viewModel: CalendarViewModel?
 
@@ -35,12 +48,14 @@ struct CalendarView: View {
                     calendarContent(viewModel: viewModel)
                 } else {
                     LoadingView(L10n.CalendarView.loading.localized)
-                        .gradientBackground(style: .list)
+                        .styledCalendarBackground()
                 }
             }
             .navigationTitle("")
             .navigationBarTitleDisplayMode(.inline)
         }
+        // Apply UI style to the environment
+        .environment(\.uiStyle, currentStyle)
         .task {
             setupViewModel()
             await viewModel?.loadDocuments()
@@ -52,11 +67,30 @@ struct CalendarView: View {
     @ViewBuilder
     private func calendarContent(viewModel: CalendarViewModel) -> some View {
         ZStack {
-            GradientBackground()
+            // Style-aware background
+            StyledCalendarBackground()
 
             VStack(spacing: 0) {
-                // Month navigation header with glass effect
-                monthHeader(viewModel: viewModel)
+                // Month navigation header with styled appearance
+                StyledMonthHeader(
+                    monthName: viewModel.currentMonthName,
+                    isCurrentMonth: viewModel.isCurrentMonth,
+                    onPrevious: {
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                            viewModel.goToPreviousMonth()
+                        }
+                    },
+                    onNext: {
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                            viewModel.goToNextMonth()
+                        }
+                    },
+                    onToday: {
+                        withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                            viewModel.goToToday()
+                        }
+                    }
+                )
 
                 // Filter toggle for recurring only
                 filterToggle(viewModel: viewModel)
@@ -91,64 +125,6 @@ struct CalendarView: View {
         }
     }
 
-    // MARK: - Month Header
-
-    @ViewBuilder
-    private func monthHeader(viewModel: CalendarViewModel) -> some View {
-        HStack {
-            Button {
-                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                    viewModel.goToPreviousMonth()
-                }
-            } label: {
-                Image(systemName: "chevron.left")
-                    .font(.title3.weight(.semibold))
-                    .foregroundStyle(AppColors.primary)
-                    .frame(width: 44, height: 44)
-            }
-
-            Spacer()
-
-            VStack(spacing: 2) {
-                Text(viewModel.currentMonthName)
-                    .font(Typography.title3)
-
-                if !viewModel.isCurrentMonth {
-                    Button {
-                        withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-                            viewModel.goToToday()
-                        }
-                    } label: {
-                        Text(L10n.CalendarView.today.localized)
-                            .font(Typography.caption1.weight(.semibold))
-                            .foregroundStyle(.white)
-                            .padding(.horizontal, Spacing.sm)
-                            .padding(.vertical, Spacing.xxs)
-                            .background(
-                                Capsule()
-                                    .fill(AppColors.primary)
-                            )
-                    }
-                }
-            }
-
-            Spacer()
-
-            Button {
-                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                    viewModel.goToNextMonth()
-                }
-            } label: {
-                Image(systemName: "chevron.right")
-                    .font(.title3.weight(.semibold))
-                    .foregroundStyle(AppColors.primary)
-                    .frame(width: 44, height: 44)
-            }
-        }
-        .padding(.horizontal, Spacing.md)
-        .padding(.vertical, Spacing.md)
-    }
-
     // MARK: - Filter Toggle
 
     @ViewBuilder
@@ -168,7 +144,7 @@ struct CalendarView: View {
             }
             .toggleStyle(.button)
             .buttonStyle(.bordered)
-            .tint(viewModel.showRecurringOnly ? AppColors.primary : .secondary)
+            .tint(viewModel.showRecurringOnly ? tokens.primaryColor(for: colorScheme) : .secondary)
         }
         .padding(.horizontal, Spacing.md)
         .padding(.bottom, Spacing.sm)
@@ -181,7 +157,7 @@ struct CalendarView: View {
             ForEach(weekdays, id: \.self) { day in
                 Text(day)
                     .font(Typography.caption1.weight(.medium))
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(currentStyle == .midnightAurora ? Color.white.opacity(0.7) : .secondary)
                     .frame(maxWidth: .infinity)
             }
         }
@@ -204,14 +180,14 @@ struct CalendarView: View {
                     .aspectRatio(1, contentMode: .fit)
             }
 
-            // Day cells
+            // Day cells with styled appearance
             ForEach(Array(days.enumerated()), id: \.element) { index, date in
                 let day = calendar.component(.day, from: date)
                 let summary = viewModel.summary(for: day)
                 let recurringSummary = viewModel.recurringSummary(for: day)
                 let combinedPriority = viewModel.combinedPriority(for: day)
 
-                CalendarDayCell(
+                StyledCalendarDayCell(
                     day: day,
                     isToday: viewModel.isToday(date),
                     isSelected: viewModel.isSelected(date),
@@ -233,71 +209,70 @@ struct CalendarView: View {
 
     @ViewBuilder
     private func selectedDaySection(viewModel: CalendarViewModel) -> some View {
-        VStack(alignment: .leading, spacing: Spacing.sm) {
-            if let selectedDate = viewModel.selectedDate {
-                let documents = viewModel.selectedDayDocuments
-                let recurringInstances = viewModel.selectedDayRecurringInstances
+        StyledCalendarSelectedDaySection {
+            VStack(alignment: .leading, spacing: Spacing.sm) {
+                if let selectedDate = viewModel.selectedDate {
+                    let documents = viewModel.selectedDayDocuments
+                    let recurringInstances = viewModel.selectedDayRecurringInstances
 
-                // Header card
-                HStack {
-                    Text(formattedDate(selectedDate))
-                        .font(Typography.headline)
+                    // Header card
+                    HStack {
+                        Text(formattedDate(selectedDate))
+                            .font(Typography.headline)
+                            .foregroundStyle(currentStyle == .midnightAurora ? .white : .primary)
 
-                    Spacer()
+                        Spacer()
 
-                    if viewModel.selectedDayTotalCount > 0 {
-                        Text(String.localized(L10n.CalendarView.documentsCount, with: viewModel.selectedDayTotalCount))
-                            .font(Typography.caption1.weight(.medium))
-                            .foregroundStyle(.white)
-                            .padding(.horizontal, Spacing.sm)
-                            .padding(.vertical, Spacing.xxs)
-                            .background(
-                                Capsule()
-                                    .fill(AppColors.primary)
-                            )
-                    }
-                }
-                .padding(.horizontal, Spacing.md)
-                .padding(.top, Spacing.md)
-
-                if documents.isEmpty && recurringInstances.isEmpty {
-                    emptyDayView
-                } else {
-                    ScrollView {
-                        LazyVStack(spacing: Spacing.sm) {
-                            // Recurring instances section
-                            if !recurringInstances.isEmpty {
-                                recurringInstancesSection(
-                                    instances: recurringInstances,
-                                    viewModel: viewModel
-                                )
-                            }
-
-                            // Documents section (if not showing recurring only)
-                            if !documents.isEmpty && !viewModel.showRecurringOnly {
-                                documentsSection(documents: documents)
-                            }
+                        if viewModel.selectedDayTotalCount > 0 {
+                            Text(String.localized(L10n.CalendarView.documentsCount, with: viewModel.selectedDayTotalCount))
+                                .font(Typography.caption1.weight(.medium))
+                                .foregroundStyle(.white)
+                                .padding(.horizontal, Spacing.sm)
+                                .padding(.vertical, Spacing.xxs)
+                                .background(countBadgeBackground)
                         }
-                        .padding(.horizontal, Spacing.md)
-                        .padding(.top, Spacing.md)
-                        .padding(.bottom, Spacing.xxl)
                     }
-                    .scrollIndicators(.hidden)
+                    .padding(.horizontal, Spacing.md)
+                    .padding(.top, Spacing.md)
+
+                    if documents.isEmpty && recurringInstances.isEmpty {
+                        emptyDayView
+                    } else {
+                        ScrollView {
+                            LazyVStack(spacing: Spacing.sm) {
+                                // Recurring instances section
+                                if !recurringInstances.isEmpty {
+                                    recurringInstancesSection(
+                                        instances: recurringInstances,
+                                        viewModel: viewModel
+                                    )
+                                }
+
+                                // Documents section (if not showing recurring only)
+                                if !documents.isEmpty && !viewModel.showRecurringOnly {
+                                    documentsSection(documents: documents)
+                                }
+                            }
+                            .padding(.horizontal, Spacing.md)
+                            .padding(.top, Spacing.md)
+                            .padding(.bottom, Spacing.xxl)
+                        }
+                        .scrollIndicators(.hidden)
+                        // Disable scroll clip to allow parent container to handle clipping
+                        // This fixes the visual overflow during scroll bounce
+                        .scrollClipDisabled(false)
+                        // Content shape for hit testing within bounds
+                        .contentShape(RoundedRectangle(cornerRadius: CornerRadius.xl, style: .continuous))
+                    }
+                } else {
+                    selectDayPrompt
                 }
-            } else {
-                selectDayPrompt
             }
         }
-        .frame(maxHeight: .infinity)
-        .background {
-            // PERFORMANCE: Uses CardMaterial for optimized single-layer blur
-            CardMaterial(cornerRadius: CornerRadius.xl)
-                .overlay { GlassBorder(cornerRadius: CornerRadius.xl) }
-                .shadow(color: Color.black.opacity(0.08), radius: 12, y: -4)
-        }
-        .navigationDestination(for: FinanceDocument.self) { document in
-            DocumentDetailView(documentId: document.id)
+        .navigationDestination(for: DocumentNavigationValue.self) { navValue in
+            DocumentDetailView(documentId: navValue.documentId)
                 .environment(environment)
+                .environment(\.uiStyle, currentStyle)
         }
         .sheet(isPresented: $showingRecurringDeletionSheet) {
             if let deletionVM = recurringDeletionViewModel {
@@ -314,13 +289,28 @@ struct CalendarView: View {
         }
     }
 
+    /// Styled count badge background
+    @ViewBuilder
+    private var countBadgeBackground: some View {
+        switch currentStyle {
+        case .midnightAurora:
+            Capsule()
+                .fill(AuroraGradients.primaryButton)
+                .shadow(color: AuroraPalette.accentBlue.opacity(0.4), radius: 4, y: 2)
+
+        default:
+            Capsule()
+                .fill(AppColors.primary)
+        }
+    }
+
     // MARK: - Recurring Instances Section
 
     @ViewBuilder
     private func recurringInstancesSection(instances: [RecurringInstance], viewModel: CalendarViewModel) -> some View {
         Section {
             ForEach(instances) { instance in
-                RecurringInstanceRow(
+                StyledRecurringInstanceRow(
                     instance: instance,
                     onMarkAsPaid: {
                         Task {
@@ -337,7 +327,7 @@ struct CalendarView: View {
             if !viewModel.showRecurringOnly {
                 Text(L10n.CalendarView.recurringSection.localized)
                     .font(Typography.caption1.weight(.semibold))
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(currentStyle == .midnightAurora ? Color.white.opacity(0.7) : .secondary)
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
@@ -362,7 +352,7 @@ struct CalendarView: View {
     private func documentsSection(documents: [FinanceDocument]) -> some View {
         Section {
             ForEach(documents) { document in
-                NavigationLink(value: document) {
+                NavigationLink(value: DocumentNavigationValue(documentId: document.id)) {
                     DocumentRow(document: document) {}
                 }
                 .buttonStyle(.plain)
@@ -370,7 +360,7 @@ struct CalendarView: View {
         } header: {
             Text(L10n.CalendarView.documentsSection.localized)
                 .font(Typography.caption1.weight(.semibold))
-                .foregroundStyle(.secondary)
+                .foregroundStyle(currentStyle == .midnightAurora ? Color.white.opacity(0.7) : .secondary)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
@@ -381,11 +371,11 @@ struct CalendarView: View {
         VStack(spacing: Spacing.sm) {
             Image(systemName: "doc.text")
                 .font(.system(size: 40))
-                .foregroundStyle(.tertiary)
+                .foregroundStyle(currentStyle == .midnightAurora ? Color.white.opacity(0.3) : Color.secondary.opacity(0.5))
 
             Text(L10n.CalendarView.noDocuments.localized)
                 .font(Typography.body)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(currentStyle == .midnightAurora ? Color.white.opacity(0.6) : .secondary)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding(.vertical, Spacing.xl)
@@ -395,11 +385,11 @@ struct CalendarView: View {
         VStack(spacing: Spacing.sm) {
             Image(systemName: "calendar.badge.clock")
                 .font(.system(size: 40))
-                .foregroundStyle(AppColors.primary.opacity(0.5))
+                .foregroundStyle(currentStyle == .midnightAurora ? tokens.primaryColor(for: colorScheme).opacity(0.6) : AppColors.primary.opacity(0.5))
 
             Text(L10n.CalendarView.documentsDue.localized)
                 .font(Typography.body)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(currentStyle == .midnightAurora ? Color.white.opacity(0.6) : .secondary)
                 .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -431,6 +421,7 @@ struct CalendarDayCell: View {
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+    @Environment(\.uiStyle) private var style
 
     let day: Int
     let isToday: Bool
@@ -442,6 +433,10 @@ struct CalendarDayCell: View {
     let action: () -> Void
 
     @State private var isPressed = false
+
+    private var tokens: UIStyleTokens {
+        UIStyleTokens(style: style)
+    }
 
     var body: some View {
         Button(action: action) {
@@ -531,9 +526,9 @@ struct CalendarDayCell: View {
         if isSelected {
             return .white
         } else if isToday {
-            return AppColors.primary
+            return style == .midnightAurora ? AuroraPalette.accentBlue : AppColors.primary
         } else {
-            return .primary
+            return tokens.textPrimaryColor(for: colorScheme)
         }
     }
 
@@ -570,6 +565,7 @@ struct CalendarDayCell: View {
 
 struct RecurringInstanceRow: View {
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.uiStyle) private var style
     @Environment(AppEnvironment.self) private var environment
 
     let instance: RecurringInstance
@@ -579,6 +575,10 @@ struct RecurringInstanceRow: View {
 
     @State private var vendorName: String = ""
     @State private var showingActions = false
+
+    private var tokens: UIStyleTokens {
+        UIStyleTokens(style: style)
+    }
 
     var body: some View {
         HStack(spacing: Spacing.md) {
@@ -590,6 +590,7 @@ struct RecurringInstanceRow: View {
                 HStack {
                     Text(vendorName.isEmpty ? L10n.CalendarView.expectedPayment.localized : vendorName)
                         .font(Typography.body)
+                        .foregroundStyle(tokens.textPrimaryColor(for: colorScheme))
                         .lineLimit(1)
 
                     Spacer()
@@ -603,7 +604,7 @@ struct RecurringInstanceRow: View {
                     if let amount = instance.effectiveAmount {
                         Text(formatAmount(amount))
                             .font(Typography.caption1.weight(.medium))
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(tokens.textSecondaryColor(for: colorScheme))
                     }
 
                     Spacer()
@@ -683,13 +684,13 @@ struct RecurringInstanceRow: View {
             let days = instance.daysUntilDue(using: environment.recurringDateService)
             if days == 0 {
                 Text(L10n.RecurringInstance.dueToday.localized)
-                    .foregroundStyle(AppColors.warning)
+                    .foregroundStyle(tokens.warningColor(for: colorScheme))
             } else if days < 0 {
                 Text(String.localized(L10n.RecurringInstance.overdue, with: abs(days)))
-                    .foregroundStyle(AppColors.error)
+                    .foregroundStyle(tokens.errorColor(for: colorScheme))
             } else {
                 Text(String.localized(L10n.RecurringInstance.dueIn, with: days))
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(tokens.textSecondaryColor(for: colorScheme))
             }
         }
         .font(Typography.caption1)

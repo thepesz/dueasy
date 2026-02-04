@@ -251,6 +251,10 @@
 "settings.syncRecurringToiOSCalendar" = "Synchronizuj cykliczne z kalendarzem iOS";
 "settings.syncRecurringToiOSCalendarFooter" = "Po włączeniu oczekiwane płatności cykliczne zostaną dodane do kalendarza iOS. Widok kalendarza w aplikacji zawsze pokazuje wszystkie płatności cykliczne.";
 
+// Appearance section
+"settings.appearance.section" = "Wygląd";
+"settings.appearance" = "Styl wizualny";
+
 // Defaults section
 "settings.defaults.section" = "Ustawienia domyślne";
 "settings.defaultCurrency" = "Domyślna waluta";
@@ -698,6 +702,8 @@
 "home.recurring.title" = "Cykliczne";
 "home.recurring.active" = "Aktywne: %d";
 "home.recurring.next" = "Następna: %@ za %d dni";
+"home.recurring.nextVendor" = "Następna: %@";
+"home.recurring.inDays" = "Za %d dni";
 "home.recurring.missing" = "Brakujące: %d";
 "home.recurring.manage" = "Zarządzaj";
 "home.recurring.setup" = "Ustaw płatność cykliczną";
@@ -723,3 +729,41 @@
 "home.empty.title" = "Brak płatności";
 "home.empty.message" = "Dodaj pierwszą fakturę, aby śledzić terminy płatności";
 "home.empty.goToScan" = "Skanuj fakturę";
+
+// Logo tagline
+"home.tagline.paymentTracker" = "Terminy Płatności";
+
+// MARK: - UI Style Settings
+
+"uiStyle.title" = "Styl wizualny";
+"uiStyle.headerTitle" = "Wybierz swój styl";
+"uiStyle.headerDescription" = "Spersonalizuj wygląd aplikacji. Wyprobuj rozne style dla ekranu glownego i innych widokow.";
+"uiStyle.homeViewStyle" = "Styl ekranu glownego";
+"uiStyle.homeViewDescription" = "Wybierz styl wizualny dla pulpitu glownego";
+"uiStyle.otherViewsStyle" = "Styl innych widokow";
+"uiStyle.otherViewsDescription" = "Wybierz styl wizualny dla dokumentow, kalendarza i ustawien";
+"uiStyle.quickActions" = "Szybkie akcje";
+"uiStyle.quickActionsHint" = "Dotknij podgladu, aby zastosowac ten styl do ekranu glownego i innych widokow";
+"uiStyle.applyAll" = "Zastosuj";
+"uiStyle.currentStyle" = "Aktualny styl";
+"uiStyle.defaultStyle" = "Domyslny";
+"uiStyle.paperMinimal" = "Papier Minimalistyczny";
+"uiStyle.midnightAurora" = "Polnocna Aurora";
+"uiStyle.warmFinance" = "Ciepla Finanse";
+
+// MARK: - Recurring Fuzzy Match
+
+"recurring.fuzzyMatch.title" = "Znaleziono podobna platnosc";
+"recurring.fuzzyMatch.subtitle" = "Masz juz platnosc cykliczna od tego dostawcy";
+"recurring.fuzzyMatch.existingAmount" = "Istniejaca: %@";
+"recurring.fuzzyMatch.newAmount" = "Nowa: %@";
+"recurring.fuzzyMatch.percentDifference" = "Roznica %@";
+"recurring.fuzzyMatch.sameService" = "Ta sama usluga";
+"recurring.fuzzyMatch.sameServiceDescription" = "Polacz te fakture z istniejaca platnoscia cykliczna";
+"recurring.fuzzyMatch.differentService" = "Inna usluga";
+"recurring.fuzzyMatch.differentServiceDescription" = "Utworz nowa platnosc cykliczna dla tej kwoty";
+"recurring.fuzzyMatch.question" = "Czy to ta sama platnosc cykliczna?";
+"recurring.fuzzyMatch.multipleCandidates" = "Znaleziono wiele dopasowan";
+"recurring.fuzzyMatch.selectTemplate" = "Wybierz, ktora platnosc cykliczna polaczyc:";
+"recurring.fuzzyMatch.matchedInvoices" = "%d faktur dopasowanych";
+"recurring.fuzzyMatch.dueDayInfo" = "Termin: %d dzien miesiaca";

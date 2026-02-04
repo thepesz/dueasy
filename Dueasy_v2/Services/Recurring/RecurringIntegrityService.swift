@@ -17,6 +17,7 @@ final class RecurringIntegrityService {
     private let modelContext: ModelContext
     private let calendarService: CalendarServiceProtocol
     private let notificationService: NotificationServiceProtocol
+    private let fingerprintService: VendorFingerprintServiceProtocol
     private let logger = Logger(subsystem: "com.dueasy.app", category: "RecurringIntegrity")
 
     /// Result of integrity check operations
@@ -25,9 +26,10 @@ final class RecurringIntegrityService {
         let orphanedDocumentReferencesCleared: Int
         let orphanedCandidatesRemoved: Int
         let amountPrecisionMigrations: Int
+        let vendorShortNameMigrations: Int
 
         var totalIssuesFixed: Int {
-            orphanedInstancesRemoved + orphanedDocumentReferencesCleared + orphanedCandidatesRemoved + amountPrecisionMigrations
+            orphanedInstancesRemoved + orphanedDocumentReferencesCleared + orphanedCandidatesRemoved + amountPrecisionMigrations + vendorShortNameMigrations
         }
 
         var hasIssues: Bool {
@@ -38,11 +40,13 @@ final class RecurringIntegrityService {
     init(
         modelContext: ModelContext,
         calendarService: CalendarServiceProtocol,
-        notificationService: NotificationServiceProtocol
+        notificationService: NotificationServiceProtocol,
+        fingerprintService: VendorFingerprintServiceProtocol = VendorFingerprintService()
     ) {
         self.modelContext = modelContext
         self.calendarService = calendarService
         self.notificationService = notificationService
+        self.fingerprintService = fingerprintService
     }
 
     /// Runs all integrity checks and cleanups.
@@ -56,16 +60,18 @@ final class RecurringIntegrityService {
         let orphanedDocuments = try await cleanupOrphanedDocumentReferences()
         let orphanedCandidates = try await cleanupOrphanedCandidates()
         let amountMigrations = try await migrateAmountPrecision()
+        let shortNameMigrations = try await migrateVendorShortName()
 
         let result = IntegrityCheckResult(
             orphanedInstancesRemoved: orphanedInstances,
             orphanedDocumentReferencesCleared: orphanedDocuments,
             orphanedCandidatesRemoved: orphanedCandidates,
-            amountPrecisionMigrations: amountMigrations
+            amountPrecisionMigrations: amountMigrations,
+            vendorShortNameMigrations: shortNameMigrations
         )
 
         if result.hasIssues {
-            logger.warning("Integrity checks complete: removed \(orphanedInstances) orphaned instances, cleared \(orphanedDocuments) document references, removed \(orphanedCandidates) orphaned candidates, migrated \(amountMigrations) amount values")
+            logger.warning("Integrity checks complete: removed \(orphanedInstances) orphaned instances, cleared \(orphanedDocuments) document references, removed \(orphanedCandidates) orphaned candidates, migrated \(amountMigrations) amount values, backfilled \(shortNameMigrations) vendor short names")
         } else {
             logger.info("Integrity checks complete: no issues found")
         }
@@ -247,6 +253,37 @@ final class RecurringIntegrityService {
         if migratedCount > 0 {
             try modelContext.save()
             logger.info("Migrated \(migratedCount) templates to String amount storage")
+        }
+
+        return migratedCount
+    }
+
+    // MARK: - Vendor Short Name Migration
+
+    /// Backfills vendorShortName for existing templates that don't have it.
+    /// The short name is the normalized vendor name without business suffixes (e.g., "Lantech" instead of "Lantech Sp. z o.o.").
+    /// - Returns: Number of templates migrated
+    private func migrateVendorShortName() async throws -> Int {
+        let templateDescriptor = FetchDescriptor<RecurringTemplate>()
+        let templates = try modelContext.fetch(templateDescriptor)
+
+        var migratedCount = 0
+
+        for template in templates {
+            // Only migrate templates without a short name
+            if template.vendorShortName == nil || template.vendorShortName?.isEmpty == true {
+                // Generate short name by normalizing the vendor display name
+                let shortName = fingerprintService.normalizeVendorName(template.vendorDisplayName)
+                template.vendorShortName = shortName
+                template.markUpdated()
+                migratedCount += 1
+                logger.debug("Backfilled vendorShortName for template \(template.id)")
+            }
+        }
+
+        if migratedCount > 0 {
+            try modelContext.save()
+            logger.info("Backfilled vendorShortName for \(migratedCount) templates")
         }
 
         return migratedCount

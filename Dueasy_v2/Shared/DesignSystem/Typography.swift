@@ -53,6 +53,59 @@ enum Typography {
 
     /// Large monospaced for prominent amounts
     static let monospacedTitle = Font.title.weight(.semibold).monospacedDigit()
+
+    // MARK: - App-Wide Typography Hierarchy (HomeView Standard)
+    //
+    // These constants define the standardized typography hierarchy used across all views.
+    // All views should use these constants for consistent visual hierarchy.
+
+    /// Level 1: Section/Card Titles (e.g., "Do zaplaty w ciagu 7 dni", "Zalegle", "Cykliczne")
+    /// Usage: Card headers, section titles
+    static let sectionTitle = Font.system(size: 12, weight: .medium)
+
+    /// Level 2: Body/Primary Text (e.g., "Brak nadchodzacych platnosci", empty states)
+    /// Usage: Primary content text, descriptions
+    static let bodyText = Font.system(size: 13)
+
+    /// Level 3: Large Numbers/Amounts (hero amounts, overdue amounts, recurring counts)
+    /// Usage: Prominent amounts, hero numbers
+    static func heroNumber(design: Font.Design = .default) -> Font {
+        .system(size: 24, weight: .medium, design: design).monospacedDigit()
+    }
+
+    /// Level 4: Subtitles/Secondary Info (e.g., "Wszystko oplacone", recurring subtitle)
+    /// Usage: Secondary information, subtitles
+    static let subtitleText = Font.system(size: 13)
+
+    /// Level 5: Button Text (e.g., "Sprawdz", "Zarzadzaj")
+    /// Usage: Button labels, CTAs
+    static let buttonText = Font.system(size: 13, weight: .medium)
+
+    /// Level 6: Section Header Icons
+    /// Usage: Icons in section headers
+    static let sectionIcon = Font.system(size: 12)
+
+    /// Level 7: List Row Primary (Vendor Name)
+    /// Usage: Primary text in list rows
+    static let listRowPrimary = Font.system(size: 16, weight: .medium)
+
+    /// Level 8: List Row Secondary (Due Info)
+    /// Usage: Secondary text in list rows, due dates
+    static let listRowSecondary = Font.system(size: 13)
+
+    /// Level 9: List Row Amount
+    /// Usage: Amounts in list rows
+    static func listRowAmount(design: Font.Design = .default) -> Font {
+        .system(size: 17, weight: .medium, design: design).monospacedDigit()
+    }
+
+    /// Level 10: Stat Row Labels/Values (same as caption1)
+    /// Usage: Statistics, small labels
+    static let stat = Font.caption
+
+    /// Level 10b: Stat Bold (for values in stat rows)
+    /// Usage: Bold stat values
+    static let statBold = Font.caption.weight(.bold).monospacedDigit()
 }
 
 // MARK: - View Extensions

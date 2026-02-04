@@ -111,16 +111,23 @@ final class HomeViewModel {
         return String.localized(L10n.Home.oldestOverdue, with: days)
     }
 
-    /// Recurring tile body text
-    var recurringBodyText: String {
+    /// Recurring tile - formatted active count (e.g., "Aktywne: 2")
+    var recurringActiveCountText: String {
         String.localized(L10n.Home.activeCount, with: state.activeRecurringCount)
     }
 
-    /// Recurring tile subtitle (next recurring info)
-    var recurringSubtitle: String? {
-        guard let vendor = state.nextRecurringVendor,
-              let days = state.nextRecurringDaysUntil else { return nil }
-        return String.localized(L10n.Home.nextRecurring, with: vendor, days)
+    /// Recurring tile - next vendor line (e.g., "Nastepna: Lantech")
+    /// Returns nil if no upcoming recurring payment
+    var recurringNextVendorText: String? {
+        guard let vendor = state.nextRecurringVendor else { return nil }
+        return String.localized(L10n.Home.nextRecurringVendor, with: vendor)
+    }
+
+    /// Recurring tile - days until next (e.g., "Za 12 dni")
+    /// Returns nil if no upcoming recurring payment
+    var recurringDaysUntilText: String? {
+        guard let days = state.nextRecurringDaysUntil else { return nil }
+        return String.localized(L10n.Home.inDays, with: days)
     }
 
     /// Formatted month unpaid total

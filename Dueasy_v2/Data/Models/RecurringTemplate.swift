@@ -19,12 +19,28 @@ final class RecurringTemplate {
     @Attribute(.unique)
     var id: UUID
 
-    /// Vendor fingerprint for matching (SHA256 of normalized vendor name + NIP)
+    /// Vendor fingerprint for matching (SHA256 of normalized vendor name + NIP + amount bucket)
+    /// This is the primary matching key - documents with this fingerprint match this template.
     @Attribute(.spotlight)
     var vendorFingerprint: String
 
+    /// Vendor-only fingerprint (SHA256 of normalized vendor name + NIP, WITHOUT amount bucket).
+    /// Used to find all templates from the same vendor (e.g., Santander Credit Card + Santander Loan).
+    /// Enables UI features like "Other payments from this vendor" and migration detection.
+    var vendorOnlyFingerprint: String?
+
+    /// Amount bucket identifier used in fingerprint generation (e.g., "bucket_500").
+    /// Nil for legacy templates created before amount bucketing was introduced.
+    /// Used to understand which amount range this template covers.
+    var amountBucket: String?
+
     /// Display name for UI (e.g., "PGE Energia")
     var vendorDisplayName: String
+
+    /// Short name for compact UI displays (e.g., "Lantech" instead of "Lantech Sp. z o.o.")
+    /// This is the normalized vendor name without business suffixes like "Sp. z o.o.", "S.A.", etc.
+    /// Used for tile displays where space is limited.
+    var vendorShortName: String?
 
     /// Document category for this vendor
     var documentCategoryRaw: String
@@ -159,6 +175,17 @@ final class RecurringTemplate {
         set { creationSourceRaw = newValue.rawValue }
     }
 
+    /// Returns the short name for compact displays, with fallback to display name.
+    /// The short name is properly capitalized (first letter uppercase).
+    var compactDisplayName: String {
+        if let shortName = vendorShortName, !shortName.isEmpty {
+            // Capitalize first letter of the short name
+            return shortName.prefix(1).uppercased() + shortName.dropFirst()
+        }
+        // Fallback to full display name if no short name available
+        return vendorDisplayName
+    }
+
     /// Whether amount is within expected range
     func isAmountWithinRange(_ amount: Decimal) -> Bool {
         // If no range learned yet, accept any amount
@@ -174,7 +201,10 @@ final class RecurringTemplate {
     init(
         id: UUID = UUID(),
         vendorFingerprint: String,
+        vendorOnlyFingerprint: String? = nil,
+        amountBucket: String? = nil,
         vendorDisplayName: String,
+        vendorShortName: String? = nil,
         documentCategory: DocumentCategory = .unknown,
         dueDayOfMonth: Int,
         toleranceDays: Int = 3,
@@ -188,7 +218,10 @@ final class RecurringTemplate {
     ) {
         self.id = id
         self.vendorFingerprint = vendorFingerprint
+        self.vendorOnlyFingerprint = vendorOnlyFingerprint
+        self.amountBucket = amountBucket
         self.vendorDisplayName = vendorDisplayName
+        self.vendorShortName = vendorShortName
         self.documentCategoryRaw = documentCategory.rawValue
         self.dueDayOfMonth = dueDayOfMonth
         self.toleranceDays = toleranceDays

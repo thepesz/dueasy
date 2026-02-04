@@ -10,10 +10,26 @@ import SwiftData
 ///
 /// LAYOUT FIX: Accepts a refreshTrigger from MainTabView to properly reset
 /// NavigationStack state after sheet dismissals, preventing safe area corruption.
+///
+/// UI STYLE: Adapts to the current UI style (Midnight Aurora, Paper Minimal, Warm Finance)
+/// based on user preference from SettingsManager.uiStyleOtherViews.
 struct DocumentListView: View {
 
     @Environment(AppEnvironment.self) private var environment
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+    @Environment(\.colorScheme) private var colorScheme
+
+    /// Current UI style from settings
+    private var currentStyle: UIStyleProposal {
+        environment.settingsManager.uiStyle(for: .otherViews)
+    }
+
+    /// Design tokens for the current style
+    private var tokens: UIStyleTokens {
+        UIStyleTokens(style: currentStyle)
+    }
+
     @State private var viewModel: DocumentListViewModel?
     @State private var showingAddDocument = false
     @State private var navigationPath = NavigationPath()
@@ -47,7 +63,7 @@ struct DocumentListView: View {
                     documentListContent(viewModel: viewModel)
                 } else {
                     LoadingView(L10n.Common.loading.localized)
-                        .gradientBackground(style: .list)
+                        .styledDocumentListBackground()
                 }
             }
             .navigationTitle("")
@@ -175,6 +191,8 @@ struct DocumentListView: View {
                 }
             }
         }
+        // Apply UI style to the environment
+        .environment(\.uiStyle, currentStyle)
         // PERFORMANCE FIX: Removed .id(refreshTrigger) which was causing full NavigationStack
         // recreation and duplicate NavigationDestination triggers. The navigationPath.removeAll()
         // in onChange(of: refreshTrigger) is sufficient to reset navigation state.
@@ -197,6 +215,17 @@ struct DocumentListView: View {
                 appeared = true
             }
         }
+        // CRITICAL FIX: Refresh data when the view becomes visible again.
+        // This ensures the document list is always up-to-date when user switches to Documents tab,
+        // especially after adding documents in rapid succession.
+        .onAppear {
+            // Only refresh if ViewModel is already set up (not on first appear, which uses .task)
+            if viewModel != nil && appeared {
+                Task {
+                    await viewModel?.loadDocuments()
+                }
+            }
+        }
     }
 
     // MARK: - Content Views
@@ -204,34 +233,40 @@ struct DocumentListView: View {
     @ViewBuilder
     private func documentListContent(viewModel: DocumentListViewModel) -> some View {
         ZStack {
-            // Modern gradient background
-            ListGradientBackground()
+            // Style-aware background
+            StyledDocumentListBackground()
                 .ignoresSafeArea()
 
             VStack(spacing: 0) {
-                // Recurring payment suggestions (shown when detected)
-                if viewModel.hasSuggestions {
-                    recurringSuggestionsSection(viewModel: viewModel)
-                        .padding(.horizontal, Spacing.md)
-                        .padding(.top, Spacing.md)
+                // FIXED HEADER SECTION - Does NOT scroll with content
+                // This VStack stays pinned at the top
+                VStack(spacing: 0) {
+                    // Recurring payment suggestions (shown when detected)
+                    if viewModel.hasSuggestions {
+                        recurringSuggestionsSection(viewModel: viewModel)
+                            .padding(.horizontal, Spacing.md)
+                            .padding(.top, Spacing.md)
+                    }
+
+                    // Styled inline search bar positioned above filters
+                    StyledSearchBar(
+                        text: Binding(
+                            get: { viewModel.searchText },
+                            set: { viewModel.searchText = $0 }
+                        ),
+                        placeholder: L10n.Documents.searchPlaceholder.localized
+                    )
+                    .padding(.horizontal, Spacing.md)
+                    .padding(.top, viewModel.hasSuggestions ? Spacing.sm : Spacing.md)
+
+                    // Styled filter bar - FIXED at top, horizontal scroll only
+                    filterBar(viewModel: viewModel)
+                        .padding(.top, Spacing.sm)
+                        .padding(.bottom, Spacing.xs)
                 }
 
-                // Inline search bar positioned above filters
-                InlineSearchBar(
-                    text: Binding(
-                        get: { viewModel.searchText },
-                        set: { viewModel.searchText = $0 }
-                    ),
-                    placeholder: L10n.Documents.searchPlaceholder.localized
-                )
-                .padding(.horizontal, Spacing.md)
-                .padding(.top, viewModel.hasSuggestions ? Spacing.sm : Spacing.md)
-
-                // Filter bar with glass effect
-                filterBar(viewModel: viewModel)
-                    .padding(.top, Spacing.sm)
-
-                // Content
+                // SCROLLABLE CONTENT SECTION - Only this part scrolls vertically
+                // The .refreshable is applied here so only the content area participates in pull-to-refresh
                 if viewModel.isLoading && !viewModel.hasDocuments {
                     LoadingView(L10n.Documents.loadingDocuments.localized)
                 } else if !viewModel.hasDocuments {
@@ -242,11 +277,11 @@ struct DocumentListView: View {
                     emptyFilterState(viewModel: viewModel)
                 } else {
                     documentList(viewModel: viewModel)
+                        .refreshable {
+                            await viewModel.loadDocuments()
+                        }
                 }
             }
-        }
-        .refreshable {
-            await viewModel.loadDocuments()
         }
         .overlay(alignment: .top) {
             if let error = viewModel.error {
@@ -274,15 +309,15 @@ struct DocumentListView: View {
             // Section header
             HStack {
                 Image(systemName: "sparkles")
-                    .foregroundStyle(AppColors.primary)
+                    .foregroundStyle(tokens.primaryColor(for: colorScheme))
                 Text(L10n.RecurringSuggestions.sectionTitle.localized)
                     .font(Typography.subheadline.weight(.semibold))
                 Spacer()
             }
 
-            // Show first suggestion card (compact inline version)
+            // Show first suggestion card (styled for current UI style)
             if let firstCandidate = viewModel.suggestedCandidates.first {
-                InlineSuggestionCard(
+                StyledSuggestionCard(
                     candidate: firstCandidate,
                     totalCount: viewModel.suggestedCandidates.count,
                     onAccept: {
@@ -305,42 +340,24 @@ struct DocumentListView: View {
 
     @ViewBuilder
     private func filterBar(viewModel: DocumentListViewModel) -> some View {
-        // Fixed-width glass container with horizontally scrolling content inside
-        // The glass background stays stationary while filter chips scroll within it
-        // PERFORMANCE: Uses CardMaterial for optimized single-layer blur
-        ZStack {
-            // Glass background (stationary, matches document row styling)
-            CardMaterial(cornerRadius: 12, addHighlight: false)
-                .overlay { GlassBorder(cornerRadius: 12, lineWidth: 0.5) }
-
-            // Scrollable filter chips inside the glass container
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: Spacing.xs) {
-                    ForEach(DocumentFilter.allCases) { filter in
-                        FilterChip(
-                            title: filter.displayName,
-                            icon: filter.iconName,
-                            count: filterCount(for: filter, viewModel: viewModel),
-                            isSelected: viewModel.selectedFilter == filter
-                        ) {
-                            viewModel.setFilter(filter)
-                        }
-                    }
+        StyledFilterBarContainer {
+            ForEach(DocumentFilter.allCases) { filter in
+                StyledFilterChip(
+                    title: filter.displayName,
+                    icon: filter.iconName,
+                    count: filterCount(for: filter, viewModel: viewModel),
+                    isSelected: viewModel.selectedFilter == filter
+                ) {
+                    viewModel.setFilter(filter)
                 }
-                .padding(.horizontal, Spacing.sm)
-                .padding(.vertical, Spacing.xs)
             }
         }
-        .frame(height: 44)
-        .padding(.horizontal, Spacing.md)
     }
 
     private func filterCount(for filter: DocumentFilter, viewModel: DocumentListViewModel) -> Int? {
         switch filter {
         case .all:
             return nil
-        case .pending:
-            return viewModel.statusCounts[.draft]
         case .scheduled:
             return viewModel.statusCounts[.scheduled]
         case .paid:
@@ -354,13 +371,13 @@ struct DocumentListView: View {
     private func documentList(viewModel: DocumentListViewModel) -> some View {
         List {
             ForEach(Array(viewModel.filteredDocuments.enumerated()), id: \.element.id) { index, document in
-                DocumentRow(document: document) {
+                StyledDocumentListRow(document: document) {
                     navigationPath.append(document.id)
                 }
                 .opacity(appeared ? 1 : 0)
                 .offset(y: appeared ? 0 : 20)
                 .animation(
-                    reduceMotion ? .none : .spring(response: 0.4, dampingFraction: 0.8).delay(Double(index) * 0.05),
+                    reduceMotion ? .none : tokens.animationSpring.delay(Double(index) * tokens.staggerDelay),
                     value: appeared
                 )
                 .listRowBackground(Color.clear)
@@ -418,28 +435,26 @@ struct DocumentListView: View {
 
 // MARK: - Handwritten Logo Component
 
-/// A casual handmade-style logo for DuEasy.
-/// Designed to look friendly and approachable, like handwritten text.
-///
-/// Design rationale:
-/// - Uses rounded italic fonts for a casual, friendly handmade feel
-/// - Subtle rotation and offset give natural handwritten character
-/// - Shadow adds depth without being too formal
-/// - Gradient maintains brand identity
-/// - Centered with descriptive tagline
+/// A style-aware logo for DuEasy.
+/// Adapts styling based on the current UI style:
+/// - Midnight Aurora: Clean gradient text without rotation (matches demo)
+/// - Other styles: Handwritten style with italic and rotation effects
 ///
 /// Accessibility:
 /// - Respects reduceTransparency: disables blur/shadow layers
+/// - Respects reduceMotion: disables animated scan effect
 /// - Works in both light and dark mode with appropriate colors
 struct HandwrittenLogo: View {
 
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.uiStyle) private var style
 
     @State private var scanPosition: CGFloat = -1.0
 
-    /// Logo gradient colors - sophisticated blue tones
+
+    /// Logo gradient colors - sophisticated blue tones (for non-Aurora styles)
     private var logoGradient: LinearGradient {
         LinearGradient(
             colors: [
@@ -459,72 +474,91 @@ struct HandwrittenLogo: View {
             : Color(red: 0.1, green: 0.15, blue: 0.3).opacity(0.3)
     }
 
-    /// Paper highlight for embossed effect
-    private var highlightColor: Color {
-        colorScheme == .dark
-            ? Color.white.opacity(0.08)
-            : Color.white.opacity(0.6)
-    }
-
     var body: some View {
         VStack(alignment: .center, spacing: Spacing.xxs) {
-            // Main logo with handwritten styling
-            ZStack {
-                // Layer 1: Soft shadow for depth
-                if !reduceTransparency {
-                    logoText
-                        .foregroundStyle(inkShadowColor)
-                        .blur(radius: 1.5)
-                        .offset(x: 0.5, y: 1.5)
-                }
-
-                // Layer 2: Main text with gradient
-                logoText
-                    .foregroundStyle(logoGradient)
-                    .overlay {
-                        // Scanning light effect (green glow)
-                        if !reduceMotion {
-                            GeometryReader { geometry in
-                                Rectangle()
-                                    .fill(
-                                        LinearGradient(
-                                            colors: [
-                                                Color.green.opacity(0),
-                                                Color.green.opacity(0.6),
-                                                Color.green.opacity(0.8),
-                                                Color.green.opacity(0.6),
-                                                Color.green.opacity(0)
-                                            ],
-                                            startPoint: .leading,
-                                            endPoint: .trailing
-                                        )
-                                    )
-                                    .frame(width: geometry.size.width * 0.3)
-                                    .offset(x: geometry.size.width * scanPosition)
-                                    .blendMode(.plusLighter)
-                            }
-                            .mask(logoText)
-                        }
-                    }
-            }
-            .frame(maxWidth: .infinity, alignment: .center)
-            .onAppear {
-                if !reduceMotion {
-                    withAnimation(
-                        .linear(duration: 2.5)
-                        .repeatForever(autoreverses: true)
-                    ) {
-                        scanPosition = 1.0
-                    }
-                }
+            if style == .midnightAurora {
+                // Midnight Aurora style: clean gradient logo without rotation (matches demo)
+                midnightAuroraLogo
+            } else {
+                // Other styles: handwritten style with effects
+                handwrittenLogo
             }
 
-            // Tagline
-            Text(L10n.App.tagline.localized)
-                .font(.system(size: 11, weight: .medium, design: .rounded))
-                .foregroundStyle(.secondary)
-                .tracking(1.5)
+            // Tagline - adapts font design to current style
+            Text(style == .midnightAurora ? L10n.Home.paymentTracker.localized : L10n.App.tagline.localized)
+                .font(.system(size: 11, weight: .medium, design: style == .midnightAurora ? .default : .rounded))
+                .foregroundStyle(style == .midnightAurora ? Color.white.opacity(0.75) : .secondary)
+                .tracking(style == .midnightAurora ? 3 : 1.5)
                 .textCase(.uppercase)
+        }
+    }
+
+    // MARK: - Midnight Aurora Logo (matches demo)
+
+    private var midnightAuroraLogo: some View {
+        HStack(alignment: .bottom, spacing: 2) {
+            Text("Du")
+                .font(.system(size: 38, weight: .medium, design: .default))
+                .foregroundStyle(AuroraGradients.logoDu)
+
+            Text("Easy")
+                .font(.system(size: 38, weight: .light, design: .default))
+                .foregroundStyle(AuroraGradients.logoEasy)
+        }
+        .frame(maxWidth: .infinity, alignment: .center)
+    }
+
+    // MARK: - Handwritten Logo (for other styles)
+
+    private var handwrittenLogo: some View {
+        ZStack {
+            // Layer 1: Soft shadow for depth
+            if !reduceTransparency {
+                logoText
+                    .foregroundStyle(inkShadowColor)
+                    .blur(radius: 1.5)
+                    .offset(x: 0.5, y: 1.5)
+            }
+
+            // Layer 2: Main text with gradient
+            logoText
+                .foregroundStyle(logoGradient)
+                .overlay {
+                    // Scanning light effect (green glow)
+                    if !reduceMotion {
+                        GeometryReader { geometry in
+                            Rectangle()
+                                .fill(
+                                    LinearGradient(
+                                        colors: [
+                                            Color.green.opacity(0),
+                                            Color.green.opacity(0.6),
+                                            Color.green.opacity(0.8),
+                                            Color.green.opacity(0.6),
+                                            Color.green.opacity(0)
+                                        ],
+                                        startPoint: .leading,
+                                        endPoint: .trailing
+                                    )
+                                )
+                                .frame(width: geometry.size.width * 0.3)
+                                .offset(x: geometry.size.width * scanPosition)
+                                .blendMode(.plusLighter)
+                        }
+                        .mask(logoText)
+                    }
+                }
+        }
+        .frame(maxWidth: .infinity, alignment: .center)
+        .onAppear {
+            if !reduceMotion {
+                withAnimation(
+                    .linear(duration: 2.5)
+                    .repeatForever(autoreverses: true)
+                ) {
+                    scanPosition = 1.0
+                }
+            }
         }
     }
 
@@ -588,278 +622,6 @@ struct HandwrittenLogo: View {
             .opacity(0.6)
         }
         .frame(height: 6)
-    }
-}
-
-// MARK: - Inline Search Bar
-
-/// A custom inline search bar with glass morphism styling.
-/// Positioned directly above the document list for quick access.
-///
-/// Design rationale:
-/// - Uses ultraThinMaterial for iOS 26 Liquid Glass aesthetic
-/// - Matches the filter bar visual language
-/// - Provides clear visual feedback during focus
-struct InlineSearchBar: View {
-
-    @Binding var text: String
-    let placeholder: String
-
-    @Environment(\.colorScheme) private var colorScheme
-    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
-    @FocusState private var isFocused: Bool
-
-    var body: some View {
-        HStack(spacing: Spacing.xs) {
-            // Search icon
-            Image(systemName: "magnifyingglass")
-                .font(.system(size: 15, weight: .medium))
-                .foregroundStyle(isFocused ? AppColors.primary : .secondary)
-
-            // Text field
-            TextField(placeholder, text: $text)
-                .font(Typography.body)
-                .foregroundStyle(.primary)
-                .focused($isFocused)
-                .submitLabel(.search)
-
-            // Clear button (shown when text is not empty)
-            if !text.isEmpty {
-                Button {
-                    text = ""
-                } label: {
-                    Image(systemName: "xmark.circle.fill")
-                        .font(.system(size: 15))
-                        .foregroundStyle(.secondary)
-                }
-                .buttonStyle(.plain)
-            }
-        }
-        .padding(.horizontal, Spacing.sm)
-        .padding(.vertical, Spacing.xs + 2)
-        .background {
-            // PERFORMANCE: Uses CardMaterial for optimized single-layer blur
-            CardMaterial(cornerRadius: 10, addHighlight: false)
-        }
-        .overlay {
-            GlassBorder(
-                cornerRadius: 10,
-                lineWidth: isFocused ? 1.5 : 0.5,
-                accentColor: isFocused ? AppColors.primary : nil
-            )
-        }
-        .animation(.easeInOut(duration: 0.2), value: isFocused)
-        .animation(.easeInOut(duration: 0.15), value: text.isEmpty)
-    }
-}
-
-// MARK: - Filter Chip
-
-struct FilterChip: View {
-
-    @Environment(\.colorScheme) private var colorScheme
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-
-    let title: String
-    let icon: String
-    let count: Int?
-    let isSelected: Bool
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            HStack(spacing: Spacing.xxs) {
-                Image(systemName: icon)
-                    .font(.caption2)
-                    .symbolRenderingMode(.hierarchical)
-
-                Text(title)
-                    .font(Typography.caption2.weight(isSelected ? .semibold : .medium))
-
-                if let count = count, count > 0 {
-                    Text("\(count)")
-                        .font(Typography.caption2.weight(.semibold))
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background(
-                            Capsule()
-                                .fill(isSelected ? Color.white.opacity(0.25) : AppColors.primary.opacity(0.15))
-                        )
-                }
-            }
-            .foregroundStyle(isSelected ? .white : .primary)
-            .padding(.horizontal, Spacing.sm)
-            .padding(.vertical, Spacing.xs)
-            .background {
-                // PERFORMANCE: Uses CapsuleMaterial for optimized single-layer blur
-                if isSelected {
-                    Capsule()
-                        .fill(
-                            LinearGradient(
-                                colors: [
-                                    AppColors.primary,
-                                    AppColors.primary.opacity(0.85)
-                                ],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
-                        .shadow(color: AppColors.primary.opacity(0.3), radius: 4, y: 2)
-                } else {
-                    CapsuleMaterial()
-                        .overlay {
-                            Capsule()
-                                .strokeBorder(
-                                    LinearGradient(
-                                        colors: [
-                                            Color.white.opacity(colorScheme == .light ? 0.6 : 0.2),
-                                            Color.white.opacity(0.1)
-                                        ],
-                                        startPoint: .topLeading,
-                                        endPoint: .bottomTrailing
-                                    ),
-                                    lineWidth: 0.5
-                                )
-                        }
-                }
-            }
-        }
-        .buttonStyle(.plain)
-    }
-}
-
-// MARK: - Inline Suggestion Card
-
-/// Compact suggestion card shown inline in the document list.
-/// Displays recurring payment detection with quick actions.
-struct InlineSuggestionCard: View {
-
-    @Environment(\.colorScheme) private var colorScheme
-
-    let candidate: RecurringCandidate
-    let totalCount: Int
-    let onAccept: () -> Void
-    let onDismiss: () -> Void
-    let onSnooze: () -> Void
-
-    @State private var isProcessing = false
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: Spacing.sm) {
-            // Main content
-            HStack(spacing: Spacing.sm) {
-                // Icon
-                Image(systemName: candidate.documentCategory.iconName)
-                    .font(.title3)
-                    .foregroundStyle(AppColors.primary)
-                    .frame(width: 36, height: 36)
-                    .background(AppColors.primary.opacity(0.1))
-                    .clipShape(Circle())
-
-                // Text content
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(candidate.vendorDisplayName)
-                        .font(Typography.subheadline.weight(.semibold))
-                        .lineLimit(1)
-
-                    Text(suggestionMessage)
-                        .font(Typography.caption1)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(2)
-                }
-
-                Spacer(minLength: 0)
-
-                // Confidence badge
-                Text("\(Int(candidate.confidenceScore * 100))%")
-                    .font(Typography.caption2.weight(.semibold))
-                    .foregroundStyle(confidenceColor)
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background(confidenceColor.opacity(0.15))
-                    .clipShape(Capsule())
-            }
-
-            // Action buttons
-            HStack(spacing: Spacing.xs) {
-                // Dismiss button
-                Button(action: {
-                    isProcessing = true
-                    onDismiss()
-                }) {
-                    Text(L10n.RecurringSuggestions.dismiss.localized)
-                        .font(Typography.caption1)
-                }
-                .buttonStyle(.bordered)
-                .controlSize(.small)
-                .disabled(isProcessing)
-
-                // Snooze button
-                Button(action: {
-                    isProcessing = true
-                    onSnooze()
-                }) {
-                    Text(L10n.RecurringSuggestions.snooze.localized)
-                        .font(Typography.caption1)
-                }
-                .buttonStyle(.bordered)
-                .controlSize(.small)
-                .disabled(isProcessing)
-
-                Spacer()
-
-                // Accept button
-                Button(action: {
-                    isProcessing = true
-                    onAccept()
-                }) {
-                    if isProcessing {
-                        ProgressView()
-                            .scaleEffect(0.7)
-                    } else {
-                        Text(L10n.RecurringSuggestions.accept.localized)
-                            .font(Typography.caption1.weight(.semibold))
-                    }
-                }
-                .buttonStyle(.borderedProminent)
-                .controlSize(.small)
-                .tint(AppColors.primary)
-                .disabled(isProcessing)
-            }
-
-            // Show count if more suggestions
-            if totalCount > 1 {
-                Text(L10n.RecurringSuggestions.moreSuggestions.localized(with: totalCount - 1))
-                    .font(Typography.caption2)
-                    .foregroundStyle(.secondary)
-            }
-        }
-        .padding(Spacing.sm)
-        .background {
-            CardMaterial(cornerRadius: 12, addHighlight: false)
-        }
-        .overlay {
-            GlassBorder(cornerRadius: 12, lineWidth: 1, accentColor: AppColors.primary.opacity(0.5))
-        }
-    }
-
-    private var suggestionMessage: String {
-        let count = candidate.documentCount
-        if let dueDay = candidate.dominantDueDayOfMonth {
-            return L10n.RecurringSuggestions.inlineDescription.localized(with: count, dueDay)
-        } else {
-            return L10n.RecurringSuggestions.inlineDescriptionNoDueDay.localized(with: count)
-        }
-    }
-
-    private var confidenceColor: Color {
-        if candidate.confidenceScore >= 0.9 {
-            return AppColors.success
-        } else if candidate.confidenceScore >= 0.8 {
-            return AppColors.primary
-        } else {
-            return AppColors.warning
-        }
     }
 }
 

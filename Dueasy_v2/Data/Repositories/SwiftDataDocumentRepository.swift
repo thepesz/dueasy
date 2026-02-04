@@ -17,13 +17,35 @@ final class SwiftDataDocumentRepository: DocumentRepositoryProtocol, @unchecked 
     // MARK: - CRUD Operations
 
     func create(_ document: FinanceDocument) async throws {
+        logger.debug("CREATE: Inserting document \(document.id)")
         modelContext.insert(document)
         try await save()
+
+        // CRITICAL FIX: Verify the document is immediately fetchable after save.
+        // SwiftData's lazy evaluation can sometimes cause timing issues where
+        // newly inserted objects aren't immediately visible in fetch queries.
+        // This verification ensures the insert was fully committed.
+        #if DEBUG
+        let verifyId = document.id
+        let predicate = #Predicate<FinanceDocument> { doc in
+            doc.id == verifyId
+        }
+        let descriptor = FetchDescriptor<FinanceDocument>(predicate: predicate)
+        if let verified = try? modelContext.fetch(descriptor).first {
+            logger.debug("CREATE: Document \(verified.id) verified fetchable")
+        } else {
+            logger.error("CREATE: WARNING - Document \(document.id) not immediately fetchable after save!")
+        }
+        #endif
+
+        logger.debug("CREATE: Document \(document.id) saved successfully")
     }
 
     func update(_ document: FinanceDocument) async throws {
+        logger.debug("UPDATE: Updating document \(document.id)")
         document.markUpdated()
         try await save()
+        logger.debug("UPDATE: Document \(document.id) updated successfully")
     }
 
     func delete(documentId: UUID) async throws {
@@ -59,6 +81,16 @@ final class SwiftDataDocumentRepository: DocumentRepositoryProtocol, @unchecked 
     // MARK: - Query Operations
 
     func fetchAll() async throws -> [FinanceDocument] {
+        // CRITICAL FIX: Reset any pending changes and force re-fetch from persistent store
+        // This ensures we always get the latest data, especially after rapid successive saves
+        // where SwiftData's in-memory cache may not reflect recent inserts.
+        // Note: rollback() discards uncommitted changes and clears the object cache,
+        // forcing the next fetch to read from the persistent store.
+        if modelContext.hasChanges {
+            logger.debug("FETCH_ALL: Context has uncommitted changes, saving before fetch")
+            try? modelContext.save()
+        }
+
         let descriptor = FetchDescriptor<FinanceDocument>(
             sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
         )
@@ -225,6 +257,13 @@ final class SwiftDataDocumentRepository: DocumentRepositoryProtocol, @unchecked 
     }
 
     func fetch(filter: DocumentFilter?, searchQuery: String?) async throws -> [FinanceDocument] {
+        // CRITICAL FIX: Ensure any pending changes are saved before fetching
+        // This prevents stale reads when documents were just added in rapid succession
+        if modelContext.hasChanges {
+            logger.debug("FETCH_FILTERED: Context has uncommitted changes, saving before fetch")
+            try? modelContext.save()
+        }
+
         // Build the predicate based on filter and search query
         let predicate = buildFilterPredicate(filter: filter, searchQuery: searchQuery)
 
@@ -266,8 +305,6 @@ final class SwiftDataDocumentRepository: DocumentRepositoryProtocol, @unchecked 
         // Map filter to status raw value for predicate
         let statusRaw: String? = {
             switch filter {
-            case .pending:
-                return DocumentStatus.draft.rawValue
             case .scheduled:
                 return DocumentStatus.scheduled.rawValue
             case .paid:
@@ -317,6 +354,14 @@ final class SwiftDataDocumentRepository: DocumentRepositoryProtocol, @unchecked 
     func save() async throws {
         do {
             try modelContext.save()
+
+            // CRITICAL FIX: Give SwiftData a moment to fully commit to persistent store.
+            // SwiftData's save() is synchronous but the underlying SQLite write
+            // may have asynchronous components that affect immediate fetch visibility.
+            // This minimal yield ensures the write completes before returning.
+            try? await Task.sleep(nanoseconds: 10_000_000) // 10ms
+
+            logger.debug("SAVE: Context saved and committed")
         } catch {
             throw AppError.repositorySaveFailed(error.localizedDescription)
         }

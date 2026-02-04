@@ -12,8 +12,27 @@
 		CC78B4842F2ED6590048D654 /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = CC78B4832F2ED6590048D654 /* FirebaseFunctions */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		CC00000000000001 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CCDD80102F2D795400080A4A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = CCDD80172F2D795400080A4A;
+			remoteInfo = Dueasy_v2;
+		};
+		CCUI00000000000A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CCDD80102F2D795400080A4A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = CCDD80172F2D795400080A4A;
+			remoteInfo = Dueasy_v2;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
+		CC00000000000010 /* Dueasy_v2Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Dueasy_v2Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		CCDD80182F2D795400080A4A /* Dueasy_v2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Dueasy_v2.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		CCUI00000000000B /* Dueasy_v2UITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Dueasy_v2UITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -27,6 +46,11 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		CC00000000000020 /* Dueasy_v2Tests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Dueasy_v2Tests;
+			sourceTree = "<group>";
+		};
 		CCDD801A2F2D795400080A4A /* Dueasy_v2 */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
@@ -35,9 +59,21 @@
 			path = Dueasy_v2;
 			sourceTree = "<group>";
 		};
+		CCUI00000000000C /* Dueasy_v2UITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Dueasy_v2UITests;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		CC00000000000030 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		CCDD80152F2D795400080A4A /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -45,6 +81,13 @@
 				CC78B4842F2ED6590048D654 /* FirebaseFunctions in Frameworks */,
 				CC78B4822F2ED6510048D654 /* FirebaseCore in Frameworks */,
 				CC78B4802F2ED6490048D654 /* FirebaseAuth in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CCUI00000000000D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -62,6 +105,8 @@
 			isa = PBXGroup;
 			children = (
 				CCDD801A2F2D795400080A4A /* Dueasy_v2 */,
+				CC00000000000020 /* Dueasy_v2Tests */,
+				CCUI00000000000C /* Dueasy_v2UITests */,
 				CC78B47E2F2ED6490048D654 /* Frameworks */,
 				CCDD80192F2D795400080A4A /* Products */,
 			);
@@ -71,6 +116,8 @@
 			isa = PBXGroup;
 			children = (
 				CCDD80182F2D795400080A4A /* Dueasy_v2.app */,
+				CC00000000000010 /* Dueasy_v2Tests.xctest */,
+				CCUI00000000000B /* Dueasy_v2UITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -78,6 +125,29 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		CC00000000000040 /* Dueasy_v2Tests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CC00000000000050 /* Build configuration list for PBXNativeTarget "Dueasy_v2Tests" */;
+			buildPhases = (
+				CC00000000000060 /* Sources */,
+				CC00000000000030 /* Frameworks */,
+				CC00000000000070 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				CC00000000000002 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				CC00000000000020 /* Dueasy_v2Tests */,
+			);
+			name = Dueasy_v2Tests;
+			packageProductDependencies = (
+			);
+			productName = Dueasy_v2Tests;
+			productReference = CC00000000000010 /* Dueasy_v2Tests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		CCDD80172F2D795400080A4A /* Dueasy_v2 */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = CCDD80232F2D795500080A4A /* Build configuration list for PBXNativeTarget "Dueasy_v2" */;
@@ -103,6 +173,29 @@
 			productReference = CCDD80182F2D795400080A4A /* Dueasy_v2.app */;
 			productType = "com.apple.product-type.application";
 		};
+		CCUI00000000000E /* Dueasy_v2UITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CCUI00000000000F /* Build configuration list for PBXNativeTarget "Dueasy_v2UITests" */;
+			buildPhases = (
+				CCUI00000000001D /* Sources */,
+				CCUI00000000000D /* Frameworks */,
+				CCUI00000000001E /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				CCUI00000000001F /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				CCUI00000000000C /* Dueasy_v2UITests */,
+			);
+			name = Dueasy_v2UITests;
+			packageProductDependencies = (
+			);
+			productName = Dueasy_v2UITests;
+			productReference = CCUI00000000000B /* Dueasy_v2UITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -113,8 +206,16 @@
 				LastSwiftUpdateCheck = 2610;
 				LastUpgradeCheck = 2610;
 				TargetAttributes = {
+					CC00000000000040 = {
+						CreatedOnToolsVersion = 26.1.1;
+						TestTargetID = CCDD80172F2D795400080A4A;
+					};
 					CCDD80172F2D795400080A4A = {
 						CreatedOnToolsVersion = 26.1.1;
+					};
+					CCUI00000000000E = {
+						CreatedOnToolsVersion = 26.1.1;
+						TestTargetID = CCDD80172F2D795400080A4A;
 					};
 				};
 			};
@@ -137,12 +238,28 @@
 			projectRoot = "";
 			targets = (
 				CCDD80172F2D795400080A4A /* Dueasy_v2 */,
+				CC00000000000040 /* Dueasy_v2Tests */,
+				CCUI00000000000E /* Dueasy_v2UITests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		CC00000000000070 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		CCDD80162F2D795400080A4A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CCUI00000000001E /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -152,7 +269,21 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		CC00000000000060 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		CCDD80142F2D795400080A4A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CCUI00000000001D /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -161,7 +292,64 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		CC00000000000002 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = CCDD80172F2D795400080A4A /* Dueasy_v2 */;
+			targetProxy = CC00000000000001 /* PBXContainerItemProxy */;
+		};
+		CCUI00000000001F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = CCDD80172F2D795400080A4A /* Dueasy_v2 */;
+			targetProxy = CCUI00000000000A /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		CC00000000000080 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 9937X8497W;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "beebsi.com.Dueasy-v2Tests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Dueasy_v2.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Dueasy_v2";
+			};
+			name = Debug;
+		};
+		CC00000000000090 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 9937X8497W;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "beebsi.com.Dueasy-v2Tests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Dueasy_v2.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Dueasy_v2";
+			};
+			name = Release;
+		};
 		CCDD80212F2D795500080A4A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -339,9 +527,60 @@
 			};
 			name = Release;
 		};
+		CCUI0000000000A0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 9937X8497W;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "beebsi.com.Dueasy-v2UITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Dueasy_v2;
+			};
+			name = Debug;
+		};
+		CCUI0000000000B0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 9937X8497W;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "beebsi.com.Dueasy-v2UITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Dueasy_v2;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		CC00000000000050 /* Build configuration list for PBXNativeTarget "Dueasy_v2Tests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CC00000000000080 /* Debug */,
+				CC00000000000090 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		CCDD80132F2D795400080A4A /* Build configuration list for PBXProject "DuEasy" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -356,6 +595,15 @@
 			buildConfigurations = (
 				CCDD80242F2D795500080A4A /* Debug */,
 				CCDD80252F2D795500080A4A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CCUI00000000000F /* Build configuration list for PBXNativeTarget "Dueasy_v2UITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CCUI0000000000A0 /* Debug */,
+				CCUI0000000000B0 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

@@ -53,6 +53,10 @@ struct HomeViewState: Equatable, Sendable {
     /// Number of missing recurring instances this cycle
     let missingRecurringCount: Int
 
+    /// Display name of the first active recurring template (for tile display)
+    /// This is the short company name used for fingerprint matching
+    let firstRecurringVendorName: String?
+
     // MARK: - Next 3 Payments List
 
     /// Up to 3 next payment items for the compact list
@@ -121,6 +125,7 @@ struct HomeViewState: Equatable, Sendable {
         nextRecurringVendor: nil,
         nextRecurringDaysUntil: nil,
         missingRecurringCount: 0,
+        firstRecurringVendorName: nil,
         nextPayments: [],
         monthPaidCount: 0,
         monthDueCount: 0,

@@ -14,6 +14,7 @@ struct DocumentDetailView: View {
     @Environment(AppEnvironment.self) private var environment
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.uiStyle) private var uiStyle
 
     let documentId: UUID
 
@@ -26,12 +27,18 @@ struct DocumentDetailView: View {
     var body: some View {
         // LAYOUT FIX (v3): Use .safeAreaInset instead of GeometryReader + ZStack
         // .safeAreaInset handles safe area calculations automatically and reliably
-        ScrollView {
-            contentBody
-        }
-        .background(Color(UIColor.systemGroupedBackground))
-        .safeAreaInset(edge: .top, spacing: 0) {
-            floatingButtonsHeader
+        ZStack {
+            // Background FIRST to ensure it's rendered immediately during navigation
+            StyledDetailViewBackground()
+                .ignoresSafeArea()
+
+            ScrollView {
+                contentBody
+            }
+            .scrollContentBackground(.hidden)
+            .safeAreaInset(edge: .top, spacing: 0) {
+                floatingButtonsHeader
+            }
         }
         .toolbar(.hidden, for: .navigationBar)
         .task {
@@ -45,6 +52,7 @@ struct DocumentDetailView: View {
             if let doc = viewModel?.document {
                 DocumentEditView(document: doc)
                     .environment(environment)
+                    .environment(\.uiStyle, uiStyle)
             }
         }
         // Step 1: Initial delete confirmation alert (like iOS Calendar)
@@ -77,6 +85,12 @@ struct DocumentDetailView: View {
         .id(documentId) // Force view recreation when document changes
     }
 
+    // MARK: - Aurora Style Check
+
+    private var isAurora: Bool {
+        uiStyle == .midnightAurora
+    }
+
     // MARK: - Content Body
 
     @ViewBuilder
@@ -106,9 +120,10 @@ struct DocumentDetailView: View {
         } else {
             VStack {
                 ProgressView()
+                    .tint(isAurora ? Color.white : nil)
                 Text(L10n.Common.loading.localized)
                     .font(Typography.body)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(isAurora ? Color.white.opacity(0.7) : .secondary)
             }
             .frame(maxWidth: .infinity, minHeight: 200)
         }
@@ -121,65 +136,89 @@ struct DocumentDetailView: View {
     /// and adjusts the ScrollView content inset accordingly.
     @ViewBuilder
     private var floatingButtonsHeader: some View {
-        HStack {
-            // Back button - ALWAYS visible
-            Button {
-                dismiss()
-            } label: {
-                Image(systemName: "chevron.left")
-                    .font(.title3.weight(.semibold))
-                    .foregroundStyle(AppColors.primary)
-                    .frame(width: 44, height: 44)
-                    .background(buttonBackground, in: Circle())
-            }
-
+        VStack(spacing: 0) {
+            // This spacer fills the safe area (status bar region) with background color
+            // Without this, there would be a gap between the header and the top of the screen
             Spacer()
+                .frame(height: 0)
 
-            // Menu button - ALWAYS visible (disabled during loading)
-            Menu {
-                Button {
-                    showingEditSheet = true
-                } label: {
-                    Label(L10n.Common.edit.localized, systemImage: "pencil")
+            HStack {
+                // Back button - ALWAYS visible
+                StyledFloatingButton(icon: "chevron.left") {
+                    dismiss()
                 }
 
-                if let vm = viewModel, vm.document?.status == .scheduled {
+                Spacer()
+
+                // Menu button - ALWAYS visible (disabled during loading)
+                Menu {
                     Button {
-                        Task { await vm.markAsPaid() }
+                        showingEditSheet = true
                     } label: {
-                        Label(L10n.Detail.markAsPaid.localized, systemImage: "checkmark.circle")
+                        Label(L10n.Common.edit.localized, systemImage: "pencil")
                     }
-                }
 
-                Divider()
+                    if let vm = viewModel, vm.document?.status == .scheduled {
+                        Button {
+                            Task { await vm.markAsPaid() }
+                        } label: {
+                            Label(L10n.Detail.markAsPaid.localized, systemImage: "checkmark.circle")
+                        }
+                    }
 
-                Button(role: .destructive) {
-                    handleDeleteAction()
+                    Divider()
+
+                    Button(role: .destructive) {
+                        handleDeleteAction()
+                    } label: {
+                        Label(L10n.Common.delete.localized, systemImage: "trash")
+                    }
                 } label: {
-                    Label(L10n.Common.delete.localized, systemImage: "trash")
+                    Image(systemName: "ellipsis")
+                        .font(.title3.weight(.semibold))
+                        .foregroundStyle(menuButtonColor)
+                        .frame(width: 44, height: 44)
+                        .background(buttonBackground, in: Circle())
                 }
-            } label: {
-                Image(systemName: "ellipsis")
-                    .font(.title3.weight(.semibold))
-                    .foregroundStyle(viewModel != nil ? AppColors.primary : Color.gray)
-                    .frame(width: 44, height: 44)
-                    .background(buttonBackground, in: Circle())
+                .disabled(viewModel == nil)
             }
-            .disabled(viewModel == nil)
+            .padding(.horizontal, Spacing.md)
+            .padding(.vertical, Spacing.xs)
         }
-        .padding(.horizontal, Spacing.md)
-        .padding(.vertical, Spacing.xs)
         .frame(maxWidth: .infinity)
-        .background(
+        .background(headerBackground)
+    }
+
+    /// Header background that matches the view's background color.
+    /// For Aurora: Uses the exact same background color as EnhancedMidnightAuroraBackground
+    /// to create a seamless appearance without a visible black bar.
+    @ViewBuilder
+    private var headerBackground: some View {
+        if isAurora {
+            // Use AuroraPalette.backgroundGradientStart for perfect match
+            AuroraPalette.backgroundGradientStart
+        } else {
             Color(UIColor.systemGroupedBackground)
-                .opacity(0.95)
-        )
+        }
+    }
+
+    /// Menu button foreground color
+    private var menuButtonColor: Color {
+        if viewModel == nil {
+            return Color.gray
+        }
+        return isAurora
+            ? AuroraPalette.accentBlue
+            : AppColors.primary
     }
 
     /// Solid background for floating buttons.
     /// Avoids material effects entirely to prevent visual style conflicts.
     private var buttonBackground: some ShapeStyle {
-        colorScheme == .light
+        if isAurora {
+            return AuroraPalette.sectionBacking.opacity(0.95)
+        }
+        return colorScheme == .light
             ? Color(white: 0.94)
             : Color(white: 0.22)
     }
@@ -191,13 +230,13 @@ struct DocumentDetailView: View {
         HStack {
             VStack(alignment: .leading, spacing: Spacing.xxs) {
                 Text(document.type.displayName)
-                    .font(Typography.caption1)
-                    .foregroundStyle(.secondary)
+                    .font(Typography.sectionTitle)
+                    .foregroundStyle(isAurora ? Color.white.opacity(0.6) : .secondary)
 
                 if let number = document.documentNumber, !number.isEmpty {
                     Text(L10n.Detail.documentNumber.localized(with: number))
-                        .font(Typography.subheadline)
-                        .foregroundStyle(.secondary)
+                        .font(Typography.listRowSecondary)
+                        .foregroundStyle(isAurora ? Color.white.opacity(0.6) : .secondary)
                 }
             }
 
@@ -209,97 +248,94 @@ struct DocumentDetailView: View {
 
     @ViewBuilder
     private func amountSection(document: FinanceDocument) -> some View {
-        VStack(alignment: .leading, spacing: Spacing.xs) {
-            Text(L10n.Detail.amount.localized)
-                .font(Typography.caption1)
-                .foregroundStyle(.secondary)
+        StyledDetailCard {
+            VStack(alignment: .leading, spacing: Spacing.xs) {
+                Text(L10n.Detail.amount.localized)
+                    .font(Typography.sectionTitle)
+                    .foregroundStyle(isAurora ? Color.white.opacity(0.6) : .secondary)
 
-            Text(formattedAmount(for: document))
-                .font(Typography.monospacedTitle)
+                Text(formattedAmount(for: document))
+                    .font(Typography.heroNumber())
+                    .foregroundStyle(isAurora ? Color.white : .primary)
+            }
         }
-        .padding(Spacing.md)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(UIColor.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: CornerRadius.md))
     }
 
     @ViewBuilder
     private func detailsSection(document: FinanceDocument) -> some View {
-        VStack(alignment: .leading, spacing: Spacing.sm) {
-            // Vendor
-            detailRow(label: L10n.Detail.vendor.localized, value: document.title.isEmpty ? L10n.Detail.notSpecified.localized : document.title)
+        StyledDetailCard {
+            VStack(alignment: .leading, spacing: Spacing.sm) {
+                // Vendor
+                StyledDetailRow(label: L10n.Detail.vendor.localized, value: document.title.isEmpty ? L10n.Detail.notSpecified.localized : document.title)
 
-            // Address
-            if let address = document.vendorAddress, !address.isEmpty {
-                detailRow(label: L10n.Detail.address.localized, value: address)
+                // Address
+                if let address = document.vendorAddress, !address.isEmpty {
+                    StyledDetailRow(label: L10n.Detail.address.localized, value: address)
+                }
+
+                // NIP
+                if let nip = document.vendorNIP, !nip.isEmpty {
+                    StyledDetailRow(label: L10n.Detail.nip.localized, value: nip)
+                }
+
+                // Bank Account
+                if let bankAccount = document.bankAccountNumber, !bankAccount.isEmpty {
+                    StyledDetailRow(label: L10n.Detail.bankAccount.localized, value: bankAccount)
+                }
+
+                // Due Date
+                if let dueDate = document.dueDate {
+                    StyledDetailRow(label: L10n.Detail.dueDate.localized, value: formattedDate(dueDate))
+                }
+
+                // Notes
+                if let notes = document.notes, !notes.isEmpty {
+                    StyledDetailRow(label: L10n.Detail.notes.localized, value: notes)
+                }
+
+                // Created
+                StyledDetailRow(label: L10n.Detail.created.localized, value: formattedDate(document.createdAt))
             }
-
-            // NIP
-            if let nip = document.vendorNIP, !nip.isEmpty {
-                detailRow(label: L10n.Detail.nip.localized, value: nip)
-            }
-
-            // Bank Account
-            if let bankAccount = document.bankAccountNumber, !bankAccount.isEmpty {
-                detailRow(label: L10n.Detail.bankAccount.localized, value: bankAccount)
-            }
-
-            // Due Date
-            if let dueDate = document.dueDate {
-                detailRow(label: L10n.Detail.dueDate.localized, value: formattedDate(dueDate))
-            }
-
-            // Notes
-            if let notes = document.notes, !notes.isEmpty {
-                detailRow(label: L10n.Detail.notes.localized, value: notes)
-            }
-
-            // Created
-            detailRow(label: L10n.Detail.created.localized, value: formattedDate(document.createdAt))
         }
-        .padding(Spacing.md)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(UIColor.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: CornerRadius.md))
     }
 
     @ViewBuilder
     private func calendarSection(document: FinanceDocument) -> some View {
-        VStack(alignment: .leading, spacing: Spacing.xs) {
-            HStack {
-                Image(systemName: "calendar")
-                    .foregroundStyle(AppColors.primary)
-
-                Text(L10n.Detail.calendar.localized)
-                    .font(Typography.headline)
-
-                Spacer()
-
-                if document.calendarEventId != nil {
-                    Text(L10n.Detail.calendarAdded.localized)
-                        .font(Typography.caption1)
-                        .foregroundStyle(AppColors.success)
-                } else {
-                    Text(L10n.Detail.calendarNotAdded.localized)
-                        .font(Typography.caption1)
-                        .foregroundStyle(.secondary)
-                }
-            }
-
-            if document.notificationsEnabled {
+        StyledDetailCard {
+            VStack(alignment: .leading, spacing: Spacing.xs) {
                 HStack {
-                    Image(systemName: "bell.fill")
-                        .foregroundStyle(AppColors.primary)
+                    Image(systemName: "calendar")
+                        .foregroundStyle(isAurora ? AuroraPalette.accentBlue : AppColors.primary)
 
-                    Text(L10n.DetailLabels.remindersEnabled.localized)
-                        .font(Typography.subheadline)
+                    Text(L10n.Detail.calendar.localized)
+                        .font(Typography.listRowPrimary)
+                        .foregroundStyle(isAurora ? Color.white : .primary)
+
+                    Spacer()
+
+                    if document.calendarEventId != nil {
+                        Text(L10n.Detail.calendarAdded.localized)
+                            .font(Typography.stat)
+                            .foregroundStyle(AppColors.success)
+                    } else {
+                        Text(L10n.Detail.calendarNotAdded.localized)
+                            .font(Typography.stat)
+                            .foregroundStyle(isAurora ? Color.white.opacity(0.5) : .secondary)
+                    }
+                }
+
+                if document.notificationsEnabled {
+                    HStack {
+                        Image(systemName: "bell.fill")
+                            .foregroundStyle(isAurora ? AuroraPalette.accentBlue : AppColors.primary)
+
+                        Text(L10n.DetailLabels.remindersEnabled.localized)
+                            .font(Typography.bodyText)
+                            .foregroundStyle(isAurora ? Color.white : .primary)
+                    }
                 }
             }
         }
-        .padding(Spacing.md)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(UIColor.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: CornerRadius.md))
     }
 
     @ViewBuilder
@@ -308,27 +344,18 @@ struct DocumentDetailView: View {
             Task { await viewModel.markAsPaid() }
         } label: {
             Label(L10n.Detail.markAsPaid.localized, systemImage: "checkmark.circle.fill")
-                .font(Typography.headline)
+                .font(Typography.buttonText)
                 .frame(maxWidth: .infinity)
                 .padding()
                 .background(AppColors.success)
                 .foregroundStyle(.white)
                 .clipShape(RoundedRectangle(cornerRadius: CornerRadius.md))
         }
-    }
-
-    // MARK: - Helpers
-
-    @ViewBuilder
-    private func detailRow(label: String, value: String) -> some View {
-        VStack(alignment: .leading, spacing: Spacing.xxs) {
-            Text(label)
-                .font(Typography.caption1)
-                .foregroundStyle(.secondary)
-
-            Text(value)
-                .font(Typography.body)
-        }
+        .shadow(
+            color: isAurora ? AppColors.success.opacity(0.4) : .clear,
+            radius: isAurora ? 8 : 0,
+            y: isAurora ? 4 : 0
+        )
     }
 
     private func formattedAmount(for document: FinanceDocument) -> String {
@@ -399,6 +426,7 @@ struct DocumentDetailView: View {
 struct DocumentEditView: View {
     @Environment(AppEnvironment.self) private var environment
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.uiStyle) private var uiStyle
 
     let document: FinanceDocument
 
@@ -413,6 +441,10 @@ struct DocumentEditView: View {
     @State private var notes: String
     @State private var isSaving = false
     @State private var error: AppError?
+
+    private var isAurora: Bool {
+        uiStyle == .midnightAurora
+    }
 
     init(document: FinanceDocument) {
         self.document = document
@@ -429,16 +461,109 @@ struct DocumentEditView: View {
 
     var body: some View {
         NavigationStack {
-            Form {
-                Section(L10n.Detail.vendor.localized) {
-                    TextField(L10n.Edit.vendorNamePlaceholder.localized, text: $vendorName)
-                    TextField(L10n.Detail.address.localized, text: $vendorAddress, axis: .vertical)
-                    TextField(L10n.Detail.nip.localized, text: $vendorNIP)
-                }
+            formContent
+                .navigationTitle(L10n.Detail.editDocument.localized)
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button(L10n.Common.cancel.localized) { dismiss() }
+                    }
 
-                Section(L10n.Detail.amount.localized) {
-                    HStack {
-                        TextField(L10n.Edit.amountPlaceholder.localized, text: $amount)
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button(L10n.Common.save.localized) {
+                            Task { await saveChanges() }
+                        }
+                        .disabled(isSaving || !isValid)
+                    }
+                }
+                .overlay {
+                    if isSaving {
+                        Color.black.opacity(0.3)
+                            .ignoresSafeArea()
+                            .overlay {
+                                ProgressView(L10n.Edit.saving.localized)
+                                    .padding()
+                                    .background(savingOverlayBackground)
+                                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                                    .tint(isAurora ? Color.white : nil)
+                            }
+                    }
+                }
+        }
+    }
+
+    private var savingOverlayBackground: Color {
+        isAurora
+            ? Color(red: 0.08, green: 0.08, blue: 0.14).opacity(0.95)
+            : Color(UIColor.systemBackground).opacity(0.95)
+    }
+
+    @ViewBuilder
+    private var formContent: some View {
+        if isAurora {
+            auroraFormContent
+        } else {
+            standardFormContent
+        }
+    }
+
+    // MARK: - Standard Form (non-Aurora)
+
+    @ViewBuilder
+    private var standardFormContent: some View {
+        Form {
+            Section(L10n.Detail.vendor.localized) {
+                TextField(L10n.Edit.vendorNamePlaceholder.localized, text: $vendorName)
+                TextField(L10n.Detail.address.localized, text: $vendorAddress, axis: .vertical)
+                TextField(L10n.Detail.nip.localized, text: $vendorNIP)
+            }
+
+            Section(L10n.Detail.amount.localized) {
+                HStack {
+                    TextField(L10n.Edit.amountPlaceholder.localized, text: $amount)
+                        .keyboardType(.decimalPad)
+
+                    Picker(L10n.Edit.currency.localized, selection: $currency) {
+                        ForEach(SettingsManager.availableCurrencies, id: \.self) { curr in
+                            Text(curr).tag(curr)
+                        }
+                    }
+                    .pickerStyle(.menu)
+                }
+            }
+
+            Section(L10n.Edit.documentNumber.localized) {
+                DatePicker(L10n.Detail.dueDate.localized, selection: $dueDate, displayedComponents: .date)
+                TextField(L10n.Edit.documentNumberPlaceholder.localized, text: $documentNumber)
+                TextField(L10n.Detail.bankAccount.localized, text: $bankAccountNumber)
+            }
+
+            Section(L10n.Detail.notes.localized) {
+                TextField(L10n.Edit.notesPlaceholder.localized, text: $notes, axis: .vertical)
+                    .lineLimit(3...10)
+            }
+        }
+    }
+
+    // MARK: - Aurora Form
+
+    @ViewBuilder
+    private var auroraFormContent: some View {
+        ScrollView {
+            VStack(spacing: Spacing.lg) {
+                // Vendor Section
+                AuroraListSection(content: {
+                    AuroraEditField(label: L10n.Edit.vendorNamePlaceholder.localized, text: $vendorName)
+                    AuroraEditField(label: L10n.Detail.address.localized, text: $vendorAddress, axis: .vertical)
+                    AuroraEditField(label: L10n.Detail.nip.localized, text: $vendorNIP, showDivider: false)
+                }, header: {
+                    Text(L10n.Detail.vendor.localized)
+                })
+
+                // Amount Section
+                AuroraListSection(content: {
+                    HStack(spacing: Spacing.sm) {
+                        AuroraEditField(label: L10n.Edit.amountPlaceholder.localized, text: $amount, showDivider: false)
                             .keyboardType(.decimalPad)
 
                         Picker(L10n.Edit.currency.localized, selection: $currency) {
@@ -447,47 +572,50 @@ struct DocumentEditView: View {
                             }
                         }
                         .pickerStyle(.menu)
+                        .tint(AuroraPalette.accentBlue)
                     }
-                }
+                    .padding(.horizontal, Spacing.md)
+                    .padding(.vertical, Spacing.sm)
+                }, header: {
+                    Text(L10n.Detail.amount.localized)
+                })
 
-                Section(L10n.Edit.documentNumber.localized) {
-                    DatePicker(L10n.Detail.dueDate.localized, selection: $dueDate, displayedComponents: .date)
-                    TextField(L10n.Edit.documentNumberPlaceholder.localized, text: $documentNumber)
-                    TextField(L10n.Detail.bankAccount.localized, text: $bankAccountNumber)
-                }
+                // Document Details Section
+                AuroraListSection(content: {
+                    HStack {
+                        Text(L10n.Detail.dueDate.localized)
+                            .foregroundStyle(Color.white)
+                        Spacer()
+                        DatePicker("", selection: $dueDate, displayedComponents: .date)
+                            .labelsHidden()
+                            .tint(AuroraPalette.accentBlue)
+                    }
+                    .padding(.horizontal, Spacing.md)
+                    .padding(.vertical, Spacing.sm)
 
-                Section(L10n.Detail.notes.localized) {
-                    TextField(L10n.Edit.notesPlaceholder.localized, text: $notes, axis: .vertical)
+                    Rectangle()
+                        .fill(Color.white.opacity(0.1))
+                        .frame(height: 0.5)
+                        .padding(.leading, Spacing.md)
+
+                    AuroraEditField(label: L10n.Edit.documentNumberPlaceholder.localized, text: $documentNumber)
+                    AuroraEditField(label: L10n.Detail.bankAccount.localized, text: $bankAccountNumber, showDivider: false)
+                }, header: {
+                    Text(L10n.Edit.documentNumber.localized)
+                })
+
+                // Notes Section
+                AuroraListSection(content: {
+                    AuroraEditField(label: L10n.Edit.notesPlaceholder.localized, text: $notes, axis: .vertical, showDivider: false)
                         .lineLimit(3...10)
-                }
+                }, header: {
+                    Text(L10n.Detail.notes.localized)
+                })
             }
-            .navigationTitle(L10n.Detail.editDocument.localized)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button(L10n.Common.cancel.localized) { dismiss() }
-                }
-
-                ToolbarItem(placement: .confirmationAction) {
-                    Button(L10n.Common.save.localized) {
-                        Task { await saveChanges() }
-                    }
-                    .disabled(isSaving || !isValid)
-                }
-            }
-            .overlay {
-                if isSaving {
-                    Color.black.opacity(0.3)
-                        .ignoresSafeArea()
-                        .overlay {
-                            ProgressView(L10n.Edit.saving.localized)
-                                .padding()
-                                .background(Color(UIColor.systemBackground).opacity(0.95))
-                                .clipShape(RoundedRectangle(cornerRadius: 12))
-                        }
-                }
-            }
+            .padding(.vertical, Spacing.md)
         }
+        .scrollContentBackground(.hidden)
+        .background { EnhancedMidnightAuroraBackground() }
     }
 
     private var isValid: Bool {
@@ -549,6 +677,32 @@ struct DocumentEditView: View {
         } catch {
             self.error = .unknown(error.localizedDescription)
             isSaving = false
+        }
+    }
+}
+
+// MARK: - Aurora Edit Field
+
+/// Aurora-styled text field for edit forms
+private struct AuroraEditField: View {
+    let label: String
+    @Binding var text: String
+    var axis: Axis = .horizontal
+    var showDivider: Bool = true
+
+    var body: some View {
+        VStack(spacing: 0) {
+            TextField(label, text: $text, axis: axis)
+                .foregroundStyle(Color.white)
+                .padding(.horizontal, Spacing.md)
+                .padding(.vertical, Spacing.sm)
+
+            if showDivider {
+                Rectangle()
+                    .fill(Color.white.opacity(0.1))
+                    .frame(height: 0.5)
+                    .padding(.leading, Spacing.md)
+            }
         }
     }
 }

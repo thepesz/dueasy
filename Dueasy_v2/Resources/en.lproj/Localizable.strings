@@ -248,6 +248,10 @@
 "settings.syncRecurringToiOSCalendar" = "Sync recurring to iOS Calendar";
 "settings.syncRecurringToiOSCalendarFooter" = "When enabled, expected recurring payments will be added to iOS Calendar. The in-app calendar view always shows all recurring payments.";
 
+// Appearance section
+"settings.appearance.section" = "Appearance";
+"settings.appearance" = "Visual Style";
+
 // Defaults section
 "settings.defaults.section" = "Defaults";
 "settings.defaultCurrency" = "Default Currency";
@@ -695,6 +699,8 @@
 "home.recurring.title" = "Recurring";
 "home.recurring.active" = "Active: %d";
 "home.recurring.next" = "Next: %@ in %dd";
+"home.recurring.nextVendor" = "Next: %@";
+"home.recurring.inDays" = "In %d days";
 "home.recurring.missing" = "Missing: %d";
 "home.recurring.manage" = "Manage";
 "home.recurring.setup" = "Set up recurring";
@@ -720,3 +726,41 @@
 "home.empty.title" = "No payments yet";
 "home.empty.message" = "Add your first invoice to start tracking due dates";
 "home.empty.goToScan" = "Go to Scan";
+
+// Logo tagline
+"home.tagline.paymentTracker" = "Payment Tracker";
+
+// MARK: - UI Style Settings
+
+"uiStyle.title" = "Visual Style";
+"uiStyle.headerTitle" = "Choose Your Style";
+"uiStyle.headerDescription" = "Personalize the app's look and feel. Try different styles for the home dashboard and other screens.";
+"uiStyle.homeViewStyle" = "Home View Style";
+"uiStyle.homeViewDescription" = "Choose the visual style for the home dashboard";
+"uiStyle.otherViewsStyle" = "Other Views Style";
+"uiStyle.otherViewsDescription" = "Choose the visual style for documents, calendar, and settings";
+"uiStyle.quickActions" = "Quick Actions";
+"uiStyle.quickActionsHint" = "Tap a preview to apply that style to both Home and other views";
+"uiStyle.applyAll" = "Apply";
+"uiStyle.currentStyle" = "Current Style";
+"uiStyle.defaultStyle" = "Default";
+"uiStyle.paperMinimal" = "Paper Minimal";
+"uiStyle.midnightAurora" = "Midnight Aurora";
+"uiStyle.warmFinance" = "Warm Finance";
+
+// MARK: - Recurring Fuzzy Match
+
+"recurring.fuzzyMatch.title" = "Similar Payment Found";
+"recurring.fuzzyMatch.subtitle" = "You have an existing recurring payment from this vendor";
+"recurring.fuzzyMatch.existingAmount" = "Existing: %@";
+"recurring.fuzzyMatch.newAmount" = "New: %@";
+"recurring.fuzzyMatch.percentDifference" = "%@ difference";
+"recurring.fuzzyMatch.sameService" = "Same Service";
+"recurring.fuzzyMatch.sameServiceDescription" = "Link this invoice to your existing recurring payment";
+"recurring.fuzzyMatch.differentService" = "Different Service";
+"recurring.fuzzyMatch.differentServiceDescription" = "Create a new recurring payment for this amount";
+"recurring.fuzzyMatch.question" = "Is this the same recurring payment?";
+"recurring.fuzzyMatch.multipleCandidates" = "Multiple matches found";
+"recurring.fuzzyMatch.selectTemplate" = "Select which recurring payment to link:";
+"recurring.fuzzyMatch.matchedInvoices" = "%d invoices matched";
+"recurring.fuzzyMatch.dueDayInfo" = "Due on day %d";
