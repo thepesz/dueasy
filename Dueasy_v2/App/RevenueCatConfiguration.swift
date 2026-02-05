@@ -27,7 +27,7 @@ enum RevenueCatConfiguration {
     /// RevenueCat public API key for iOS.
     /// Replace with your actual API key from RevenueCat dashboard.
     /// Location: RevenueCat Dashboard -> Project -> API Keys -> Public SDK Key
-    static let apiKey = "appl_YOUR_PUBLIC_API_KEY_HERE"
+    static let apiKey = "test_LcspPTRaIMlQpvnGrZADqPTmXVi"
 
     // MARK: - Entitlement IDs
 
