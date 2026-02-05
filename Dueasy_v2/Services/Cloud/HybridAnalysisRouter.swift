@@ -322,7 +322,7 @@ final class HybridAnalysisRouter: DocumentAnalysisRouterProtocol {
                 extractionMode: .localFallback
             )
 
-        case .invalidResponse, .imageUploadFailed, .analysisIncomplete:
+        case .invalidResponse, .analysisIncomplete:
             // Backend returned bad data - fall back to local
             logger.warning("Cloud analysis returned invalid data, falling back to local")
             stats.localFallbacks += 1

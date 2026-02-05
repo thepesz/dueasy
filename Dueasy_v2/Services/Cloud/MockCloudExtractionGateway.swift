@@ -20,9 +20,6 @@ final class MockCloudExtractionGateway: CloudExtractionGatewayProtocol {
     /// Simulated network delay for text analysis
     var textAnalysisDelay: Duration = .seconds(1)
 
-    /// Simulated network delay for image analysis
-    var imageAnalysisDelay: Duration = .seconds(2)
-
     /// Whether to simulate being available
     var simulateAvailable: Bool = true
 
@@ -64,34 +61,6 @@ final class MockCloudExtractionGateway: CloudExtractionGatewayProtocol {
         return createMockResult(
             documentType: documentType,
             currency: currencyHints.first ?? "PLN"
-        )
-    }
-
-    func analyzeWithImages(
-        ocrText: String?,
-        croppedImages: [Data],
-        documentType: DocumentType,
-        languageHints: [String]
-    ) async throws -> DocumentAnalysisResult {
-
-        PrivacyLogger.parsing.info(
-            "MockCloudExtractionGateway: Analyzing with images (\(croppedImages.count) images)"
-        )
-
-        // Check for simulated error
-        if let error = simulatedError {
-            PrivacyLogger.parsing.warning("MockCloudExtractionGateway: Simulating error")
-            throw error
-        }
-
-        // Simulate longer processing for images
-        try await Task.sleep(for: imageAnalysisDelay)
-
-        // Generate mock result with slightly higher confidence for image analysis
-        return createMockResult(
-            documentType: documentType,
-            currency: "PLN",
-            confidenceBoost: 0.02
         )
     }
 

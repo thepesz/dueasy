@@ -254,7 +254,9 @@ final class RevenueCatSubscriptionService: SubscriptionServiceProtocol {
             continuation.yield(self.cachedStatus)
 
             continuation.onTermination = { @Sendable [weak self] _ in
-                self?.statusContinuation = nil
+                Task { @MainActor in
+                    self?.statusContinuation = nil
+                }
             }
         }
     }

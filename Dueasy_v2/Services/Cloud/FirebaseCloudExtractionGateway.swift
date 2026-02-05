@@ -92,35 +92,6 @@ final class FirebaseCloudExtractionGateway: CloudExtractionGatewayProtocol {
         #endif
     }
 
-    func analyzeWithImages(
-        ocrText: String?,
-        croppedImages: [Data],
-        documentType: DocumentType,
-        languageHints: [String]
-    ) async throws -> DocumentAnalysisResult {
-        #if canImport(FirebaseFunctions)
-        guard await authService.isSignedIn else {
-            throw CloudExtractionError.authenticationRequired
-        }
-
-        // Convert images to base64
-        let base64Images = croppedImages.map { $0.base64EncodedString() }
-
-        let payload: [String: Any] = [
-            "ocrText": ocrText as Any,
-            "images": base64Images,
-            "documentType": documentType.rawValue,
-            "languageHints": languageHints,
-            "mode": "withImages"
-        ]
-
-        // Use retry wrapper for resilient API calls
-        return try await executeWithRetry(functionName: "analyzeDocumentWithImages", payload: payload)
-        #else
-        throw AppError.featureUnavailable("Firebase SDK not available")
-        #endif
-    }
-
     // MARK: - Retry Logic
 
     #if canImport(FirebaseFunctions)

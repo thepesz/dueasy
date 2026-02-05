@@ -10,6 +10,7 @@
 		CC78B4802F2ED6490048D654 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = CC78B47F2F2ED6490048D654 /* FirebaseAuth */; };
 		CC78B4822F2ED6510048D654 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = CC78B4812F2ED6510048D654 /* FirebaseCore */; };
 		CC78B4842F2ED6590048D654 /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = CC78B4832F2ED6590048D654 /* FirebaseFunctions */; };
+		CC78C3F02F34D63B0048D654 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = CC78C3EF2F34D63B0048D654 /* FirebaseCrashlytics */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -79,6 +80,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				CC78B4842F2ED6590048D654 /* FirebaseFunctions in Frameworks */,
+				CC78C3F02F34D63B0048D654 /* FirebaseCrashlytics in Frameworks */,
 				CC78B4822F2ED6510048D654 /* FirebaseCore in Frameworks */,
 				CC78B4802F2ED6490048D654 /* FirebaseAuth in Frameworks */,
 			);
@@ -153,6 +155,7 @@
 			buildConfigurationList = CCDD80232F2D795500080A4A /* Build configuration list for PBXNativeTarget "Dueasy_v2" */;
 			buildPhases = (
 				CCDD80142F2D795400080A4A /* Sources */,
+				CC78C3F12F34D65E0048D654 /* ShellScript */,
 				CCDD80152F2D795400080A4A /* Frameworks */,
 				CCDD80162F2D795400080A4A /* Resources */,
 			);
@@ -168,6 +171,7 @@
 				CC78B47F2F2ED6490048D654 /* FirebaseAuth */,
 				CC78B4812F2ED6510048D654 /* FirebaseCore */,
 				CC78B4832F2ED6590048D654 /* FirebaseFunctions */,
+				CC78C3EF2F34D63B0048D654 /* FirebaseCrashlytics */,
 			);
 			productName = Dueasy_v2;
 			productReference = CCDD80182F2D795400080A4A /* Dueasy_v2.app */;
@@ -267,6 +271,27 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		CC78C3F12F34D65E0048D654 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"",
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "  # Skip for simulator builds (Crashlytics only needed for device)                                                                                                                           \n  if [ \"${EFFECTIVE_PLATFORM_NAME}\" == \"-iphonesimulator\" ]; then                                                                                                                            \n      echo \"Skipping Crashlytics for Simulator build\"                                                                                                                                        \n      exit 0                                                                                                                                                                     \n  fi                                                                                                                                                                 \n  # Run Crashlytics script if available                                                                                                                                                      \n  CRASHLYTICS_SCRIPT_PATH=\"${BUILD_DIR%/Build/*}/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run\"                                                                                  \n                                                                                                                                                                                             \n  if [ -f \"$CRASHLYTICS_SCRIPT_PATH\" ]; then                                                                                                                                                 \n      \"$CRASHLYTICS_SCRIPT_PATH\"                                                                                                                                                             \n  else                                                                                                                                                                                       \n      echo \"Warning: Crashlytics script not found\"                                                                                                                                           \n  fi \n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		CC00000000000060 /* Sources */ = {
@@ -636,6 +661,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = CC78B47D2F2ED5AF0048D654 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseFunctions;
+		};
+		CC78C3EF2F34D63B0048D654 /* FirebaseCrashlytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CC78B47D2F2ED5AF0048D654 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCrashlytics;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

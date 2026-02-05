@@ -4,9 +4,20 @@ import Foundation
 /// This protocol defines the contract for cloud analysis providers.
 ///
 /// Iteration 1: Mock implementation for testing.
-/// Iteration 2: Firebase Functions integration with OpenAI Vision API.
+/// Iteration 2: Firebase Functions integration with OpenAI text analysis.
 ///
-/// ## Privacy and Consent
+/// ## Privacy Guarantee
+///
+/// DuEasy NEVER uploads images or PDFs to the cloud. All document processing
+/// follows this strict privacy-first flow:
+///
+/// 1. Images/PDFs are processed locally on-device using Apple Vision OCR
+/// 2. Only the extracted TEXT is sent to cloud for AI analysis
+/// 3. Original documents NEVER leave the user's device
+///
+/// This is a core privacy commitment - there is NO fallback to image upload.
+///
+/// ## Cloud Analysis Consent
 ///
 /// Cloud analysis requires **explicit user consent** via the `cloudAnalysisEnabled`
 /// setting in `SettingsManager`. This setting:
@@ -19,10 +30,6 @@ import Foundation
 /// - **Encrypted in transit** (TLS 1.3+)
 /// - **No raw text retained** in cloud storage (only analysis results returned)
 ///
-/// Privacy-first design:
-/// - Primary: Text-only analysis (OCR text sent, images stay on device)
-/// - Fallback: Cropped image snippets when text is insufficient
-///
 /// ## Rate Limiting and Retry
 ///
 /// Implementations MUST handle rate limiting (HTTP 429) gracefully:
@@ -32,8 +39,11 @@ import Foundation
 /// - Return `CloudExtractionError.rateLimitExceeded` after max retries
 protocol CloudExtractionGatewayProtocol: Sendable {
 
-    /// Analyzes document using OCR text only (privacy-first approach).
-    /// This is the preferred method - keeps images on device.
+    /// Analyzes document using OCR text only.
+    ///
+    /// This is the ONLY cloud analysis method. Images/PDFs are processed
+    /// locally on-device and only the extracted text is sent to cloud.
+    ///
     /// - Parameters:
     ///   - ocrText: Pre-extracted OCR text from on-device Vision
     ///   - documentType: Expected document type for parsing hints
@@ -46,22 +56,6 @@ protocol CloudExtractionGatewayProtocol: Sendable {
         documentType: DocumentType,
         languageHints: [String],
         currencyHints: [String]
-    ) async throws -> DocumentAnalysisResult
-
-    /// Analyzes with cropped image snippets (fallback when text is insufficient).
-    /// Used when text-only analysis returns low confidence and user opts in.
-    /// - Parameters:
-    ///   - ocrText: Pre-extracted OCR text (may be nil if OCR failed)
-    ///   - croppedImages: JPEG data of cropped regions containing fields
-    ///   - documentType: Expected document type for parsing hints
-    ///   - languageHints: Language codes to assist parsing
-    /// - Returns: Structured analysis result with extracted fields
-    /// - Throws: `CloudExtractionError` on failure
-    func analyzeWithImages(
-        ocrText: String?,
-        croppedImages: [Data],
-        documentType: DocumentType,
-        languageHints: [String]
     ) async throws -> DocumentAnalysisResult
 
     /// Check if cloud analysis is available (auth + subscription + network).
@@ -103,7 +97,6 @@ enum CloudExtractionError: LocalizedError {
     case serverError(statusCode: Int, message: String)
     case invalidResponse
     case timeout
-    case imageUploadFailed
     case analysisIncomplete(partialResult: DocumentAnalysisResult?)
     case backendUnavailable
 
@@ -125,8 +118,6 @@ enum CloudExtractionError: LocalizedError {
             return "Invalid response from server"
         case .timeout:
             return "Request timed out"
-        case .imageUploadFailed:
-            return "Failed to upload images"
         case .analysisIncomplete(let partialResult):
             if partialResult != nil {
                 return "Analysis partially completed"
@@ -186,7 +177,7 @@ enum CloudExtractionError: LocalizedError {
             return nil
         }
 
-        var message = "You've used all \(limit) cloud extractions this month."
+        var message = "You've used \(used) of \(limit) cloud extractions this month."
 
         if let reset = resetDate {
             let formatter = DateFormatter()
