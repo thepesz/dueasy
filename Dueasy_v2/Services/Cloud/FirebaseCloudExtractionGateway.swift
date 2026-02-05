@@ -10,6 +10,10 @@ import UIKit
 import FirebaseFunctions
 #endif
 
+#if canImport(FirebaseCrashlytics)
+import FirebaseCrashlytics
+#endif
+
 /// Firebase Cloud Functions gateway for OpenAI-powered document analysis.
 ///
 /// ## Rate Limiting and Retry
@@ -73,7 +77,17 @@ final class FirebaseCloudExtractionGateway: CloudExtractionGatewayProtocol {
         currencyHints: [String]
     ) async throws -> DocumentAnalysisResult {
         #if canImport(FirebaseFunctions)
-        guard await authService.isSignedIn else {
+        let isSignedIn = await authService.isSignedIn
+
+        #if canImport(FirebaseCrashlytics)
+        Crashlytics.crashlytics().log("🔑 Firebase auth check: signedIn=\(isSignedIn)")
+        Crashlytics.crashlytics().setCustomValue(isSignedIn, forKey: "firebaseAuthSignedIn")
+        #endif
+
+        guard isSignedIn else {
+            #if canImport(FirebaseCrashlytics)
+            Crashlytics.crashlytics().log("⚠️ Auth required: User not signed in with Apple")
+            #endif
             throw CloudExtractionError.authenticationRequired
         }
 
@@ -84,6 +98,10 @@ final class FirebaseCloudExtractionGateway: CloudExtractionGatewayProtocol {
             "currencyHints": currencyHints,
             "mode": "textOnly"
         ]
+
+        #if canImport(FirebaseCrashlytics)
+        Crashlytics.crashlytics().log("📡 Calling Firebase function: analyzeDocument")
+        #endif
 
         // Use retry wrapper for resilient API calls
         return try await executeWithRetry(functionName: "analyzeDocument", payload: payload)

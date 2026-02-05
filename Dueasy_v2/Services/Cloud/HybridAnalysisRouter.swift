@@ -7,6 +7,10 @@ import os.log
 import UIKit
 #endif
 
+#if canImport(FirebaseCrashlytics)
+import FirebaseCrashlytics
+#endif
+
 /// Routes document analysis with cloud-first strategy for all users.
 ///
 /// ## Routing Strategy (Cloud-First with Network Awareness)
@@ -114,11 +118,23 @@ final class HybridAnalysisRouter: DocumentAnalysisRouterProtocol {
 
         stats.totalRouted += 1
 
+        #if canImport(FirebaseCrashlytics)
+        // Log document analysis attempt
+        Crashlytics.crashlytics().log("📄 Document analysis started: type=\(documentType.rawValue)")
+        Crashlytics.crashlytics().setCustomValue(documentType.rawValue, forKey: "lastDocumentType")
+        #endif
+
         // Route based on mode
         switch analysisMode {
         case .localOnly:
             logger.info("Using local-only analysis (cloud disabled in settings)")
             stats.localOnly += 1
+
+            #if canImport(FirebaseCrashlytics)
+            Crashlytics.crashlytics().log("🔒 Using local-only mode (cloud disabled)")
+            Crashlytics.crashlytics().setCustomValue("local_only", forKey: "lastExtractionMode")
+            #endif
+
             return try await performLocalAnalysis(
                 ocrResult: ocrResult,
                 documentType: documentType,
@@ -128,6 +144,11 @@ final class HybridAnalysisRouter: DocumentAnalysisRouterProtocol {
         case .alwaysCloud, .cloudWithLocalFallback:
             // Cloud-first routing for all users
             // Backend enforces monthly limits (Free: 3, Pro: 100)
+
+            #if canImport(FirebaseCrashlytics)
+            Crashlytics.crashlytics().log("☁️ Attempting cloud-first analysis")
+            #endif
+
             return try await performCloudFirstAnalysis(
                 ocrResult: ocrResult,
                 images: images,
@@ -176,11 +197,23 @@ final class HybridAnalysisRouter: DocumentAnalysisRouterProtocol {
 
         logger.info("Extraction decision: \(String(describing: decision)), online=\(self.networkMonitor.isOnline), backendHealth=\(self.lastBackendHealth.rawValue)")
 
+        #if canImport(FirebaseCrashlytics)
+        Crashlytics.crashlytics().log("🔍 Routing: decision=\(String(describing: decision)), online=\(self.networkMonitor.isOnline), backend=\(self.lastBackendHealth.rawValue)")
+        Crashlytics.crashlytics().setCustomValue(self.networkMonitor.isOnline, forKey: "networkOnline")
+        Crashlytics.crashlytics().setCustomValue(self.lastBackendHealth.rawValue, forKey: "backendHealth")
+        #endif
+
         switch decision {
         case .offlineFallback:
             // Device offline or backend known to be down - use local immediately
             logger.info("Using offline fallback (device offline or backend down)")
             stats.localFallbacks += 1
+
+            #if canImport(FirebaseCrashlytics)
+            Crashlytics.crashlytics().log("📴 Offline fallback: using local extraction")
+            Crashlytics.crashlytics().setCustomValue("offline_fallback", forKey: "lastExtractionMode")
+            #endif
+
             return try await performLocalAnalysis(
                 ocrResult: ocrResult,
                 documentType: documentType,
@@ -192,10 +225,21 @@ final class HybridAnalysisRouter: DocumentAnalysisRouterProtocol {
             // Step 2: Verify cloud gateway is available (auth check)
             let cloudAvailable = await cloudGateway.isAvailable
 
+            #if canImport(FirebaseCrashlytics)
+            Crashlytics.crashlytics().log("🔐 Auth check: available=\(cloudAvailable)")
+            Crashlytics.crashlytics().setCustomValue(cloudAvailable, forKey: "authAvailable")
+            #endif
+
             guard cloudAvailable else {
                 // Auth not available - use local fallback
                 logger.info("Cloud gateway not available (auth required), using local fallback")
                 stats.localFallbacks += 1
+
+                #if canImport(FirebaseCrashlytics)
+                Crashlytics.crashlytics().log("⚠️ Auth required: falling back to local")
+                Crashlytics.crashlytics().setCustomValue("auth_required_fallback", forKey: "lastExtractionMode")
+                #endif
+
                 return try await performLocalAnalysis(
                     ocrResult: ocrResult,
                     documentType: documentType,
@@ -206,6 +250,10 @@ final class HybridAnalysisRouter: DocumentAnalysisRouterProtocol {
             // Step 3: Try cloud extraction (for both Free and Pro users)
             // Backend enforces monthly limits
             do {
+                #if canImport(FirebaseCrashlytics)
+                Crashlytics.crashlytics().log("☁️ Starting cloud extraction...")
+                #endif
+
                 let result = try await performCloudAnalysis(
                     ocrResult: ocrResult,
                     images: images,
@@ -215,10 +263,19 @@ final class HybridAnalysisRouter: DocumentAnalysisRouterProtocol {
                 // Success - mark backend as healthy
                 lastBackendHealth = .healthy
 
+                #if canImport(FirebaseCrashlytics)
+                Crashlytics.crashlytics().log("✅ Cloud extraction succeeded")
+                Crashlytics.crashlytics().setCustomValue("cloud", forKey: "lastExtractionMode")
+                #endif
+
                 return result
             } catch let error as CloudExtractionError {
                 // Update backend health based on error type
                 updateBackendHealth(from: error)
+
+                #if canImport(FirebaseCrashlytics)
+                Crashlytics.crashlytics().log("❌ Cloud extraction failed: \(error.localizedDescription)")
+                #endif
 
                 return try await handleCloudError(
                     error: error,
@@ -275,6 +332,13 @@ final class HybridAnalysisRouter: DocumentAnalysisRouterProtocol {
             // User is NOT blocked - they can continue with local extraction
             PrivacyLogger.cloud.warning("Cloud extraction rate limited: \(used)/\(limit), resets: \(resetDate?.description ?? "unknown"). Falling back to local.")
             stats.localFallbacks += 1
+
+            #if canImport(FirebaseCrashlytics)
+            Crashlytics.crashlytics().log("🚫 Rate limit exceeded: \(used)/\(limit), falling back to local")
+            Crashlytics.crashlytics().setCustomValue("rate_limit_fallback", forKey: "lastExtractionMode")
+            Crashlytics.crashlytics().setCustomValue(used, forKey: "rateLimitUsed")
+            Crashlytics.crashlytics().setCustomValue(limit, forKey: "rateLimitMax")
+            #endif
 
             // Perform local analysis
             let localResult = try await performLocalAnalysis(

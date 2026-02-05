@@ -6,6 +6,10 @@ import os
 import RevenueCat
 #endif
 
+#if canImport(FirebaseCrashlytics)
+import FirebaseCrashlytics
+#endif
+
 /// Production subscription service using RevenueCat SDK.
 ///
 /// ## Features
@@ -84,8 +88,19 @@ final class RevenueCatSubscriptionService: SubscriptionServiceProtocol {
         Purchases.configure(withAPIKey: key)
 
         PrivacyLogger.app.info("RevenueCat configured successfully")
+
+        #if canImport(FirebaseCrashlytics)
+        Crashlytics.crashlytics().log("💳 RevenueCat configured")
+        Crashlytics.crashlytics().setCustomValue(true, forKey: "revenueCatConfigured")
+        #endif
+
         #else
         PrivacyLogger.app.warning("RevenueCat SDK not available - subscriptions disabled")
+
+        #if canImport(FirebaseCrashlytics)
+        Crashlytics.crashlytics().log("⚠️ RevenueCat SDK not available")
+        Crashlytics.crashlytics().setCustomValue(false, forKey: "revenueCatConfigured")
+        #endif
         #endif
     }
 
@@ -96,7 +111,13 @@ final class RevenueCatSubscriptionService: SubscriptionServiceProtocol {
             #if canImport(RevenueCat)
             do {
                 let customerInfo = try await Purchases.shared.customerInfo()
-                return customerInfo.entitlements[RevenueCatConfiguration.proEntitlementID]?.isActive == true
+                let hasPro = customerInfo.entitlements[RevenueCatConfiguration.proEntitlementID]?.isActive == true
+
+                #if canImport(FirebaseCrashlytics)
+                Crashlytics.crashlytics().setCustomValue(hasPro ? "pro" : "free", forKey: "subscriptionTier")
+                #endif
+
+                return hasPro
             } catch {
                 logger.error("Failed to check Pro subscription: \(error.localizedDescription)")
                 return false
