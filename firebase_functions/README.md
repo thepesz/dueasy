@@ -1,19 +1,30 @@
 # DuEasy Cloud Functions
 
-Backend functions for DuEasy Pro tier - AI-powered document analysis using OpenAI GPT-4o.
+Backend functions for DuEasy - AI-powered document analysis using OpenAI GPT-4o.
+
+## Privacy Guarantee
+
+**DuEasy NEVER uploads images or PDFs to the cloud.**
+
+All document processing follows this strict privacy-first flow:
+1. Images/PDFs are processed locally on-device using Apple Vision OCR
+2. Only the extracted TEXT is sent to cloud for AI analysis
+3. Original documents NEVER leave the user's device
+
+This is a core privacy commitment with no exceptions or fallbacks.
 
 ## Features
 
-- **Privacy-First**: Only processes OCR text, never full images
+- **Privacy-First**: Only processes OCR text, NEVER images or PDFs
 - **High Accuracy**: GPT-4o achieves 99%+ accuracy on invoice extraction
-- **Rate Limited**: 100 requests/day, 20 requests/hour per user
+- **Rate Limited**: Free tier: 3/month, Pro tier: 100/month
 - **GDPR Compliant**: Deployed in EU region (europe-west1)
 - **Cost Optimized**: Smart routing only uses cloud when needed
 
 ## Functions
 
 ### `analyzeDocument`
-Primary function - analyzes OCR text only (privacy-first).
+Analyzes OCR text to extract invoice fields. This is the ONLY analysis endpoint.
 
 **Input:**
 ```json
@@ -36,9 +47,6 @@ Primary function - analyzes OCR text only (privacy-first).
   ...
 }
 ```
-
-### `analyzeDocumentWithImages`
-Fallback function - uses vision analysis when text-only fails (requires user opt-in).
 
 ### `getSubscriptionStatus`
 Returns user's subscription status and entitlements.
@@ -183,8 +191,7 @@ if (!hasPro) {
 ### Input Validation
 
 - OCR text length: Max 100,000 characters
-- Images: Max 5 images per request
-- Image size: Auto-limited by Firebase (32MB request size)
+- No image upload endpoints exist (privacy by design)
 
 ### Privacy
 

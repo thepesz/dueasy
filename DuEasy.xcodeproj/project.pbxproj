@@ -40,6 +40,8 @@
 		CCDD80302F2D800000080A4A /* Exceptions for "Dueasy_v2" folder in "Dueasy_v2" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				"GoogleService-Info.plist.backup",
+				"GoogleService-Info.plist.template",
 				Info.plist,
 			);
 			target = CCDD80172F2D795400080A4A /* Dueasy_v2 */;
@@ -155,9 +157,9 @@
 			buildConfigurationList = CCDD80232F2D795500080A4A /* Build configuration list for PBXNativeTarget "Dueasy_v2" */;
 			buildPhases = (
 				CCDD80142F2D795400080A4A /* Sources */,
-				CC78C3F12F34D65E0048D654 /* ShellScript */,
 				CCDD80152F2D795400080A4A /* Frameworks */,
 				CCDD80162F2D795400080A4A /* Resources */,
+				CC78C3F12F34D65E0048D654 /* Firebase Crashlytics */,
 			);
 			buildRules = (
 			);
@@ -273,23 +275,29 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		CC78C3F12F34D65E0048D654 /* ShellScript */ = {
+		CC78C3F12F34D65E0048D654 /* Firebase Crashlytics */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputFileListPaths = (
 			);
 			inputPaths = (
-				"",
+				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}",
+				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${PRODUCT_NAME}",
+				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Info.plist",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/GoogleService-Info.plist",
+				"$(TARGET_BUILD_DIR)/$(EXECUTABLE_PATH)",
 			);
+			name = "Firebase Crashlytics";
 			outputFileListPaths = (
 			);
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "  # Skip for simulator builds (Crashlytics only needed for device)                                                                                                                           \n  if [ \"${EFFECTIVE_PLATFORM_NAME}\" == \"-iphonesimulator\" ]; then                                                                                                                            \n      echo \"Skipping Crashlytics for Simulator build\"                                                                                                                                        \n      exit 0                                                                                                                                                                     \n  fi                                                                                                                                                                 \n  # Run Crashlytics script if available                                                                                                                                                      \n  CRASHLYTICS_SCRIPT_PATH=\"${BUILD_DIR%/Build/*}/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run\"                                                                                  \n                                                                                                                                                                                             \n  if [ -f \"$CRASHLYTICS_SCRIPT_PATH\" ]; then                                                                                                                                                 \n      \"$CRASHLYTICS_SCRIPT_PATH\"                                                                                                                                                             \n  else                                                                                                                                                                                       \n      echo \"Warning: Crashlytics script not found\"                                                                                                                                           \n  fi \n";
+			shellScript = "# Firebase Crashlytics dSYM Upload Script\n# Skip for simulator builds\nif [ \"${EFFECTIVE_PLATFORM_NAME}\" == \"-iphonesimulator\" ]; then\n    echo \"Skipping Crashlytics dSYM upload for Simulator build\"\n    exit 0\nfi\n\n# Use the plist from the built app bundle (already copied by Xcode)\nPLIST_IN_BUNDLE=\"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/GoogleService-Info.plist\"\n\n# Verify the plist exists in the bundle\nif [ ! -f \"${PLIST_IN_BUNDLE}\" ]; then\n    echo \"error: GoogleService-Info.plist not found in app bundle at ${PLIST_IN_BUNDLE}\"\n    exit 1\nfi\n\necho \"Using GoogleService-Info.plist from: ${PLIST_IN_BUNDLE}\"\n\n# Find the Crashlytics upload script\nCRASHLYTICS_SCRIPT=\"${BUILD_DIR%/Build/*}/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run\"\n\nif [ ! -f \"${CRASHLYTICS_SCRIPT}\" ]; then\n    echo \"warning: Crashlytics run script not found at ${CRASHLYTICS_SCRIPT}\"\n    echo \"Attempting alternative path...\"\n    # Try DerivedData path for Archive builds\n    CRASHLYTICS_SCRIPT=$(find \"${HOME}/Library/Developer/Xcode/DerivedData\" -name \"run\" -path \"*/firebase-ios-sdk/Crashlytics/*\" 2>/dev/null | head -1)\nfi\n\nif [ -f \"${CRASHLYTICS_SCRIPT}\" ]; then\n    echo \"Running Crashlytics script from: ${CRASHLYTICS_SCRIPT}\"\n    \"${CRASHLYTICS_SCRIPT}\" -gsp \"${PLIST_IN_BUNDLE}\"\nelse\n    echo \"warning: Crashlytics run script not found. dSYM upload skipped.\"\n    exit 0\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -336,7 +344,7 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = 9937X8497W;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
@@ -358,7 +366,7 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = 9937X8497W;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
@@ -413,7 +421,7 @@
 				DEVELOPMENT_TEAM = 9937X8497W;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -477,7 +485,7 @@
 				DEVELOPMENT_TEAM = 9937X8497W;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -502,7 +510,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = 9937X8497W;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -512,7 +520,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "beebsi.com.Dueasy-v2";
+				PRODUCT_BUNDLE_IDENTIFIER = com.dueasy.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -530,7 +538,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = 9937X8497W;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -540,7 +548,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "beebsi.com.Dueasy-v2";
+				PRODUCT_BUNDLE_IDENTIFIER = com.dueasy.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -556,7 +564,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = 9937X8497W;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
@@ -577,7 +585,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = 9937X8497W;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.1;

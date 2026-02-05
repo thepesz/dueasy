@@ -2,11 +2,15 @@
  * DuEasy Cloud Functions
  *
  * Provides AI-powered document analysis for all users with tier-based limits.
- * Privacy-first: Only processes OCR text, never full images.
+ * Privacy-first: Only processes OCR text, NEVER images or PDFs.
+ *
+ * PRIVACY GUARANTEE:
+ * - Images/PDFs are processed locally on-device using OCR
+ * - Only extracted TEXT is sent to cloud for AI analysis
+ * - Original documents NEVER leave the user's device
  *
  * Functions:
  * - analyzeDocument: Extract fields from invoice OCR text using OpenAI
- * - analyzeDocumentWithImages: Fallback for low-confidence scenarios (opt-in)
  * - getSubscriptionStatus: Verify user subscription status via RevenueCat
  * - getUsageInfo: Get current usage and limit info
  * - revenueCatWebhook: Handle RevenueCat subscription events
@@ -206,138 +210,6 @@ exports.analyzeDocument = onCall({
     throw new HttpsError(
         'internal',
         'Failed to analyze document with AI. Please try again.',
-        error.message,
-    );
-  }
-});
-
-/**
- * Analyze with cropped images (fallback for low-confidence scenarios).
- * User must explicitly opt-in to send image data.
- * Pro subscription required for image analysis.
- *
- * @param {Object} data - Request data
- * @param {string} data.ocrText - OCR text (may be null)
- * @param {string[]} data.images - Base64-encoded cropped images
- * @param {string} data.documentType - Document type
- * @param {string[]} data.languageHints - Languages expected
- * @returns {Promise<Object>} Structured analysis result
- */
-exports.analyzeDocumentWithImages = onCall({
-  timeoutSeconds: 120,
-  memory: '1GiB',
-  cors: true,
-}, async (request) => {
-  const {auth, data} = request;
-
-  if (!auth) {
-    throw new HttpsError('unauthenticated', 'Authentication required');
-  }
-
-  const uid = auth.uid;
-
-  // Check usage limit
-  const usageResult = await checkAndIncrementUsage(uid);
-  if (!usageResult.allowed) {
-    throw new HttpsError(
-        'resource-exhausted',
-        'Monthly extraction limit exceeded',
-        usageResult.error.data,
-    );
-  }
-
-  // Image analysis requires Pro subscription
-  const tier = await getUserTier(uid);
-  if (tier !== 'pro') {
-    await decrementUsage(uid);
-    throw new HttpsError(
-        'permission-denied',
-        'Pro subscription required for image analysis',
-    );
-  }
-
-  const {ocrText, images, documentType, languageHints} = data;
-
-  if (!images || !Array.isArray(images) || images.length === 0) {
-    await decrementUsage(uid);
-    throw new HttpsError('invalid-argument', 'At least one image required');
-  }
-
-  if (images.length > 5) {
-    await decrementUsage(uid);
-    throw new HttpsError('invalid-argument', 'Maximum 5 images allowed');
-  }
-
-  try {
-    console.log('Starting vision analysis', {
-      userId: uid,
-      imageCount: images.length,
-      hasOcrText: !!ocrText,
-    });
-
-    // Build vision messages
-    const messages = [
-      {
-        role: 'system',
-        content: buildSystemPrompt(
-            documentType || 'invoice',
-            languageHints || ['pl', 'en'],
-            ['PLN', 'EUR', 'USD'],
-        ),
-      },
-      {
-        role: 'user',
-        content: [
-          ocrText ? {type: 'text', text: `OCR Text:\n${ocrText}`} : null,
-          ...images.map((img) => ({
-            type: 'image_url',
-            image_url: {
-              url: `data:image/jpeg;base64,${img}`,
-              detail: 'high',
-            },
-          })),
-        ].filter(Boolean),
-      },
-    ];
-
-    // Call OpenAI Vision
-    const completion = await getOpenAIClient().chat.completions.create({
-      model: 'gpt-4o-mini',
-      temperature: 0.1,
-      response_format: {type: 'json_object'},
-      messages: messages,
-    });
-
-    const result = JSON.parse(completion.choices[0].message.content);
-
-    console.log('Vision analysis completed', {
-      userId: uid,
-      tokensUsed: completion.usage.total_tokens,
-      model: completion.model,
-    });
-
-    await updateUsageStats(uid, completion.usage.total_tokens);
-
-    const analysisResult = formatAnalysisResult(result);
-    analysisResult.usageInfo = {
-      used: usageResult.used,
-      limit: usageResult.limit,
-      remaining: usageResult.remaining,
-      tier: usageResult.tier,
-    };
-
-    return analysisResult;
-  } catch (error) {
-    await decrementUsage(uid);
-
-    console.error('Vision analysis error', {
-      userId: uid,
-      error: error.message,
-    });
-
-    throw new HttpsError(
-        'internal',
-        'Failed to analyze images. Please try again.',
         error.message,
     );
   }

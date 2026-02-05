@@ -1,12 +1,419 @@
-12.8.0 - [FirebaseCore][I-COR000008] The project's Bundle ID is inconsistent with either the Bundle ID in 'GoogleService-Info.plist', or the Bundle ID in the options if you are using a customized options. To ensure that everything can be configured correctly, you may need to make the Bundle IDs consistent. To continue with this plist file, you may change your app's bundle identifier to 'com.dueasy.app'. Or you can download a new configuration file that matches your bundle identifier from https://console.firebase.google.com/ and replace the current one.
-12.8.0 - [GoogleUtilities/AppDelegateSwizzler][I-SWZ001014] App Delegate does not conform to UIApplicationDelegate protocol.
 Firebase configured successfully
-Localization: Loaded bundle for language 'pl' from path: /Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers/Bundle/Application/E65C8CB3-54B4-4A05-961D-5024A9AEEDB7/Dueasy_v2.app/pl.lproj
+Localization: Loaded bundle for language 'pl' from path: /Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers/Bundle/Application/105B733E-FA5A-4735-B4C6-35974A3183CD/Dueasy_v2.app/pl.lproj
 Localization: Updated locale to 'pl' for date formatting
-Localization: Loaded bundle for language 'pl' from path: /Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers/Bundle/Application/E65C8CB3-54B4-4A05-961D-5024A9AEEDB7/Dueasy_v2.app/pl.lproj
+Localization: Loaded bundle for language 'pl' from path: /Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers/Bundle/Application/105B733E-FA5A-4735-B4C6-35974A3183CD/Dueasy_v2.app/pl.lproj
 Localization: Updated locale to 'pl' for date formatting
+12.8.0 - [GoogleUtilities/AppDelegateSwizzler][I-SWZ001014] App Delegate does not conform to UIApplicationDelegate protocol.
+CoreData: error: Failed to stat path '/Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers/Data/Application/675905E5-23B9-4EE9-BBF4-BDD553B99C87/Library/Application Support/default.store', errno 2 / No such file or directory.
+CoreData: error: Failed to stat path '/Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers/Data/Application/675905E5-23B9-4EE9-BBF4-BDD553B99C87/Library/Application Support/default.store', errno 2 / No such file or directory.
+CoreData: error: Executing as effective user 501
+CoreData: error: Executing as effective user 501
+CoreData: error: Failed to statfs file; errno 2 / No such file or directory.
+CoreData: error: Failed to statfs file; errno 2 / No such file or directory.
+CoreData: error: Logging status information for directory path: /Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers/Data/Application/675905E5-23B9-4EE9-BBF4-BDD553B99C87/Library/Application Support
+CoreData: error: Logging status information for directory path: /Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers/Data/Application/675905E5-23B9-4EE9-BBF4-BDD553B99C87/Library/Application Support
+CoreData: error: Executing as effective user 501
+CoreData: error: Executing as effective user 501
+CoreData: error: Information for /
+CoreData: error: Information for /
+CoreData: error:   File Device ID: 	0
+CoreData: error:   File Device ID: 	0
+CoreData: error:   Device ID: 		16777231
+CoreData: error:   Device ID: 		16777231
+CoreData: error:   File Size: 		704 bytes
+CoreData: error:   File Size: 		704 bytes
+CoreData: error:   File inode: 		2
+CoreData: error:   File inode: 		2
+CoreData: error:   File user ID: 		0
+CoreData: error:   File user ID: 		0
+CoreData: error:   File group ID: 		0
+CoreData: error:   File group ID: 		0
+CoreData: error:   File Permissions:
+CoreData: error:   File Permissions: 	
+CoreData: error: d
+CoreData: error: d
+CoreData: error:   755
+CoreData: error:   755
+CoreData: error:   component is not a symbolic link
+CoreData: error:   component is not a symbolic link
+CoreData: error:   component is readable
+CoreData: error:   component is readable
+CoreData: error:   component is not writeable with errno 30
+CoreData: error:   component is not writeable with errno 30
+CoreData: error: Information for /Users
+CoreData: error: Information for /Users
+CoreData: error:   File Device ID: 	0
+CoreData: error:   File Device ID: 	0
+CoreData: error:   Device ID: 		16777231
+CoreData: error:   Device ID: 		16777231
+CoreData: error:   File Size: 		160 bytes
+CoreData: error:   File Size: 		160 bytes
+CoreData: error:   File inode: 		20298
+CoreData: error:   File inode: 		20298
+CoreData: error:   File user ID: 		0
+CoreData: error:   File user ID: 		0
+CoreData: error:   File group ID: 		80
+CoreData: error:   File group ID: 		80
+CoreData: error:   File Permissions:
+CoreData: error:   File Permissions: 	
+CoreData: error: d
+CoreData: error: d
+CoreData: error:   755
+CoreData: error:   755
+CoreData: error:   component is not a symbolic link
+CoreData: error:   component is not a symbolic link
+CoreData: error:   component is readable
+CoreData: error:   component is readable
+CoreData: error:   component is not writeable with errno 13
+CoreData: error:   component is not writeable with errno 13
+CoreData: error: Information for /Users/bart
+CoreData: error: Information for /Users/bart
+CoreData: error:   File Device ID: 	0
+CoreData: error:   File Device ID: 	0
+CoreData: error:   Device ID: 		16777231
+CoreData: error:   Device ID: 		16777231
+CoreData: error:   File Size: 		1248 bytes
+CoreData: error:   File Size: 		1248 bytes
+CoreData: error:   File inode: 		59444
+CoreData: error:   File inode: 		59444
+CoreData: error:   File user ID: 		501
+CoreData: error:   File user ID: 		501
+CoreData: error:   File group ID: 		20
+CoreData: error:   File group ID: 		20
+CoreData: error:   File Permissions:
+CoreData: error:   File Permissions: 	
+CoreData: error: d
+CoreData: error: d
+CoreData: error:   750
+CoreData: error:   750
+CoreData: error:   component is not a symbolic link
+CoreData: error:   component is not a symbolic link
+CoreData: error:   component is readable
+CoreData: error:   component is readable
+CoreData: error:   component is writeable
+CoreData: error:   component is writeable
+CoreData: error: Information for /Users/bart/Library
+CoreData: error: Information for /Users/bart/Library
+CoreData: error:   File Device ID: 	0
+CoreData: error:   File Device ID: 	0
+CoreData: error:   Device ID: 		16777231
+CoreData: error:   Device ID: 		16777231
+CoreData: error:   File Size: 		3104 bytes
+CoreData: error:   File Size: 		3104 bytes
+CoreData: error:   File inode: 		59451
+CoreData: error:   File inode: 		59451
+CoreData: error:   File user ID: 		501
+CoreData: error:   File user ID: 		501
+CoreData: error:   File group ID: 		20
+CoreData: error:   File group ID: 		20
+CoreData: error:   File Permissions:
+CoreData: error:   File Permissions: 	
+CoreData: error: d
+CoreData: error: d
+CoreData: error:   700
+CoreData: error:   700
+CoreData: error:   component is not a symbolic link
+CoreData: error:   component is not a symbolic link
+CoreData: error:   component is readable
+CoreData: error:   component is readable
+CoreData: error:   component is writeable
+CoreData: error:   component is writeable
+CoreData: error: Information for /Users/bart/Library/Developer
+CoreData: error: Information for /Users/bart/Library/Developer
+CoreData: error:   File Device ID: 	0
+CoreData: error:   File Device ID: 	0
+CoreData: error:   Device ID: 		16777231
+CoreData: error:   Device ID: 		16777231
+CoreData: error:   File Size: 		224 bytes
+CoreData: error:   File Size: 		224 bytes
+CoreData: error:   File inode: 		1553230
+CoreData: error:   File inode: 		1553230
+CoreData: error:   File user ID: 		501
+CoreData: error:   File user ID: 		501
+CoreData: error:   File group ID: 		20
+CoreData: error:   File group ID: 		20
+CoreData: error:   File Permissions:
+CoreData: error:   File Permissions: 	
+CoreData: error: d
+CoreData: error: d
+CoreData: error:   755
+CoreData: error:   755
+CoreData: error:   component is not a symbolic link
+CoreData: error:   component is not a symbolic link
+CoreData: error:   component is readable
+CoreData: error:   component is readable
+CoreData: error:   component is writeable
+CoreData: error:   component is writeable
+CoreData: error: Information for /Users/bart/Library/Developer/CoreSimulator
+CoreData: error: Information for /Users/bart/Library/Developer/CoreSimulator
+CoreData: error:   File Device ID: 	0
+CoreData: error:   File Device ID: 	0
+CoreData: error:   Device ID: 		16777231
+CoreData: error:   Device ID: 		16777231
+CoreData: error:   File Size: 		160 bytes
+CoreData: error:   File Size: 		160 bytes
+CoreData: error:   File inode: 		1556688
+CoreData: error:   File inode: 		1556688
+CoreData: error:   File user ID: 		501
+CoreData: error:   File user ID: 		501
+CoreData: error:   File group ID: 		20
+CoreData: error:   File group ID: 		20
+CoreData: error:   File Permissions:
+CoreData: error:   File Permissions: 	
+CoreData: error: d
+CoreData: error: d
+CoreData: error:   755
+CoreData: error:   755
+CoreData: error:   component is not a symbolic link
+CoreData: error:   component is not a symbolic link
+CoreData: error:   component is readable
+CoreData: error:   component is readable
+CoreData: error:   component is writeable
+CoreData: error:   component is writeable
+CoreData: error: Information for /Users/bart/Library/Developer/CoreSimulator/Devices
+CoreData: error: Information for /Users/bart/Library/Developer/CoreSimulator/Devices
+CoreData: error:   File Device ID: 	0
+CoreData: error:   File Device ID: 	0
+CoreData: error:   Device ID: 		16777231
+CoreData: error:   Device ID: 		16777231
+CoreData: error:   File Size: 		800 bytes
+CoreData: error:   File Size: 		800 bytes
+CoreData: error:   File inode: 		1556765
+CoreData: error:   File inode: 		1556765
+CoreData: error:   File user ID: 		501
+CoreData: error:   File user ID: 		501
+CoreData: error:   File group ID: 		20
+CoreData: error:   File group ID: 		20
+CoreData: error:   File Permissions:
+CoreData: error:   File Permissions: 	
+CoreData: error: d
+CoreData: error: d
+CoreData: error:   755
+CoreData: error:   755
+CoreData: error:   component is not a symbolic link
+CoreData: error:   component is not a symbolic link
+CoreData: error:   component is readable
+CoreData: error:   component is readable
+CoreData: error:   component is writeable
+CoreData: error:   component is writeable
+CoreData: error: Information for /Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B
+CoreData: error: Information for /Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B
+CoreData: error:   File Device ID: 	0
+CoreData: error:   File Device ID: 	0
+CoreData: error:   Device ID: 		16777231
+CoreData: error:   Device ID: 		16777231
+CoreData: error:   File Size: 		160 bytes
+CoreData: error:   File Size: 		160 bytes
+CoreData: error:   File inode: 		7593180
+CoreData: error:   File inode: 		7593180
+CoreData: error:   File user ID: 		501
+CoreData: error:   File user ID: 		501
+CoreData: error:   File group ID: 		20
+CoreData: error:   File group ID: 		20
+CoreData: error:   File Permissions:
+CoreData: error:   File Permissions: 	
+CoreData: error: d
+CoreData: error: d
+CoreData: error:   755
+CoreData: error:   755
+CoreData: error:   component is not a symbolic link
+CoreData: error:   component is not a symbolic link
+CoreData: error:   component is readable
+CoreData: error:   component is readable
+CoreData: error:   component is writeable
+CoreData: error:   component is writeable
+CoreData: error: Information for /Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data
+CoreData: error: Information for /Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data
+CoreData: error:   File Device ID: 	0
+CoreData: error:   File Device ID: 	0
+CoreData: error:   Device ID: 		16777231
+CoreData: error:   Device ID: 		16777231
+CoreData: error:   File Size: 		384 bytes
+CoreData: error:   File Size: 		384 bytes
+CoreData: error:   File inode: 		8647925
+CoreData: error:   File inode: 		8647925
+CoreData: error:   File user ID: 		501
+CoreData: error:   File user ID: 		501
+CoreData: error:   File group ID: 		20
+CoreData: error:   File group ID: 		20
+CoreData: error:   File Permissions:
+CoreData: error:   File Permissions: 	
+CoreData: error: d
+CoreData: error: d
+CoreData: error:   775
+CoreData: error:   775
+CoreData: error:   component is not a symbolic link
+CoreData: error:   component is not a symbolic link
+CoreData: error:   component is readable
+CoreData: error:   component is readable
+CoreData: error:   component is writeable
+CoreData: error:   component is writeable
+CoreData: error: Information for /Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers
+CoreData: error: Information for /Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers
+CoreData: error:   File Device ID: 	0
+CoreData: error:   File Device ID: 	0
+CoreData: error:   Device ID: 		16777231
+CoreData: error:   Device ID: 		16777231
+CoreData: error:   File Size: 		224 bytes
+CoreData: error:   File Size: 		224 bytes
+CoreData: error:   File inode: 		13501133
+CoreData: error:   File inode: 		13501133
+CoreData: error:   File user ID: 		501
+CoreData: error:   File user ID: 		501
+CoreData: error:   File group ID: 		20
+CoreData: error:   File group ID: 		20
+CoreData: error:   File Permissions:
+CoreData: error:   File Permissions: 	
+CoreData: error: d
+CoreData: error: d
+CoreData: error:   755
+CoreData: error:   755
+CoreData: error:   component is not a symbolic link
+CoreData: error:   component is not a symbolic link
+CoreData: error:   component is readable
+CoreData: error:   component is readable
+CoreData: error:   component is writeable
+CoreData: error:   component is writeable
+CoreData: error: Information for /Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers/Data
+CoreData: error: Information for /Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers/Data
+CoreData: error:   File Device ID: 	0
+CoreData: error:   File Device ID: 	0
+CoreData: error:   Device ID: 		16777231
+CoreData: error:   Device ID: 		16777231
+CoreData: error:   File Size: 		192 bytes
+CoreData: error:   File Size: 		192 bytes
+CoreData: error:   File inode: 		13501190
+CoreData: error:   File inode: 		13501190
+CoreData: error:   File user ID: 		501
+CoreData: error:   File user ID: 		501
+CoreData: error:   File group ID: 		20
+CoreData: error:   File group ID: 		20
+CoreData: error:   File Permissions:
+CoreData: error:   File Permissions: 	
+CoreData: error: d
+CoreData: error: d
+CoreData: error:   755
+CoreData: error:   755
+CoreData: error:   component is not a symbolic link
+CoreData: error:   component is not a symbolic link
+CoreData: error:   component is readable
+CoreData: error:   component is readable
+CoreData: error:   component is writeable
+CoreData: error:   component is writeable
+CoreData: error: Information for /Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers/Data/Application
+CoreData: error: Information for /Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers/Data/Application
+CoreData: error:   File Device ID: 	0
+CoreData: error:   File Device ID: 	0
+CoreData: error:   Device ID: 		16777231
+CoreData: error:   Device ID: 		16777231
+CoreData: error:   File Size: 		4704 bytes
+CoreData: error:   File Size: 		4704 bytes
+CoreData: error:   File inode: 		13501871
+CoreData: error:   File inode: 		13501871
+CoreData: error:   File user ID: 		501
+CoreData: error:   File user ID: 		501
+CoreData: error:   File group ID: 		20
+CoreData: error:   File group ID: 		20
+CoreData: error:   File Permissions:
+CoreData: error:   File Permissions: 	
+CoreData: error: d
+CoreData: error: d
+CoreData: error:   755
+CoreData: error:   755
+CoreData: error:   component is not a symbolic link
+CoreData: error:   component is not a symbolic link
+CoreData: error:   component is readable
+CoreData: error:   component is readable
+CoreData: error:   component is writeable
+CoreData: error:   component is writeable
+CoreData: error: Information for /Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers/Data/Application/675905E5-23B9-4EE9-BBF4-BDD553B99C87
+CoreData: error: Information for /Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers/Data/Application/675905E5-23B9-4EE9-BBF4-BDD553B99C87
+CoreData: error:   File Device ID: 	0
+CoreData: error:   File Device ID: 	0
+CoreData: error:   Device ID: 		16777231
+CoreData: error:   Device ID: 		16777231
+CoreData: error:   File Size: 		224 bytes
+CoreData: error:   File Size: 		224 bytes
+CoreData: error:   File inode: 		24734240
+CoreData: error:   File inode: 		24734240
+CoreData: error:   File user ID: 		501
+CoreData: error:   File user ID: 		501
+CoreData: error:   File group ID: 		20
+CoreData: error:   File group ID: 		20
+CoreData: error:   File Permissions:
+CoreData: error:   File Permissions: 	
+CoreData: error: d
+CoreData: error: d
+CoreData: error:   755
+CoreData: error:   755
+CoreData: error:   component is not a symbolic link
+CoreData: error:   component is not a symbolic link
+CoreData: error:   component is readable
+CoreData: error:   component is readable
+CoreData: error:   component is writeable
+CoreData: error:   component is writeable
+CoreData: error: Information for /Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers/Data/Application/675905E5-23B9-4EE9-BBF4-BDD553B99C87/Library
+CoreData: error: Information for /Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers/Data/Application/675905E5-23B9-4EE9-BBF4-BDD553B99C87/Library
+CoreData: error:   File Device ID: 	0
+CoreData: error:   File Device ID: 	0
+CoreData: error:   Device ID: 		16777231
+CoreData: error:   Device ID: 		16777231
+CoreData: error:   File Size: 		160 bytes
+CoreData: error:   File Size: 		160 bytes
+CoreData: error:   File inode: 		24734242
+CoreData: error:   File inode: 		24734242
+CoreData: error:   File user ID: 		501
+CoreData: error:   File user ID: 		501
+CoreData: error:   File group ID: 		20
+CoreData: error:   File group ID: 		20
+CoreData: error:   File Permissions:
+CoreData: error:   File Permissions: 	
+CoreData: error: d
+CoreData: error: d
+CoreData: error:   755
+CoreData: error:   755
+CoreData: error:   component is not a symbolic link
+CoreData: error:   component is not a symbolic link
+CoreData: error:   component is readable
+CoreData: error:   component is readable
+CoreData: error:   component is writeable
+CoreData: error:   component is writeable
+CoreData: error: Failed to stat path '/Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers/Data/Application/675905E5-23B9-4EE9-BBF4-BDD553B99C87/Library/Application Support', errno 2 / No such file or directory.
+CoreData: error: Failed to stat path '/Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers/Data/Application/675905E5-23B9-4EE9-BBF4-BDD553B99C87/Library/Application Support', errno 2 / No such file or directory.
+CoreData: error:   Sandbox access to file-write-create denied
+CoreData: error:   Sandbox access to file-write-create denied
+CoreData: error: addPersistentStoreWithType:configuration:URL:options:error: returned error NSCocoaErrorDomain (512)
+CoreData: error: addPersistentStoreWithType:configuration:URL:options:error: returned error NSCocoaErrorDomain (512)
+CoreData: error: userInfo:
+CoreData: error: userInfo:
+CoreData: error: 	reason : Failed to create file; code = 2
+CoreData: error: 	reason : Failed to create file; code = 2
+CoreData: error: storeType: SQLite
+CoreData: error: storeType: SQLite
+CoreData: error: configuration: default
+CoreData: error: configuration: default
+CoreData: error: URL: file:///Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers/Data/Application/675905E5-23B9-4EE9-BBF4-BDD553B99C87/Library/Application%20Support/default.store
+CoreData: error: URL: file:///Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers/Data/Application/675905E5-23B9-4EE9-BBF4-BDD553B99C87/Library/Application%20Support/default.store
+CoreData: annotation: options:
+CoreData: annotation: 	NSMigratePersistentStoresAutomaticallyOption : 1
+CoreData: annotation: 	NSInferMappingModelAutomaticallyOption : 1
+CoreData: annotation: 	NSPersistentStoreRemoteChangeNotificationOptionKey : 1
+CoreData: annotation: 	NSPersistentHistoryTrackingKey : 1
+CoreData: error: <NSPersistentStoreCoordinator: 0x600002c30100>: Attempting recovery from error encountered during addPersistentStore: 0x600000c2afa0 Error Domain=NSCocoaErrorDomain Code=512 "Nie można zachować pliku." UserInfo={reason=Failed to create file; code = 2}
+CoreData: error: <NSPersistentStoreCoordinator: 0x600002c30100>: Attempting recovery from error encountered during addPersistentStore: 0x600000c2afa0 Error Domain=NSCocoaErrorDomain Code=512 "Nie można zachować pliku." UserInfo={reason=Failed to create file; code = 2}
+CoreData: error: During recovery, parent directory path reported as missing
+CoreData: error: During recovery, parent directory path reported as missing
+CoreData: error: Recovery attempt while adding <NSPersistentStoreDescription: 0x600000c2afa0> (type: SQLite, url: file:///Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers/Data/Application/675905E5-23B9-4EE9-BBF4-BDD553B99C87/Library/Application%20Support/default.store) was successful!
+CoreData: error: Recovery attempt while adding <NSPersistentStoreDescription: 0x600000c2afa0> (type: SQLite, url: file:///Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers/Data/Application/675905E5-23B9-4EE9-BBF4-BDD553B99C87/Library/Application%20Support/default.store) was successful!
 Applied file protection to 3 database files, excluded 3 from backup
-Localization: Loaded bundle for language 'pl' from path: /Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers/Bundle/Application/E65C8CB3-54B4-4A05-961D-5024A9AEEDB7/Dueasy_v2.app/pl.lproj
+Localization: Loaded bundle for language 'pl' from path: /Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers/Bundle/Application/105B733E-FA5A-4735-B4C6-35974A3183CD/Dueasy_v2.app/pl.lproj
+Localization: Updated locale to 'pl' for date formatting
+Starting Keychain migration for security-sensitive settings...
+Localization: Loaded bundle for language 'pl' from path: /Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers/Bundle/Application/105B733E-FA5A-4735-B4C6-35974A3183CD/Dueasy_v2.app/pl.lproj
+Localization: Updated locale to 'pl' for date formatting
+Keychain migration completed
+Migrating keyword learning data from version 0 to 1
+Localization: Loaded bundle for language 'pl' from path: /Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers/Bundle/Application/105B733E-FA5A-4735-B4C6-35974A3183CD/Dueasy_v2.app/pl.lproj
 Localization: Updated locale to 'pl' for date formatting
 AppleVisionOCRService initialized with 2-pass recognition
 Recognition languages: pl-PL, en-US
@@ -14,6 +421,7 @@ Standard pass minTextHeight: 0.012000
 Sensitive pass minTextHeight: 0.007000
 Vision supported languages: 30 languages
 RecurringDateService initialized with timezone: Europe/Warsaw
+Using Firebase subscription service (RevenueCat unavailable)
 Starting network monitoring
 Network monitor started
 Backup services initialized
@@ -21,11 +429,23 @@ AppEnvironment initialized for tier: Pro (heavy services deferred)
 Saved value to Keychain for key 'security.cloudAnalysisEnabled'
 TESTING: Cloud analysis force-enabled
 DuEasy app initialized
-Localization: Loaded bundle for language 'pl' from path: /Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers/Bundle/Application/E65C8CB3-54B4-4A05-961D-5024A9AEEDB7/Dueasy_v2.app/pl.lproj
+Localization: Loaded bundle for language 'pl' from path: /Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers/Bundle/Application/105B733E-FA5A-4735-B4C6-35974A3183CD/Dueasy_v2.app/pl.lproj
 Localization: Updated locale to 'pl' for date formatting
+Current calendar permission: notDetermined, hasWriteAccess: false
 Starting auth bootstrap...
-Existing user found
+No existing user, creating anonymous user...
+App became active
+Auth state changed: user signed out
+Initial subscription tier: Free
+Current notification permission: notDetermined, isAuthorized: false
+nw_socket_set_connection_idle [C1.1.1.1:3] setsockopt SO_CONNECTION_IDLE failed [42: Protocol not available]
+nw_socket_set_connection_idle [C1.1.1.1:3] setsockopt SO_CONNECTION_IDLE failed [42: Protocol not available]
+nw_socket_set_connection_idle [C2.1.1.1:3] setsockopt SO_CONNECTION_IDLE failed [42: Protocol not available]
+nw_socket_set_connection_idle [C2.1.1.1:3] setsockopt SO_CONNECTION_IDLE failed [42: Protocol not available]
 Auth state updated - isAppleLinked: false
+Auth state changed: user signed in
+Auth state updated - isAppleLinked: false
+Anonymous user created successfully
 === APP STARTUP MIGRATIONS START ===
 Running vendor profile migrations...
 Checking for vendor migrations to global version 1
@@ -45,406 +465,23 @@ Backfilling vendor-only fingerprints for existing templates
 Backfilled 0 templates with vendor-only fingerprints
 No templates needed vendor-only fingerprint backfill
 === APP STARTUP MIGRATIONS COMPLETE ===
-HomeViewModel.loadMetrics() called
-Computing Home metrics
-Home metrics computed: upcoming7=4, overdue=0, recurring=0
-Home metrics loaded successfully
+nw_socket_set_connection_idle [C3.1.1.1:3] setsockopt SO_CONNECTION_IDLE failed [42: Protocol not available]
+nw_socket_set_connection_idle [C3.1.1.1:3] setsockopt SO_CONNECTION_IDLE failed [42: Protocol not available]
+User skipped Apple Sign In
+Localization: Loaded bundle for language 'pl' from path: /Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers/Bundle/Application/105B733E-FA5A-4735-B4C6-35974A3183CD/Dueasy_v2.app/pl.lproj
+Localization: Updated locale to 'pl' for date formatting
+Requesting calendar permission...
+Calendar access request result: true
+Calendar permission result: true
 App became active
-Auth state updated - isAppleLinked: false
-Auth state changed: user signed in
-Localization: Loaded bundle for language 'pl' from path: /Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers/Bundle/Application/E65C8CB3-54B4-4A05-961D-5024A9AEEDB7/Dueasy_v2.app/pl.lproj
+Requesting notification permission...
+Notification authorization result: true
+Notification permission result: true
+App became active
+Completing onboarding - calendar: true, notifications: true
+Localization: Loaded bundle for language 'pl' from path: /Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers/Bundle/Application/105B733E-FA5A-4735-B4C6-35974A3183CD/Dueasy_v2.app/pl.lproj
 Localization: Updated locale to 'pl' for date formatting
-Permission calendar: granted=true
-Permission notifications: granted=true
-Localization: Loaded bundle for language 'pl' from path: /Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers/Bundle/Application/E65C8CB3-54B4-4A05-961D-5024A9AEEDB7/Dueasy_v2.app/pl.lproj
-Localization: Updated locale to 'pl' for date formatting
-Could not find cached accumulator for token=7F85BCA2 type:0 in -[TUIKeyboardCandidateMultiplexer receiveExternalAutocorrectionUpdate:requestToken:]_block_invoke
-Could not find cached accumulator for token=7F85BCA2 type:1 in -[TUIKeyboardCandidateMultiplexer _queueOnly_willHandleDeliveryForCandidates:requestToken:]
-Could not find cached accumulator for token=D516334D type:0 in -[TUIKeyboardCandidateMultiplexer receiveExternalAutocorrectionUpdate:requestToken:]_block_invoke
-Could not find cached accumulator for token=D516334D type:1 in -[TUIKeyboardCandidateMultiplexer _queueOnly_willHandleDeliveryForCandidates:requestToken:]
-Unable to simultaneously satisfy constraints.
-	Probably at least one of the constraints in the following list is one you don't want. 
-	Try this: 
-		(1) look at each constraint and try to figure out which you don't expect; 
-		(2) find the code that added the unwanted constraint or constraints and fix it. 
-(
-    "<NSLayoutConstraint:0x6000021eac10 'accessoryView.bottom' _UIRemoteKeyboardPlaceholderView:0x105705b80.bottom == _UIKBCompatInputView:0x11ff293d0.top - 17   (active)>",
-    "<NSLayoutConstraint:0x6000022113b0 'inputView.top' V:[_UIRemoteKeyboardPlaceholderView:0x105705b80]-(0)-[_UIKBCompatInputView:0x11ff293d0]   (active)>"
-)
-
-Will attempt to recover by breaking constraint 
-<NSLayoutConstraint:0x6000022113b0 'inputView.top' V:[_UIRemoteKeyboardPlaceholderView:0x105705b80]-(0)-[_UIKBCompatInputView:0x11ff293d0]   (active)>
-
-Make a symbolic breakpoint at UIViewAlertForUnsatisfiableConstraints to catch this in the debugger.
-The methods in the UIConstraintBasedLayoutDebugging category on UIView listed in <UIKitCore/UIView.h> may also be helpful.
-       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d40d50 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-<_UIKBFeedbackGenerator: 0x600003539ef0>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d40d50 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d33090 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-<_UIKBFeedbackGenerator: 0x600003539ef0>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d33090 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d3d4d0 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-<_UIKBFeedbackGenerator: 0x600003539ef0>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d3d4d0 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d3f5d0 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-<_UIKBFeedbackGenerator: 0x600003539ef0>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d3f5d0 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d3f600 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-<_UIKBFeedbackGenerator: 0x600003539ef0>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d3f600 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d32c40 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-<_UIKBFeedbackGenerator: 0x600003539ef0>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d32c40 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d32cd0 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-<_UIKBFeedbackGenerator: 0x600003539ef0>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d32cd0 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d32940 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-<_UIKBFeedbackGenerator: 0x600003539ef0>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d32940 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d32f40 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-<_UIKBFeedbackGenerator: 0x600003539ef0>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d32f40 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-Could not find cached accumulator for token=C13E0876 type:0 in -[TUIKeyboardCandidateMultiplexer receiveExternalAutocorrectionUpdate:requestToken:]_block_invoke
-Could not find cached accumulator for token=C13E0876 type:1 in -[TUIKeyboardCandidateMultiplexer _queueOnly_willHandleDeliveryForCandidates:requestToken:]
-Could not find cached accumulator for token=8A04CA6B type:0 in -[TUIKeyboardCandidateMultiplexer receiveExternalAutocorrectionUpdate:requestToken:]_block_invoke
-Could not find cached accumulator for token=8A04CA6B type:1 in -[TUIKeyboardCandidateMultiplexer _queueOnly_willHandleDeliveryForCandidates:requestToken:]
-Could not find cached accumulator for token=8365F3B6 type:0 in -[TUIKeyboardCandidateMultiplexer receiveExternalAutocorrectionUpdate:requestToken:]_block_invoke
-Could not find cached accumulator for token=8365F3B6 type:1 in -[TUIKeyboardCandidateMultiplexer _queueOnly_willHandleDeliveryForCandidates:requestToken:]
-Unable to simultaneously satisfy constraints.
-	Probably at least one of the constraints in the following list is one you don't want. 
-	Try this: 
-		(1) look at each constraint and try to figure out which you don't expect; 
-		(2) find the code that added the unwanted constraint or constraints and fix it. 
-(
-    "<NSLayoutConstraint:0x6000021ddfe0 'accessoryView.bottom' _UIRemoteKeyboardPlaceholderView:0x105415f30.bottom == _UIKBCompatInputView:0x11ff293d0.top - 17   (active)>",
-    "<NSLayoutConstraint:0x6000021f2800 'inputView.top' V:[_UIRemoteKeyboardPlaceholderView:0x105415f30]-(0)-[_UIKBCompatInputView:0x11ff293d0]   (active)>"
-)
-
-Will attempt to recover by breaking constraint 
-<NSLayoutConstraint:0x6000021f2800 'inputView.top' V:[_UIRemoteKeyboardPlaceholderView:0x105415f30]-(0)-[_UIKBCompatInputView:0x11ff293d0]   (active)>
-
-Make a symbolic breakpoint at UIViewAlertForUnsatisfiableConstraints to catch this in the debugger.
-The methods in the UIConstraintBasedLayoutDebugging category on UIView listed in <UIKitCore/UIView.h> may also be helpful.
-Unable to simultaneously satisfy constraints.
-	Probably at least one of the constraints in the following list is one you don't want. 
-	Try this: 
-		(1) look at each constraint and try to figure out which you don't expect; 
-		(2) find the code that added the unwanted constraint or constraints and fix it. 
-(
-    "<NSLayoutConstraint:0x6000021ddfe0 'accessoryView.bottom' _UIRemoteKeyboardPlaceholderView:0x105415f30.bottom == _UIKBCompatInputView:0x11ff293d0.top - 17   (active)>",
-    "<NSLayoutConstraint:0x6000021de260 'inputView.top' V:[_UIRemoteKeyboardPlaceholderView:0x105415f30]-(0)-[_UIKBCompatInputView:0x11ff293d0]   (active)>"
-)
-
-Will attempt to recover by breaking constraint 
-<NSLayoutConstraint:0x6000021de260 'inputView.top' V:[_UIRemoteKeyboardPlaceholderView:0x105415f30]-(0)-[_UIKBCompatInputView:0x11ff293d0]   (active)>
-
-Make a symbolic breakpoint at UIViewAlertForUnsatisfiableConstraints to catch this in the debugger.
-The methods in the UIConstraintBasedLayoutDebugging category on UIView listed in <UIKitCore/UIView.h> may also be helpful.
-Could not find cached accumulator for token=6506EF1C type:0 in -[TUIKeyboardCandidateMultiplexer receiveExternalAutocorrectionUpdate:requestToken:]_block_invoke
-Could not find cached accumulator for token=6506EF1C type:1 in -[TUIKeyboardCandidateMultiplexer _queueOnly_willHandleDeliveryForCandidates:requestToken:]
-Unable to simultaneously satisfy constraints.
-	Probably at least one of the constraints in the following list is one you don't want. 
-	Try this: 
-		(1) look at each constraint and try to figure out which you don't expect; 
-		(2) find the code that added the unwanted constraint or constraints and fix it. 
-(
-    "<NSLayoutConstraint:0x6000021ddfe0 'accessoryView.bottom' _UIRemoteKeyboardPlaceholderView:0x105415f30.bottom == _UIKBCompatInputView:0x11ff293d0.top - 17   (active)>",
-    "<NSLayoutConstraint:0x600002129630 'inputView.top' V:[_UIRemoteKeyboardPlaceholderView:0x105415f30]-(0)-[_UIKBCompatInputView:0x11ff293d0]   (active)>"
-)
-
-Will attempt to recover by breaking constraint 
-<NSLayoutConstraint:0x600002129630 'inputView.top' V:[_UIRemoteKeyboardPlaceholderView:0x105415f30]-(0)-[_UIKBCompatInputView:0x11ff293d0]   (active)>
-
-Make a symbolic breakpoint at UIViewAlertForUnsatisfiableConstraints to catch this in the debugger.
-The methods in the UIConstraintBasedLayoutDebugging category on UIView listed in <UIKitCore/UIView.h> may also be helpful.
-Could not find cached accumulator for token=C5099FD0 type:0 in -[TUIKeyboardCandidateMultiplexer receiveExternalAutocorrectionUpdate:requestToken:]_block_invoke
-Could not find cached accumulator for token=C5099FD0 type:1 in -[TUIKeyboardCandidateMultiplexer _queueOnly_willHandleDeliveryForCandidates:requestToken:]
-Unable to simultaneously satisfy constraints.
-	Probably at least one of the constraints in the following list is one you don't want. 
-	Try this: 
-		(1) look at each constraint and try to figure out which you don't expect; 
-		(2) find the code that added the unwanted constraint or constraints and fix it. 
-(
-    "<NSLayoutConstraint:0x60000212b980 'accessoryView.bottom' _UIRemoteKeyboardPlaceholderView:0x11ff1f430.bottom == _UIKBCompatInputView:0x11ff293d0.top - 17   (active)>",
-    "<NSLayoutConstraint:0x600002129630 'inputView.top' V:[_UIRemoteKeyboardPlaceholderView:0x11ff1f430]-(0)-[_UIKBCompatInputView:0x11ff293d0]   (active)>"
-)
-
-Will attempt to recover by breaking constraint 
-<NSLayoutConstraint:0x600002129630 'inputView.top' V:[_UIRemoteKeyboardPlaceholderView:0x11ff1f430]-(0)-[_UIKBCompatInputView:0x11ff293d0]   (active)>
-
-Make a symbolic breakpoint at UIViewAlertForUnsatisfiableConstraints to catch this in the debugger.
-The methods in the UIConstraintBasedLayoutDebugging category on UIView listed in <UIKitCore/UIView.h> may also be helpful.
-       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d4c1e0 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-<_UIKBFeedbackGenerator: 0x600003539ef0>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d4c1e0 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d50210 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-<_UIKBFeedbackGenerator: 0x600003539ef0>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d50210 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d1f8a0 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-<_UIKBFeedbackGenerator: 0x600003539ef0>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d1f8a0 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d1d350 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-<_UIKBFeedbackGenerator: 0x600003539ef0>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d1d350 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d1d560 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-<_UIKBFeedbackGenerator: 0x600003539ef0>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d1d560 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d46ca0 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-<_UIKBFeedbackGenerator: 0x600003539ef0>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d46ca0 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d4eeb0 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-<_UIKBFeedbackGenerator: 0x600003539ef0>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d4eeb0 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d38000 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-<_UIKBFeedbackGenerator: 0x600003539ef0>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d38000 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d506f0 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-<_UIKBFeedbackGenerator: 0x600003539ef0>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d506f0 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-Enabling iCloud auto-backup
--[RTIInputSystemClient remoteTextInputSessionWithID:performInputOperation:]  perform input operation requires a valid sessionID. inputModality = Keyboard, inputOperation = <null selector>, customInfoType = UIEmojiSearchOperations
-Could not find cached accumulator for token=9C30C175 type:0 in -[TUIKeyboardCandidateMultiplexer receiveExternalAutocorrectionUpdate:requestToken:]_block_invoke
-Could not find cached accumulator for token=9C30C175 type:1 in -[TUIKeyboardCandidateMultiplexer _queueOnly_willHandleDeliveryForCandidates:requestToken:]
-Could not find cached accumulator for token=37917463 type:0 in -[TUIKeyboardCandidateMultiplexer receiveExternalAutocorrectionUpdate:requestToken:]_block_invoke
-Could not find cached accumulator for token=37917463 type:1 in -[TUIKeyboardCandidateMultiplexer _queueOnly_willHandleDeliveryForCandidates:requestToken:]
-Unable to simultaneously satisfy constraints.
-	Probably at least one of the constraints in the following list is one you don't want. 
-	Try this: 
-		(1) look at each constraint and try to figure out which you don't expect; 
-		(2) find the code that added the unwanted constraint or constraints and fix it. 
-(
-    "<NSLayoutConstraint:0x6000021110e0 'accessoryView.bottom' _UIRemoteKeyboardPlaceholderView:0x11ff3eb90.bottom == _UIKBCompatInputView:0x11ff293d0.top - 17   (active)>",
-    "<NSLayoutConstraint:0x6000021e8b40 'inputView.top' V:[_UIRemoteKeyboardPlaceholderView:0x11ff3eb90]-(0)-[_UIKBCompatInputView:0x11ff293d0]   (active)>"
-)
-
-Will attempt to recover by breaking constraint 
-<NSLayoutConstraint:0x6000021e8b40 'inputView.top' V:[_UIRemoteKeyboardPlaceholderView:0x11ff3eb90]-(0)-[_UIKBCompatInputView:0x11ff293d0]   (active)>
-
-Make a symbolic breakpoint at UIViewAlertForUnsatisfiableConstraints to catch this in the debugger.
-The methods in the UIConstraintBasedLayoutDebugging category on UIView listed in <UIKitCore/UIView.h> may also be helpful.
-       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d43f90 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-<_UIKBFeedbackGenerator: 0x600003539ef0>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d43f90 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d41770 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-<_UIKBFeedbackGenerator: 0x600003539ef0>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d41770 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d47ba0 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-<_UIKBFeedbackGenerator: 0x600003539ef0>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d47ba0 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d44150 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-<_UIKBFeedbackGenerator: 0x600003539ef0>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d44150 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d472d0 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-<_UIKBFeedbackGenerator: 0x600003539ef0>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d472d0 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000cddce0 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-<_UIKBFeedbackGenerator: 0x600003539ef0>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000cddce0 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000cde400 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-<_UIKBFeedbackGenerator: 0x600003539ef0>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000cde400 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000cdd050 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-<_UIKBFeedbackGenerator: 0x600003539ef0>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000cdd050 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000cde760 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-<_UIKBFeedbackGenerator: 0x600003539ef0>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000cde760 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-Could not find cached accumulator for token=E547CB33 type:0 in -[TUIKeyboardCandidateMultiplexer receiveExternalAutocorrectionUpdate:requestToken:]_block_invoke
-Could not find cached accumulator for token=E547CB33 type:1 in -[TUIKeyboardCandidateMultiplexer _queueOnly_willHandleDeliveryForCandidates:requestToken:]
-Could not find cached accumulator for token=56603452 type:0 in -[TUIKeyboardCandidateMultiplexer receiveExternalAutocorrectionUpdate:requestToken:]_block_invoke
-Could not find cached accumulator for token=56603452 type:1 in -[TUIKeyboardCandidateMultiplexer _queueOnly_willHandleDeliveryForCandidates:requestToken:]
-Could not find cached accumulator for token=A2E13B90 type:0 in -[TUIKeyboardCandidateMultiplexer receiveExternalAutocorrectionUpdate:requestToken:]_block_invoke
-Could not find cached accumulator for token=A2E13B90 type:1 in -[TUIKeyboardCandidateMultiplexer _queueOnly_willHandleDeliveryForCandidates:requestToken:]
-Unable to simultaneously satisfy constraints.
-	Probably at least one of the constraints in the following list is one you don't want. 
-	Try this: 
-		(1) look at each constraint and try to figure out which you don't expect; 
-		(2) find the code that added the unwanted constraint or constraints and fix it. 
-(
-    "<NSLayoutConstraint:0x60000218cb90 'accessoryView.bottom' _UIRemoteKeyboardPlaceholderView:0x11ff3eb90.bottom == _UIKBCompatInputView:0x11ff293d0.top - 17   (active)>",
-    "<NSLayoutConstraint:0x6000021b4910 'inputView.top' V:[_UIRemoteKeyboardPlaceholderView:0x11ff3eb90]-(0)-[_UIKBCompatInputView:0x11ff293d0]   (active)>"
-)
-
-Will attempt to recover by breaking constraint 
-<NSLayoutConstraint:0x6000021b4910 'inputView.top' V:[_UIRemoteKeyboardPlaceholderView:0x11ff3eb90]-(0)-[_UIKBCompatInputView:0x11ff293d0]   (active)>
-
-Make a symbolic breakpoint at UIViewAlertForUnsatisfiableConstraints to catch this in the debugger.
-The methods in the UIConstraintBasedLayoutDebugging category on UIView listed in <UIKitCore/UIView.h> may also be helpful.
-Unable to simultaneously satisfy constraints.
-	Probably at least one of the constraints in the following list is one you don't want. 
-	Try this: 
-		(1) look at each constraint and try to figure out which you don't expect; 
-		(2) find the code that added the unwanted constraint or constraints and fix it. 
-(
-    "<NSLayoutConstraint:0x60000218cb90 'accessoryView.bottom' _UIRemoteKeyboardPlaceholderView:0x11ff3eb90.bottom == _UIKBCompatInputView:0x11ff293d0.top - 17   (active)>",
-    "<NSLayoutConstraint:0x6000021d68a0 'inputView.top' V:[_UIRemoteKeyboardPlaceholderView:0x11ff3eb90]-(0)-[_UIKBCompatInputView:0x11ff293d0]   (active)>"
-)
-
-Will attempt to recover by breaking constraint 
-<NSLayoutConstraint:0x6000021d68a0 'inputView.top' V:[_UIRemoteKeyboardPlaceholderView:0x11ff3eb90]-(0)-[_UIKBCompatInputView:0x11ff293d0]   (active)>
-
-Make a symbolic breakpoint at UIViewAlertForUnsatisfiableConstraints to catch this in the debugger.
-The methods in the UIConstraintBasedLayoutDebugging category on UIView listed in <UIKitCore/UIView.h> may also be helpful.
-Could not find cached accumulator for token=CEF67AEC type:0 in -[TUIKeyboardCandidateMultiplexer receiveExternalAutocorrectionUpdate:requestToken:]_block_invoke
-Could not find cached accumulator for token=CEF67AEC type:1 in -[TUIKeyboardCandidateMultiplexer _queueOnly_willHandleDeliveryForCandidates:requestToken:]
-Unable to simultaneously satisfy constraints.
-	Probably at least one of the constraints in the following list is one you don't want. 
-	Try this: 
-		(1) look at each constraint and try to figure out which you don't expect; 
-		(2) find the code that added the unwanted constraint or constraints and fix it. 
-(
-    "<NSLayoutConstraint:0x60000218cb90 'accessoryView.bottom' _UIRemoteKeyboardPlaceholderView:0x11ff3eb90.bottom == _UIKBCompatInputView:0x11ff293d0.top - 17   (active)>",
-    "<NSLayoutConstraint:0x6000021138e0 'inputView.top' V:[_UIRemoteKeyboardPlaceholderView:0x11ff3eb90]-(0)-[_UIKBCompatInputView:0x11ff293d0]   (active)>"
-)
-
-Will attempt to recover by breaking constraint 
-<NSLayoutConstraint:0x6000021138e0 'inputView.top' V:[_UIRemoteKeyboardPlaceholderView:0x11ff3eb90]-(0)-[_UIKBCompatInputView:0x11ff293d0]   (active)>
-
-Make a symbolic breakpoint at UIViewAlertForUnsatisfiableConstraints to catch this in the debugger.
-The methods in the UIConstraintBasedLayoutDebugging category on UIView listed in <UIKitCore/UIView.h> may also be helpful.
-Could not find cached accumulator for token=4A16CF88 type:0 in -[TUIKeyboardCandidateMultiplexer receiveExternalAutocorrectionUpdate:requestToken:]_block_invoke
-Could not find cached accumulator for token=4A16CF88 type:1 in -[TUIKeyboardCandidateMultiplexer _queueOnly_willHandleDeliveryForCandidates:requestToken:]
-Unable to simultaneously satisfy constraints.
-	Probably at least one of the constraints in the following list is one you don't want. 
-	Try this: 
-		(1) look at each constraint and try to figure out which you don't expect; 
-		(2) find the code that added the unwanted constraint or constraints and fix it. 
-(
-    "<NSLayoutConstraint:0x60000218cb90 'accessoryView.bottom' _UIRemoteKeyboardPlaceholderView:0x10538fa10.bottom == _UIKBCompatInputView:0x11ff293d0.top - 17   (active)>",
-    "<NSLayoutConstraint:0x6000021b6710 'inputView.top' V:[_UIRemoteKeyboardPlaceholderView:0x10538fa10]-(0)-[_UIKBCompatInputView:0x11ff293d0]   (active)>"
-)
-
-Will attempt to recover by breaking constraint 
-<NSLayoutConstraint:0x6000021b6710 'inputView.top' V:[_UIRemoteKeyboardPlaceholderView:0x10538fa10]-(0)-[_UIKBCompatInputView:0x11ff293d0]   (active)>
-
-Make a symbolic breakpoint at UIViewAlertForUnsatisfiableConstraints to catch this in the debugger.
-The methods in the UIConstraintBasedLayoutDebugging category on UIView listed in <UIKitCore/UIView.h> may also be helpful.
-       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d3fcc0 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-<_UIKBFeedbackGenerator: 0x600003539ef0>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d3fcc0 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d3dc80 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-<_UIKBFeedbackGenerator: 0x600003539ef0>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d3dc80 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d48180 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-<_UIKBFeedbackGenerator: 0x600003539ef0>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d48180 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d48e70 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-<_UIKBFeedbackGenerator: 0x600003539ef0>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d48e70 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d48180 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-<_UIKBFeedbackGenerator: 0x600003539ef0>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d48180 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d49320 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-<_UIKBFeedbackGenerator: 0x600003539ef0>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d49320 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d3fcc0 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-<_UIKBFeedbackGenerator: 0x600003539ef0>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d3fcc0 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d48870 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-<_UIKBFeedbackGenerator: 0x600003539ef0>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d48870 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000c30a20 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-<_UIKBFeedbackGenerator: 0x600003539ef0>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000c30a20 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-Starting backup export
-Fetched 4 documents for backup
-Fetched 0 recurring templates for backup
-Fetched 0 recurring instances for backup
-Serialized backup to 2960 bytes of JSON
-Encrypted 2960 bytes of backup data
-Encrypted backup to 4168 bytes
-Wrote backup to /Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers/Data/Application/BD1B1ED4-FFD1-4C59-BC7B-D845B600DEFC/tmp/DuEasy_Backup_2026-02-04_233234.dueasy
-Failed to request default share mode for fileURL:file:///Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers/Data/Application/BD1B1ED4-FFD1-4C59-BC7B-D845B600DEFC/tmp/DuEasy_Backup_2026-02-04_233234.dueasy error:Error Domain=NSOSStatusErrorDomain Code=-10814 "(null)" UserInfo={_LSFile=LSBindingEvaluator.mm, _LSLine=1973, _LSFunction=runEvaluator}
-Only support loading options for CKShare and SWY types.
-error fetching item for URL:file:///Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers/Data/Application/BD1B1ED4-FFD1-4C59-BC7B-D845B600DEFC/tmp/DuEasy_Backup_2026-02-04_233234.dueasy : (null)
-error fetching file provider domain for URL:file:///Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers/Data/Application/BD1B1ED4-FFD1-4C59-BC7B-D845B600DEFC/tmp/DuEasy_Backup_2026-02-04_233234.dueasy : (null)
-error fetching item for URL:file:///Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers/Data/Application/BD1B1ED4-FFD1-4C59-BC7B-D845B600DEFC/tmp/DuEasy_Backup_2026-02-04_233234.dueasy : (null)
--[RTIInputSystemClient remoteTextInputSessionWithID:performInputOperation:]  perform input operation requires a valid sessionID. inputModality = Keyboard, inputOperation = <null selector>, customInfoType = UIEmojiSearchOperations
--[RTIInputSystemClient remoteTextInputSessionWithID:performInputOperation:]  perform input operation requires a valid sessionID. inputModality = Keyboard, inputOperation = <null selector>, customInfoType = UIEmojiSearchOperations
--[RTIInputSystemClient remoteTextInputSessionWithID:performInputOperation:]  perform input operation requires a valid sessionID. inputModality = Keyboard, inputOperation = <null selector>, customInfoType = UIEmojiSearchOperations
-Unable to get ISSymbol for UTI: com.apple.ios-simulator Error: Error Domain=com.apple.iconServices.symbol-error Code=-1 "Failed to find symbol using type id: com.apple.ios-simulator. Options: 1, strategy: 0" UserInfo={NSLocalizedDescription=Failed to find symbol using type id: com.apple.ios-simulator. Options: 1, strategy: 0}
--[RTIInputSystemClient remoteTextInputSessionWithID:performInputOperation:]  perform input operation requires a valid sessionID. inputModality = Keyboard, inputOperation = <null selector>, customInfoType = UIEmojiSearchOperations
--[RTIInputSystemClient remoteTextInputSessionWithID:performInputOperation:]  perform input operation requires a valid sessionID. inputModality = Keyboard, inputOperation = <null selector>, customInfoType = UIEmojiSearchOperations
-Unable to get ISSymbol for UTI: com.apple.ios-simulator Error: Error Domain=com.apple.iconServices.symbol-error Code=-1 "Failed to find symbol using type id: com.apple.ios-simulator. Options: 1, strategy: 0" UserInfo={NSLocalizedDescription=Failed to find symbol using type id: com.apple.ios-simulator. Options: 1, strategy: 0}
--[RTIInputSystemClient remoteTextInputSessionWithID:performInputOperation:]  perform input operation requires a valid sessionID. inputModality = Keyboard, inputOperation = <null selector>, customInfoType = UIEmojiSearchOperations
--[RTIInputSystemClient remoteTextInputSessionWithID:performInputOperation:]  perform input operation requires a valid sessionID. inputModality = Keyboard, inputOperation = <null selector>, customInfoType = UIEmojiSearchOperations
-Could not find cached accumulator for token=9D6BBC0C type:0 in -[TUIKeyboardCandidateMultiplexer receiveExternalAutocorrectionUpdate:requestToken:]_block_invoke
-Could not find cached accumulator for token=9D6BBC0C type:1 in -[TUIKeyboardCandidateMultiplexer _queueOnly_willHandleDeliveryForCandidates:requestToken:]
-Could not find cached accumulator for token=7B4F2CAE type:0 in -[TUIKeyboardCandidateMultiplexer receiveExternalAutocorrectionUpdate:requestToken:]_block_invoke
-Could not find cached accumulator for token=7B4F2CAE type:1 in -[TUIKeyboardCandidateMultiplexer _queueOnly_willHandleDeliveryForCandidates:requestToken:]
-Unable to simultaneously satisfy constraints.
-	Probably at least one of the constraints in the following list is one you don't want. 
-	Try this: 
-		(1) look at each constraint and try to figure out which you don't expect; 
-		(2) find the code that added the unwanted constraint or constraints and fix it. 
-(
-    "<NSLayoutConstraint:0x6000021f5d60 'accessoryView.bottom' _UIRemoteKeyboardPlaceholderView:0x1053a4050.bottom == _UIKBCompatInputView:0x11ff293d0.top - 17   (active)>",
-    "<NSLayoutConstraint:0x60000215ad00 'inputView.top' V:[_UIRemoteKeyboardPlaceholderView:0x1053a4050]-(0)-[_UIKBCompatInputView:0x11ff293d0]   (active)>"
-)
-
-Will attempt to recover by breaking constraint 
-<NSLayoutConstraint:0x60000215ad00 'inputView.top' V:[_UIRemoteKeyboardPlaceholderView:0x1053a4050]-(0)-[_UIKBCompatInputView:0x11ff293d0]   (active)>
-
-Make a symbolic breakpoint at UIViewAlertForUnsatisfiableConstraints to catch this in the debugger.
-The methods in the UIConstraintBasedLayoutDebugging category on UIView listed in <UIKitCore/UIView.h> may also be helpful.
-       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d45830 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-<_UIKBFeedbackGenerator: 0x600003539ef0>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d45830 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d490b0 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-<_UIKBFeedbackGenerator: 0x600003539ef0>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d490b0 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d6f5a0 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-<_UIKBFeedbackGenerator: 0x600003539ef0>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d6f5a0 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d47a80 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-<_UIKBFeedbackGenerator: 0x600003539ef0>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d47a80 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d45080 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-<_UIKBFeedbackGenerator: 0x600003539ef0>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d45080 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d47f00 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-<_UIKBFeedbackGenerator: 0x600003539ef0>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d47f00 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d45830 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-<_UIKBFeedbackGenerator: 0x600003539ef0>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d45830 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d2cb70 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-<_UIKBFeedbackGenerator: 0x600003539ef0>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d2cb70 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d490b0 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-<_UIKBFeedbackGenerator: 0x600003539ef0>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d490b0 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-Starting backup import from DuEasy_Backup_2026-02-04_233234.dueasy
-Read 4168 bytes from backup file
-Authentication failed - likely wrong password
--[RTIInputSystemClient remoteTextInputSessionWithID:performInputOperation:]  perform input operation requires a valid sessionID. inputModality = Keyboard, inputOperation = <null selector>, customInfoType = UIEmojiSearchOperations
-Unable to get ISSymbol for UTI: com.apple.ios-simulator Error: Error Domain=com.apple.iconServices.symbol-error Code=-1 "Failed to find symbol using type id: com.apple.ios-simulator. Options: 1, strategy: 0" UserInfo={NSLocalizedDescription=Failed to find symbol using type id: com.apple.ios-simulator. Options: 1, strategy: 0}
--[RTIInputSystemClient remoteTextInputSessionWithID:performInputOperation:]  perform input operation requires a valid sessionID. inputModality = Keyboard, inputOperation = <null selector>, customInfoType = UIEmojiSearchOperations
--[RTIInputSystemClient remoteTextInputSessionWithID:performInputOperation:]  perform input operation requires a valid sessionID. inputModality = Keyboard, inputOperation = <null selector>, customInfoType = UIEmojiSearchOperations
-Unable to get ISSymbol for UTI: com.apple.ios-simulator Error: Error Domain=com.apple.iconServices.symbol-error Code=-1 "Failed to find symbol using type id: com.apple.ios-simulator. Options: 1, strategy: 0" UserInfo={NSLocalizedDescription=Failed to find symbol using type id: com.apple.ios-simulator. Options: 1, strategy: 0}
--[RTIInputSystemClient remoteTextInputSessionWithID:performInputOperation:]  perform input operation requires a valid sessionID. inputModality = Keyboard, inputOperation = <null selector>, customInfoType = UIEmojiSearchOperations
--[RTIInputSystemClient remoteTextInputSessionWithID:performInputOperation:]  perform input operation requires a valid sessionID. inputModality = Keyboard, inputOperation = <null selector>, customInfoType = UIEmojiSearchOperations
-Could not find cached accumulator for token=720B8DEC type:0 in -[TUIKeyboardCandidateMultiplexer receiveExternalAutocorrectionUpdate:requestToken:]_block_invoke
-Could not find cached accumulator for token=720B8DEC type:1 in -[TUIKeyboardCandidateMultiplexer _queueOnly_willHandleDeliveryForCandidates:requestToken:]
-       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d82d90 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-<_UIKBFeedbackGenerator: 0x600003539ef0>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d82d90 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000c2e7f0 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-<_UIKBFeedbackGenerator: 0x600003539ef0>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000c2e7f0 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d7a250 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-<_UIKBFeedbackGenerator: 0x600003539ef0>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d7a250 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000cd5230 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-<_UIKBFeedbackGenerator: 0x600003539ef0>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000cd5230 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d80450 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-<_UIKBFeedbackGenerator: 0x600003539ef0>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d80450 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d81f80 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-<_UIKBFeedbackGenerator: 0x600003539ef0>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d81f80 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d46550 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-<_UIKBFeedbackGenerator: 0x600003539ef0>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d46550 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d443c0 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-<_UIKBFeedbackGenerator: 0x600003539ef0>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d443c0 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d46490 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-<_UIKBFeedbackGenerator: 0x600003539ef0>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d46490 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d78930 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-<_UIKBFeedbackGenerator: 0x600003539ef0>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d78930 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000ce1980 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-<_UIKBFeedbackGenerator: 0x600003539ef0>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000ce1980 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000cd71e0 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-<_UIKBFeedbackGenerator: 0x600003539ef0>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000cd71e0 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000cd6250 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-<_UIKBFeedbackGenerator: 0x600003539ef0>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000cd6250 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000cd4cc0 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-<_UIKBFeedbackGenerator: 0x600003539ef0>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000cd4cc0 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d7ac40 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-<_UIKBFeedbackGenerator: 0x600003539ef0>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d7ac40 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d84810 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-<_UIKBFeedbackGenerator: 0x600003539ef0>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000d84810 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000c305a0 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-<_UIKBFeedbackGenerator: 0x600003539ef0>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000c305a0 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000c31a10 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-<_UIKBFeedbackGenerator: 0x600003539ef0>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "Nie można otworzyć pliku „hapticpatternlibrary.plist”, ponieważ nie ma takiego pliku." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000c31a10 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
-Could not find cached accumulator for token=44507F56 type:0 in -[TUIKeyboardCandidateMultiplexer receiveExternalAutocorrectionUpdate:requestToken:]_block_invoke
-Could not find cached accumulator for token=44507F56 type:1 in -[TUIKeyboardCandidateMultiplexer _queueOnly_willHandleDeliveryForCandidates:requestToken:]
-Could not find cached accumulator for token=5E00CAC8 type:0 in -[TUIKeyboardCandidateMultiplexer receiveExternalAutocorrectionUpdate:requestToken:]_block_invoke
-Could not find cached accumulator for token=5E00CAC8 type:1 in -[TUIKeyboardCandidateMultiplexer _queueOnly_willHandleDeliveryForCandidates:requestToken:]
-Could not find cached accumulator for token=BF7A2A88 type:0 in -[TUIKeyboardCandidateMultiplexer receiveExternalAutocorrectionUpdate:requestToken:]_block_invoke
-Could not find cached accumulator for token=BF7A2A88 type:1 in -[TUIKeyboardCandidateMultiplexer _queueOnly_willHandleDeliveryForCandidates:requestToken:]
-Could not find cached accumulator for token=6ECF4192 type:0 in -[TUIKeyboardCandidateMultiplexer receiveExternalAutocorrectionUpdate:requestToken:]_block_invoke
-Could not find cached accumulator for token=6ECF4192 type:1 in -[TUIKeyboardCandidateMultiplexer _queueOnly_willHandleDeliveryForCandidates:requestToken:]
-Could not find cached accumulator for token=05634A43 type:0 in -[TUIKeyboardCandidateMultiplexer receiveExternalAutocorrectionUpdate:requestToken:]_block_invoke
-Could not find cached accumulator for token=05634A43 type:1 in -[TUIKeyboardCandidateMultiplexer _queueOnly_willHandleDeliveryForCandidates:requestToken:]
-Could not find cached accumulator for token=6EBE7BB4 type:0 in -[TUIKeyboardCandidateMultiplexer receiveExternalAutocorrectionUpdate:requestToken:]_block_invoke
-Could not find cached accumulator for token=6EBE7BB4 type:1 in -[TUIKeyboardCandidateMultiplexer _queueOnly_willHandleDeliveryForCandidates:requestToken:]
-Could not find cached accumulator for token=06B5D6C7 type:0 in -[TUIKeyboardCandidateMultiplexer receiveExternalAutocorrectionUpdate:requestToken:]_block_invoke
-Could not find cached accumulator for token=06B5D6C7 type:1 in -[TUIKeyboardCandidateMultiplexer _queueOnly_willHandleDeliveryForCandidates:requestToken:]
-Could not find cached accumulator for token=F2E461BE type:0 in -[TUIKeyboardCandidateMultiplexer receiveExternalAutocorrectionUpdate:requestToken:]_block_invoke
-Could not find cached accumulator for token=F2E461BE type:1 in -[TUIKeyboardCandidateMultiplexer _queueOnly_willHandleDeliveryForCandidates:requestToken:]
-Could not find cached accumulator for token=63998D1E type:0 in -[TUIKeyboardCandidateMultiplexer receiveExternalAutocorrectionUpdate:requestToken:]_block_invoke
-Could not find cached accumulator for token=63998D1E type:1 in -[TUIKeyboardCandidateMultiplexer _queueOnly_willHandleDeliveryForCandidates:requestToken:]
-Starting backup import from DuEasy_Backup_2026-02-04_233234.dueasy
-Read 4168 bytes from backup file
-Decrypted 2960 bytes of backup data
-Decrypted to 2960 bytes of JSON
-Parsed backup: version 1.0.0, 4 documents
-Documents: 0 created, 0 updated, 4 skipped
-Templates: 0 created, 0 updated, 0 skipped
-Instances: 0 created, 0 updated, 0 skipped
-Saved imported data to database
 HomeViewModel.loadMetrics() called
 Computing Home metrics
-Home metrics computed: upcoming7=4, overdue=0, recurring=0
+No documents found - returning empty state
 Home metrics loaded successfully
