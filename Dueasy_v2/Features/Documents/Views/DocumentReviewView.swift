@@ -48,7 +48,9 @@ struct DocumentReviewView: View {
             vendorTemplateService: environment.vendorTemplateService,
             createRecurringTemplateUseCase: environment.makeCreateRecurringTemplateFromDocumentUseCase(),
             vendorFingerprintService: environment.vendorFingerprintService,
-            documentClassifierService: environment.documentClassifierService
+            documentClassifierService: environment.documentClassifierService,
+            authBootstrapper: environment.authBootstrapper,
+            accessManager: environment.accessManager
         ))
     }
 
@@ -68,10 +70,10 @@ struct DocumentReviewView: View {
                         .animation(reduceMotion ? .none : .easeOut(duration: 0.3), value: appeared)
 
                     // Rate limit banner - shown when cloud extraction limit exceeded
-                    // User gets local extraction but is informed about upgrade option
+                    // Provides context about the limit; paywall sheet blocks further analysis
                     if viewModel.shouldShowRateLimitBanner {
                         RateLimitBanner(
-                            rateLimitInfo: viewModel.rateLimitInfo ?? viewModel.analysisResult?.rateLimitInfo,
+                            rateLimitInfo: viewModel.rateLimitInfo,
                             onUpgrade: {
                                 viewModel.showUpgradePaywall()
                             },
@@ -162,11 +164,13 @@ struct DocumentReviewView: View {
             }
             .loadingOverlay(isLoading: viewModel.isSaving, message: L10n.Review.saving.localized)
         }
-        .task {
-            await viewModel.processImages()
-        }
         .interactiveDismissDisabled(viewModel.isSaving)
         .onAppear {
+            // Start analysis in a stored task decoupled from view lifecycle.
+            // This prevents CancellationError when the view is dismissed during analysis.
+            // The task is owned by the ViewModel, not the view's .task modifier.
+            viewModel.startAnalysis()
+
             if !reduceMotion {
                 withAnimation(.easeOut(duration: 0.4)) {
                     appeared = true
@@ -193,9 +197,9 @@ struct DocumentReviewView: View {
             .presentationDetents([.medium, .large])
             .presentationDragIndicator(.visible)
         }
-        // Paywall sheet - shown when user taps "Upgrade to Pro" button in rate limit banner.
-        // User is NOT blocked by rate limit - they can continue with local extraction.
-        // This sheet provides an upgrade path when they choose to see it.
+        // Blocking paywall sheet - shown when rate limit is exceeded.
+        // User CANNOT proceed with document analysis until they upgrade.
+        // Dismissing the paywall navigates back (no local fallback).
         .sheet(isPresented: $viewModel.shouldShowPaywall) {
             SubscriptionPaywallView(requiredFeature: "Cloud AI Analysis")
                 .environment(environment)

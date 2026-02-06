@@ -151,6 +151,13 @@ final class FirebaseAuthService: NSObject, AuthServiceProtocol {
                 switch error.code {
                 case AuthErrorCode.credentialAlreadyInUse.rawValue:
                     logger.warning("Apple account already linked to another Firebase user")
+                    // Do NOT sign out the anonymous user here.
+                    // The onboarding flow will offer the user a choice:
+                    // 1. Sign in to existing account (via signInWithApple())
+                    // 2. Continue as guest (keeps current anonymous session)
+                    // Signing out prematurely would destroy the anonymous session
+                    // and force a re-bootstrap, which is unnecessary if the user
+                    // chooses to continue as guest.
                     throw AuthError.credentialAlreadyLinked
                 case AuthErrorCode.providerAlreadyLinked.rawValue:
                     logger.info("Apple provider already linked (no action needed)")

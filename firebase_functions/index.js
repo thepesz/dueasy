@@ -22,8 +22,19 @@ const {defineString} = require('firebase-functions/params');
 const admin = require('firebase-admin');
 const OpenAI = require('openai');
 
+// Global unhandled rejection handler - prevents Firestore gRPC errors from crashing functions
+// This is a defense-in-depth measure; individual functions should handle their own errors
+process.on('unhandledRejection', (reason, promise) => {
+  console.warn('Unhandled Rejection caught by global handler:', {
+    reason: reason?.message || String(reason),
+    code: reason?.code,
+    stack: reason?.stack?.substring(0, 500),
+  });
+  // Don't crash the process - just log and continue
+});
+
 // Import usage and subscription modules
-const {checkAndIncrementUsage, decrementUsage, getUsage, MONTHLY_LIMITS} = require('./usageCounter');
+const {checkAndIncrementUsage, decrementUsage, getUsage, testFirestoreWrite, directIncrementUsage, MONTHLY_LIMITS} = require('./usageCounter');
 const {getUserTier, getSubscriptionDetails, handleWebhookEvent, invalidateCache} = require('./revenueCat');
 
 // Define parameters for environment config
@@ -366,6 +377,111 @@ exports.revenueCatWebhook = onRequest({
   } catch (error) {
     console.error('RevenueCat webhook error:', error);
     res.status(500).send('Internal error');
+  }
+});
+
+/**
+ * Diagnostic endpoint to test Firestore write permissions.
+ * Use this to debug usage counter issues.
+ *
+ * Returns detailed results of Firestore write tests.
+ */
+exports.testUsageCounter = onCall({
+  cors: true,
+}, async (request) => {
+  const {auth} = request;
+
+  if (!auth) {
+    throw new HttpsError('unauthenticated', 'Authentication required');
+  }
+
+  console.log('[Diagnostic] Testing usage counter for user:', auth.uid);
+
+  const results = {
+    userId: auth.uid,
+    timestamp: new Date().toISOString(),
+    tests: {},
+  };
+
+  // Test 1: Firestore write test
+  try {
+    const writeTest = await testFirestoreWrite(auth.uid);
+    results.tests.firestoreWrite = writeTest;
+  } catch (error) {
+    results.tests.firestoreWrite = {
+      success: false,
+      error: error.message,
+    };
+  }
+
+  // Test 2: Get current usage (read test)
+  try {
+    const usage = await getUsage(auth.uid);
+    results.tests.getUsage = {
+      success: true,
+      data: usage,
+    };
+  } catch (error) {
+    results.tests.getUsage = {
+      success: false,
+      error: error.message,
+    };
+  }
+
+  // Test 3: Direct increment test
+  try {
+    const incrementTest = await directIncrementUsage(auth.uid);
+    results.tests.directIncrement = incrementTest;
+  } catch (error) {
+    results.tests.directIncrement = {
+      success: false,
+      error: error.message,
+    };
+  }
+
+  // Test 4: Verify increment persisted
+  try {
+    const usageAfter = await getUsage(auth.uid);
+    results.tests.verifyIncrement = {
+      success: true,
+      data: usageAfter,
+    };
+  } catch (error) {
+    results.tests.verifyIncrement = {
+      success: false,
+      error: error.message,
+    };
+  }
+
+  console.log('[Diagnostic] Test results:', JSON.stringify(results, null, 2));
+
+  return results;
+});
+
+/**
+ * Reset usage for testing (admin only - should be protected in production).
+ */
+exports.resetUsageForTesting = onCall({
+  cors: true,
+}, async (request) => {
+  const {auth} = request;
+
+  if (!auth) {
+    throw new HttpsError('unauthenticated', 'Authentication required');
+  }
+
+  const {resetUsage} = require('./usageCounter');
+
+  try {
+    await resetUsage(auth.uid);
+
+    return {
+      success: true,
+      message: `Usage reset for user ${auth.uid}`,
+    };
+  } catch (error) {
+    console.error('[ResetUsage] Failed:', error);
+    throw new HttpsError('internal', 'Failed to reset usage', error.message);
   }
 });
 

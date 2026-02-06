@@ -1,5 +1,8 @@
 import Foundation
+
+#if canImport(UIKit)
 import UIKit
+#endif
 
 /// Routes document analysis to appropriate provider (local or cloud).
 ///
@@ -14,8 +17,9 @@ import UIKit
 ///
 /// ## Key Design Decisions
 ///
-/// - **NO client-side monthly limit enforcement** - Backend is source of truth
-/// - **Free tier gets cloud extraction** (within backend-enforced limits)
+/// - **Client-side failsafe** enforces free tier limit (3/month) unconditionally
+/// - **Backend also enforces limits** server-side (3 Free, 100 Pro)
+/// - **Free tier gets cloud extraction** (within both client and backend limits)
 /// - **Graceful degradation** to local when offline/backend errors
 /// - **Rate limit errors propagate** to UI (not silent fallback)
 ///
@@ -44,6 +48,27 @@ protocol DocumentAnalysisRouterProtocol: Sendable {
         images: [UIImage],
         documentType: DocumentType,
         forceCloud: Bool
+    ) async throws -> DocumentAnalysisResult
+
+    /// Analyze document using a pre-computed access decision.
+    ///
+    /// ## Preferred Method (Phase 2 Architecture)
+    ///
+    /// This method receives the routing decision from `AccessManager.makeAnalysisDecision()`.
+    /// The router executes the decision without second-guessing access logic.
+    ///
+    /// - Parameters:
+    ///   - ocrResult: Pre-extracted OCR result with text and line data
+    ///   - images: Original document images (for cloud vision if needed)
+    ///   - documentType: Expected document type for parsing hints
+    ///   - decision: Pre-computed extraction mode decision from AccessManager
+    /// - Returns: Best analysis result from the decided provider
+    /// - Throws: `AppError` if the selected provider fails
+    func analyzeDocument(
+        ocrResult: OCRResult,
+        images: [UIImage],
+        documentType: DocumentType,
+        decision: ExtractionModeDecision
     ) async throws -> DocumentAnalysisResult
 
     /// Current analysis mode based on settings.

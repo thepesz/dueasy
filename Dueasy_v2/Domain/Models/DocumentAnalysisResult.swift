@@ -130,8 +130,8 @@ struct DocumentAnalysisResult: Codable, Equatable, Sendable {
     let extractionMode: ExtractionMode
 
     /// Rate limit info when cloud extraction limit was exceeded.
-    /// Present when extraction mode is `.rateLimitFallback`.
-    /// Allows UI to show informative banner about limit status.
+    /// Legacy: Previously used with `.rateLimitFallback` mode.
+    /// Rate limit now triggers a blocking paywall via thrown error instead.
     let rateLimitInfo: RateLimitInfo?
 
     /// Raw text hints for debugging (optional, not stored long-term in production)
@@ -416,15 +416,15 @@ struct FieldConfidences: Codable, Equatable, Sendable {
 /// The app uses cloud-first routing for all users (Free and Pro):
 /// 1. If online and backend available: Try cloud extraction (backend enforces limits)
 /// 2. If offline or backend error: Fall back to local analysis
-/// 3. If rate limit exceeded: Fall back to local, but inform user with banner
+/// 3. If rate limit exceeded: Fall back to local with upgrade banner
 ///
 /// Backend enforces monthly limits:
 /// - Free tier: 3 cloud extractions/month
 /// - Pro tier: 100 cloud extractions/month
 ///
-/// When rate limit is exceeded, the router falls back to local extraction
-/// but includes `rateLimitInfo` so the UI can show an informative banner
-/// with upgrade options.
+/// When rate limit is exceeded, the router falls back to local parsing and
+/// attaches `rateLimitInfo` so the ViewModel can show an upgrade banner.
+/// The user gets degraded-quality results while being prompted to upgrade.
 enum ExtractionMode: String, Codable, Equatable, Sendable {
 
     /// Cloud AI extraction was used successfully.
@@ -443,9 +443,9 @@ enum ExtractionMode: String, Codable, Equatable, Sendable {
     /// Used when cloud analysis is disabled in settings.
     case localOnly = "local_only"
 
-    /// Local analysis used because cloud extraction rate limit was exceeded.
-    /// User is informed via banner and can upgrade to Pro for more extractions.
-    /// Result includes `rateLimitInfo` with usage details.
+    /// Local fallback when cloud rate limit was exceeded.
+    /// User gets degraded local extraction results with an upgrade banner.
+    /// This gives users value while incentivizing Pro subscription.
     case rateLimitFallback = "rate_limit_fallback"
 
     /// User-facing description of extraction mode

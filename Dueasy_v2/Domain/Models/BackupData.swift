@@ -503,6 +503,9 @@ enum BackupError: LocalizedError, Equatable {
     case databaseError(String)
     case mergeConflict(String)
 
+    // Access control errors
+    case requiresAppleSignIn
+
     var errorDescription: String? {
         switch self {
         case .passwordTooWeak:
@@ -543,6 +546,8 @@ enum BackupError: LocalizedError, Equatable {
             return L10n.Backup.Errors.databaseError.localized(with: reason)
         case .mergeConflict(let reason):
             return L10n.Backup.Errors.mergeConflict.localized(with: reason)
+        case .requiresAppleSignIn:
+            return L10n.Backup.Errors.requiresAppleSignIn.localized
         }
     }
 

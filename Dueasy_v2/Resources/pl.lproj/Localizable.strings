@@ -818,9 +818,12 @@
 "auth.withoutSignInInfo" = "Bez logowania Twoje dane pozostana tylko na tym urzadzeniu. Zaloguj sie przez Apple, aby wlaczyc synchronizacje miedzy urzadzeniami.";
 "auth.signInError.title" = "Blad logowania";
 "auth.signInError.generic" = "Nie udalo sie zalogowac. Sprobuj ponownie.";
-"auth.credentialAlreadyLinked.title" = "Konto juz polaczone";
-"auth.credentialAlreadyLinked.message" = "To konto Apple jest juz polaczone z innym uzytkownikiem DuEasy. Uzyj innego Apple ID lub skontaktuj sie z obsluga.";
+"auth.credentialAlreadyLinked.title" = "Znaleziono istniejace konto";
+"auth.credentialAlreadyLinked.message" = "Ten Apple ID jest juz polaczony z kontem DuEasy. Czy chcesz zalogowac sie na istniejace konto, czy kontynuowac jako nowy gosc?";
+"auth.signInToExistingAccount" = "Zaloguj na istniejace konto";
+"auth.signInToExistingAccount.recommended" = "Zaloguj na istniejace konto (Zalecane)";
 "auth.continueAsGuest" = "Kontynuuj jako gosc";
+"auth.signInToExistingFailed" = "Nie udalo sie zalogowac na istniejace konto. Sprobuj ponownie.";
 
 // Account section in Settings
 "auth.account.section" = "Konto";
@@ -840,8 +843,15 @@
 
 "rate_limit.banner.title" = "Limit AI osiagniety (%d/%d)";
 "rate_limit.banner.title_default" = "Limit ekstrakcji AI osiagniety";
-"rate_limit.banner.subtitle" = "Uzywam ekstrakcji offline (mniej dokladnej)";
+"rate_limit.banner.subtitle" = "Uaktualnij do Pro, aby kontynuowac analize dokumentow";
 "rate_limit.banner.upgrade" = "Uaktualnij do Pro";
+
+// Rate Limit - Blocking Paywall
+"rate_limit.paywall.title" = "Darmowy limit osiagniety";
+"rate_limit.paywall.message" = "Wykorzystales wszystkie %d z %d darmowych analiz dokumentow w tym miesiacu. Uaktualnij do Pro, aby uzyskac 100 analiz miesiecznie.";
+"rate_limit.paywall.reset_info" = "Twoj darmowy limit odnowi sie %@.";
+"rate_limit.paywall.upgrade_button" = "Uaktualnij do Pro";
+"rate_limit.paywall.dismiss_button" = "Wstecz";
 
 // MARK: - Backup
 
@@ -930,3 +940,17 @@
 "backup.recovery.enableiCloud" = "Zaloguj sie do iCloud w Ustawieniach";
 "backup.recovery.freeSpace" = "Zwolnij miejsce i sprobuj ponownie";
 "backup.recovery.updateApp" = "Zaktualizuj aplikacje, aby przywrocic te kopie";
+
+// Access Restricted (Sign in required)
+"backup.accessRestricted.title" = "Wymagane logowanie";
+"backup.accessRestricted.subtitle" = "Funkcje kopii zapasowej wymagaja logowania przez Apple, aby chronic Twoje dane i umozliwic dostep z wielu urzadzen.";
+"backup.accessRestricted.benefit1.title" = "Synchronizacja miedzy urzadzeniami";
+"backup.accessRestricted.benefit1.description" = "Uzyskaj dostep do kopii zapasowych z kazdego urzadzenia zalogowanego tym samym Apple ID.";
+"backup.accessRestricted.benefit2.title" = "Przywracanie na nowym urzadzeniu";
+"backup.accessRestricted.benefit2.description" = "Latwe przywracanie danych przy zakupie nowego iPhone'a lub iPada.";
+"backup.accessRestricted.benefit3.title" = "Zaszyfrowana kopia";
+"backup.accessRestricted.benefit3.description" = "Twoja kopia zapasowa jest chroniona szyfrowaniem dla maksymalnego bezpieczenstwa.";
+"backup.accessRestricted.signInButton" = "Zaloguj przez Apple";
+"backup.accessRestricted.whyRequired" = "Dlaczego wymagane jest logowanie?";
+"backup.accessRestricted.whyRequiredExplanation" = "Logowanie przez Apple laczy Twoje kopie zapasowe z Apple ID, zapewniajac, ze tylko Ty mozesz uzyskac do nich dostep. Zapobiega to nieautoryzowanemu dostepowi i umozliwia bezpieczne przechowywanie w chmurze.";
+"backup.error.requiresAppleSignIn" = "Funkcje kopii zapasowej wymagaja logowania przez Apple. Zaloguj sie w Ustawieniach.";

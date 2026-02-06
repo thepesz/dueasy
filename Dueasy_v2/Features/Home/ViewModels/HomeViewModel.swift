@@ -66,18 +66,6 @@ final class HomeViewModel {
 
     // MARK: - Computed Properties for UI
 
-    /// Status chip text (Offline or Pro)
-    var statusChipText: String {
-        state.appTier == .pro
-            ? L10n.Home.statusPro.localized
-            : L10n.Home.statusOffline.localized
-    }
-
-    /// Whether to show the status chip as Pro (blue) vs Offline (gray)
-    var isProTier: Bool {
-        state.appTier == .pro
-    }
-
     /// Formatted hero amount for display
     var formattedHeroAmount: String {
         formatCurrency(state.dueIn7DaysTotal, currency: state.heroCurrency)

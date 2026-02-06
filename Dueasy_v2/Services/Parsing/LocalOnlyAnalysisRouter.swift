@@ -53,6 +53,28 @@ final class LocalOnlyAnalysisRouter: DocumentAnalysisRouterProtocol {
             PrivacyLogger.parsing.debug("LocalOnlyAnalysisRouter: Cloud requested but Firebase SDK not available")
         }
 
+        return try await performLocalAnalysis(ocrResult: ocrResult, documentType: documentType)
+    }
+
+    func analyzeDocument(
+        ocrResult: OCRResult,
+        images: [UIImage],
+        documentType: DocumentType,
+        decision: ExtractionModeDecision
+    ) async throws -> DocumentAnalysisResult {
+
+        PrivacyLogger.parsing.info("LocalOnlyAnalysisRouter: Decision-based routing (always local, Firebase SDK unavailable)")
+
+        return try await performLocalAnalysis(ocrResult: ocrResult, documentType: documentType)
+    }
+
+    // MARK: - Private
+
+    private func performLocalAnalysis(
+        ocrResult: OCRResult,
+        documentType: DocumentType
+    ) async throws -> DocumentAnalysisResult {
+
         // Update stats
         routingStats.totalRouted += 1
         routingStats.localOnly += 1

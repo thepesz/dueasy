@@ -183,10 +183,14 @@ enum FieldValidators {
             }
         }
 
-        // City name heuristic: starts with capital letter, contains mostly letters
-        if let firstChar = trimmed.first, firstChar.isUppercase {
-            let letterRatio = Double(trimmed.filter { $0.isLetter || $0.isWhitespace }.count) / Double(trimmed.count)
-            if letterRatio > 0.8 {
+        // City name heuristic: mostly letters (addresses like "Krakow" or "krakow" from OCR)
+        let letterSpaceCount = trimmed.filter { $0.isLetter || $0.isWhitespace || $0 == "-" }.count
+        let letterRatio = Double(letterSpaceCount) / Double(trimmed.count)
+        if letterRatio > 0.7 && trimmed.count >= 3 {
+            // Reject if it looks like a section header keyword
+            let lowerTrimmed = trimmed.lowercased()
+            let sectionHeaders = ["nabywca", "sprzedawca", "faktura", "buyer", "seller", "invoice", "total", "payment"]
+            if !sectionHeaders.contains(where: { lowerTrimmed.hasPrefix($0) }) {
                 return true
             }
         }
@@ -472,6 +476,77 @@ enum FieldValidators {
         }
 
         return checkDigit == digits[9]
+    }
+
+    // MARK: - US EIN Validation
+
+    /// Validate US EIN (Employer Identification Number) format.
+    /// Format: XX-XXXXXXX (2 digits, dash, 7 digits)
+    /// The first two digits (prefix) must be a valid IRS campus/service center code.
+    static func validateEIN(_ ein: String) -> Bool {
+        let digitsOnly = ein.filter { $0.isNumber }
+        guard digitsOnly.count == 9 else { return false }
+
+        // Valid EIN prefixes (IRS campus/service center codes)
+        // https://www.irs.gov/businesses/small-businesses-self-employed/how-eins-are-assigned-and-valid-ein-prefixes
+        let validPrefixes: Set<String> = [
+            "01", "02", "03", "04", "05", "06",
+            "10", "11", "12", "13", "14", "15", "16",
+            "20", "21", "22", "23", "24", "25", "26", "27",
+            "30", "31", "32", "33", "34", "35", "36", "37", "38", "39",
+            "40", "41", "42", "43", "44", "45", "46", "47", "48",
+            "50", "51", "52", "53", "54", "55", "56", "57", "58", "59",
+            "60", "61", "62", "63", "64", "65", "66", "67", "68",
+            "71", "72", "73", "74", "75", "76", "77",
+            "80", "81", "82", "83", "84", "85", "86", "87", "88",
+            "90", "91", "92", "93", "94", "95", "98", "99"
+        ]
+
+        let prefix = String(digitsOnly.prefix(2))
+        return validPrefixes.contains(prefix)
+    }
+
+    /// Check if text looks like a US EIN (XX-XXXXXXX format)
+    static func looksLikeEIN(_ text: String) -> Bool {
+        let lowercased = text.lowercased()
+
+        // Check if labeled as EIN
+        if lowercased.contains("ein") || lowercased.contains("employer identification") ||
+           lowercased.contains("fein") || lowercased.contains("federal id") {
+            return true
+        }
+
+        // Check for XX-XXXXXXX pattern
+        let pattern = #"\d{2}-\d{7}"#
+        if let regex = try? NSRegularExpression(pattern: pattern) {
+            let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+            let range = NSRange(trimmed.startIndex..., in: trimmed)
+            return regex.firstMatch(in: trimmed, range: range) != nil
+        }
+
+        return false
+    }
+
+    // MARK: - US Routing Number Validation
+
+    /// Validate US ABA routing transit number using checksum algorithm.
+    /// Format: 9 digits. Checksum: 3*d1 + 7*d2 + d3 + 3*d4 + 7*d5 + d6 + 3*d7 + 7*d8 + d9 = multiple of 10
+    static func validateUSRoutingNumber(_ routing: String) -> Bool {
+        let digitsOnly = routing.filter { $0.isNumber }
+        guard digitsOnly.count == 9 else { return false }
+
+        let digits = digitsOnly.compactMap { $0.wholeNumberValue }
+        guard digits.count == 9 else { return false }
+
+        // ABA routing number checksum weights: 3, 7, 1, 3, 7, 1, 3, 7, 1
+        let weights = [3, 7, 1, 3, 7, 1, 3, 7, 1]
+        var sum = 0
+
+        for i in 0..<9 {
+            sum += digits[i] * weights[i]
+        }
+
+        return sum % 10 == 0
     }
 }
 

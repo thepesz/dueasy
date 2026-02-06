@@ -43,9 +43,11 @@ struct DuEasyApp: App {
     }
 
     init() {
-        // Initialize Firebase for cloud integration (Pro tier)
-        // Note: This will only configure Firebase if GoogleService-Info.plist is present
-        FirebaseConfigurator.shared.configure(for: .pro)
+        // Initialize Firebase for cloud integration (all tiers)
+        // Free tier: Anonymous auth + 3 cloud extractions/month
+        // Pro tier: Apple auth + unlimited cloud extractions
+        // Note: Only configures if GoogleService-Info.plist is present
+        FirebaseConfigurator.shared.configure()
 
         // Initialize RevenueCat for subscription management
         // CRITICAL: Must be called before any purchase operations
@@ -75,7 +77,11 @@ struct DuEasyApp: App {
                 KeywordStats.self,
                 RecurringTemplate.self,
                 RecurringInstance.self,
-                RecurringCandidate.self
+                RecurringCandidate.self,
+                // Anomaly & Fraud Guard models
+                DocumentAnomaly.self,
+                VendorBankAccountHistory.self,
+                VendorInvoicePattern.self
             ])
             let modelConfiguration = ModelConfiguration(
                 schema: schema,
@@ -103,20 +109,9 @@ struct DuEasyApp: App {
         }
 
         // Initialize app environment with all services
-        // Production: Use .free tier by default
-        // DEBUG: Use .pro tier for testing cloud features
-        #if DEBUG
-        let environment = AppEnvironment(modelContext: modelContainer.mainContext, tier: .pro)
-        #else
-        let environment = AppEnvironment(modelContext: modelContainer.mainContext, tier: .free)
-        #endif
+        // AccessManager determines tier from auth + subscription state
+        let environment = AppEnvironment(modelContext: modelContainer.mainContext)
         _appEnvironment = State(initialValue: environment)
-
-        #if DEBUG
-        // TESTING: Force enable cloud analysis for testing
-        environment.settingsManager.cloudAnalysisEnabled = true
-        PrivacyLogger.app.info("TESTING: Cloud analysis force-enabled")
-        #endif
 
         PrivacyLogger.app.info("DuEasy app initialized")
     }

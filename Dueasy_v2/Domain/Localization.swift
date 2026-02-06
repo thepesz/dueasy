@@ -843,7 +843,10 @@ enum L10n {
         static let signInErrorGeneric = "auth.signInError.generic"
         static let credentialAlreadyLinkedTitle = "auth.credentialAlreadyLinked.title"
         static let credentialAlreadyLinkedMessage = "auth.credentialAlreadyLinked.message"
+        static let signInToExistingAccount = "auth.signInToExistingAccount"
+        static let signInToExistingAccountRecommended = "auth.signInToExistingAccount.recommended"
         static let continueAsGuest = "auth.continueAsGuest"
+        static let signInToExistingFailed = "auth.signInToExistingFailed"
 
         // Account section in Settings
         static let accountSection = "auth.account.section"
@@ -866,6 +869,12 @@ enum L10n {
         static let bannerTitleDefault = "rate_limit.banner.title_default"
         static let bannerSubtitle = "rate_limit.banner.subtitle"
         static let upgradeButton = "rate_limit.banner.upgrade"
+        // Blocking paywall strings
+        static let paywallTitle = "rate_limit.paywall.title"
+        static let paywallMessage = "rate_limit.paywall.message"
+        static let paywallResetInfo = "rate_limit.paywall.reset_info"
+        static let paywallUpgradeButton = "rate_limit.paywall.upgrade_button"
+        static let paywallDismissButton = "rate_limit.paywall.dismiss_button"
     }
 
     // MARK: - Errors
@@ -1007,6 +1016,7 @@ enum L10n {
             static let iCloudSyncInProgress = "backup.error.iCloudSyncInProgress"
             static let databaseError = "backup.error.databaseError"
             static let mergeConflict = "backup.error.mergeConflict"
+            static let requiresAppleSignIn = "backup.error.requiresAppleSignIn"
         }
 
         // Recovery
@@ -1016,6 +1026,21 @@ enum L10n {
             static let enableiCloud = "backup.recovery.enableiCloud"
             static let freeSpace = "backup.recovery.freeSpace"
             static let updateApp = "backup.recovery.updateApp"
+        }
+
+        // Access Restricted (Sign in required)
+        enum AccessRestricted {
+            static let title = "backup.accessRestricted.title"
+            static let subtitle = "backup.accessRestricted.subtitle"
+            static let benefit1Title = "backup.accessRestricted.benefit1.title"
+            static let benefit1Description = "backup.accessRestricted.benefit1.description"
+            static let benefit2Title = "backup.accessRestricted.benefit2.title"
+            static let benefit2Description = "backup.accessRestricted.benefit2.description"
+            static let benefit3Title = "backup.accessRestricted.benefit3.title"
+            static let benefit3Description = "backup.accessRestricted.benefit3.description"
+            static let signInButton = "backup.accessRestricted.signInButton"
+            static let whyRequired = "backup.accessRestricted.whyRequired"
+            static let whyRequiredExplanation = "backup.accessRestricted.whyRequiredExplanation"
         }
     }
 }

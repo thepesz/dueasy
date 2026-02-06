@@ -1,13 +1,54 @@
 import Foundation
 import os.log
 
+// MARK: - Document Language Hint
+
+/// Hint for the parser about the document's language/locale.
+/// Used to disambiguate date formats (DD/MM vs MM/DD) and other locale-specific patterns.
+enum DocumentLanguageHint: String, Sendable {
+    case polish     // DD.MM.YYYY preferred, comma decimal
+    case english    // MM/DD/YYYY preferred, dot decimal
+    case unknown    // No preference - use heuristics
+}
+
+// MARK: - Date Parse Result
+
+/// A parsed date with its interpretation details for disambiguation.
+struct DateParseResult: Sendable {
+    let date: Date
+    let pattern: String
+    /// Confidence in the interpretation (0.0-1.0).
+    /// Lower when ambiguous (e.g., 01/05/2026 could be Jan 5 or May 1).
+    let confidence: Double
+}
+
 // MARK: - Date Parser
 
-/// Multi-format date parser supporting Polish and English date formats.
+/// Multi-format date parser supporting Polish, English/US, and ISO date formats.
 /// Handles both numeric and verbal date representations.
+///
+/// **Supported Numeric Formats:**
+/// - European (Polish): DD.MM.YYYY, DD-MM-YYYY, DD/MM/YYYY
+/// - US/English: MM/DD/YYYY, MM-DD-YYYY
+/// - ISO: YYYY-MM-DD, YYYY.MM.DD, YYYY/MM/DD
+///
+/// **Disambiguation Strategy for DD/MM vs MM/DD:**
+/// 1. If separator is period (.), assume European (DD.MM.YYYY) -- standard in Poland/EU
+/// 2. If year is first (YYYY-...), assume ISO format
+/// 3. If first number > 12, it must be a day (DD/MM)
+/// 4. If second number > 12, it must be a day (MM/DD)
+/// 5. If both <= 12 and ambiguous, use language hint or return both candidates
+/// 6. Period separator strongly implies European format
+///
+/// **Verbal Formats:**
+/// - Polish: "31 stycznia 2026", "1 sty 2026"
+/// - English: "January 31, 2026", "Jan 31, 2026", "31 January 2026"
 final class DateParser: @unchecked Sendable {
 
     private let logger = Logger(subsystem: "com.dueasy.app", category: "DateParser")
+
+    /// Language hint for disambiguation. Set by the parser when document language is detected.
+    var languageHint: DocumentLanguageHint = .unknown
 
     // MARK: - Polish Month Names
 
@@ -62,7 +103,8 @@ final class DateParser: @unchecked Sendable {
 
     // MARK: - Main Parsing Method
 
-    /// Parse a date string using multiple format strategies
+    /// Parse a date string using multiple format strategies.
+    /// Returns the highest-confidence interpretation.
     /// - Parameter text: Text containing a date
     /// - Returns: Parsed Date or nil if no format matches
     func parseDate(from text: String) -> Date? {
@@ -87,97 +129,270 @@ final class DateParser: @unchecked Sendable {
         return nil
     }
 
-    /// Parse date and return the matched pattern for debugging
+    /// Parse date and return the matched pattern for debugging.
+    /// Uses smart disambiguation for ambiguous dates.
     func parseDateWithPattern(from text: String) -> (date: Date, pattern: String)? {
+        let results = parseDateCandidates(from: text)
+        // Return the highest confidence result
+        return results.first.map { ($0.date, $0.pattern) }
+    }
+
+    /// Parse date and return ALL possible interpretations with confidence scores.
+    /// Used by the due date extraction to provide alternatives when dates are ambiguous.
+    func parseDateCandidates(from text: String) -> [DateParseResult] {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        var results: [DateParseResult] = []
 
-        // Try numeric formats
-        let numericFormats = [
-            ("dd.MM.yyyy", #"(\d{2})\.(\d{2})\.(\d{4})"#),
-            ("dd-MM-yyyy", #"(\d{2})-(\d{2})-(\d{4})"#),
-            ("dd/MM/yyyy", #"(\d{2})/(\d{2})/(\d{4})"#),
-            ("yyyy-MM-dd", #"(\d{4})-(\d{2})-(\d{2})"#),
-            ("yyyy.MM.dd", #"(\d{4})\.(\d{2})\.(\d{2})"#),
-            ("yyyy/MM/dd", #"(\d{4})/(\d{2})/(\d{2})"#),
-            ("d.MM.yyyy", #"(\d{1,2})\.(\d{2})\.(\d{4})"#),
-            ("d-MM-yyyy", #"(\d{1,2})-(\d{2})-(\d{4})"#),
-            ("d/MM/yyyy", #"(\d{1,2})/(\d{2})/(\d{4})"#)
-        ]
-
-        for (format, pattern) in numericFormats {
-            if let regex = try? NSRegularExpression(pattern: pattern),
-               let match = regex.firstMatch(in: trimmed, range: NSRange(trimmed.startIndex..., in: trimmed)),
-               let matchRange = Range(match.range, in: trimmed) {
-                let dateString = String(trimmed[matchRange])
-                if let date = formatter(for: format).date(from: dateString) {
-                    return (date, format)
-                }
-                // Try with flexible formatter
-                let flexibleFormat = format.replacingOccurrences(of: "dd", with: "d")
-                    .replacingOccurrences(of: "MM", with: "M")
-                if let date = formatter(for: flexibleFormat).date(from: dateString) {
-                    return (date, flexibleFormat)
-                }
-            }
-        }
+        // Try numeric formats with disambiguation
+        results.append(contentsOf: parseNumericDateCandidates(trimmed))
 
         // Try Polish verbal
         if let result = parsePolishVerbalDateWithPattern(trimmed) {
-            return result
+            results.append(DateParseResult(date: result.date, pattern: result.pattern, confidence: 0.95))
         }
 
         // Try English verbal
         if let result = parseEnglishVerbalDateWithPattern(trimmed) {
-            return result
+            results.append(DateParseResult(date: result.date, pattern: result.pattern, confidence: 0.95))
         }
 
-        return nil
+        // Sort by confidence descending, deduplicate same dates
+        var seen = Set<String>()
+        let deduplicated = results
+            .sorted { $0.confidence > $1.confidence }
+            .filter { result in
+                let key = "\(result.date.timeIntervalSinceReferenceDate)"
+                if seen.contains(key) { return false }
+                seen.insert(key)
+                return true
+            }
+
+        return deduplicated
     }
 
-    // MARK: - Numeric Date Parsing
+    // MARK: - Numeric Date Parsing with Disambiguation
 
-    private func parseNumericDate(_ text: String) -> Date? {
-        let formats = [
-            "dd.MM.yyyy",
-            "dd-MM-yyyy",
-            "dd/MM/yyyy",
-            "yyyy-MM-dd",
-            "yyyy.MM.dd",
-            "yyyy/MM/dd",
-            "d.MM.yyyy",
-            "d-MM-yyyy",
-            "d/MM/yyyy",
-            "d.M.yyyy",
-            "d-M-yyyy",
-            "d/M/yyyy"
-        ]
+    /// Parse numeric dates with smart DD/MM vs MM/DD disambiguation.
+    /// Returns all valid interpretations with confidence scores.
+    private func parseNumericDateCandidates(_ text: String) -> [DateParseResult] {
+        var results: [DateParseResult] = []
 
-        // Try to extract date substring using regex
-        let datePatterns = [
-            #"\d{2}[-./]\d{2}[-./]\d{4}"#,
-            #"\d{4}[-./]\d{2}[-./]\d{2}"#,
-            #"\d{1,2}[-./]\d{1,2}[-./]\d{4}"#
-        ]
+        // ISO format: YYYY-MM-DD, YYYY.MM.DD, YYYY/MM/DD (unambiguous)
+        let isoPattern = #"(\d{4})([-./])(\d{1,2})\2(\d{1,2})"#
+        if let regex = try? NSRegularExpression(pattern: isoPattern),
+           let match = regex.firstMatch(in: text, range: NSRange(text.startIndex..., in: text)),
+           let yearRange = Range(match.range(at: 1), in: text),
+           let monthRange = Range(match.range(at: 3), in: text),
+           let dayRange = Range(match.range(at: 4), in: text),
+           let year = Int(text[yearRange]),
+           let month = Int(text[monthRange]),
+           let day = Int(text[dayRange]) {
 
-        for pattern in datePatterns {
-            if let regex = try? NSRegularExpression(pattern: pattern),
-               let match = regex.firstMatch(in: text, range: NSRange(text.startIndex..., in: text)),
-               let matchRange = Range(match.range, in: text) {
-                let dateString = String(text[matchRange])
-
-                for format in formats {
-                    if let date = formatter(for: format).date(from: dateString) {
-                        // Validate the date is reasonable (not too far in past or future)
-                        if isReasonableDate(date) {
-                            logger.debug("Parsed numeric date '\(dateString)' with format '\(format)'")
-                            return date
-                        }
-                    }
-                }
+            if let date = makeDate(year: year, month: month, day: day) {
+                let sep = match.range(at: 2)
+                let sepRange = Range(sep, in: text)!
+                let separator = String(text[sepRange])
+                results.append(DateParseResult(
+                    date: date,
+                    pattern: "yyyy\(separator)MM\(separator)dd",
+                    confidence: 0.95
+                ))
+                return results // ISO is unambiguous
             }
         }
 
-        return nil
+        // Non-ISO: NN{sep}NN{sep}YYYY -- could be DD/MM or MM/DD
+        let ambiguousPattern = #"(\d{1,2})([-./])(\d{1,2})\2(\d{4})"#
+        if let regex = try? NSRegularExpression(pattern: ambiguousPattern),
+           let match = regex.firstMatch(in: text, range: NSRange(text.startIndex..., in: text)),
+           let firstRange = Range(match.range(at: 1), in: text),
+           let sepRange = Range(match.range(at: 2), in: text),
+           let secondRange = Range(match.range(at: 3), in: text),
+           let yearRange = Range(match.range(at: 4), in: text),
+           let first = Int(text[firstRange]),
+           let second = Int(text[secondRange]),
+           let year = Int(text[yearRange]) {
+
+            let separator = String(text[sepRange])
+
+            // Rule 1: Period separator strongly implies European DD.MM.YYYY
+            // This is the standard format in Poland and most of continental Europe.
+            if separator == "." {
+                if let date = makeDate(year: year, month: second, day: first) {
+                    results.append(DateParseResult(
+                        date: date,
+                        pattern: "dd.MM.yyyy",
+                        confidence: 0.95
+                    ))
+                }
+                return results
+            }
+
+            // Rule 2: Disambiguate based on value ranges
+            let firstCouldBeMonth = first >= 1 && first <= 12
+            let firstCouldBeDay = first >= 1 && first <= 31
+            let secondCouldBeMonth = second >= 1 && second <= 12
+            let secondCouldBeDay = second >= 1 && second <= 31
+
+            // Case A: first > 12 -- must be day (DD/MM format, European)
+            if !firstCouldBeMonth && firstCouldBeDay && secondCouldBeMonth {
+                if let date = makeDate(year: year, month: second, day: first) {
+                    results.append(DateParseResult(
+                        date: date,
+                        pattern: "dd\(separator)MM\(separator)yyyy",
+                        confidence: 0.95
+                    ))
+                }
+                return results
+            }
+
+            // Case B: second > 12 -- must be day (MM/DD format, US)
+            if firstCouldBeMonth && !secondCouldBeMonth && secondCouldBeDay {
+                if let date = makeDate(year: year, month: first, day: second) {
+                    results.append(DateParseResult(
+                        date: date,
+                        pattern: "MM\(separator)dd\(separator)yyyy",
+                        confidence: 0.95
+                    ))
+                }
+                return results
+            }
+
+            // Case C: Both could be either -- AMBIGUOUS
+            // Use language hint to pick primary, provide alternative
+            if firstCouldBeMonth && secondCouldBeMonth && firstCouldBeDay && secondCouldBeDay {
+                let europeanDate = makeDate(year: year, month: second, day: first)   // DD/MM
+                let usDate = makeDate(year: year, month: first, day: second)         // MM/DD
+
+                switch languageHint {
+                case .polish:
+                    // Strong preference for European DD/MM
+                    if let date = europeanDate {
+                        results.append(DateParseResult(
+                            date: date,
+                            pattern: "dd\(separator)MM\(separator)yyyy",
+                            confidence: 0.90
+                        ))
+                    }
+                    if let date = usDate, date != europeanDate {
+                        results.append(DateParseResult(
+                            date: date,
+                            pattern: "MM\(separator)dd\(separator)yyyy",
+                            confidence: 0.40
+                        ))
+                    }
+
+                case .english:
+                    // Strong preference for US MM/DD
+                    if let date = usDate {
+                        results.append(DateParseResult(
+                            date: date,
+                            pattern: "MM\(separator)dd\(separator)yyyy",
+                            confidence: 0.90
+                        ))
+                    }
+                    if let date = europeanDate, date != usDate {
+                        results.append(DateParseResult(
+                            date: date,
+                            pattern: "dd\(separator)MM\(separator)yyyy",
+                            confidence: 0.40
+                        ))
+                    }
+
+                case .unknown:
+                    // Slight preference for European (existing behavior), but offer both
+                    // Slash separator is more common in US format, dash in European
+                    let preferUS = separator == "/"
+                    let primaryConf = 0.70
+                    let altConf = 0.55
+
+                    if preferUS {
+                        if let date = usDate {
+                            results.append(DateParseResult(
+                                date: date,
+                                pattern: "MM\(separator)dd\(separator)yyyy",
+                                confidence: primaryConf
+                            ))
+                        }
+                        if let date = europeanDate, date != usDate {
+                            results.append(DateParseResult(
+                                date: date,
+                                pattern: "dd\(separator)MM\(separator)yyyy",
+                                confidence: altConf
+                            ))
+                        }
+                    } else {
+                        if let date = europeanDate {
+                            results.append(DateParseResult(
+                                date: date,
+                                pattern: "dd\(separator)MM\(separator)yyyy",
+                                confidence: primaryConf
+                            ))
+                        }
+                        if let date = usDate, date != europeanDate {
+                            results.append(DateParseResult(
+                                date: date,
+                                pattern: "MM\(separator)dd\(separator)yyyy",
+                                confidence: altConf
+                            ))
+                        }
+                    }
+                }
+
+                return results
+            }
+
+            // Case D: Neither interpretation works (invalid date)
+            // Try both and return whichever is valid
+            if let date = makeDate(year: year, month: second, day: first) {
+                results.append(DateParseResult(
+                    date: date,
+                    pattern: "dd\(separator)MM\(separator)yyyy",
+                    confidence: 0.70
+                ))
+            }
+            if let date = makeDate(year: year, month: first, day: second) {
+                results.append(DateParseResult(
+                    date: date,
+                    pattern: "MM\(separator)dd\(separator)yyyy",
+                    confidence: 0.70
+                ))
+            }
+        }
+
+        return results
+    }
+
+    /// Legacy numeric date parsing - returns the best interpretation.
+    private func parseNumericDate(_ text: String) -> Date? {
+        let candidates = parseNumericDateCandidates(text)
+        return candidates.first?.date
+    }
+
+    /// Create a date from components, validating it is a real calendar date.
+    private func makeDate(year: Int, month: Int, day: Int) -> Date? {
+        guard month >= 1 && month <= 12 && day >= 1 && day <= 31 else {
+            return nil
+        }
+
+        var components = DateComponents()
+        components.year = year
+        components.month = month
+        components.day = day
+
+        guard let date = Calendar.current.date(from: components) else {
+            return nil
+        }
+
+        // Verify the date components match (catches invalid dates like Feb 30)
+        let resultComponents = Calendar.current.dateComponents([.year, .month, .day], from: date)
+        guard resultComponents.year == year &&
+              resultComponents.month == month &&
+              resultComponents.day == day else {
+            return nil
+        }
+
+        return isReasonableDate(date) ? date : nil
     }
 
     // MARK: - Polish Verbal Date Parsing
@@ -237,13 +452,7 @@ final class DateParser: @unchecked Sendable {
             return nil
         }
 
-        var components = DateComponents()
-        components.day = day
-        components.month = resolvedMonth
-        components.year = year
-
-        guard let date = Calendar.current.date(from: components),
-              isReasonableDate(date) else {
+        guard let date = makeDate(year: year, month: resolvedMonth, day: day) else {
             return nil
         }
 
@@ -261,11 +470,11 @@ final class DateParser: @unchecked Sendable {
     private func parseEnglishVerbalDateWithPattern(_ text: String) -> (date: Date, pattern: String)? {
         let normalized = text.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
 
-        // Pattern 1: "January 31, 2026" or "Jan 31, 2026"
-        let pattern1 = #"(\w+)\s+(\d{1,2}),?\s+(\d{4})"#
+        // Pattern 1: "January 31, 2026" or "Jan 31, 2026" or "Jan. 31, 2026"
+        let pattern1 = #"(\w+)\.?\s+(\d{1,2})(?:st|nd|rd|th)?,?\s+(\d{4})"#
 
-        // Pattern 2: "31 January 2026" or "31 Jan 2026"
-        let pattern2 = #"(\d{1,2})\s+(\w+),?\s+(\d{4})"#
+        // Pattern 2: "31 January 2026" or "31 Jan 2026" or "31st January 2026"
+        let pattern2 = #"(\d{1,2})(?:st|nd|rd|th)?\s+(\w+)\.?,?\s+(\d{4})"#
 
         // Try pattern 1 (Month Day, Year)
         if let result = parseEnglishPattern(normalized, pattern: pattern1, dayGroup: 2, monthGroup: 1, yearGroup: 3) {
@@ -322,13 +531,7 @@ final class DateParser: @unchecked Sendable {
             return nil
         }
 
-        var components = DateComponents()
-        components.day = day
-        components.month = resolvedMonth
-        components.year = year
-
-        guard let date = Calendar.current.date(from: components),
-              isReasonableDate(date) else {
+        guard let date = makeDate(year: year, month: resolvedMonth, day: day) else {
             return nil
         }
 
@@ -361,9 +564,8 @@ final class DateParser: @unchecked Sendable {
 
         // Numeric date patterns
         let numericPatterns = [
-            #"\d{2}[-./]\d{2}[-./]\d{4}"#,
-            #"\d{4}[-./]\d{2}[-./]\d{2}"#,
-            #"\d{1,2}[-./]\d{1,2}[-./]\d{4}"#
+            #"\d{4}[-./]\d{1,2}[-./]\d{1,2}"#,     // ISO: YYYY-MM-DD
+            #"\d{1,2}[-./]\d{1,2}[-./]\d{4}"#       // DD/MM/YYYY or MM/DD/YYYY
         ]
 
         for pattern in numericPatterns {
@@ -372,16 +574,31 @@ final class DateParser: @unchecked Sendable {
                 for match in matches {
                     if let range = Range(match.range, in: text) {
                         let dateString = String(text[range])
-                        if let date = parseNumericDate(dateString) {
-                            results.append((date, range, "numeric"))
+                        let candidates = parseNumericDateCandidates(dateString)
+                        for candidate in candidates {
+                            results.append((candidate.date, range, candidate.pattern))
                         }
                     }
                 }
             }
         }
 
-        // Verbal date patterns
-        let verbalPattern = #"\d{1,2}\s+\w+\s+\d{4}"#
+        // English verbal: "Month Day, Year" pattern
+        let englishVerbalPattern = #"\w+\.?\s+\d{1,2}(?:st|nd|rd|th)?,?\s+\d{4}"#
+        if let regex = try? NSRegularExpression(pattern: englishVerbalPattern, options: [.caseInsensitive]) {
+            let matches = regex.matches(in: text, range: NSRange(text.startIndex..., in: text))
+            for match in matches {
+                if let range = Range(match.range, in: text) {
+                    let dateString = String(text[range])
+                    if let result = parseEnglishVerbalDateWithPattern(dateString) {
+                        results.append((result.date, range, result.pattern))
+                    }
+                }
+            }
+        }
+
+        // Verbal date patterns: "Day Month Year"
+        let verbalPattern = #"\d{1,2}(?:st|nd|rd|th)?\s+\w+\.?\s+\d{4}"#
         if let regex = try? NSRegularExpression(pattern: verbalPattern, options: [.caseInsensitive]) {
             let matches = regex.matches(in: text, range: NSRange(text.startIndex..., in: text))
             for match in matches {

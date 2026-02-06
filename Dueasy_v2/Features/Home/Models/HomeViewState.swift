@@ -83,9 +83,6 @@ struct HomeViewState: Equatable, Sendable {
     /// Whether the user has any documents at all
     let hasDocuments: Bool
 
-    /// Current app tier (free or pro)
-    let appTier: AppTier
-
     // MARK: - Computed Properties
 
     /// Whether there are any upcoming or overdue items
@@ -133,8 +130,7 @@ struct HomeViewState: Equatable, Sendable {
         paidPercent: 0,
         monthUnpaidTotal: 0,
         monthCurrency: "PLN",
-        hasDocuments: false,
-        appTier: .free
+        hasDocuments: false
     )
 }
 

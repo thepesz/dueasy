@@ -5,6 +5,7 @@ import os.log
 /// Validates fields, creates calendar event, and schedules notifications.
 /// Also sets vendorFingerprint and documentCategory for recurring payment detection.
 /// CRITICAL: Automatically matches documents to existing recurring instances.
+/// FRAUD DETECTION: Runs anomaly analysis in background after finalization.
 struct FinalizeInvoiceUseCase: Sendable {
 
     private let repository: DocumentRepositoryProtocol
@@ -16,6 +17,7 @@ struct FinalizeInvoiceUseCase: Sendable {
     private let recurringMatcherService: RecurringMatcherServiceProtocol?
     private let recurringTemplateService: RecurringTemplateServiceProtocol?
     private let recurringSchedulerService: RecurringSchedulerServiceProtocol?
+    private let fraudDetectionService: FraudDetectionServiceProtocol?
     private let logger = Logger(subsystem: "com.dueasy.app", category: "FinalizeInvoice")
 
     init(
@@ -27,7 +29,8 @@ struct FinalizeInvoiceUseCase: Sendable {
         classifierService: DocumentClassifierServiceProtocol,
         recurringMatcherService: RecurringMatcherServiceProtocol? = nil,
         recurringTemplateService: RecurringTemplateServiceProtocol? = nil,
-        recurringSchedulerService: RecurringSchedulerServiceProtocol? = nil
+        recurringSchedulerService: RecurringSchedulerServiceProtocol? = nil,
+        fraudDetectionService: FraudDetectionServiceProtocol? = nil
     ) {
         self.repository = repository
         self.calendarService = calendarService
@@ -38,6 +41,7 @@ struct FinalizeInvoiceUseCase: Sendable {
         self.recurringMatcherService = recurringMatcherService
         self.recurringTemplateService = recurringTemplateService
         self.recurringSchedulerService = recurringSchedulerService
+        self.fraudDetectionService = fraudDetectionService
     }
 
     /// Finalizes a document with validated data.
@@ -54,6 +58,7 @@ struct FinalizeInvoiceUseCase: Sendable {
     ///   - notes: Optional notes
     ///   - reminderOffsets: Days before due date to send reminders
     ///   - skipCalendar: Skip calendar event creation (e.g., if permission denied)
+    ///   - ocrText: Optional OCR text for document classification (transient, not persisted)
     @MainActor
     func execute(
         document: FinanceDocument,
@@ -67,7 +72,8 @@ struct FinalizeInvoiceUseCase: Sendable {
         bankAccountNumber: String? = nil,
         notes: String?,
         reminderOffsets: [Int]?,
-        skipCalendar: Bool = false
+        skipCalendar: Bool = false,
+        ocrText: String? = nil
     ) async throws {
         // PRIVACY: Don't log PII or financial data
         logger.info("Finalizing document: hasTitle=\(title.count > 0), currency=\(currency) (amount/date hidden for privacy)")
@@ -104,10 +110,12 @@ struct FinalizeInvoiceUseCase: Sendable {
         document.vendorFingerprint = fingerprint
         logger.info("Set vendor fingerprint: \(fingerprint.prefix(16))... for vendor (name hidden for privacy)")
 
-        // CRITICAL: Classify document category for auto-detection filtering
+        // CRITICAL: Classify document category for auto-detection filtering.
+        // OCR text is passed transiently for keyword-based classification accuracy.
+        // It is NOT persisted -- only the resulting category is stored.
         let classification = classifierService.classify(
             vendorName: title,
-            ocrText: nil, // OCR text not passed through finalize - could be enhanced
+            ocrText: ocrText,
             amount: amount
         )
         document.documentCategoryRaw = classification.category.rawValue
@@ -240,6 +248,49 @@ struct FinalizeInvoiceUseCase: Sendable {
 
         try await repository.update(document)
         logger.info("Document finalized and saved successfully")
+
+        // FRAUD DETECTION: Run anomaly analysis in background after finalization.
+        // This detects IBAN changes, vendor spoofing, timing/amount anomalies.
+        // Detected anomalies are saved to SwiftData and trigger UI notifications.
+        // IMPORTANT: This runs in a detached task to avoid blocking the finalization flow.
+        if let fraudService = fraudDetectionService {
+            // Capture document ID for the background task (document reference may change)
+            let docId = document.id
+            let docCopy = document // Capture for async context
+
+            Task.detached(priority: .utility) { @MainActor in
+                do {
+                    let anomalies = try await fraudService.analyzeDocument(docCopy)
+                    if !anomalies.isEmpty {
+                        // Collect anomaly types for the notification
+                        let anomalyTypes = anomalies.map { $0.typeRaw }
+                        let hasCritical = anomalies.contains { $0.severity == .critical }
+                        let hasWarning = anomalies.contains { $0.severity == .warning }
+
+                        // Post notification for UI to show anomaly banner
+                        NotificationCenter.default.post(
+                            name: .anomaliesDetected,
+                            object: nil,
+                            userInfo: [
+                                AnomalyNotificationKey.documentId.rawValue: docId,
+                                AnomalyNotificationKey.anomalyCount.rawValue: anomalies.count,
+                                AnomalyNotificationKey.hasCritical.rawValue: hasCritical,
+                                AnomalyNotificationKey.hasWarning.rawValue: hasWarning,
+                                AnomalyNotificationKey.anomalyTypes.rawValue: anomalyTypes
+                            ]
+                        )
+
+                        // PRIVACY: Log only counts and types, never amounts or vendor names
+                        PrivacyLogger.app.info("Fraud detection complete: \(anomalies.count) anomalies (critical: \(hasCritical), warning: \(hasWarning))")
+                    } else {
+                        PrivacyLogger.app.debug("Fraud detection complete: no anomalies detected")
+                    }
+                } catch {
+                    // Log but don't fail the finalization - fraud detection is non-blocking
+                    PrivacyLogger.app.error("Fraud detection failed: \(error.localizedDescription)")
+                }
+            }
+        }
     }
 
     // MARK: - Formatting Helpers

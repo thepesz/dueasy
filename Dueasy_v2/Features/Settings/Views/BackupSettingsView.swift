@@ -2,7 +2,10 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 /// Settings view for backup and restore functionality.
-/// Supports manual export/import and optional iCloud auto-backup.
+/// Supports manual export/import with password-encrypted JSON files.
+///
+/// **Access Control**: Requires Sign in with Apple. Anonymous users see
+/// BackupAccessRestrictedView instead.
 ///
 /// UI STYLE: Adapts to the current UI style (Midnight Aurora, Paper Minimal, Warm Finance)
 /// based on user preference from SettingsManager.uiStyleOtherViews.
@@ -35,18 +38,18 @@ struct BackupSettingsView: View {
     @State private var showError = false
     @State private var errorMessage: String?
 
-    // iCloud state
-    @State private var iCloudEnabled = false
-    @State private var showEnableiCloudSheet = false
-    @State private var iCloudPassword = ""
-    @State private var iCloudPasswordConfirm = ""
-
     private var isAurora: Bool {
         style == .midnightAurora
     }
 
     private var tokens: UIStyleTokens {
         UIStyleTokens(style: style)
+    }
+
+    /// Whether the current user has access to backup features.
+    /// Requires Sign in with Apple (isAppleLinked).
+    private var hasBackupAccess: Bool {
+        environment.authBootstrapper.isAppleLinked
     }
 
     // MARK: - Body
@@ -56,10 +59,17 @@ struct BackupSettingsView: View {
             // Style-aware background
             StyledSettingsBackground()
 
-            if isAurora {
-                auroraContent
+            if hasBackupAccess {
+                // User is signed in with Apple - show backup UI
+                if isAurora {
+                    auroraContent
+                } else {
+                    standardContent
+                }
             } else {
-                standardContent
+                // Anonymous user - show sign-in required view
+                BackupAccessRestrictedView()
+                    .environment(environment)
             }
         }
         .navigationTitle(L10n.Backup.title.localized)
@@ -69,9 +79,6 @@ struct BackupSettingsView: View {
         }
         .sheet(isPresented: $showImportPasswordSheet) {
             importPasswordSheet
-        }
-        .sheet(isPresented: $showEnableiCloudSheet) {
-            enableiCloudSheet
         }
         .sheet(isPresented: $showExportShareSheet) {
             if let url = exportedFileURL {
@@ -192,53 +199,6 @@ struct BackupSettingsView: View {
                 }, footer: {
                     Text(L10n.Backup.subtitle.localized)
                 })
-
-                // iCloud Auto-Backup Section (optional)
-                AuroraListSection(content: {
-                    VStack(spacing: 0) {
-                        // Enable/Disable toggle
-                        HStack {
-                            Image(systemName: "icloud")
-                                .font(.title3)
-                                .foregroundStyle(iCloudEnabled ? AuroraPalette.success : Color.white.opacity(0.5))
-                                .frame(width: 28)
-
-                            VStack(alignment: .leading, spacing: Spacing.xxs) {
-                                Text(L10n.Backup.iCloudTitle.localized)
-                                    .font(Typography.body)
-                                    .foregroundStyle(Color.white)
-
-                                Text(iCloudStatusText)
-                                    .font(Typography.caption1)
-                                    .foregroundStyle(iCloudEnabled ? AuroraPalette.success : Color.white.opacity(0.6))
-                            }
-
-                            Spacer()
-
-                            if iCloudEnabled {
-                                Button(L10n.Backup.iCloudDisable.localized) {
-                                    Task {
-                                        await disableiCloudBackup()
-                                    }
-                                }
-                                .font(Typography.caption1.weight(.semibold))
-                                .foregroundStyle(AuroraPalette.error)
-                            } else {
-                                Button(L10n.Backup.iCloudEnable.localized) {
-                                    showEnableiCloudSheet = true
-                                }
-                                .font(Typography.caption1.weight(.semibold))
-                                .foregroundStyle(AuroraPalette.accentBlue)
-                            }
-                        }
-                        .padding(.horizontal, Spacing.md)
-                        .padding(.vertical, Spacing.sm)
-                    }
-                }, header: {
-                    Text(L10n.Backup.iCloudSection.localized)
-                }, footer: {
-                    Text(L10n.Backup.iCloudDescription.localized)
-                })
             }
             .padding(.vertical, Spacing.md)
         }
@@ -311,45 +271,6 @@ struct BackupSettingsView: View {
                 Text(L10n.Backup.section.localized)
             } footer: {
                 Text(L10n.Backup.subtitle.localized)
-            }
-
-            // iCloud Auto-Backup Section
-            Section {
-                HStack {
-                    Image(systemName: "icloud")
-                        .foregroundStyle(iCloudEnabled ? AppColors.success : .secondary)
-                        .frame(width: 28)
-
-                    VStack(alignment: .leading, spacing: Spacing.xxs) {
-                        Text(L10n.Backup.iCloudTitle.localized)
-                            .font(Typography.body)
-
-                        Text(iCloudStatusText)
-                            .font(Typography.caption1)
-                            .foregroundStyle(iCloudEnabled ? AppColors.success : .secondary)
-                    }
-
-                    Spacer()
-
-                    if iCloudEnabled {
-                        Button(L10n.Backup.iCloudDisable.localized) {
-                            Task {
-                                await disableiCloudBackup()
-                            }
-                        }
-                        .font(Typography.caption1.weight(.semibold))
-                        .foregroundStyle(.red)
-                    } else {
-                        Button(L10n.Backup.iCloudEnable.localized) {
-                            showEnableiCloudSheet = true
-                        }
-                        .font(Typography.caption1.weight(.semibold))
-                    }
-                }
-            } header: {
-                Text(L10n.Backup.iCloudSection.localized)
-            } footer: {
-                Text(L10n.Backup.iCloudDescription.localized)
             }
         }
         .scrollContentBackground(.hidden)
@@ -571,125 +492,10 @@ struct BackupSettingsView: View {
         .presentationDetents([.medium])
     }
 
-    // MARK: - Enable iCloud Sheet
-
-    @ViewBuilder
-    private var enableiCloudSheet: some View {
-        NavigationStack {
-            ZStack {
-                if isAurora {
-                    StyledSettingsBackground()
-                }
-
-                VStack(spacing: Spacing.lg) {
-                    // Icon
-                    ZStack {
-                        Circle()
-                            .fill(
-                                LinearGradient(
-                                    colors: [AuroraPalette.accentBlue.opacity(0.3), AuroraPalette.accentTeal.opacity(0.2)],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
-                            )
-                            .frame(width: 80, height: 80)
-
-                        Image(systemName: "icloud.and.arrow.up")
-                            .font(.system(size: 36))
-                            .foregroundStyle(isAurora ? AuroraPalette.accentBlue : AppColors.primary)
-                    }
-                    .padding(.top, Spacing.lg)
-
-                    // Title and description
-                    VStack(spacing: Spacing.xs) {
-                        Text(L10n.Backup.iCloudSetupPassword.localized)
-                            .font(Typography.headline)
-                            .foregroundStyle(isAurora ? Color.white : .primary)
-
-                        Text(L10n.Backup.iCloudDescription.localized)
-                            .font(Typography.body)
-                            .foregroundStyle(isAurora ? Color.white.opacity(0.7) : .secondary)
-                            .multilineTextAlignment(.center)
-                    }
-                    .padding(.horizontal, Spacing.lg)
-
-                    // Password fields
-                    VStack(spacing: Spacing.md) {
-                        SecureField(L10n.Backup.passwordPlaceholder.localized, text: $iCloudPassword)
-                            .textContentType(.newPassword)
-                            .modifier(PasswordFieldModifier(isAurora: isAurora))
-
-                        SecureField(L10n.Backup.passwordConfirmPlaceholder.localized, text: $iCloudPasswordConfirm)
-                            .textContentType(.newPassword)
-                            .modifier(PasswordFieldModifier(isAurora: isAurora))
-
-                        // Password requirements
-                        HStack(spacing: Spacing.xs) {
-                            Image(systemName: iCloudPassword.count >= 8 ? "checkmark.circle.fill" : "circle")
-                                .foregroundStyle(iCloudPassword.count >= 8 ? AuroraPalette.success : (isAurora ? Color.white.opacity(0.4) : .secondary))
-
-                            Text(L10n.Backup.passwordMinLength.localized)
-                                .font(Typography.caption1)
-                                .foregroundStyle(isAurora ? Color.white.opacity(0.6) : .secondary)
-
-                            Spacer()
-                        }
-                    }
-                    .padding(.horizontal, Spacing.lg)
-
-                    Spacer()
-
-                    // Enable button
-                    Button {
-                        Task {
-                            await enableiCloudBackup()
-                        }
-                    } label: {
-                        Text(L10n.Backup.iCloudEnable.localized)
-                            .font(Typography.body.weight(.semibold))
-                            .foregroundStyle(.white)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 50)
-                            .background(iCloudButtonBackground)
-                            .clipShape(RoundedRectangle(cornerRadius: CornerRadius.md, style: .continuous))
-                    }
-                    .disabled(!isiCloudPasswordValid)
-                    .padding(.horizontal, Spacing.lg)
-                    .padding(.bottom, Spacing.lg)
-                }
-            }
-            .navigationTitle(L10n.Backup.iCloudTitle.localized)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button(L10n.Common.cancel.localized) {
-                        showEnableiCloudSheet = false
-                        iCloudPassword = ""
-                        iCloudPasswordConfirm = ""
-                    }
-                    .foregroundStyle(isAurora ? AuroraPalette.accentBlue : AppColors.primary)
-                }
-            }
-        }
-        .presentationDetents([.medium, .large])
-    }
-
     // MARK: - Helpers
 
     private var isExportPasswordValid: Bool {
         exportPassword.count >= 8 && exportPassword == exportPasswordConfirm
-    }
-
-    private var isiCloudPasswordValid: Bool {
-        iCloudPassword.count >= 8 && iCloudPassword == iCloudPasswordConfirm
-    }
-
-    private var iCloudStatusText: String {
-        if iCloudEnabled {
-            return L10n.Backup.iCloudLastBackup.localized // Would show actual date
-        } else {
-            return L10n.Backup.iCloudNeverBackedUp.localized
-        }
     }
 
     private var exportButtonBackground: some ShapeStyle {
@@ -708,18 +514,6 @@ struct BackupSettingsView: View {
         if !importPassword.isEmpty {
             return AnyShapeStyle(LinearGradient(
                 colors: [AuroraPalette.accentPurple, AuroraPalette.accentBlue],
-                startPoint: .leading,
-                endPoint: .trailing
-            ))
-        } else {
-            return AnyShapeStyle(Color.gray.opacity(0.5))
-        }
-    }
-
-    private var iCloudButtonBackground: some ShapeStyle {
-        if isiCloudPasswordValid {
-            return AnyShapeStyle(LinearGradient(
-                colors: [AuroraPalette.accentBlue, AuroraPalette.accentTeal],
                 startPoint: .leading,
                 endPoint: .trailing
             ))
@@ -812,32 +606,6 @@ struct BackupSettingsView: View {
         isImporting = false
     }
 
-    private func enableiCloudBackup() async {
-        do {
-            try await environment.iCloudBackupService.enableAutoBackup(password: iCloudPassword)
-            iCloudEnabled = true
-
-            showEnableiCloudSheet = false
-            iCloudPassword = ""
-            iCloudPasswordConfirm = ""
-        } catch let error as BackupError {
-            errorMessage = error.localizedDescription
-            showError = true
-        } catch {
-            errorMessage = error.localizedDescription
-            showError = true
-        }
-    }
-
-    private func disableiCloudBackup() async {
-        do {
-            try await environment.iCloudBackupService.disableAutoBackup()
-            iCloudEnabled = false
-        } catch {
-            errorMessage = error.localizedDescription
-            showError = true
-        }
-    }
 }
 
 // MARK: - Password Field Modifier

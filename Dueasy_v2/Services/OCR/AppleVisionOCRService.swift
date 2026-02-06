@@ -12,10 +12,12 @@ import os
 /// - Pass 2 (Sensitive): minTextHeight = 0.007 - Captures fine print, labels, table headers
 ///
 /// **Image Pre-processing Pipeline:**
-/// 1. Deskew (straighten) - corrects rotated/skewed scans
-/// 2. Contrast enhancement (+20%) - makes text stand out
-/// 3. Noise reduction - removes compression artifacts
-/// 4. Sharpening - improves character edges
+/// 1. Deskew (straighten) - corrects rotated/skewed scans (if needed)
+/// 2. Light sharpening - improves character edges (gentle)
+///
+/// Note: Grayscale, contrast, and noise reduction were removed as they can hurt
+/// OCR accuracy by removing color-based text/background separation. VisionKit
+/// already provides edge detection, perspective correction, and enhancement.
 ///
 /// **Merge Strategy:**
 /// - Deduplicate by bounding box overlap (>80%) and text similarity (>60%)
@@ -448,6 +450,9 @@ final class AppleVisionOCRService: OCRServiceProtocol, @unchecked Sendable {
     /// Downscaling to 2500x3500 maintains excellent OCR accuracy while reducing
     /// resource usage by 50-70% for very large images.
     ///
+    /// Uses CGContext directly instead of UIGraphicsImageRenderer to guarantee
+    /// pixel-accurate output regardless of device screen scale (Retina 2x/3x).
+    ///
     /// - Parameter cgImage: Original CGImage
     /// - Returns: Downscaled CGImage if larger than limits, otherwise original
     private func downscaleForOCR(_ cgImage: CGImage) -> CGImage {
@@ -464,21 +469,36 @@ final class AppleVisionOCRService: OCRServiceProtocol, @unchecked Sendable {
         let heightScale = Self.maxOCRHeight / currentHeight
         let scale = min(widthScale, heightScale, 1.0)
 
-        let newWidth = currentWidth * scale
-        let newHeight = currentHeight * scale
-        let newSize = CGSize(width: newWidth, height: newHeight)
+        let newWidth = Int(currentWidth * scale)
+        let newHeight = Int(currentHeight * scale)
 
-        // Use UIGraphicsImageRenderer for high-quality downscaling
-        // This uses Lanczos resampling which preserves text sharpness
-        let renderer = UIGraphicsImageRenderer(size: newSize)
-        let scaledUIImage = renderer.image { _ in
-            // Create UIImage from CGImage for drawing
-            let uiImage = UIImage(cgImage: cgImage)
-            uiImage.draw(in: CGRect(origin: .zero, size: newSize))
+        // Use CGContext directly for pixel-accurate downscaling.
+        // UIGraphicsImageRenderer can produce images scaled by the device's
+        // screen factor (2x/3x) even with format.scale = 1.0 in some edge cases.
+        // CGContext gives us exact pixel dimensions every time.
+        guard let colorSpace = cgImage.colorSpace ?? CGColorSpace(name: CGColorSpace.sRGB),
+              let context = CGContext(
+                  data: nil,
+                  width: newWidth,
+                  height: newHeight,
+                  bitsPerComponent: 8,
+                  bytesPerRow: 0,
+                  space: colorSpace,
+                  bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+              ) else {
+            PrivacyLogger.ocr.warning("Failed to create CGContext for downscaling, using original")
+            return cgImage
         }
 
-        // Return the scaled CGImage, or fall back to original if conversion fails
-        return scaledUIImage.cgImage ?? cgImage
+        context.interpolationQuality = .high
+        context.draw(cgImage, in: CGRect(x: 0, y: 0, width: newWidth, height: newHeight))
+
+        guard let scaledImage = context.makeImage() else {
+            PrivacyLogger.ocr.warning("Failed to create downscaled image, using original")
+            return cgImage
+        }
+
+        return scaledImage
     }
 
     // MARK: - Enhanced Image Pre-processing
@@ -487,9 +507,10 @@ final class AppleVisionOCRService: OCRServiceProtocol, @unchecked Sendable {
     ///
     /// Pipeline:
     /// 1. Deskew (straighten) - corrects rotated/skewed scans
-    /// 2. Contrast enhancement - makes text stand out from background
-    /// 3. Noise reduction - removes compression artifacts
-    /// 4. Sharpening - improves character edges
+    /// 2. Convert to grayscale - removes color noise, focuses on text luminance
+    /// 3. Adaptive contrast enhancement - stronger for faded documents
+    /// 4. Noise reduction - removes compression artifacts
+    /// 5. Unsharp mask sharpening - improves character edge definition
     ///
     /// **Memory Optimization:**
     /// Uses autoreleasepool to release intermediate CIImage objects after each filter step.
@@ -511,33 +532,19 @@ final class AppleVisionOCRService: OCRServiceProtocol, @unchecked Sendable {
                 stats.deskewAngle = angle
             }
 
-            // Step 2: Enhance contrast (gentle - 20% increase)
-            if let contrastFilter = CIFilter(name: "CIColorControls") {
-                contrastFilter.setValue(ciImage, forKey: kCIInputImageKey)
-                contrastFilter.setValue(1.2, forKey: kCIInputContrastKey)
-                contrastFilter.setValue(1.0, forKey: kCIInputSaturationKey) // Keep saturation neutral
-                contrastFilter.setValue(0.0, forKey: kCIInputBrightnessKey) // Keep brightness neutral
-                if let output = contrastFilter.outputImage {
-                    ciImage = output
-                    stats.contrastEnhanced = true
-                }
-            }
+            // SIMPLIFIED PREPROCESSING:
+            // VisionKit already provides edge detection, perspective correction, and contrast enhancement.
+            // Over-processing (grayscale, high contrast, noise reduction) can hurt OCR accuracy
+            // by removing color-based text/background separation and introducing artifacts.
+            //
+            // NEW APPROACH: Minimal preprocessing - only light sharpening if needed.
+            // Let Vision Framework use the color information for better text detection.
 
-            // Step 3: Reduce noise (gentle - for compression artifacts)
-            if let noiseFilter = CIFilter(name: "CINoiseReduction") {
-                noiseFilter.setValue(ciImage, forKey: kCIInputImageKey)
-                noiseFilter.setValue(0.02, forKey: "inputNoiseLevel")
-                noiseFilter.setValue(0.4, forKey: "inputSharpness")
-                if let output = noiseFilter.outputImage {
-                    ciImage = output
-                    stats.noiseReduced = true
-                }
-            }
-
-            // Step 4: Sharpen luminance (gentle - improves text edges)
+            // Only apply light sharpening for better character edges
+            // Skip grayscale, contrast, and noise reduction - they might hurt more than help
             if let sharpenFilter = CIFilter(name: "CISharpenLuminance") {
                 sharpenFilter.setValue(ciImage, forKey: kCIInputImageKey)
-                sharpenFilter.setValue(0.3, forKey: kCIInputSharpnessKey) // Gentle sharpening
+                sharpenFilter.setValue(0.3, forKey: kCIInputSharpnessKey)  // Gentle sharpening
                 if let output = sharpenFilter.outputImage {
                     ciImage = output
                     stats.sharpened = true

@@ -29,13 +29,15 @@ final class FirebaseConfigurator {
 
     /// Configure Firebase on app launch.
     /// Must be called before any Firebase services are used.
-    /// - Parameter tier: Application tier to determine if Firebase is needed
-    func configure(for tier: AppTier) {
+    ///
+    /// Firebase is required for BOTH free and pro tiers:
+    /// - Free tier: Anonymous auth + 3 cloud extractions/month
+    /// - Pro tier: Apple auth + unlimited cloud extractions
+    func configure() {
         #if canImport(FirebaseCore)
-        guard tier == .pro else {
-            // Firebase not needed for free tier
-            return
-        }
+        // Firebase is required for ALL tiers (free and pro)
+        // Free tier uses anonymous auth, Pro tier uses Apple Sign In
+        // Backend enforces monthly limits (3 for free, 100 for pro)
 
         // Check if GoogleService-Info.plist exists
         guard Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist") != nil else {
@@ -76,13 +78,11 @@ final class FirebaseConfigurator {
         #else
         // Firebase SDK not available
         #if DEBUG
-        if tier == .pro {
-            print("Firebase: SDK not available. Add Firebase packages to enable Pro features.")
-            print("   To add Firebase SDK:")
-            print("   1. In Xcode, go to File > Add Package Dependencies")
-            print("   2. Add https://github.com/firebase/firebase-ios-sdk")
-            print("   3. Select: FirebaseAuth, FirebaseFunctions")
-        }
+        print("Firebase: SDK not available. Add Firebase packages to enable cloud extraction.")
+        print("   To add Firebase SDK:")
+        print("   1. In Xcode, go to File > Add Package Dependencies")
+        print("   2. Add https://github.com/firebase/firebase-ios-sdk")
+        print("   3. Select: FirebaseAuth, FirebaseFunctions, FirebaseCrashlytics")
         #endif
         #endif
     }

@@ -56,6 +56,8 @@ struct StyledDocumentListBackground: View {
 /// Document row component for DocumentListView that adapts styling to the current UI style.
 /// Provides style-specific card backgrounds, borders, and shadows.
 /// Note: This is different from StyledDocumentRow in UIStyleComponents which takes string params.
+///
+/// FRAUD DETECTION: Supports optional anomaly counts to show security indicator badge.
 struct StyledDocumentListRow: View {
 
     @Environment(\.uiStyle) private var style
@@ -66,10 +68,23 @@ struct StyledDocumentListRow: View {
     let document: FinanceDocument
     let onTap: () -> Void
 
+    /// Number of critical anomalies for this document (fraud detection)
+    let criticalAnomalyCount: Int
+
+    /// Number of warning anomalies for this document (fraud detection)
+    let warningAnomalyCount: Int
+
     @State private var isPressed = false
 
-    init(document: FinanceDocument, onTap: @escaping () -> Void = {}) {
+    init(
+        document: FinanceDocument,
+        criticalAnomalyCount: Int = 0,
+        warningAnomalyCount: Int = 0,
+        onTap: @escaping () -> Void = {}
+    ) {
         self.document = document
+        self.criticalAnomalyCount = criticalAnomalyCount
+        self.warningAnomalyCount = warningAnomalyCount
         self.onTap = onTap
     }
 
@@ -96,6 +111,14 @@ struct StyledDocumentListRow: View {
                             .lineLimit(1)
 
                         Spacer()
+
+                        // FRAUD DETECTION: Anomaly indicator badge
+                        if criticalAnomalyCount > 0 || warningAnomalyCount > 0 {
+                            AnomalyIndicator(
+                                criticalCount: criticalAnomalyCount,
+                                warningCount: warningAnomalyCount
+                            )
+                        }
 
                         StyledDocumentListStatusBadge(status: document.status)
                     }

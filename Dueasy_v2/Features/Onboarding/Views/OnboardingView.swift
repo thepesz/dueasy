@@ -30,7 +30,6 @@ struct OnboardingView: View {
     @State private var isSigningInWithApple = false
     @State private var signInError: String?
     @State private var showSignInErrorAlert = false
-    @State private var showCredentialAlreadyLinkedAlert = false
 
     private let logger = Logger(subsystem: "com.dueasy.app", category: "Onboarding")
 
@@ -159,14 +158,6 @@ struct OnboardingView: View {
         } message: {
             Text(signInError ?? L10n.Auth.signInErrorGeneric.localized)
         }
-        .alert(L10n.Auth.credentialAlreadyLinkedTitle.localized, isPresented: $showCredentialAlreadyLinkedAlert) {
-            Button(L10n.Auth.continueAsGuest.localized) {
-                // Continue without linking
-                proceedToPermissions()
-            }
-        } message: {
-            Text(L10n.Auth.credentialAlreadyLinkedMessage.localized)
-        }
     }
 
     private var buttonTitle: String {
@@ -203,9 +194,27 @@ struct OnboardingView: View {
             // User cancelled - don't show error
             logger.info("Apple Sign In cancelled by user")
         } catch AuthError.credentialAlreadyLinked {
-            // Apple account already linked to another user
-            logger.warning("Apple credential already linked to another user")
-            showCredentialAlreadyLinkedAlert = true
+            // Apple account already linked to another user (from previous install)
+            // Automatically recover by signing in with Apple (replaces anonymous session)
+            logger.warning("Apple credential already linked - automatically recovering existing account")
+
+            do {
+                // Sign in with Apple (automatically replaces current anonymous session)
+                // This reconnects to the existing Firebase user and recovers their data
+                try await environment.authService.signInWithApple()
+                logger.info("Successfully recovered existing Apple account and data")
+
+                // Refresh auth state and proceed
+                await environment.authBootstrapper.refreshState()
+                proceedToPermissions()
+            } catch AuthError.appleSignInCancelled {
+                // User cancelled recovery - stay on sign-in page
+                logger.info("User cancelled automatic account recovery")
+            } catch {
+                logger.error("Failed to recover existing account: \(error.localizedDescription)")
+                signInError = error.localizedDescription
+                showSignInErrorAlert = true
+            }
         } catch {
             logger.error("Apple Sign In failed: \(error.localizedDescription)")
             signInError = error.localizedDescription

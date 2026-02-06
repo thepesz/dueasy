@@ -97,6 +97,11 @@ final class LayoutFirstInvoiceParser: DocumentAnalysisServiceProtocol, @unchecke
     private func parseInvoiceWithLayout(text: String, lineData: [OCRLineData]) -> DocumentAnalysisResult {
         // PRIVACY: Log only metrics, never actual content
 
+        // Step 0: Detect document language for disambiguation
+        let documentLanguage = detectDocumentLanguage(from: text)
+        dateParser.languageHint = documentLanguage
+        PrivacyLogger.parsing.info("Document language detected: \(documentLanguage.rawValue)")
+
         // Step 1: Analyze document layout
         let layout = layoutAnalyzer.analyzeLayout(lines: lineData)
         PrivacyLogger.parsing.debug("Layout analysis: \(layout.rows.count) rows, \(layout.columns.count) columns")
@@ -168,6 +173,11 @@ final class LayoutFirstInvoiceParser: DocumentAnalysisServiceProtocol, @unchecke
             confidence: vendorExtraction.confidence,
             candidatesCount: vendorCandidatesList.count
         )
+
+        // Detailed vendor candidate ranking log (metrics only, no PII)
+        for (index, candidate) in vendorExtraction.candidates.prefix(3).enumerated() {
+            PrivacyLogger.parsing.info("  Vendor candidate \(index + 1): confidence=\(String(format: "%.3f", candidate.confidence)), source=\(candidate.source), hasSuffix=\(FieldValidators.vendorNameConfidenceBoost(candidate.value) > 0)")
+        }
         PrivacyLogger.logParsingMetrics(fieldsFound: fieldsFound, totalFields: 4, confidence: overallConfidence)
 
         // Build and return result
@@ -178,7 +188,7 @@ final class LayoutFirstInvoiceParser: DocumentAnalysisServiceProtocol, @unchecke
             vendorNIP: nipExtraction.bestValue,
             vendorREGON: regon,
             amount: amount,
-            currency: currency ?? "PLN",
+            currency: currency ?? defaultCurrency(for: documentLanguage),
             dueDate: dueDate,
             documentNumber: invoiceNumberExtraction.bestValue,
             bankAccountNumber: bankAccountExtraction.bestValue,
@@ -245,13 +255,18 @@ final class LayoutFirstInvoiceParser: DocumentAnalysisServiceProtocol, @unchecke
         .sorted { $0.bbox.y < $1.bbox.y }  // Top to bottom
         .prefix(maxLines)
 
-        // Junk keywords to filter out (Polish and English)
+        // Junk keywords to filter out (Polish and English).
+        // These are section HEADERS that mark the start of a different section,
+        // NOT words that might appear in an address line.
+        // "nr" was removed because it appears in valid addresses (e.g., "ul. Kwiatowa nr 5").
+        // "data" was removed because it could appear in business names.
+        // NIP/REGON/KRS patterns are caught separately by FieldValidators.
         let junkKeywords = [
-            // Polish
-            "nabywca", "kupujący", "kupujacy", "data", "faktura", "nr", "konto", "regon", "krs",
+            // Polish section headers
+            "nabywca", "kupujący", "kupujacy", "faktura", "konto", "konto bankowe",
             "termin", "płatności", "platnosci", "razem", "suma", "brutto", "netto",
-            // English
-            "buyer", "purchaser", "date", "invoice", "account", "bank", "payment",
+            // English section headers
+            "buyer", "purchaser", "invoice", "account", "bank account", "payment",
             "total", "sum", "due", "tax", "vat"
         ]
 
@@ -259,9 +274,17 @@ final class LayoutFirstInvoiceParser: DocumentAnalysisServiceProtocol, @unchecke
         let vendorLines = candidateLines.filter { line in
             let normalized = line.text.lowercased()
                 .folding(options: .diacriticInsensitive, locale: nil)
+            let trimmed = normalized.trimmingCharacters(in: .whitespacesAndNewlines)
 
-            // Reject if contains junk keywords
-            if junkKeywords.contains(where: { normalized.contains($0) }) {
+            // Reject if the line STARTS with a junk keyword (section header).
+            // Using startsWith instead of contains avoids rejecting valid address
+            // lines that incidentally contain a keyword (e.g., "ul. Bankowa 5").
+            if junkKeywords.contains(where: { trimmed.hasPrefix($0) }) {
+                return false
+            }
+
+            // Also reject if the line IS EXACTLY a junk keyword (standalone label)
+            if junkKeywords.contains(trimmed) {
                 return false
             }
 
@@ -314,7 +337,7 @@ final class LayoutFirstInvoiceParser: DocumentAnalysisServiceProtocol, @unchecke
                 let vendorBlock = extractVendorBlock(startLine: startLine, layout: layout)
 
                 if !vendorBlock.isEmpty {
-                    // First valid line above block is vendor name
+                    // First valid line below anchor is vendor name
                     let vendorName = cleanVendorName(startLine.text)
                     let confidenceBoost = FieldValidators.vendorNameConfidenceBoost(vendorName)
 
@@ -324,9 +347,18 @@ final class LayoutFirstInvoiceParser: DocumentAnalysisServiceProtocol, @unchecke
 
                     PrivacyLogger.parsing.debug("Vendor block captured: name + \(vendorBlock.count) address lines")
 
+                    // CALIBRATION: Base confidence depends on whether the vendor name
+                    // looks like a real company name (has suffix like "Sp. z o.o.", "LLC")
+                    // vs a possible label or abbreviated identifier. Without a company
+                    // suffix, the first line below "Sprzedawca" might be a sub-label
+                    // or department name, not the actual legal entity name.
+                    let baseConfidence = confidenceBoost > 0 ? 0.95 : 0.88
+                    let hasAddressContext = !addressLines.isEmpty
+                    let addressBoost = hasAddressContext ? 0.02 : 0.0
+
                     candidates.append(ExtractionCandidate(
                         value: vendorName,
-                        confidence: min(1.0, 0.95 * vendorAnchor.confidence + confidenceBoost),
+                        confidence: min(1.0, baseConfidence * vendorAnchor.confidence + confidenceBoost + addressBoost),
                         bbox: startLine.bbox,
                         method: .anchorBased,
                         source: "vendor-block-capture: \(vendorAnchor.matchedPattern)",
@@ -337,9 +369,10 @@ final class LayoutFirstInvoiceParser: DocumentAnalysisServiceProtocol, @unchecke
                     // No block lines, just use the start line
                     let value = cleanVendorName(startLine.text)
                     let confidenceBoost = FieldValidators.vendorNameConfidenceBoost(value)
+                    let baseConfidence = confidenceBoost > 0 ? 0.90 : 0.82
                     candidates.append(ExtractionCandidate(
                         value: value,
-                        confidence: min(1.0, 0.9 * vendorAnchor.confidence + confidenceBoost),
+                        confidence: min(1.0, baseConfidence * vendorAnchor.confidence + confidenceBoost),
                         bbox: startLine.bbox,
                         method: .anchorBased,
                         source: "anchor-below-column: \(vendorAnchor.matchedPattern)",
@@ -366,7 +399,11 @@ final class LayoutFirstInvoiceParser: DocumentAnalysisServiceProtocol, @unchecke
             }
         }
 
-        // Strategy 2: NIP-based fallback with block capture (find vendor name ABOVE NIP in same column)
+        // Strategy 2: NIP-based extraction with block capture (find vendor name ABOVE NIP in same column)
+        // NIP is the MOST RELIABLE anchor on Polish invoices. The vendor name is almost always
+        // directly above the NIP line in the same column. This strategy should be treated as
+        // a primary extraction method (not a "fallback"), with confidence comparable to or
+        // higher than anchor-based extraction when a company suffix is found.
         if let nipLine = nipLine {
             let aboveLines = findLinesAbove(nipLine, inSameColumn: true, layout: layout, maxLines: 5)
             // Find the topmost valid vendor name line
@@ -389,12 +426,27 @@ final class LayoutFirstInvoiceParser: DocumentAnalysisServiceProtocol, @unchecke
                 let confidenceBoost = FieldValidators.vendorNameConfidenceBoost(vendorName)
                 let addressText = betweenLines.map { $0.text.trimmingCharacters(in: .whitespacesAndNewlines) }.joined(separator: ", ")
 
+                // NIP-anchored extraction is highly reliable:
+                // - Base 0.90 (up from 0.80) because NIP proximity is a strong signal
+                // - Company suffix boost (+0.10) can push it above anchor-based candidates
+                // - Address lines between vendor and NIP further validate the block
+                let hasAddressContext = !betweenLines.isEmpty
+                let addressBoost = hasAddressContext ? 0.03 : 0.0
+
+                // Also check if vendor is in the same section as the NIP anchor
+                let isVendorSection = isInVendorSection(line: startLine, layout: layout, anchors: anchors)
+                let sectionBoost = isVendorSection ? 0.02 : 0.0
+
+                let nipConfidence = min(1.0, 0.90 + confidenceBoost + addressBoost + sectionBoost)
+
+                PrivacyLogger.parsing.debug("NIP-based vendor: confidence=\(String(format: "%.3f", nipConfidence)), suffix=\(confidenceBoost > 0), address=\(hasAddressContext), vendorSection=\(isVendorSection)")
+
                 candidates.append(ExtractionCandidate(
                     value: vendorName,
-                    confidence: min(1.0, 0.8 + confidenceBoost),
+                    confidence: nipConfidence,
                     bbox: startLine.bbox,
                     method: .anchorBased,
-                    source: "nip-fallback-block: above NIP",
+                    source: "nip-block: above NIP",
                     anchorType: AnchorType.nipLabel.rawValue,
                     additionalData: addressText.isEmpty ? nil : ["address": addressText]
                 ))
@@ -446,10 +498,64 @@ final class LayoutFirstInvoiceParser: DocumentAnalysisServiceProtocol, @unchecke
             }
         }
 
-        return FieldExtraction(candidates: candidates)
+        // Cross-validation: If multiple independent strategies found the SAME vendor name,
+        // boost that candidate's confidence. Agreement between anchor-based and NIP-based
+        // extraction is a very strong signal that the name is correct.
+        let crossValidatedCandidates = crossValidateVendorCandidates(candidates)
+
+        // Deduplicate vendor candidates by name, keeping highest confidence
+        let deduplicatedVendors = deduplicateCandidatesByValue(crossValidatedCandidates)
+        return FieldExtraction(candidates: deduplicatedVendors)
     }
 
-    // MARK: - Vendor Address Extraction (New)
+    /// Cross-validate vendor candidates: if multiple independent strategies found the same
+    /// vendor name, boost that candidate's confidence. This rewards agreement between
+    /// anchor-based extraction and NIP-based extraction, which is a very strong signal.
+    private func crossValidateVendorCandidates(_ candidates: [ExtractionCandidate]) -> [ExtractionCandidate] {
+        guard candidates.count >= 2 else { return candidates }
+
+        // Group by normalized value
+        var valueGroups: [String: [Int]] = [:]
+        for (index, candidate) in candidates.enumerated() {
+            let key = candidate.value.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+            valueGroups[key, default: []].append(index)
+        }
+
+        var boosted = candidates
+        for (_, indices) in valueGroups {
+            guard indices.count >= 2 else { continue }
+
+            // Check if the strategies are truly independent (different source categories)
+            let sources = indices.map { candidates[$0].source }
+            let hasAnchorBased = sources.contains { $0.contains("vendor-block-capture") || $0.contains("anchor-below") || $0.contains("anchor-right") }
+            let hasNIPBased = sources.contains { $0.contains("nip-block") || $0.contains("nip-fallback") }
+            let hasRegionBased = sources.contains { $0.contains("region") }
+
+            let independentStrategyCount = [hasAnchorBased, hasNIPBased, hasRegionBased].filter { $0 }.count
+
+            if independentStrategyCount >= 2 {
+                // Multiple independent strategies agree -- boost the highest-confidence entry
+                let crossValidationBoost = 0.05
+                let bestIndex = indices.max(by: { boosted[$0].confidence < boosted[$1].confidence })!
+                let original = boosted[bestIndex]
+                boosted[bestIndex] = ExtractionCandidate(
+                    value: original.value,
+                    confidence: min(1.0, original.confidence + crossValidationBoost),
+                    bbox: original.bbox,
+                    method: original.method,
+                    source: original.source + " [cross-validated]",
+                    anchorType: original.anchorType,
+                    region: original.region,
+                    additionalData: original.additionalData
+                )
+                PrivacyLogger.parsing.info("Cross-validated vendor candidate: \(independentStrategyCount) strategies agree, boost=\(crossValidationBoost)")
+            }
+        }
+
+        return boosted
+    }
+
+    // MARK: - Vendor Address Extraction (Enhanced)
 
     private func extractVendorAddress(
         layout: LayoutAnalysis,
@@ -459,44 +565,79 @@ final class LayoutFirstInvoiceParser: DocumentAnalysisServiceProtocol, @unchecke
     ) -> FieldExtraction {
         var candidates: [ExtractionCandidate] = []
 
-        // Find vendor name line
-        guard let vendorEvidence = vendorExtraction.evidence else {
-            return FieldExtraction(candidates: [])
-        }
-
-        let vendorLine = allLines.first { $0.bbox == vendorEvidence }
-
-        guard let vendorLine = vendorLine else {
-            return FieldExtraction(candidates: [])
-        }
-
-        // Find lines between vendor name and NIP (or next field)
-        let candidateLines = findLinesBetween(
-            start: vendorLine,
-            end: nipLine,
-            layout: layout,
-            maxLines: 3
-        ).filter { FieldValidators.isValidAddressComponent($0.text) }
-
-        if !candidateLines.isEmpty {
-            let addressParts = candidateLines.map { $0.text.trimmingCharacters(in: .whitespacesAndNewlines) }
-            let address = addressParts.joined(separator: ", ")
-
-            // Use bounding box of first address line as evidence
+        // Strategy 1: Use address data already captured in the winning vendor candidate's
+        // additionalData. Both anchor-based and NIP-based strategies capture address lines
+        // during vendor block extraction, so this data is already available.
+        if let bestCandidate = vendorExtraction.candidates.first,
+           let addressData = bestCandidate.additionalData?["address"],
+           !addressData.isEmpty {
             candidates.append(ExtractionCandidate(
-                value: address,
-                confidence: 0.85,
-                bbox: candidateLines[0].bbox,
-                method: .anchorBased,
-                source: "between vendor and NIP",
-                anchorType: nil
+                value: addressData,
+                confidence: min(0.95, bestCandidate.confidence),
+                bbox: bestCandidate.bbox,
+                method: bestCandidate.method,
+                source: "vendor-block-address: \(bestCandidate.source)",
+                anchorType: bestCandidate.anchorType
             ))
+        }
+
+        // Strategy 2: Also check non-winning candidates for address data (may have
+        // better address coverage from a different strategy)
+        for candidate in vendorExtraction.candidates.dropFirst() {
+            if let addressData = candidate.additionalData?["address"],
+               !addressData.isEmpty,
+               !candidates.contains(where: { $0.value == addressData }) {
+                candidates.append(ExtractionCandidate(
+                    value: addressData,
+                    confidence: min(0.90, candidate.confidence),
+                    bbox: candidate.bbox,
+                    method: candidate.method,
+                    source: "vendor-block-address: \(candidate.source)",
+                    anchorType: candidate.anchorType
+                ))
+            }
+        }
+
+        // Strategy 3: Fallback -- find lines between vendor name and NIP directly
+        if candidates.isEmpty {
+            guard let vendorEvidence = vendorExtraction.evidence else {
+                return FieldExtraction(candidates: [])
+            }
+
+            let vendorLine = allLines.first { $0.bbox == vendorEvidence }
+
+            guard let vendorLine = vendorLine else {
+                return FieldExtraction(candidates: [])
+            }
+
+            // Find lines between vendor name and NIP (or next field)
+            let candidateLines = findLinesBetween(
+                start: vendorLine,
+                end: nipLine,
+                layout: layout,
+                maxLines: 3
+            ).filter { FieldValidators.isValidAddressComponent($0.text) }
+
+            if !candidateLines.isEmpty {
+                let addressParts = candidateLines.map { $0.text.trimmingCharacters(in: .whitespacesAndNewlines) }
+                let address = addressParts.joined(separator: ", ")
+
+                // Use bounding box of first address line as evidence
+                candidates.append(ExtractionCandidate(
+                    value: address,
+                    confidence: 0.85,
+                    bbox: candidateLines[0].bbox,
+                    method: .anchorBased,
+                    source: "between vendor and NIP",
+                    anchorType: nil
+                ))
+            }
         }
 
         return FieldExtraction(candidates: candidates)
     }
 
-    // MARK: - NIP Extraction
+    // MARK: - NIP/Tax ID Extraction (Polish NIP + US EIN)
 
     private func extractNIP(
         layout: LayoutAnalysis,
@@ -505,22 +646,24 @@ final class LayoutFirstInvoiceParser: DocumentAnalysisServiceProtocol, @unchecke
     ) -> FieldExtraction {
         var candidates: [ExtractionCandidate] = []
 
-        // NIP pattern: 10 digits, optionally with separators
-        let nipPattern = #"(\d{3}[-\s]?\d{3}[-\s]?\d{2}[-\s]?\d{2}|\d{3}[-\s]?\d{2}[-\s]?\d{2}[-\s]?\d{3}|\d{10})"#
+        // NIP pattern: 10 digits, optionally with various separators
+        // Handles: 123-456-78-90, 123 456 78 90, 1234567890, 123-45-67-890
+        let nipPattern = #"(\d{3}[-\s]?\d{3}[-\s]?\d{2}[-\s]?\d{2}|\d{3}[-\s]?\d{2}[-\s]?\d{2}[-\s]?\d{3}|\d{10}|\d{3}[-\s]\d{3}[-\s]\d{4})"#
 
-        // Strategy 1: Anchor-based extraction (NIP label)
+        // US EIN pattern: XX-XXXXXXX (2 digits, dash, 7 digits)
+        let einPattern = #"(\d{2}-\d{7})"#
+
+        // Strategy 1: Anchor-based extraction (NIP/Tax ID label)
         if let nipAnchor = anchors[.nipLabel] {
-            PrivacyLogger.parsing.debug("Found NIP anchor")
+            PrivacyLogger.parsing.debug("Found NIP/Tax ID anchor")
 
-            // Look for NIP value in same line or nearby
+            // Look for NIP/EIN value in same line or nearby
             let searchLines = [nipAnchor.line] + layout.linesToRight(of: nipAnchor.line, tolerance: 0.02) + layout.linesBelow(nipAnchor.line, maxDistance: 0.03)
 
             for line in searchLines {
+                // Try NIP first (Polish 10-digit)
                 if let nip = extractNIPValue(from: line.text, pattern: nipPattern) {
-                    // Validate NIP checksum
                     let isValid = FieldValidators.validateNIPChecksum(nip)
-
-                    // Determine if this is vendor NIP based on context
                     let isVendorNIP = isInVendorSection(line: line, layout: layout, anchors: anchors)
                     let baseConfidence = isVendorNIP ? 0.95 : 0.7
                     let checksumBoost = isValid ? 0.05 : -0.1
@@ -530,7 +673,24 @@ final class LayoutFirstInvoiceParser: DocumentAnalysisServiceProtocol, @unchecke
                         confidence: min(1.0, (baseConfidence + checksumBoost) * nipAnchor.confidence),
                         bbox: line.bbox,
                         method: .anchorBased,
-                        source: "anchor: \(nipAnchor.matchedPattern)",
+                        source: "anchor-NIP: \(nipAnchor.matchedPattern)",
+                        anchorType: AnchorType.nipLabel.rawValue
+                    ))
+                }
+
+                // Try EIN (US 9-digit: XX-XXXXXXX)
+                if let ein = extractTaxIDValue(from: line.text, pattern: einPattern) {
+                    let isValid = FieldValidators.validateEIN(ein)
+                    let isVendorEIN = isInVendorSection(line: line, layout: layout, anchors: anchors)
+                    let baseConfidence = isVendorEIN ? 0.95 : 0.7
+                    let checksumBoost = isValid ? 0.05 : -0.1
+
+                    candidates.append(ExtractionCandidate(
+                        value: ein,
+                        confidence: min(1.0, (baseConfidence + checksumBoost) * nipAnchor.confidence),
+                        bbox: line.bbox,
+                        method: .anchorBased,
+                        source: "anchor-EIN: \(nipAnchor.matchedPattern)",
                         anchorType: AnchorType.nipLabel.rawValue
                     ))
                 }
@@ -542,6 +702,7 @@ final class LayoutFirstInvoiceParser: DocumentAnalysisServiceProtocol, @unchecke
         for region in vendorRegions {
             if let block = layout.block(for: region) {
                 for line in block.lines {
+                    // Try NIP
                     if let nip = extractNIPValue(from: line.text, pattern: nipPattern) {
                         let isValid = FieldValidators.validateNIPChecksum(nip)
                         let checksumBoost = isValid ? 0.05 : -0.1
@@ -551,9 +712,28 @@ final class LayoutFirstInvoiceParser: DocumentAnalysisServiceProtocol, @unchecke
                             confidence: min(1.0, (0.7 + checksumBoost) * line.confidence),
                             bbox: line.bbox,
                             method: .regionHeuristic,
-                            source: "region: \(region.rawValue)",
+                            source: "region-NIP: \(region.rawValue)",
                             region: region.rawValue
                         ))
+                    }
+
+                    // Try EIN (only if line has EIN-related context)
+                    let normalizedLine = line.text.lowercased()
+                    if normalizedLine.contains("ein") || normalizedLine.contains("tax id") ||
+                       normalizedLine.contains("federal") || normalizedLine.contains("employer") {
+                        if let ein = extractTaxIDValue(from: line.text, pattern: einPattern) {
+                            let isValid = FieldValidators.validateEIN(ein)
+                            let checksumBoost = isValid ? 0.05 : -0.1
+
+                            candidates.append(ExtractionCandidate(
+                                value: ein,
+                                confidence: min(1.0, (0.7 + checksumBoost) * line.confidence),
+                                bbox: line.bbox,
+                                method: .regionHeuristic,
+                                source: "region-EIN: \(region.rawValue)",
+                                region: region.rawValue
+                            ))
+                        }
                     }
                 }
             }
@@ -561,8 +741,8 @@ final class LayoutFirstInvoiceParser: DocumentAnalysisServiceProtocol, @unchecke
 
         // Strategy 3: Pattern matching fallback
         for line in allLines {
+            // NIP fallback
             if let nip = extractNIPValue(from: line.text, pattern: nipPattern) {
-                // Check if already found
                 if !candidates.contains(where: { $0.value == nip }) {
                     let isValid = FieldValidators.validateNIPChecksum(nip)
                     let checksumBoost = isValid ? 0.05 : -0.1
@@ -576,9 +756,31 @@ final class LayoutFirstInvoiceParser: DocumentAnalysisServiceProtocol, @unchecke
                     ))
                 }
             }
+
+            // EIN fallback (only with label context to avoid false positives)
+            let normalizedLine = line.text.lowercased()
+            if normalizedLine.contains("ein") || normalizedLine.contains("tax id") ||
+               normalizedLine.contains("federal") || normalizedLine.contains("employer") {
+                if let ein = extractTaxIDValue(from: line.text, pattern: einPattern) {
+                    if !candidates.contains(where: { $0.value == ein }) {
+                        let isValid = FieldValidators.validateEIN(ein)
+                        let checksumBoost = isValid ? 0.05 : -0.1
+
+                        candidates.append(ExtractionCandidate(
+                            value: ein,
+                            confidence: min(1.0, (0.5 + checksumBoost) * line.confidence),
+                            bbox: line.bbox,
+                            method: .patternMatching,
+                            source: "pattern: EIN"
+                        ))
+                    }
+                }
+            }
         }
 
-        return FieldExtraction(candidates: candidates)
+        // Deduplicate NIP candidates by value, keeping highest confidence per unique NIP
+        let deduplicatedNIP = deduplicateCandidatesByValue(candidates)
+        return FieldExtraction(candidates: deduplicatedNIP)
     }
 
     // MARK: - Amount Extraction (Enhanced with Massive "Do Zaplaty" Boost)
@@ -592,9 +794,14 @@ final class LayoutFirstInvoiceParser: DocumentAnalysisServiceProtocol, @unchecke
         var candidates: [ExtractionCandidate] = []
 
         // Amount patterns (supports comma and period as decimal separators)
+        // Ordered from most specific to least specific
         let amountPatterns = [
-            #"(\d{1,3}(?:[\s\u{00A0}]?\d{3})*[,\.]\d{2})"#,  // 1 234,56 or 1234.56
-            #"(\d+[,\.]\d{2})"#                               // Simple: 1234,56
+            #"(\d{1,3}(?:\.\d{3})+,\d{2})"#,                  // European: 1.234,56 or 1.234.567,89
+            #"(\d{1,3}(?:[\s\u{00A0}]\d{3})+[,]\d{2})"#,     // Polish space-separated: 1 234,56
+            #"(\d{1,3}(?:,\d{3})+\.\d{2})"#,                  // US/UK: 1,234.56
+            #"(\d{1,3}(?:[\s\u{00A0}]\d{3})+[\.]\d{2})"#,    // Space-separated with dot: 1 234.56
+            #"(\d{1,3}(?:[\s\u{00A0}]?\d{3})*[,\.]\d{2})"#,  // General: 1234,56 or 1234.56
+            #"(\d+[,\.]\d{2})"#                                // Simple fallback: 1234,56
         ]
 
         // Check for deduction keywords in document
@@ -653,6 +860,77 @@ final class LayoutFirstInvoiceParser: DocumentAnalysisServiceProtocol, @unchecke
                         source: "\(sourceTag): \(amountAnchor.matchedPattern)",
                         anchorType: AnchorType.amountLabel.rawValue
                     ))
+                }
+            }
+        }
+
+        // Strategy 1.5: Direct line-scan for "do zaplaty" keywords (OCR-resilient)
+        // Runs independently of anchor detector to catch cases where anchor matching
+        // fails due to OCR variations. Scans all lines for definitive amount keywords
+        // and extracts amounts from the same line or adjacent lines.
+        let definitiveKeywords = [
+            "do zaplaty", "do zapłaty", "dozaplaty", "do zapl", "do zap",
+            "nalezy zaplacic", "należy zapłacić", "do zaplacenia",
+            "kwota do zaplaty", "kwota do zapłaty",
+            "razem do zaplaty", "razem do zapłaty",
+            "suma do zaplaty", "suma do zapłaty",
+            "amount due", "total due", "balance due", "total payable"
+        ]
+        for (lineIndex, line) in allLines.enumerated() {
+            let normalizedLine = line.text.lowercased()
+                .folding(options: .diacriticInsensitive, locale: nil)
+
+            guard definitiveKeywords.contains(where: { normalizedLine.contains($0) }) else {
+                continue
+            }
+
+            // Found a definitive keyword on this line
+            PrivacyLogger.parsing.info("Direct line-scan found definitive amount keyword at line \(lineIndex), y=\(String(format: "%.3f", line.bbox.y))")
+
+            // Try to extract amount from same line
+            if let amount = extractAmountFromLine(line.text, patterns: amountPatterns) {
+                if !candidates.contains(where: { $0.value == amount && $0.bbox == line.bbox }) {
+                    candidates.append(ExtractionCandidate(
+                        value: amount,
+                        confidence: 0.96 * line.confidence,
+                        bbox: line.bbox,
+                        method: .anchorBased,
+                        source: "direct-scan-do-zaplaty: same-line",
+                        anchorType: AnchorType.amountLabel.rawValue
+                    ))
+                }
+            }
+
+            // Try adjacent lines (1 line below and to the right) for the amount value
+            let belowLines = findLinesBelow(line, inSameColumn: false, layout: layout, maxLines: 2)
+            for belowLine in belowLines {
+                if let amount = extractAmountFromLine(belowLine.text, patterns: amountPatterns) {
+                    if !candidates.contains(where: { $0.value == amount && $0.bbox == belowLine.bbox }) {
+                        candidates.append(ExtractionCandidate(
+                            value: amount,
+                            confidence: 0.94 * belowLine.confidence,
+                            bbox: belowLine.bbox,
+                            method: .anchorBased,
+                            source: "direct-scan-do-zaplaty: below-line",
+                            anchorType: AnchorType.amountLabel.rawValue
+                        ))
+                    }
+                }
+            }
+
+            let rightLines = layout.linesToRight(of: line, tolerance: 0.02)
+            for rightLine in rightLines.prefix(2) {
+                if let amount = extractAmountFromLine(rightLine.text, patterns: amountPatterns) {
+                    if !candidates.contains(where: { $0.value == amount && $0.bbox == rightLine.bbox }) {
+                        candidates.append(ExtractionCandidate(
+                            value: amount,
+                            confidence: 0.94 * rightLine.confidence,
+                            bbox: rightLine.bbox,
+                            method: .anchorBased,
+                            source: "direct-scan-do-zaplaty: right-line",
+                            anchorType: AnchorType.amountLabel.rawValue
+                        ))
+                    }
                 }
             }
         }
@@ -757,26 +1035,47 @@ final class LayoutFirstInvoiceParser: DocumentAnalysisServiceProtocol, @unchecke
             }
         }
 
+        // STEP A: Deduplicate candidates by parsed amount VALUE.
+        // Multiple strategies often find the same amount on the same line (e.g., anchor-based
+        // and direct-scan both find "do zaplaty: 1234,56"). Keep only the highest-confidence
+        // candidate for each unique numeric value to avoid showing identical amounts to the user.
+        let deduplicatedCandidates: [ExtractionCandidate] = {
+            var bestByValue: [String: ExtractionCandidate] = [:]
+            for candidate in candidates {
+                // Normalize the amount value for dedup (strip formatting differences)
+                let normalizedKey: String
+                if let decimal = parseAmountValue(candidate.value) {
+                    normalizedKey = "\(decimal)"
+                } else {
+                    normalizedKey = candidate.value
+                }
+
+                if let existing = bestByValue[normalizedKey] {
+                    if candidate.confidence > existing.confidence {
+                        bestByValue[normalizedKey] = candidate
+                    }
+                } else {
+                    bestByValue[normalizedKey] = candidate
+                }
+            }
+            return Array(bestByValue.values)
+        }()
+
         // Sort by confidence (highest first)
-        var sorted = candidates.sorted { $0.confidence > $1.confidence }
+        let sorted = deduplicatedCandidates.sorted { $0.confidence > $1.confidence }
 
         // Detailed logging for amount extraction
-        PrivacyLogger.parsing.info("Amount extraction: found \(candidates.count) candidates")
+        PrivacyLogger.parsing.info("Amount extraction: found \(candidates.count) raw candidates, \(sorted.count) after dedup")
         for (index, candidate) in sorted.prefix(5).enumerated() {
             PrivacyLogger.parsing.info("  Candidate \(index + 1): confidence=\(String(format: "%.3f", candidate.confidence)), y=\(String(format: "%.2f", candidate.bbox.y)), source=\(candidate.source)")
         }
 
-        // Score gap analysis: if top two are close, return both as alternatives
+        // Score gap analysis
         if sorted.count > 1 {
             let scoreGap = sorted[0].confidence - sorted[1].confidence
             PrivacyLogger.parsing.info("Score gap to 2nd place: \(String(format: "%.3f", scoreGap))")
             if scoreGap < 0.15 {
-                PrivacyLogger.parsing.debug("Low score gap - returning multiple amount candidates")
-                // Keep top 3 for user selection
-                sorted = Array(sorted.prefix(3))
-            } else {
-                // High confidence gap - return single best with alternatives
-                sorted = Array(sorted.prefix(5))
+                PrivacyLogger.parsing.debug("Low score gap - returning multiple amount candidates for user selection")
             }
         }
 
@@ -784,11 +1083,19 @@ final class LayoutFirstInvoiceParser: DocumentAnalysisServiceProtocol, @unchecke
             PrivacyLogger.parsing.info("Selected amount: confidence=\(String(format: "%.3f", best.confidence)), source=\(best.source)")
         }
 
-        // Secondary sort: among similar confidence levels, prefer larger amounts
+        // STEP B: Secondary sort -- among similar confidence levels, prefer:
+        // 1. "do zaplaty" / "amount due" tagged candidates (definitive total)
+        // 2. Larger amounts (more likely to be total than subtotal)
         let finalSorted = sorted.sorted { lhs, rhs in
-            // First by confidence (with threshold)
+            // If confidence difference is significant, use confidence alone
             if abs(lhs.confidence - rhs.confidence) > 0.08 {
                 return lhs.confidence > rhs.confidence
+            }
+            // Prefer definitive source tags ("do-zaplaty", "amount due", "total due", "balance due")
+            let lhsDefinitive = lhs.source.contains("do-zaplaty") || lhs.source.contains("amount-due") || lhs.source.contains("total-due") || lhs.source.contains("balance-due")
+            let rhsDefinitive = rhs.source.contains("do-zaplaty") || rhs.source.contains("amount-due") || rhs.source.contains("total-due") || rhs.source.contains("balance-due")
+            if lhsDefinitive != rhsDefinitive {
+                return lhsDefinitive
             }
             // Then by amount value (larger = more likely total)
             let lhsValue = parseAmountValue(lhs.value) ?? 0
@@ -796,6 +1103,7 @@ final class LayoutFirstInvoiceParser: DocumentAnalysisServiceProtocol, @unchecke
             return lhsValue > rhsValue
         }
 
+        // Return up to 5 UNIQUE amount candidates for user selection
         return FieldExtraction(candidates: Array(finalSorted.prefix(5)))
     }
 
@@ -837,8 +1145,31 @@ final class LayoutFirstInvoiceParser: DocumentAnalysisServiceProtocol, @unchecke
             "invoice date", "issue date", "date of issue", "dated", "issued on"
         ]
 
+        // PRE-SCAN: Build a set of line indices that are ADJACENT to a due date keyword line.
+        // This catches the common case where "Termin platnosci:" is on one OCR line and the
+        // actual date "15.03.2026" is on the next line below it.
+        var lineIndicesNearDueDateKeyword: Set<Int> = []
+        for (lineIndex, line) in allLines.enumerated() {
+            let normalized = line.text.lowercased()
+                .folding(options: .diacriticInsensitive, locale: nil)
+            if dueDateKeywords.contains(where: { normalized.contains($0) }) {
+                // Mark this line and 1-2 lines below/right as "near due date keyword"
+                lineIndicesNearDueDateKeyword.insert(lineIndex)
+                // Find nearby lines spatially (below or to the right)
+                for (otherIndex, otherLine) in allLines.enumerated() {
+                    if otherIndex == lineIndex { continue }
+                    let yDistance = otherLine.bbox.y - line.bbox.maxY
+                    let isBelow = yDistance > -0.01 && yDistance < 0.06
+                    let isRight = otherLine.bbox.x > line.bbox.maxX && abs(otherLine.bbox.centerY - line.bbox.centerY) < 0.03
+                    if isBelow || isRight {
+                        lineIndicesNearDueDateKeyword.insert(otherIndex)
+                    }
+                }
+            }
+        }
+
         // Process all lines looking for dates
-        for line in allLines {
+        for (lineIndex, line) in allLines.enumerated() {
             guard let dateResult = dateParser.parseDateWithPattern(from: line.text) else {
                 continue
             }
@@ -849,15 +1180,20 @@ final class LayoutFirstInvoiceParser: DocumentAnalysisServiceProtocol, @unchecke
             let normalized = line.text.lowercased()
                 .folding(options: .diacriticInsensitive, locale: nil)
 
-            // STRONG preference for due date keywords
+            // STRONG preference for due date keywords ON SAME LINE
             if dueDateKeywords.contains(where: { normalized.contains($0) }) {
                 score += 100
                 reasons.append("due-date-keyword")
             }
+            // STRONG preference for dates on lines ADJACENT to a due date keyword line
+            else if lineIndicesNearDueDateKeyword.contains(lineIndex) {
+                score += 80
+                reasons.append("adjacent-to-due-date-keyword")
+            }
 
             // PENALTY for issue date keywords
             if issueDateKeywords.contains(where: { normalized.contains($0) }) {
-                score -= 50
+                score -= 60
                 reasons.append("issue-date-keyword-penalty")
             }
 
@@ -870,7 +1206,8 @@ final class LayoutFirstInvoiceParser: DocumentAnalysisServiceProtocol, @unchecke
                 reasons.append("top-section-penalty")
             }
 
-            // Score by date value (prefer dates in reasonable future)
+            // Score by date value (prefer dates in reasonable future, but don't penalize
+            // recent past dates -- they are likely overdue invoices, not issue dates)
             let now = Date()
             let daysFromNow = dateResult.date.timeIntervalSince(now) / 86400
 
@@ -878,16 +1215,21 @@ final class LayoutFirstInvoiceParser: DocumentAnalysisServiceProtocol, @unchecke
                 // Likely due date (7-90 days in future)
                 score += 40
                 reasons.append("future-7-90d")
+            } else if daysFromNow >= 0 && daysFromNow < 7 {
+                // Very near future (imminent due date)
+                score += 30
+                reasons.append("imminent-due-date")
             } else if daysFromNow > 90 {
                 // Too far (unlikely due date)
                 score -= 30
                 reasons.append("too-far-future")
-            } else if daysFromNow < 0 && daysFromNow >= -30 {
-                // Recent past date (might be issue date or recently past due)
-                score -= 10
+            } else if daysFromNow < 0 && daysFromNow >= -60 {
+                // Recent past date: likely an overdue due date, not an issue date.
+                // No penalty -- overdue invoices are the primary use case for Dueasy.
+                score += 10
                 reasons.append("recent-past-date")
-            } else if daysFromNow < -30 {
-                // Old past date (likely issue date)
+            } else if daysFromNow < -60 {
+                // Old past date (likely issue date, not due date)
                 score -= 40
                 reasons.append("old-past-date-penalty")
             }
@@ -896,10 +1238,10 @@ final class LayoutFirstInvoiceParser: DocumentAnalysisServiceProtocol, @unchecke
             if let anchor = anchors[.dueDateLabel] {
                 let distance = abs(line.bbox.y - anchor.line.bbox.y)
                 if distance < 0.05 {  // Very close
-                    score += 60
+                    score += 70
                     reasons.append("near-due-date-anchor")
                 } else if distance < 0.1 {  // Nearby
-                    score += 30
+                    score += 40
                     reasons.append("close-to-anchor")
                 }
             }
@@ -920,22 +1262,40 @@ final class LayoutFirstInvoiceParser: DocumentAnalysisServiceProtocol, @unchecke
             ))
         }
 
+        // Deduplicate by date value: keep the highest-scored candidate for each unique date
+        var bestByDate: [String: ScoredDateCandidate] = [:]
+        for candidate in scoredCandidates {
+            let dateKey = formatDateForOutput(candidate.date)
+            if let existing = bestByDate[dateKey] {
+                if candidate.score > existing.score {
+                    bestByDate[dateKey] = candidate
+                }
+            } else {
+                bestByDate[dateKey] = candidate
+            }
+        }
+        scoredCandidates = Array(bestByDate.values)
+
         // Sort by score (highest first)
         scoredCandidates.sort { $0.score > $1.score }
 
         // Log scoring results for debugging
         if !scoredCandidates.isEmpty {
-            PrivacyLogger.parsing.debug("Date ranking: \(scoredCandidates.count) candidates, top score: \(String(format: "%.1f", scoredCandidates.first?.score ?? 0))")
+            PrivacyLogger.parsing.debug("Date ranking: \(scoredCandidates.count) candidates (deduped), top score: \(String(format: "%.1f", scoredCandidates.first?.score ?? 0))")
         }
 
-        // Convert to ExtractionCandidates
-        // IMPROVED: Better confidence calibration (changed divisor from 200 to 150)
-        // With score=70:  70/150 = 0.47 (was 0.35)
-        // With score=100: 100/150 = 0.67 (was 0.50)
-        // With score=180: 180/150 = 1.0 -> capped at 0.95
+        // Convert to ExtractionCandidates with improved confidence calibration.
+        //
+        // Calibration table (score -> confidence):
+        //   score=40  (issue date, top section):    40/100 = 0.40
+        //   score=50  (bare date, no context):      50/100 = 0.50
+        //   score=80  (date in bottom section):     80/100 = 0.80
+        //   score=90  (overdue date, bottom):       90/100 = 0.90
+        //   score=120 (adjacent keyword + future):  120/100 = capped 0.95
+        //   score=180 (keyword + anchor + future):  180/100 = capped 0.95
         let candidates: [ExtractionCandidate] = scoredCandidates.prefix(5).map { scored in
             let dateString = formatDateForOutput(scored.date)
-            let rawConfidence = scored.score / 150.0  // Changed from 200 to 150 for better calibration
+            let rawConfidence = scored.score / 100.0
             let normalizedConfidence = min(0.95, max(0.15, rawConfidence))
             let reasonString = scored.reasons.joined(separator: ", ")
 
@@ -943,7 +1303,7 @@ final class LayoutFirstInvoiceParser: DocumentAnalysisServiceProtocol, @unchecke
                 value: dateString,
                 confidence: normalizedConfidence,
                 bbox: scored.line.bbox,
-                method: scored.reasons.contains("near-due-date-anchor") || scored.reasons.contains("close-to-anchor")
+                method: scored.reasons.contains("near-due-date-anchor") || scored.reasons.contains("close-to-anchor") || scored.reasons.contains("adjacent-to-due-date-keyword")
                     ? .anchorBased : .patternMatching,
                 source: "date-ranking: \(reasonString) [\(scored.pattern)]"
             )
@@ -1055,7 +1415,9 @@ final class LayoutFirstInvoiceParser: DocumentAnalysisServiceProtocol, @unchecke
             }
         }
 
-        return FieldExtraction(candidates: candidates)
+        // Deduplicate invoice number candidates by value
+        let deduplicatedInvoiceNums = deduplicateCandidatesByValue(candidates)
+        return FieldExtraction(candidates: deduplicatedInvoiceNums)
     }
 
     // MARK: - Bank Account Extraction (Enhanced)
@@ -1068,11 +1430,20 @@ final class LayoutFirstInvoiceParser: DocumentAnalysisServiceProtocol, @unchecke
     ) -> FieldExtraction {
         var candidates: [ExtractionCandidate] = []
 
-        // Bank account patterns
+        // Bank account patterns (supports IBAN, Polish, and US formats)
         let accountPatterns = [
-            #"[A-Z]{2}\d{2}[\s]?\d{4}[\s]?\d{4}[\s]?\d{4}[\s]?\d{4}[\s]?\d{4}[\s]?\d{4}"#,  // IBAN
-            #"\d{2}[\s]?\d{4}[\s]?\d{4}[\s]?\d{4}[\s]?\d{4}[\s]?\d{4}[\s]?\d{4}"#,          // Polish 26-digit
-            #"\d{26}"#                                                                       // 26 digits no spaces
+            // Full IBAN with country code: PL 12 3456 7890 1234 5678 9012 3456
+            #"[A-Z]{2}[\s]?\d{2}[\s]?\d{4}[\s]?\d{4}[\s]?\d{4}[\s]?\d{4}[\s]?\d{4}[\s]?\d{4}"#,
+            // Polish format with 2-digit prefix: 12 3456 7890 1234 5678 9012 3456
+            #"\d{2}[\s]?\d{4}[\s]?\d{4}[\s]?\d{4}[\s]?\d{4}[\s]?\d{4}[\s]?\d{4}"#,
+            // Compact 26-digit (no spaces)
+            #"\d{26}"#,
+            // Hyphenated format: 12-3456-7890-1234-5678-9012-3456
+            #"\d{2}[-]?\d{4}[-]?\d{4}[-]?\d{4}[-]?\d{4}[-]?\d{4}[-]?\d{4}"#,
+            // US routing number (9 digits) -- often labeled
+            #"(?:routing|aba|rtn)[:\s#]*(\d{9})"#,
+            // US account number (6-17 digits) -- often labeled
+            #"(?:account\s*(?:no|number|#)?)[:\s]*(\d{6,17})"#
         ]
 
         // Strategy 1: Anchor-based extraction
@@ -1081,8 +1452,7 @@ final class LayoutFirstInvoiceParser: DocumentAnalysisServiceProtocol, @unchecke
 
             // Check same line
             if let account = extractBankAccountFromLine(bankAnchor.line.text, patterns: accountPatterns) {
-                let isValid = FieldValidators.validateIBAN(account)
-                let validityBoost = isValid ? 0.05 : -0.1
+                let validityBoost = bankAccountValidityBoost(account)
 
                 candidates.append(ExtractionCandidate(
                     value: account,
@@ -1098,8 +1468,7 @@ final class LayoutFirstInvoiceParser: DocumentAnalysisServiceProtocol, @unchecke
             let belowLines = layout.linesBelow(bankAnchor.line, maxDistance: 0.05)
             for line in belowLines.prefix(2) {
                 if let account = extractBankAccountFromLine(line.text, patterns: accountPatterns) {
-                    let isValid = FieldValidators.validateIBAN(account)
-                    let validityBoost = isValid ? 0.05 : -0.1
+                    let validityBoost = bankAccountValidityBoost(account)
 
                     candidates.append(ExtractionCandidate(
                         value: account,
@@ -1116,8 +1485,7 @@ final class LayoutFirstInvoiceParser: DocumentAnalysisServiceProtocol, @unchecke
             let rightLines = layout.linesToRight(of: bankAnchor.line, tolerance: 0.02)
             for line in rightLines.prefix(2) {
                 if let account = extractBankAccountFromLine(line.text, patterns: accountPatterns) {
-                    let isValid = FieldValidators.validateIBAN(account)
-                    let validityBoost = isValid ? 0.05 : -0.1
+                    let validityBoost = bankAccountValidityBoost(account)
 
                     candidates.append(ExtractionCandidate(
                         value: account,
@@ -1135,8 +1503,7 @@ final class LayoutFirstInvoiceParser: DocumentAnalysisServiceProtocol, @unchecke
         if let bottomLeftBlock = layout.block(for: .bottomLeft) {
             for line in bottomLeftBlock.lines {
                 if let account = extractBankAccountFromLine(line.text, patterns: accountPatterns) {
-                    let isValid = FieldValidators.validateIBAN(account)
-                    let validityBoost = isValid ? 0.05 : -0.1
+                    let validityBoost = bankAccountValidityBoost(account)
 
                     candidates.append(ExtractionCandidate(
                         value: account,
@@ -1154,8 +1521,7 @@ final class LayoutFirstInvoiceParser: DocumentAnalysisServiceProtocol, @unchecke
         for line in allLines {
             if let account = extractBankAccountFromLine(line.text, patterns: accountPatterns) {
                 if !candidates.contains(where: { $0.value == account }) {
-                    let isValid = FieldValidators.validateIBAN(account)
-                    let validityBoost = isValid ? 0.05 : -0.1
+                    let validityBoost = bankAccountValidityBoost(account)
 
                     candidates.append(ExtractionCandidate(
                         value: account,
@@ -1168,7 +1534,35 @@ final class LayoutFirstInvoiceParser: DocumentAnalysisServiceProtocol, @unchecke
             }
         }
 
-        return FieldExtraction(candidates: candidates)
+        // Deduplicate bank account candidates by value
+        let deduplicatedBankAccounts = deduplicateCandidatesByValue(candidates)
+        return FieldExtraction(candidates: deduplicatedBankAccounts)
+    }
+
+    /// Calculate validity boost for bank account numbers.
+    /// IBAN accounts get a boost for valid checksums and a penalty for invalid ones.
+    /// US routing/account numbers are not penalized for failing IBAN validation.
+    private func bankAccountValidityBoost(_ account: String) -> Double {
+        let digitsOnly = account.filter { $0.isNumber }
+
+        // IBAN-length accounts (26+ digits, or starts with country code): validate IBAN
+        if digitsOnly.count >= 26 || (account.count >= 2 && account.prefix(2).allSatisfy({ $0.isUppercase && $0.isLetter })) {
+            let isValid = FieldValidators.validateIBAN(account)
+            return isValid ? 0.05 : -0.1
+        }
+
+        // US routing number (9 digits): validate checksum
+        if digitsOnly.count == 9 {
+            let isValid = FieldValidators.validateUSRoutingNumber(digitsOnly)
+            return isValid ? 0.05 : -0.05
+        }
+
+        // US account number (6-17 digits): no checksum to validate, neutral
+        if digitsOnly.count >= 6 && digitsOnly.count <= 17 {
+            return 0.0
+        }
+
+        return -0.05  // Unknown format, slight penalty
     }
 
     // MARK: - Column-Based Line Finding
@@ -1233,6 +1627,26 @@ final class LayoutFirstInvoiceParser: DocumentAnalysisServiceProtocol, @unchecke
         .map { $0 }
     }
 
+    // MARK: - Candidate Deduplication
+
+    /// Deduplicate extraction candidates by value, keeping only the highest-confidence
+    /// candidate for each unique value. This prevents showing the same NIP/amount/date
+    /// multiple times in the UI when multiple extraction strategies find the same value.
+    private func deduplicateCandidatesByValue(_ candidates: [ExtractionCandidate]) -> [ExtractionCandidate] {
+        var bestByValue: [String: ExtractionCandidate] = [:]
+        for candidate in candidates {
+            let key = candidate.value.trimmingCharacters(in: .whitespacesAndNewlines)
+            if let existing = bestByValue[key] {
+                if candidate.confidence > existing.confidence {
+                    bestByValue[key] = candidate
+                }
+            } else {
+                bestByValue[key] = candidate
+            }
+        }
+        return Array(bestByValue.values).sorted { $0.confidence > $1.confidence }
+    }
+
     // MARK: - Helper Methods
 
     private func extractNIPValue(from text: String, pattern: String) -> String? {
@@ -1251,14 +1665,39 @@ final class LayoutFirstInvoiceParser: DocumentAnalysisServiceProtocol, @unchecke
         return nil
     }
 
+    /// Extract US EIN (XX-XXXXXXX) or similar tax ID from text
+    private func extractTaxIDValue(from text: String, pattern: String) -> String? {
+        guard let regex = try? NSRegularExpression(pattern: pattern, options: []) else { return nil }
+        let range = NSRange(text.startIndex..., in: text)
+
+        if let match = regex.firstMatch(in: text, options: [], range: range) {
+            if let valueRange = Range(match.range(at: 1), in: text) {
+                let taxId = String(text[valueRange])
+                // Validate format: XX-XXXXXXX (with dash) or 9 digits
+                let digitsOnly = taxId.filter { $0.isNumber }
+                if digitsOnly.count == 9 {
+                    return taxId  // Return with dash preserved for display
+                }
+            }
+        }
+        return nil
+    }
+
     private func extractAmountFromLine(_ text: String, patterns: [String]) -> String? {
+        // Try each pattern from most specific to least specific
         for pattern in patterns {
             guard let regex = try? NSRegularExpression(pattern: pattern, options: []) else { continue }
             let range = NSRange(text.startIndex..., in: text)
 
-            if let match = regex.firstMatch(in: text, options: [], range: range) {
+            // Find ALL matches in the line (there may be multiple amounts)
+            let matches = regex.matches(in: text, options: [], range: range)
+            for match in matches {
                 if let valueRange = Range(match.range(at: 1), in: text) {
-                    return String(text[valueRange])
+                    let candidate = String(text[valueRange])
+                    // Validate the amount is non-trivial (not just "0,00" or "0.00")
+                    if let amount = parseAmountValue(candidate), amount > 0 {
+                        return candidate
+                    }
                 }
             }
         }
@@ -1321,18 +1760,63 @@ final class LayoutFirstInvoiceParser: DocumentAnalysisServiceProtocol, @unchecke
     }
 
     private func parseAmountValue(_ string: String) -> Decimal? {
-        // Normalize amount string
+        // Strip whitespace and non-breaking spaces (Polish thousands separator)
         var normalized = string
             .replacingOccurrences(of: " ", with: "")
             .replacingOccurrences(of: "\u{00A0}", with: "") // Non-breaking space
-            .replacingOccurrences(of: ",", with: ".")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
 
-        // Handle European format: 1.234,56 -> 1234.56
-        if normalized.contains(".") && normalized.last == "6" {
+        // Remove currency symbols/text that may be attached
+        let currencyPatterns = ["PLN", "EUR", "USD", "GBP", "CHF", "zł", "zl", "€", "$", "£"]
+        for currency in currencyPatterns {
+            normalized = normalized.replacingOccurrences(of: currency, with: "", options: .caseInsensitive)
+        }
+        normalized = normalized.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        // Determine format: European (1.234,56) vs Standard (1,234.56)
+        // Heuristic: if the last separator is a comma with exactly 2 digits after,
+        // it's a decimal comma (European). If the last separator is a dot with
+        // exactly 2 digits after, it's a decimal point (Standard).
+        let lastCommaIndex = normalized.lastIndex(of: ",")
+        let lastDotIndex = normalized.lastIndex(of: ".")
+
+        if let commaIdx = lastCommaIndex, let dotIdx = lastDotIndex {
+            if commaIdx > dotIdx {
+                // Format: 1.234,56 (European - dot is thousands, comma is decimal)
+                normalized = normalized.replacingOccurrences(of: ".", with: "")
+                normalized = normalized.replacingOccurrences(of: ",", with: ".")
+            } else {
+                // Format: 1,234.56 (Standard - comma is thousands, dot is decimal)
+                normalized = normalized.replacingOccurrences(of: ",", with: "")
+            }
+        } else if let commaIdx = lastCommaIndex {
+            // Only commas present
+            let afterComma = normalized[normalized.index(after: commaIdx)...]
+            if afterComma.count == 2 && afterComma.allSatisfy({ $0.isNumber }) {
+                // Single comma with 2 decimal digits: 1234,56 -> 1234.56
+                normalized = normalized.replacingOccurrences(of: ",", with: ".")
+            } else if afterComma.count == 3 && afterComma.allSatisfy({ $0.isNumber }) {
+                // Comma as thousands separator: 1,234 -> 1234
+                normalized = normalized.replacingOccurrences(of: ",", with: "")
+            } else {
+                // Ambiguous - treat as decimal separator (most common in Polish invoices)
+                normalized = normalized.replacingOccurrences(of: ",", with: ".")
+            }
+        } else if lastDotIndex != nil {
+            // Only dots present
             let parts = normalized.split(separator: ".")
             if parts.count > 2 {
-                // Multiple dots - European thousands separator
-                normalized = parts.dropLast().joined() + "." + String(parts.last!)
+                // Multiple dots: 1.234.567 - dots are thousands separators
+                normalized = parts.joined()
+            } else if parts.count == 2 {
+                let afterDot = parts[1]
+                if afterDot.count == 2 {
+                    // Single dot with 2 decimal digits: 1234.56 (already correct)
+                } else if afterDot.count == 3 {
+                    // Single dot with 3 digits: 1.234 - dot is thousands separator
+                    normalized = parts.joined()
+                }
+                // else keep as-is
             }
         }
 
@@ -1366,11 +1850,14 @@ final class LayoutFirstInvoiceParser: DocumentAnalysisServiceProtocol, @unchecke
         let lowercased = text.lowercased().folding(options: .diacriticInsensitive, locale: .current)
         // Polish and English keywords for total/amount
         let keywords = [
-            // Polish
-            "do zaplaty", "razem", "suma", "brutto", "naleznosc", "kwota", "ogolem", "lacznie",
-            // English
+            // Polish (standard and OCR-resilient)
+            "do zaplaty", "dozaplaty", "do zapl", "do zap",
+            "razem", "suma", "brutto", "naleznosc", "kwota", "ogolem", "lacznie",
+            "nalezy zaplacic", "do zaplacenia",
+            // English/US
             "total", "amount due", "gross", "payable", "balance due", "grand total", "sum",
-            "total amount", "amount payable", "net payable"
+            "total amount", "amount payable", "net payable", "invoice total",
+            "total charges", "amount owed", "payment amount", "please pay"
         ]
         return keywords.contains { lowercased.contains($0) }
     }
@@ -1381,8 +1868,8 @@ final class LayoutFirstInvoiceParser: DocumentAnalysisServiceProtocol, @unchecke
         let keywords = [
             // Polish
             "brutto", "razem", "suma", "ogolem", "wartosc",
-            // English
-            "gross", "total", "subtotal", "sum"
+            // English/US
+            "gross", "total", "subtotal", "sum", "charges", "net amount"
         ]
         return keywords.contains { lowercased.contains($0) }
     }
@@ -1393,9 +1880,10 @@ final class LayoutFirstInvoiceParser: DocumentAnalysisServiceProtocol, @unchecke
         let keywords = [
             // Polish
             "termin", "platnosci", "platne", "zaplaty", "do dnia", "wplaty",
-            // English
+            // English/US
             "due", "payable", "pay by", "due date", "payment due", "due by",
-            "deadline", "expires", "maturity"
+            "deadline", "expires", "maturity", "upon receipt", "net 30", "net 15",
+            "net 60", "please pay by", "must be paid"
         ]
         return keywords.contains { lowercased.contains($0) }
     }
@@ -1403,12 +1891,17 @@ final class LayoutFirstInvoiceParser: DocumentAnalysisServiceProtocol, @unchecke
     private func isDefinitiveAmountAnchor(_ pattern: String) -> Bool {
         // Polish and English definitive amount labels (not just "total" or "brutto")
         let definitive = [
-            // Polish
+            // Polish (standard forms)
             "do zaplaty", "do zapłaty", "naleznosc", "należność", "kwota do zaplaty",
             "suma do zaplaty", "razem do zaplaty", "lacznie do zaplaty",
-            // English
+            "nalezy zaplacic", "należy zapłacić", "do zaplacenia",
+            // Polish (OCR-resilient forms)
+            "dozaplaty", "do zaptaty", "do zapiaty", "do zaplaly",
+            "do zap aty", "do zapiacenia",
+            // English/US
             "amount due", "payable", "total due", "balance due", "amount payable",
-            "total payable", "net payable", "pay this amount"
+            "total payable", "net payable", "pay this amount", "amount owed",
+            "invoice total", "please pay", "payment amount"
         ]
         let lowercased = pattern.lowercased().folding(options: .diacriticInsensitive, locale: .current)
         return definitive.contains { lowercased.contains($0) }
@@ -1428,26 +1921,119 @@ final class LayoutFirstInvoiceParser: DocumentAnalysisServiceProtocol, @unchecke
         return region == .topLeft || region == .middleLeft
     }
 
-    private func extractCurrency(from text: String) -> String? {
-        let patterns = [
-            #"\b(PLN|EUR|USD|GBP|CHF)\b"#,
-            #"(zł|zl|złotych|zlotych)"#
+    // MARK: - Document Language Detection
+
+    /// Detect the document's language based on keyword frequency.
+    /// Returns a language hint used for date disambiguation and currency defaults.
+    ///
+    /// Strategy: Count occurrences of strong Polish vs English keywords.
+    /// Strong indicators avoid false positives from shared words (e.g., "data" is Polish for "date").
+    private func detectDocumentLanguage(from text: String) -> DocumentLanguageHint {
+        let normalized = text.lowercased().folding(options: .diacriticInsensitive, locale: nil)
+
+        // Strong Polish indicators (unique to Polish invoices)
+        let polishKeywords = [
+            "faktura", "sprzedawca", "nabywca", "do zaplaty", "brutto", "netto",
+            "termin platnosci", "nip", "regon", "krs", "zlotych", "zl ",
+            "razem", "kwota", "przelew", "rachunek", "konto bankowe",
+            "platnosci", "wystawienia", "wystawiono"
         ]
 
-        for pattern in patterns {
-            if let regex = try? NSRegularExpression(pattern: pattern, options: [.caseInsensitive]) {
-                let range = NSRange(text.startIndex..., in: text)
-                if let match = regex.firstMatch(in: text, options: [], range: range) {
-                    if let valueRange = Range(match.range(at: 1), in: text) {
-                        let currency = String(text[valueRange]).uppercased()
-                        if currency.contains("ZL") || currency.contains("ZŁ") {
-                            return "PLN"
-                        }
-                        return currency
-                    }
+        // Strong English/US indicators (unique to English invoices)
+        let englishKeywords = [
+            "invoice", "amount due", "total due", "balance due", "payment due",
+            "bill to", "remit to", "due date", "subtotal", "grand total",
+            "purchase order", "po number", "ein", "tax id",
+            "routing number", "account number", "wire transfer",
+            "net 30", "net 60", "upon receipt"
+        ]
+
+        var polishScore = 0
+        var englishScore = 0
+
+        for keyword in polishKeywords {
+            if normalized.contains(keyword) {
+                polishScore += 1
+            }
+        }
+
+        for keyword in englishKeywords {
+            if normalized.contains(keyword) {
+                englishScore += 1
+            }
+        }
+
+        PrivacyLogger.parsing.debug("Language detection: polish=\(polishScore), english=\(englishScore)")
+
+        // Require a meaningful difference to declare a language
+        if polishScore >= 3 && polishScore > englishScore * 2 {
+            return .polish
+        } else if englishScore >= 3 && englishScore > polishScore * 2 {
+            return .english
+        } else if polishScore > englishScore {
+            return .polish
+        } else if englishScore > polishScore {
+            return .english
+        }
+
+        return .unknown
+    }
+
+    /// Determine the default currency based on detected language and explicit currency symbols.
+    private func defaultCurrency(for language: DocumentLanguageHint) -> String {
+        switch language {
+        case .polish:
+            return "PLN"
+        case .english:
+            return "USD"
+        case .unknown:
+            return "USD" // Safe default for international use
+        }
+    }
+
+    // MARK: - Currency Extraction
+
+    private func extractCurrency(from text: String) -> String? {
+        // Pattern 1: Explicit currency codes (highest confidence)
+        let codePattern = #"\b(PLN|EUR|USD|GBP|CHF|CAD|AUD|JPY|SEK|NOK|DKK|CZK|HUF)\b"#
+        if let regex = try? NSRegularExpression(pattern: codePattern, options: [.caseInsensitive]) {
+            let range = NSRange(text.startIndex..., in: text)
+            if let match = regex.firstMatch(in: text, options: [], range: range) {
+                if let valueRange = Range(match.range(at: 1), in: text) {
+                    return String(text[valueRange]).uppercased()
                 }
             }
         }
+
+        // Pattern 2: Polish currency words
+        let polishPattern = #"(zł|zl|złotych|zlotych|złoty|zloty)"#
+        if let regex = try? NSRegularExpression(pattern: polishPattern, options: [.caseInsensitive]) {
+            let range = NSRange(text.startIndex..., in: text)
+            if regex.firstMatch(in: text, options: [], range: range) != nil {
+                return "PLN"
+            }
+        }
+
+        // Pattern 3: Currency symbols (mapped to codes)
+        // Check for $ symbol with surrounding context to avoid false positives
+        let symbolPatterns: [(pattern: String, currency: String)] = [
+            (#"\$\s*\d"#, "USD"),                       // $123 or $ 123
+            (#"\d[.,]\d{2}\s*\$"#, "USD"),              // 123.45$ or 123,45 $
+            (#"€\s*\d"#, "EUR"),                        // Euro prefix
+            (#"\d[.,]\d{2}\s*€"#, "EUR"),               // Euro suffix
+            (#"£\s*\d"#, "GBP"),                        // Pound prefix
+            (#"\d[.,]\d{2}\s*£"#, "GBP"),               // Pound suffix
+        ]
+
+        for (pattern, currency) in symbolPatterns {
+            if let regex = try? NSRegularExpression(pattern: pattern, options: []) {
+                let range = NSRange(text.startIndex..., in: text)
+                if regex.firstMatch(in: text, options: [], range: range) != nil {
+                    return currency
+                }
+            }
+        }
+
         return nil
     }
 
@@ -1597,14 +2183,21 @@ final class LayoutFirstInvoiceParser: DocumentAnalysisServiceProtocol, @unchecke
     private func parseInvoiceTextOnly(text: String) -> DocumentAnalysisResult {
         PrivacyLogger.parsing.warning("Using text-only fallback (no layout data)")
 
-        // This is a degraded mode - use simple pattern matching
-        // In production, this should rarely be reached as OCR should provide line data
+        // Text-only fallback: extract fields using regex on full text.
+        // Less accurate than layout-based parsing but still provides value.
+
+        // Detect language for disambiguation and defaults
+        let documentLanguage = detectDocumentLanguage(from: text)
+        dateParser.languageHint = documentLanguage
+
+        let lines = text.components(separatedBy: .newlines).map { $0.trimmingCharacters(in: .whitespaces) }
 
         let currency = extractCurrency(from: text)
         let regon = extractREGON(from: text)
 
-        // Simple NIP extraction
-        let nipPattern = #"(?:NIP|nip)[:\s]*(\d{3}[-\s]?\d{3}[-\s]?\d{2}[-\s]?\d{2}|\d{10})"#
+        // -- NIP/Tax ID extraction --
+        // Polish NIP: 10 digits with optional separators
+        let nipPattern = #"(?:NIP|nip|EIN|ein|Tax\s*ID|tax\s*id)[:\s]*(\d{2,3}[-\s]?\d{2,3}[-\s]?\d{2,4}[-\s]?\d{2,4}|\d{9,10})"#
         var vendorNIP: String?
         if let regex = try? NSRegularExpression(pattern: nipPattern, options: []) {
             let range = NSRange(text.startIndex..., in: text)
@@ -1615,12 +2208,189 @@ final class LayoutFirstInvoiceParser: DocumentAnalysisServiceProtocol, @unchecke
             }
         }
 
+        // -- Amount extraction (text-only) --
+        // Look for "do zaplaty" / "amount due" patterns first (highest confidence)
+        var bestAmount: Decimal?
+        var amountConfidence = 0.0
+        let amountPatterns = [
+            // Definitive amount labels (Polish & English)
+            #"(?:do\s+zap[łl]aty|razem\s+do\s+zap[łl]aty|nale[żz]no[śs][ćc]|amount\s+due|total\s+due|balance\s+due|amount\s+owed|invoice\s+total|pay\s+this\s+amount)[:\s]*(\d[\d\s\u{00A0}]*[.,]\d{2})"#,
+            // Total/gross labels (Polish & English)
+            #"(?:brutto|gross|razem|total|suma|sum|grand\s+total|total\s+charges|net\s+payable|total\s+amount)[:\s]*(\d[\d\s\u{00A0}]*[.,]\d{2})"#,
+            // Currency-prefixed amounts (US style: $1,234.56)
+            #"\$\s*(\d{1,3}(?:,\d{3})*\.\d{2})"#,
+            // Raw amount with optional currency suffix
+            #"(\d{1,3}(?:[\s\u{00A0},]?\d{3})*[.,]\d{2})\s*(?:PLN|zł|zl|EUR|USD|\$)?"#
+        ]
+
+        for (index, pattern) in amountPatterns.enumerated() {
+            if let regex = try? NSRegularExpression(pattern: pattern, options: [.caseInsensitive]) {
+                let range = NSRange(text.startIndex..., in: text)
+                let matches = regex.matches(in: text, options: [], range: range)
+
+                for match in matches {
+                    if let valueRange = Range(match.range(at: 1), in: text) {
+                        let amountStr = String(text[valueRange])
+                        if let amount = parseAmountValue(amountStr) {
+                            // Assign confidence based on pattern specificity
+                            let conf: Double
+                            switch index {
+                            case 0: conf = 0.85  // "do zaplaty" / "amount due" pattern
+                            case 1: conf = 0.65  // "brutto/total" pattern
+                            case 2: conf = 0.75  // Dollar-prefixed (US style)
+                            default: conf = 0.45 // Raw amount pattern
+                            }
+                            if conf > amountConfidence {
+                                bestAmount = amount
+                                amountConfidence = conf
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // -- Date extraction (text-only) --
+        var bestDueDate: Date?
+        var dateConfidence = 0.0
+
+        let dueDateKeywords = [
+            // Polish
+            "termin platnosci", "termin płatności", "termin zaplaty", "termin zapłaty",
+            "platne do", "płatne do",
+            // English/US
+            "payment due", "due date", "payable by", "pay by", "due by",
+            "payment deadline", "due on", "please pay by", "must be paid by"
+        ]
+
+        for line in lines {
+            guard let dateResult = dateParser.parseDateWithPattern(from: line) else { continue }
+
+            let normalizedLine = line.lowercased().folding(options: .diacriticInsensitive, locale: nil)
+
+            // Check for due date keyword in same line
+            if dueDateKeywords.contains(where: { normalizedLine.contains($0) }) {
+                if dateConfidence < 0.85 {
+                    bestDueDate = dateResult.date
+                    dateConfidence = 0.85
+                }
+            } else if dateConfidence < 0.50 {
+                // Use any future date as a weaker candidate
+                let daysFromNow = dateResult.date.timeIntervalSince(Date()) / 86400
+                if daysFromNow >= 0 && daysFromNow <= 90 {
+                    bestDueDate = dateResult.date
+                    dateConfidence = 0.50
+                }
+            }
+        }
+
+        // -- Vendor name extraction (text-only) --
+        // Look for text near vendor/seller labels (Polish & English)
+        var vendorName: String?
+        var vendorConfidence = 0.0
+
+        let vendorLabels = [
+            // Polish
+            "sprzedawca", "wystawca",
+            // English/US
+            "seller", "vendor", "supplier", "issued by", "billed by",
+            "remit to", "pay to", "bill from", "from"
+        ]
+        for (i, line) in lines.enumerated() {
+            let normalizedLine = line.lowercased().folding(options: .diacriticInsensitive, locale: nil)
+            if vendorLabels.contains(where: { normalizedLine.contains($0) }) {
+                // Take the next non-empty line as vendor name
+                for j in (i + 1)..<min(i + 4, lines.count) {
+                    let candidate = cleanVendorName(lines[j])
+                    if FieldValidators.isValidVendorName(candidate) {
+                        vendorName = candidate
+                        vendorConfidence = 0.70
+                        break
+                    }
+                }
+                if vendorName != nil { break }
+            }
+        }
+
+        // -- Invoice number extraction (text-only) --
+        var documentNumber: String?
+        let invoiceNumPatterns = [
+            // Polish: Faktura (VAT) Nr/Numer
+            #"(?:faktura\s*(?:vat\s*)?|invoice\s*|bill\s*|statement\s*)(?:nr\.?|no\.?|numer|number|#)?[:\s]*([A-Za-z0-9\-/\.#]+(?:/[A-Za-z0-9\-/\.#]+)*)"#
+        ]
+        for pattern in invoiceNumPatterns {
+            if let regex = try? NSRegularExpression(pattern: pattern, options: [.caseInsensitive]) {
+                let range = NSRange(text.startIndex..., in: text)
+                if let match = regex.firstMatch(in: text, options: [], range: range),
+                   let valueRange = Range(match.range(at: 1), in: text) {
+                    let value = String(text[valueRange]).trimmingCharacters(in: .whitespaces)
+                    if FieldValidators.validateInvoiceNumber(value) {
+                        documentNumber = value
+                        break
+                    }
+                }
+            }
+        }
+
+        // -- Bank account extraction (text-only) --
+        var bankAccount: String?
+        let bankPatterns = [
+            // Polish/IBAN accounts with label
+            #"(?:konto|rachunek|account|iban|nr\s+konta|nr\s+rachunku|bank\s+account)[:\s]*([A-Z]{0,2}\d[\d\s]{24,30})"#,
+            // Polish IBAN with PL prefix
+            #"(PL\s?\d{2}\s?\d{4}\s?\d{4}\s?\d{4}\s?\d{4}\s?\d{4}\s?\d{4})"#,
+            // 26-digit Polish account
+            #"(\d{2}\s?\d{4}\s?\d{4}\s?\d{4}\s?\d{4}\s?\d{4}\s?\d{4})"#,
+            // US routing number (9 digits) with label
+            #"(?:routing\s*(?:number|no|#)?|aba)[:\s]*(\d{9})"#,
+            // US account number with label
+            #"(?:account\s*(?:number|no|#))[:\s]*(\d{6,17})"#
+        ]
+        for pattern in bankPatterns {
+            if let regex = try? NSRegularExpression(pattern: pattern, options: [.caseInsensitive]) {
+                let range = NSRange(text.startIndex..., in: text)
+                if let match = regex.firstMatch(in: text, options: [], range: range),
+                   let valueRange = Range(match.range(at: 1), in: text) {
+                    let value = String(text[valueRange]).replacingOccurrences(of: " ", with: "")
+                    let digitCount = value.filter({ $0.isNumber }).count
+                    // Accept: IBAN (26+ digits), US routing (9), US account (6-17)
+                    if digitCount >= 6 {
+                        bankAccount = value
+                        break
+                    }
+                }
+            }
+        }
+
+        // Calculate overall confidence
+        var fieldsFound = 0
+        if vendorName != nil { fieldsFound += 1 }
+        if bestAmount != nil { fieldsFound += 1 }
+        if bestDueDate != nil { fieldsFound += 1 }
+        if documentNumber != nil { fieldsFound += 1 }
+        let overallConfidence = Double(fieldsFound) / 4.0
+
+        PrivacyLogger.parsing.info("Text-only fallback (\(documentLanguage.rawValue)): vendor=\(vendorName != nil), amount=\(bestAmount != nil), date=\(bestDueDate != nil), docNum=\(documentNumber != nil), nip=\(vendorNIP != nil)")
+
         return DocumentAnalysisResult(
             documentType: .invoice,
+            vendorName: vendorName,
             vendorNIP: vendorNIP,
             vendorREGON: regon,
-            currency: currency ?? "PLN",
-            overallConfidence: 0.3, // Low confidence for text-only
+            amount: bestAmount,
+            currency: currency ?? defaultCurrency(for: documentLanguage),
+            dueDate: bestDueDate,
+            documentNumber: documentNumber,
+            bankAccountNumber: bankAccount,
+            overallConfidence: overallConfidence,
+            fieldConfidences: FieldConfidences(
+                vendorName: vendorConfidence,
+                amount: amountConfidence,
+                dueDate: dateConfidence,
+                documentNumber: documentNumber != nil ? 0.7 : 0.0,
+                nip: vendorNIP != nil ? 0.8 : 0.0,
+                bankAccount: bankAccount != nil ? 0.7 : 0.0
+            ),
             provider: providerIdentifier,
             version: analysisVersion,
             rawOCRText: text

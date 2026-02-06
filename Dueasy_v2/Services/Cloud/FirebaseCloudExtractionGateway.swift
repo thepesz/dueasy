@@ -36,6 +36,7 @@ final class FirebaseCloudExtractionGateway: CloudExtractionGatewayProtocol {
     #endif
 
     private let authService: AuthServiceProtocol
+    private let accessManager: AccessManager
     private let retryConfig: CloudRetryConfiguration
     private let logger = Logger(subsystem: "com.dueasy.app", category: "CloudExtraction")
 
@@ -43,9 +44,11 @@ final class FirebaseCloudExtractionGateway: CloudExtractionGatewayProtocol {
 
     init(
         authService: AuthServiceProtocol,
+        accessManager: AccessManager,
         retryConfig: CloudRetryConfiguration = .default
     ) {
         self.authService = authService
+        self.accessManager = accessManager
         self.retryConfig = retryConfig
         #if canImport(FirebaseFunctions)
         // Use Europe region for GDPR compliance - functions deployed to europe-west1
@@ -77,16 +80,32 @@ final class FirebaseCloudExtractionGateway: CloudExtractionGatewayProtocol {
         currencyHints: [String]
     ) async throws -> DocumentAnalysisResult {
         #if canImport(FirebaseFunctions)
+        // DEBUG: Check authentication status
+        PrivacyLogger.cloud.info("🔑 Checking Firebase authentication...")
         let isSignedIn = await authService.isSignedIn
+        let userId = await authService.currentUserId
+
+        PrivacyLogger.cloud.info("🔑 Auth status: signedIn=\(isSignedIn), hasUserId=\(userId != nil)")
+        if let uid = userId {
+            let uidPreview = String(uid.prefix(8))
+            PrivacyLogger.cloud.info("🔑 User ID (preview): \(uidPreview)...")
+        }
 
         #if canImport(FirebaseCrashlytics)
-        Crashlytics.crashlytics().log("🔑 Firebase auth check: signedIn=\(isSignedIn)")
+        Crashlytics.crashlytics().log("🔑 Firebase auth check: signedIn=\(isSignedIn), hasUserId=\(userId != nil)")
         Crashlytics.crashlytics().setCustomValue(isSignedIn, forKey: "firebaseAuthSignedIn")
+        if let uid = userId {
+            // Log anonymized UID (first 8 chars) for debugging
+            let uidPreview = String(uid.prefix(8))
+            Crashlytics.crashlytics().log("   userId preview: \(uidPreview)...")
+        }
         #endif
 
         guard isSignedIn else {
             #if canImport(FirebaseCrashlytics)
-            Crashlytics.crashlytics().log("⚠️ Auth required: User not signed in with Apple")
+            Crashlytics.crashlytics().log("⚠️ Auth required: No Firebase user (anonymous or Apple)")
+            Crashlytics.crashlytics().log("   This indicates AuthBootstrapper may not have completed.")
+            Crashlytics.crashlytics().log("   Expected: Anonymous user created automatically on app launch.")
             #endif
             throw CloudExtractionError.authenticationRequired
         }
@@ -140,7 +159,13 @@ final class FirebaseCloudExtractionGateway: CloudExtractionGatewayProtocol {
             attempt += 1
 
             do {
+                // DEBUG: Log before calling Firebase function
+                PrivacyLogger.cloud.info("🔵 Calling Firebase function '\(functionName)' (attempt \(attempt)/\(totalAttempts))")
+
                 let result = try await functions.httpsCallable(functionName).call(payload)
+
+                // DEBUG: Log successful call
+                PrivacyLogger.cloud.info("✅ Firebase function '\(functionName)' completed successfully")
 
                 // PRIVACY: Log success metrics only
                 if attempt > 1 {
@@ -151,6 +176,25 @@ final class FirebaseCloudExtractionGateway: CloudExtractionGatewayProtocol {
 
             } catch {
                 lastError = error
+
+                // DEBUG: Log actual error details
+                PrivacyLogger.cloud.error("❌ Firebase function error: \(error.localizedDescription)")
+                PrivacyLogger.cloud.error("   Error type: \(String(describing: type(of: error)))")
+
+                // RELIABILITY FIX: CancellationError must be re-thrown immediately.
+                // Do NOT retry or map cancelled tasks -- they are intentional (e.g., new
+                // analysis started, or ViewModel deallocated). Retrying a cancelled task
+                // would waste resources and delay the replacement operation.
+                if error is CancellationError {
+                    PrivacyLogger.cloud.info("Task cancelled during cloud extraction - propagating cancellation")
+                    throw error
+                }
+
+                if let nsError = error as NSError? {
+                    PrivacyLogger.cloud.error("   Domain: \(nsError.domain), Code: \(nsError.code)")
+                    PrivacyLogger.cloud.error("   UserInfo: \(nsError.userInfo)")
+                }
+
                 let cloudError = mapFirebaseError(error)
 
                 // Check if error is retryable
@@ -422,6 +466,19 @@ final class FirebaseCloudExtractionGateway: CloudExtractionGatewayProtocol {
         let allConfidences = [vendorConfidence, amountConfidence, dateConfidence, nipConfidence]
             .filter { $0 > 0.0 }
         let overallConfidence = allConfidences.isEmpty ? 0.0 : allConfidences.reduce(0.0, +) / Double(allConfidences.count)
+
+        // Extract and update quota from backend response
+        if let usageInfo = dict["usageInfo"] as? [String: Any],
+           let used = usageInfo["used"] as? Int,
+           let limit = usageInfo["limit"] as? Int,
+           let remaining = usageInfo["remaining"] as? Int {
+            let quota = CloudQuota(used: used, limit: limit, remaining: remaining, resetDate: nil)
+
+            // Update AccessManager on main actor (async but don't wait - fire and forget)
+            Task { @MainActor in
+                self.accessManager.updateQuotaFromBackend(quota)
+            }
+        }
 
         return DocumentAnalysisResult(
             documentType: documentType,

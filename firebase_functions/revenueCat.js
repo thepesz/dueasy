@@ -153,21 +153,51 @@ function invalidateCache(uid) {
  * Fallback: Get user tier from Firestore subscription document.
  * Used when RevenueCat API is unavailable or not configured.
  *
+ * IMPORTANT: This function NEVER throws. It always returns 'free' or 'pro'.
+ * All Firestore errors are caught and handled gracefully.
+ *
  * @param {string} uid - Firebase user ID
- * @returns {Promise<'free'|'pro'>} User tier
+ * @returns {Promise<'free'|'pro'>} User tier (defaults to 'free' on any error)
  */
 async function getFirestoreTier(uid) {
+  // Wrap everything in a try-catch to ensure we NEVER throw
   try {
-    const userDoc = await admin.firestore()
-        .collection('users')
-        .doc(uid)
-        .get();
+    const db = admin.firestore();
+    const userRef = db.collection('users').doc(uid);
 
-    if (!userDoc.exists) {
+    // Use a more defensive approach: wrap the get() call specifically
+    let userDoc;
+    try {
+      userDoc = await userRef.get();
+    } catch (getError) {
+      // Handle Firestore get() errors specifically
+      // This catches NOT_FOUND, PERMISSION_DENIED, UNAVAILABLE, etc.
+      console.log('Firestore get() error for user (defaulting to free):', uid);
+      console.log('  Error code:', getError?.code, 'Message:', getError?.message);
       return 'free';
     }
 
-    const subscription = userDoc.data().subscription;
+    // Document successfully retrieved - check if it exists
+    if (!userDoc || !userDoc.exists) {
+      console.log('User document does not exist, defaulting to free tier:', uid);
+      return 'free';
+    }
+
+    // Safely access document data
+    let data;
+    try {
+      data = userDoc.data();
+    } catch (dataError) {
+      console.log('Error reading document data, defaulting to free:', dataError?.message);
+      return 'free';
+    }
+
+    if (!data) {
+      console.log('User document data is null, defaulting to free tier:', uid);
+      return 'free';
+    }
+
+    const subscription = data.subscription;
     if (!subscription || subscription.tier !== 'pro') {
       return 'free';
     }
@@ -184,7 +214,9 @@ async function getFirestoreTier(uid) {
 
     return 'pro';
   } catch (error) {
-    console.error('Error fetching Firestore subscription:', error);
+    // Ultimate fallback - catch ANY error that might have slipped through
+    // This should never be reached, but provides defense in depth
+    console.warn('Unexpected error in getFirestoreTier (defaulting to free):', error?.message || String(error));
     return 'free';
   }
 }

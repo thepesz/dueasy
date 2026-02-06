@@ -46,7 +46,14 @@ enum ExtractionMethod: String, Codable, Sendable {
 
 /// A generic extraction candidate with value, confidence, and provenance.
 /// Used as the standardized output format for layout-first extraction.
-struct ExtractionCandidate: Codable, Sendable {
+struct ExtractionCandidate: Codable, Sendable, Identifiable {
+    /// Stable identity for SwiftUI ForEach. Composite of value + source + confidence + bbox
+    /// to guarantee uniqueness even when multiple strategies find the same value.
+    var id: String {
+        let bboxKey = String(format: "%.3f,%.3f", bbox.x, bbox.y)
+        return "\(value)|\(source)|\(String(format: "%.4f", confidence))|\(bboxKey)"
+    }
+
     /// The extracted value as a string
     let value: String
 
@@ -223,7 +230,15 @@ struct AmountCandidate: Codable, Sendable {
 // MARK: - Date Candidate
 
 /// Date candidate detected during parsing, with context for learning
-struct DateCandidate: Codable, Sendable {
+struct DateCandidate: Codable, Sendable, Identifiable {
+    /// Stable identity for SwiftUI ForEach. Composite of date + score + source + bbox
+    /// to guarantee uniqueness even when multiple strategies find the same date.
+    var id: String {
+        let timestamp = String(format: "%.0f", date.timeIntervalSinceReferenceDate)
+        let bboxKey = String(format: "%.3f,%.3f", lineBBox.x, lineBBox.y)
+        return "\(timestamp)|\(scoreReason)|\(score)|\(bboxKey)"
+    }
+
     /// The detected date value
     let date: Date
 

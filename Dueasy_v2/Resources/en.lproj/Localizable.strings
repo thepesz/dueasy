@@ -815,9 +815,12 @@
 "auth.withoutSignInInfo" = "Without signing in, your data stays only on this device. Sign in with Apple to enable sync across devices.";
 "auth.signInError.title" = "Sign In Error";
 "auth.signInError.generic" = "Could not sign in. Please try again.";
-"auth.credentialAlreadyLinked.title" = "Account Already Linked";
-"auth.credentialAlreadyLinked.message" = "This Apple account is already linked to another DuEasy user. Please use a different Apple ID or contact support.";
+"auth.credentialAlreadyLinked.title" = "Existing Account Found";
+"auth.credentialAlreadyLinked.message" = "This Apple ID is already linked to a DuEasy account. Would you like to sign in to your existing account, or continue as a new guest?";
+"auth.signInToExistingAccount" = "Sign in to Existing Account";
+"auth.signInToExistingAccount.recommended" = "Sign in to Existing Account (Recommended)";
 "auth.continueAsGuest" = "Continue as Guest";
+"auth.signInToExistingFailed" = "Could not sign in to the existing account. Please try again.";
 
 // Account section in Settings
 "auth.account.section" = "Account";
@@ -837,8 +840,15 @@
 
 "rate_limit.banner.title" = "AI Limit Reached (%d/%d)";
 "rate_limit.banner.title_default" = "AI Extraction Limit Reached";
-"rate_limit.banner.subtitle" = "Using offline extraction (less accurate)";
+"rate_limit.banner.subtitle" = "Upgrade to Pro to continue analyzing documents";
 "rate_limit.banner.upgrade" = "Upgrade to Pro";
+
+// Rate Limit - Blocking Paywall
+"rate_limit.paywall.title" = "Free Limit Reached";
+"rate_limit.paywall.message" = "You have used all %d of your %d free document analyses this month. Upgrade to Pro for 100 analyses per month.";
+"rate_limit.paywall.reset_info" = "Your free limit resets on %@.";
+"rate_limit.paywall.upgrade_button" = "Upgrade to Pro";
+"rate_limit.paywall.dismiss_button" = "Go Back";
 
 // MARK: - Backup
 
@@ -927,3 +937,17 @@
 "backup.recovery.enableiCloud" = "Sign in to iCloud in Settings";
 "backup.recovery.freeSpace" = "Free up storage space and try again";
 "backup.recovery.updateApp" = "Update the app to restore this backup";
+
+// Access Restricted (Sign in required)
+"backup.accessRestricted.title" = "Sign In Required";
+"backup.accessRestricted.subtitle" = "Backup features require Sign in with Apple to protect your data and enable cross-device access.";
+"backup.accessRestricted.benefit1.title" = "Sync Across Devices";
+"backup.accessRestricted.benefit1.description" = "Access your backups from any device signed in with the same Apple ID.";
+"backup.accessRestricted.benefit2.title" = "Restore on New Device";
+"backup.accessRestricted.benefit2.description" = "Easily restore your data when you get a new iPhone or iPad.";
+"backup.accessRestricted.benefit3.title" = "Encrypted Backup";
+"backup.accessRestricted.benefit3.description" = "Your backup is protected with password encryption for maximum security.";
+"backup.accessRestricted.signInButton" = "Sign in with Apple";
+"backup.accessRestricted.whyRequired" = "Why is sign in required?";
+"backup.accessRestricted.whyRequiredExplanation" = "Sign in with Apple links your backups to your Apple ID, ensuring only you can access them. This prevents unauthorized access and enables secure cloud storage.";
+"backup.error.requiresAppleSignIn" = "Backup features require Sign in with Apple. Please sign in from Settings.";

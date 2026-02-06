@@ -45,9 +45,13 @@ protocol BackupServiceProtocol: Sendable {
 /// Local backup service implementation.
 /// Handles export/import of encrypted JSON backups.
 /// Excludes scanned files (images/PDFs) - metadata only.
+///
+/// **Access Control**: Requires Sign in with Apple. All export/import operations
+/// validate access before proceeding (defense in depth).
 final class LocalBackupService: BackupServiceProtocol, @unchecked Sendable {
 
     private let modelContainer: ModelContainer
+    private let authBootstrapper: AuthBootstrapper
     private let logger = Logger(subsystem: "com.dueasy.app", category: "BackupService")
 
     /// Device identifier for tracking backup source
@@ -55,8 +59,22 @@ final class LocalBackupService: BackupServiceProtocol, @unchecked Sendable {
         UIDevice.current.identifierForVendor?.uuidString ?? UUID().uuidString
     }
 
-    init(modelContainer: ModelContainer) {
+    init(modelContainer: ModelContainer, authBootstrapper: AuthBootstrapper) {
         self.modelContainer = modelContainer
+        self.authBootstrapper = authBootstrapper
+    }
+
+    // MARK: - Access Control
+
+    /// Validates that the user has access to backup features.
+    /// Requires Sign in with Apple (isAppleLinked).
+    /// - Throws: BackupError.requiresAppleSignIn if not authorized
+    @MainActor
+    private func validateBackupAccess() throws {
+        guard authBootstrapper.isAppleLinked else {
+            logger.warning("Backup operation blocked: user not signed in with Apple")
+            throw BackupError.requiresAppleSignIn
+        }
     }
 
     // MARK: - Export
@@ -64,6 +82,9 @@ final class LocalBackupService: BackupServiceProtocol, @unchecked Sendable {
     @MainActor
     func exportBackup(password: String) async throws -> BackupExportResult {
         logger.info("Starting backup export")
+
+        // Defense in depth: validate user has backup access
+        try validateBackupAccess()
 
         // Validate password
         guard BackupEncryption.isPasswordValid(password) else {
@@ -172,6 +193,9 @@ final class LocalBackupService: BackupServiceProtocol, @unchecked Sendable {
     @MainActor
     func importBackup(from url: URL, password: String) async throws -> BackupImportResult {
         logger.info("Starting backup import from \(url.lastPathComponent)")
+
+        // Defense in depth: validate user has backup access
+        try validateBackupAccess()
 
         // Read and decrypt
         let backupData = try await validateBackup(from: url, password: password)

@@ -215,7 +215,7 @@ struct AlternativesRow: View {
 
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: Spacing.xs) {
-                    ForEach(alternatives, id: \.value) { candidate in
+                    ForEach(alternatives) { candidate in
                         AlternativeChip(
                             value: candidate.value,
                             confidence: candidate.confidence,
@@ -415,7 +415,7 @@ struct DateAlternativesRow: View {
 
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: Spacing.xs) {
-                    ForEach(alternatives, id: \.date) { candidate in
+                    ForEach(alternatives) { candidate in
                         DateAlternativeChip(
                             date: candidate.date,
                             reason: candidate.scoreReason,

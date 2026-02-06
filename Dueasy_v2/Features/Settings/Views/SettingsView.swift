@@ -512,15 +512,7 @@ struct SettingsView: View {
     }
 
     private var backupSummary: String {
-        if environment.iCloudBackupService.isEnabled {
-            if let lastBackup = environment.iCloudBackupService.lastBackupDate {
-                let formatter = RelativeDateTimeFormatter()
-                formatter.unitsStyle = .abbreviated
-                return L10n.Backup.lastBackup.localized(with: formatter.localizedString(for: lastBackup, relativeTo: Date()))
-            }
-            return L10n.Backup.iCloudEnabled.localized
-        }
-        return L10n.Backup.subtitle.localized
+        L10n.Backup.subtitle.localized
     }
 
     private var accountSummary: String {
@@ -2106,8 +2098,15 @@ struct AccountSettingsView: View {
             } catch AuthError.appleSignInCancelled {
                 // User cancelled - no error to show
             } catch AuthError.credentialAlreadyLinked {
-                errorMessage = L10n.Auth.credentialAlreadyLinkedMessage.localized
-                showError = true
+                // Apple account already linked to another user (from previous install)
+                // Automatically recover by signing in with Apple (replaces anonymous session)
+                do {
+                    try await environment.authService.signInWithApple()
+                    await authBootstrapper.refreshState()
+                } catch {
+                    errorMessage = error.localizedDescription
+                    showError = true
+                }
             } catch {
                 errorMessage = error.localizedDescription
                 showError = true

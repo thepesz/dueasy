@@ -15,21 +15,18 @@ final class FetchHomeMetricsUseCase: Sendable {
     private let recurringTemplateService: RecurringTemplateServiceProtocol
     private let recurringSchedulerService: RecurringSchedulerServiceProtocol
     private let recurringDateService: RecurringDateServiceProtocol
-    private let appTier: AppTier
     private let logger = Logger(subsystem: "com.dueasy.app", category: "FetchHomeMetrics")
 
     init(
         documentRepository: DocumentRepositoryProtocol,
         recurringTemplateService: RecurringTemplateServiceProtocol,
         recurringSchedulerService: RecurringSchedulerServiceProtocol,
-        recurringDateService: RecurringDateServiceProtocol,
-        appTier: AppTier
+        recurringDateService: RecurringDateServiceProtocol
     ) {
         self.documentRepository = documentRepository
         self.recurringTemplateService = recurringTemplateService
         self.recurringSchedulerService = recurringSchedulerService
         self.recurringDateService = recurringDateService
-        self.appTier = appTier
     }
 
     /// Executes the use case and returns computed HomeViewState.
@@ -66,8 +63,7 @@ final class FetchHomeMetricsUseCase: Sendable {
                 paidPercent: 0,
                 monthUnpaidTotal: 0,
                 monthCurrency: "PLN",
-                hasDocuments: false,
-                appTier: appTier
+                hasDocuments: false
             )
         }
 
@@ -239,8 +235,7 @@ final class FetchHomeMetricsUseCase: Sendable {
             paidPercent: paidPercent,
             monthUnpaidTotal: monthUnpaidTotal,
             monthCurrency: monthCurrency,
-            hasDocuments: true,
-            appTier: appTier
+            hasDocuments: true
         )
     }
 

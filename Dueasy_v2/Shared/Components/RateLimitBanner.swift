@@ -5,10 +5,13 @@ import SwiftUI
 ///
 /// ## Design
 ///
-/// The banner is non-blocking - users can continue with local extraction.
+/// This banner is shown alongside the blocking paywall when the user hits the
+/// free tier limit (3 cloud extractions/month). The user must upgrade to continue
+/// analyzing documents.
+///
 /// It provides two key pieces of information:
 /// 1. Current rate limit status (e.g., "3/3 AI extractions used")
-/// 2. What's happening (using offline extraction with lower accuracy)
+/// 2. Prompt to upgrade for continued access
 ///
 /// And one action:
 /// - Upgrade button to show paywall for Pro tier

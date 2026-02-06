@@ -37,6 +37,7 @@ final class iCloudBackupService: ObservableObject {
 
     private let backupService: BackupServiceProtocol
     private let keychain: KeychainService
+    private let authBootstrapper: AuthBootstrapper
     private let logger = Logger(subsystem: "com.dueasy.app", category: "iCloudBackup")
 
     // MARK: - Internal State
@@ -62,10 +63,27 @@ final class iCloudBackupService: ObservableObject {
 
     // MARK: - Initialization
 
-    init(backupService: BackupServiceProtocol, keychain: KeychainService = KeychainService()) {
+    init(
+        backupService: BackupServiceProtocol,
+        keychain: KeychainService = KeychainService(),
+        authBootstrapper: AuthBootstrapper
+    ) {
         self.backupService = backupService
         self.keychain = keychain
+        self.authBootstrapper = authBootstrapper
         loadState()
+    }
+
+    // MARK: - Access Control
+
+    /// Validates that the user has access to backup features.
+    /// Requires Sign in with Apple (isAppleLinked).
+    /// - Throws: BackupError.requiresAppleSignIn if not authorized
+    private func validateBackupAccess() throws {
+        guard authBootstrapper.isAppleLinked else {
+            logger.warning("Backup operation blocked: user not signed in with Apple")
+            throw BackupError.requiresAppleSignIn
+        }
     }
 
     // MARK: - Public Interface
@@ -73,8 +91,12 @@ final class iCloudBackupService: ObservableObject {
     /// Enables iCloud auto-backup with the given password.
     /// Password is securely stored in Keychain.
     /// - Parameter password: Encryption password (minimum 8 characters)
+    /// - Throws: BackupError.requiresAppleSignIn if user not signed in with Apple
     func enableAutoBackup(password: String) async throws {
         logger.info("Enabling iCloud auto-backup")
+
+        // Defense in depth: validate user has backup access
+        try validateBackupAccess()
 
         // Validate iCloud availability
         guard isiCloudAvailable() else {
@@ -120,7 +142,11 @@ final class iCloudBackupService: ObservableObject {
 
     /// Triggers a backup immediately.
     /// Skips if a backup is already in progress.
+    /// - Throws: BackupError.requiresAppleSignIn if user not signed in with Apple
     func triggerBackup() async throws {
+        // Defense in depth: validate user has backup access
+        try validateBackupAccess()
+
         guard isEnabled else {
             logger.warning("Backup triggered but auto-backup is disabled")
             return
@@ -174,8 +200,12 @@ final class iCloudBackupService: ObservableObject {
     /// Restores from the latest iCloud backup.
     /// - Parameter password: Decryption password
     /// - Returns: Import result
+    /// - Throws: BackupError.requiresAppleSignIn if user not signed in with Apple
     func restoreLatestBackup(password: String) async throws -> BackupImportResult {
         logger.info("Restoring from latest iCloud backup")
+
+        // Defense in depth: validate user has backup access
+        try validateBackupAccess()
 
         guard let latestBackup = availableBackups.first(where: { $0.isLatest }) ?? availableBackups.first else {
             throw BackupError.fileNotFound
@@ -189,8 +219,12 @@ final class iCloudBackupService: ObservableObject {
     ///   - id: Backup identifier (filename)
     ///   - password: Decryption password
     /// - Returns: Import result
+    /// - Throws: BackupError.requiresAppleSignIn if user not signed in with Apple
     func restoreBackup(id: String, password: String) async throws -> BackupImportResult {
         logger.info("Restoring from backup: \(id)")
+
+        // Defense in depth: validate user has backup access
+        try validateBackupAccess()
 
         guard let iCloudURL = getiCloudDocumentsURL() else {
             throw BackupError.iCloudUnavailable

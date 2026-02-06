@@ -1,451 +1,28 @@
-Firebase configured successfully
-Localization: Loaded bundle for language 'pl' from path: /Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers/Bundle/Application/105B733E-FA5A-4735-B4C6-35974A3183CD/Dueasy_v2.app/pl.lproj
-Localization: Updated locale to 'pl' for date formatting
-Localization: Loaded bundle for language 'pl' from path: /Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers/Bundle/Application/105B733E-FA5A-4735-B4C6-35974A3183CD/Dueasy_v2.app/pl.lproj
-Localization: Updated locale to 'pl' for date formatting
+[Firebase/Crashlytics] Version 12.8.0
 12.8.0 - [GoogleUtilities/AppDelegateSwizzler][I-SWZ001014] App Delegate does not conform to UIApplicationDelegate protocol.
-CoreData: error: Failed to stat path '/Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers/Data/Application/675905E5-23B9-4EE9-BBF4-BDD553B99C87/Library/Application Support/default.store', errno 2 / No such file or directory.
-CoreData: error: Failed to stat path '/Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers/Data/Application/675905E5-23B9-4EE9-BBF4-BDD553B99C87/Library/Application Support/default.store', errno 2 / No such file or directory.
-CoreData: error: Executing as effective user 501
-CoreData: error: Executing as effective user 501
-CoreData: error: Failed to statfs file; errno 2 / No such file or directory.
-CoreData: error: Failed to statfs file; errno 2 / No such file or directory.
-CoreData: error: Logging status information for directory path: /Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers/Data/Application/675905E5-23B9-4EE9-BBF4-BDD553B99C87/Library/Application Support
-CoreData: error: Logging status information for directory path: /Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers/Data/Application/675905E5-23B9-4EE9-BBF4-BDD553B99C87/Library/Application Support
-CoreData: error: Executing as effective user 501
-CoreData: error: Executing as effective user 501
-CoreData: error: Information for /
-CoreData: error: Information for /
-CoreData: error:   File Device ID: 	0
-CoreData: error:   File Device ID: 	0
-CoreData: error:   Device ID: 		16777231
-CoreData: error:   Device ID: 		16777231
-CoreData: error:   File Size: 		704 bytes
-CoreData: error:   File Size: 		704 bytes
-CoreData: error:   File inode: 		2
-CoreData: error:   File inode: 		2
-CoreData: error:   File user ID: 		0
-CoreData: error:   File user ID: 		0
-CoreData: error:   File group ID: 		0
-CoreData: error:   File group ID: 		0
-CoreData: error:   File Permissions:
-CoreData: error:   File Permissions: 	
-CoreData: error: d
-CoreData: error: d
-CoreData: error:   755
-CoreData: error:   755
-CoreData: error:   component is not a symbolic link
-CoreData: error:   component is not a symbolic link
-CoreData: error:   component is readable
-CoreData: error:   component is readable
-CoreData: error:   component is not writeable with errno 30
-CoreData: error:   component is not writeable with errno 30
-CoreData: error: Information for /Users
-CoreData: error: Information for /Users
-CoreData: error:   File Device ID: 	0
-CoreData: error:   File Device ID: 	0
-CoreData: error:   Device ID: 		16777231
-CoreData: error:   Device ID: 		16777231
-CoreData: error:   File Size: 		160 bytes
-CoreData: error:   File Size: 		160 bytes
-CoreData: error:   File inode: 		20298
-CoreData: error:   File inode: 		20298
-CoreData: error:   File user ID: 		0
-CoreData: error:   File user ID: 		0
-CoreData: error:   File group ID: 		80
-CoreData: error:   File group ID: 		80
-CoreData: error:   File Permissions:
-CoreData: error:   File Permissions: 	
-CoreData: error: d
-CoreData: error: d
-CoreData: error:   755
-CoreData: error:   755
-CoreData: error:   component is not a symbolic link
-CoreData: error:   component is not a symbolic link
-CoreData: error:   component is readable
-CoreData: error:   component is readable
-CoreData: error:   component is not writeable with errno 13
-CoreData: error:   component is not writeable with errno 13
-CoreData: error: Information for /Users/bart
-CoreData: error: Information for /Users/bart
-CoreData: error:   File Device ID: 	0
-CoreData: error:   File Device ID: 	0
-CoreData: error:   Device ID: 		16777231
-CoreData: error:   Device ID: 		16777231
-CoreData: error:   File Size: 		1248 bytes
-CoreData: error:   File Size: 		1248 bytes
-CoreData: error:   File inode: 		59444
-CoreData: error:   File inode: 		59444
-CoreData: error:   File user ID: 		501
-CoreData: error:   File user ID: 		501
-CoreData: error:   File group ID: 		20
-CoreData: error:   File group ID: 		20
-CoreData: error:   File Permissions:
-CoreData: error:   File Permissions: 	
-CoreData: error: d
-CoreData: error: d
-CoreData: error:   750
-CoreData: error:   750
-CoreData: error:   component is not a symbolic link
-CoreData: error:   component is not a symbolic link
-CoreData: error:   component is readable
-CoreData: error:   component is readable
-CoreData: error:   component is writeable
-CoreData: error:   component is writeable
-CoreData: error: Information for /Users/bart/Library
-CoreData: error: Information for /Users/bart/Library
-CoreData: error:   File Device ID: 	0
-CoreData: error:   File Device ID: 	0
-CoreData: error:   Device ID: 		16777231
-CoreData: error:   Device ID: 		16777231
-CoreData: error:   File Size: 		3104 bytes
-CoreData: error:   File Size: 		3104 bytes
-CoreData: error:   File inode: 		59451
-CoreData: error:   File inode: 		59451
-CoreData: error:   File user ID: 		501
-CoreData: error:   File user ID: 		501
-CoreData: error:   File group ID: 		20
-CoreData: error:   File group ID: 		20
-CoreData: error:   File Permissions:
-CoreData: error:   File Permissions: 	
-CoreData: error: d
-CoreData: error: d
-CoreData: error:   700
-CoreData: error:   700
-CoreData: error:   component is not a symbolic link
-CoreData: error:   component is not a symbolic link
-CoreData: error:   component is readable
-CoreData: error:   component is readable
-CoreData: error:   component is writeable
-CoreData: error:   component is writeable
-CoreData: error: Information for /Users/bart/Library/Developer
-CoreData: error: Information for /Users/bart/Library/Developer
-CoreData: error:   File Device ID: 	0
-CoreData: error:   File Device ID: 	0
-CoreData: error:   Device ID: 		16777231
-CoreData: error:   Device ID: 		16777231
-CoreData: error:   File Size: 		224 bytes
-CoreData: error:   File Size: 		224 bytes
-CoreData: error:   File inode: 		1553230
-CoreData: error:   File inode: 		1553230
-CoreData: error:   File user ID: 		501
-CoreData: error:   File user ID: 		501
-CoreData: error:   File group ID: 		20
-CoreData: error:   File group ID: 		20
-CoreData: error:   File Permissions:
-CoreData: error:   File Permissions: 	
-CoreData: error: d
-CoreData: error: d
-CoreData: error:   755
-CoreData: error:   755
-CoreData: error:   component is not a symbolic link
-CoreData: error:   component is not a symbolic link
-CoreData: error:   component is readable
-CoreData: error:   component is readable
-CoreData: error:   component is writeable
-CoreData: error:   component is writeable
-CoreData: error: Information for /Users/bart/Library/Developer/CoreSimulator
-CoreData: error: Information for /Users/bart/Library/Developer/CoreSimulator
-CoreData: error:   File Device ID: 	0
-CoreData: error:   File Device ID: 	0
-CoreData: error:   Device ID: 		16777231
-CoreData: error:   Device ID: 		16777231
-CoreData: error:   File Size: 		160 bytes
-CoreData: error:   File Size: 		160 bytes
-CoreData: error:   File inode: 		1556688
-CoreData: error:   File inode: 		1556688
-CoreData: error:   File user ID: 		501
-CoreData: error:   File user ID: 		501
-CoreData: error:   File group ID: 		20
-CoreData: error:   File group ID: 		20
-CoreData: error:   File Permissions:
-CoreData: error:   File Permissions: 	
-CoreData: error: d
-CoreData: error: d
-CoreData: error:   755
-CoreData: error:   755
-CoreData: error:   component is not a symbolic link
-CoreData: error:   component is not a symbolic link
-CoreData: error:   component is readable
-CoreData: error:   component is readable
-CoreData: error:   component is writeable
-CoreData: error:   component is writeable
-CoreData: error: Information for /Users/bart/Library/Developer/CoreSimulator/Devices
-CoreData: error: Information for /Users/bart/Library/Developer/CoreSimulator/Devices
-CoreData: error:   File Device ID: 	0
-CoreData: error:   File Device ID: 	0
-CoreData: error:   Device ID: 		16777231
-CoreData: error:   Device ID: 		16777231
-CoreData: error:   File Size: 		800 bytes
-CoreData: error:   File Size: 		800 bytes
-CoreData: error:   File inode: 		1556765
-CoreData: error:   File inode: 		1556765
-CoreData: error:   File user ID: 		501
-CoreData: error:   File user ID: 		501
-CoreData: error:   File group ID: 		20
-CoreData: error:   File group ID: 		20
-CoreData: error:   File Permissions:
-CoreData: error:   File Permissions: 	
-CoreData: error: d
-CoreData: error: d
-CoreData: error:   755
-CoreData: error:   755
-CoreData: error:   component is not a symbolic link
-CoreData: error:   component is not a symbolic link
-CoreData: error:   component is readable
-CoreData: error:   component is readable
-CoreData: error:   component is writeable
-CoreData: error:   component is writeable
-CoreData: error: Information for /Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B
-CoreData: error: Information for /Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B
-CoreData: error:   File Device ID: 	0
-CoreData: error:   File Device ID: 	0
-CoreData: error:   Device ID: 		16777231
-CoreData: error:   Device ID: 		16777231
-CoreData: error:   File Size: 		160 bytes
-CoreData: error:   File Size: 		160 bytes
-CoreData: error:   File inode: 		7593180
-CoreData: error:   File inode: 		7593180
-CoreData: error:   File user ID: 		501
-CoreData: error:   File user ID: 		501
-CoreData: error:   File group ID: 		20
-CoreData: error:   File group ID: 		20
-CoreData: error:   File Permissions:
-CoreData: error:   File Permissions: 	
-CoreData: error: d
-CoreData: error: d
-CoreData: error:   755
-CoreData: error:   755
-CoreData: error:   component is not a symbolic link
-CoreData: error:   component is not a symbolic link
-CoreData: error:   component is readable
-CoreData: error:   component is readable
-CoreData: error:   component is writeable
-CoreData: error:   component is writeable
-CoreData: error: Information for /Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data
-CoreData: error: Information for /Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data
-CoreData: error:   File Device ID: 	0
-CoreData: error:   File Device ID: 	0
-CoreData: error:   Device ID: 		16777231
-CoreData: error:   Device ID: 		16777231
-CoreData: error:   File Size: 		384 bytes
-CoreData: error:   File Size: 		384 bytes
-CoreData: error:   File inode: 		8647925
-CoreData: error:   File inode: 		8647925
-CoreData: error:   File user ID: 		501
-CoreData: error:   File user ID: 		501
-CoreData: error:   File group ID: 		20
-CoreData: error:   File group ID: 		20
-CoreData: error:   File Permissions:
-CoreData: error:   File Permissions: 	
-CoreData: error: d
-CoreData: error: d
-CoreData: error:   775
-CoreData: error:   775
-CoreData: error:   component is not a symbolic link
-CoreData: error:   component is not a symbolic link
-CoreData: error:   component is readable
-CoreData: error:   component is readable
-CoreData: error:   component is writeable
-CoreData: error:   component is writeable
-CoreData: error: Information for /Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers
-CoreData: error: Information for /Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers
-CoreData: error:   File Device ID: 	0
-CoreData: error:   File Device ID: 	0
-CoreData: error:   Device ID: 		16777231
-CoreData: error:   Device ID: 		16777231
-CoreData: error:   File Size: 		224 bytes
-CoreData: error:   File Size: 		224 bytes
-CoreData: error:   File inode: 		13501133
-CoreData: error:   File inode: 		13501133
-CoreData: error:   File user ID: 		501
-CoreData: error:   File user ID: 		501
-CoreData: error:   File group ID: 		20
-CoreData: error:   File group ID: 		20
-CoreData: error:   File Permissions:
-CoreData: error:   File Permissions: 	
-CoreData: error: d
-CoreData: error: d
-CoreData: error:   755
-CoreData: error:   755
-CoreData: error:   component is not a symbolic link
-CoreData: error:   component is not a symbolic link
-CoreData: error:   component is readable
-CoreData: error:   component is readable
-CoreData: error:   component is writeable
-CoreData: error:   component is writeable
-CoreData: error: Information for /Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers/Data
-CoreData: error: Information for /Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers/Data
-CoreData: error:   File Device ID: 	0
-CoreData: error:   File Device ID: 	0
-CoreData: error:   Device ID: 		16777231
-CoreData: error:   Device ID: 		16777231
-CoreData: error:   File Size: 		192 bytes
-CoreData: error:   File Size: 		192 bytes
-CoreData: error:   File inode: 		13501190
-CoreData: error:   File inode: 		13501190
-CoreData: error:   File user ID: 		501
-CoreData: error:   File user ID: 		501
-CoreData: error:   File group ID: 		20
-CoreData: error:   File group ID: 		20
-CoreData: error:   File Permissions:
-CoreData: error:   File Permissions: 	
-CoreData: error: d
-CoreData: error: d
-CoreData: error:   755
-CoreData: error:   755
-CoreData: error:   component is not a symbolic link
-CoreData: error:   component is not a symbolic link
-CoreData: error:   component is readable
-CoreData: error:   component is readable
-CoreData: error:   component is writeable
-CoreData: error:   component is writeable
-CoreData: error: Information for /Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers/Data/Application
-CoreData: error: Information for /Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers/Data/Application
-CoreData: error:   File Device ID: 	0
-CoreData: error:   File Device ID: 	0
-CoreData: error:   Device ID: 		16777231
-CoreData: error:   Device ID: 		16777231
-CoreData: error:   File Size: 		4704 bytes
-CoreData: error:   File Size: 		4704 bytes
-CoreData: error:   File inode: 		13501871
-CoreData: error:   File inode: 		13501871
-CoreData: error:   File user ID: 		501
-CoreData: error:   File user ID: 		501
-CoreData: error:   File group ID: 		20
-CoreData: error:   File group ID: 		20
-CoreData: error:   File Permissions:
-CoreData: error:   File Permissions: 	
-CoreData: error: d
-CoreData: error: d
-CoreData: error:   755
-CoreData: error:   755
-CoreData: error:   component is not a symbolic link
-CoreData: error:   component is not a symbolic link
-CoreData: error:   component is readable
-CoreData: error:   component is readable
-CoreData: error:   component is writeable
-CoreData: error:   component is writeable
-CoreData: error: Information for /Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers/Data/Application/675905E5-23B9-4EE9-BBF4-BDD553B99C87
-CoreData: error: Information for /Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers/Data/Application/675905E5-23B9-4EE9-BBF4-BDD553B99C87
-CoreData: error:   File Device ID: 	0
-CoreData: error:   File Device ID: 	0
-CoreData: error:   Device ID: 		16777231
-CoreData: error:   Device ID: 		16777231
-CoreData: error:   File Size: 		224 bytes
-CoreData: error:   File Size: 		224 bytes
-CoreData: error:   File inode: 		24734240
-CoreData: error:   File inode: 		24734240
-CoreData: error:   File user ID: 		501
-CoreData: error:   File user ID: 		501
-CoreData: error:   File group ID: 		20
-CoreData: error:   File group ID: 		20
-CoreData: error:   File Permissions:
-CoreData: error:   File Permissions: 	
-CoreData: error: d
-CoreData: error: d
-CoreData: error:   755
-CoreData: error:   755
-CoreData: error:   component is not a symbolic link
-CoreData: error:   component is not a symbolic link
-CoreData: error:   component is readable
-CoreData: error:   component is readable
-CoreData: error:   component is writeable
-CoreData: error:   component is writeable
-CoreData: error: Information for /Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers/Data/Application/675905E5-23B9-4EE9-BBF4-BDD553B99C87/Library
-CoreData: error: Information for /Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers/Data/Application/675905E5-23B9-4EE9-BBF4-BDD553B99C87/Library
-CoreData: error:   File Device ID: 	0
-CoreData: error:   File Device ID: 	0
-CoreData: error:   Device ID: 		16777231
-CoreData: error:   Device ID: 		16777231
-CoreData: error:   File Size: 		160 bytes
-CoreData: error:   File Size: 		160 bytes
-CoreData: error:   File inode: 		24734242
-CoreData: error:   File inode: 		24734242
-CoreData: error:   File user ID: 		501
-CoreData: error:   File user ID: 		501
-CoreData: error:   File group ID: 		20
-CoreData: error:   File group ID: 		20
-CoreData: error:   File Permissions:
-CoreData: error:   File Permissions: 	
-CoreData: error: d
-CoreData: error: d
-CoreData: error:   755
-CoreData: error:   755
-CoreData: error:   component is not a symbolic link
-CoreData: error:   component is not a symbolic link
-CoreData: error:   component is readable
-CoreData: error:   component is readable
-CoreData: error:   component is writeable
-CoreData: error:   component is writeable
-CoreData: error: Failed to stat path '/Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers/Data/Application/675905E5-23B9-4EE9-BBF4-BDD553B99C87/Library/Application Support', errno 2 / No such file or directory.
-CoreData: error: Failed to stat path '/Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers/Data/Application/675905E5-23B9-4EE9-BBF4-BDD553B99C87/Library/Application Support', errno 2 / No such file or directory.
-CoreData: error:   Sandbox access to file-write-create denied
-CoreData: error:   Sandbox access to file-write-create denied
-CoreData: error: addPersistentStoreWithType:configuration:URL:options:error: returned error NSCocoaErrorDomain (512)
-CoreData: error: addPersistentStoreWithType:configuration:URL:options:error: returned error NSCocoaErrorDomain (512)
-CoreData: error: userInfo:
-CoreData: error: userInfo:
-CoreData: error: 	reason : Failed to create file; code = 2
-CoreData: error: 	reason : Failed to create file; code = 2
-CoreData: error: storeType: SQLite
-CoreData: error: storeType: SQLite
-CoreData: error: configuration: default
-CoreData: error: configuration: default
-CoreData: error: URL: file:///Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers/Data/Application/675905E5-23B9-4EE9-BBF4-BDD553B99C87/Library/Application%20Support/default.store
-CoreData: error: URL: file:///Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers/Data/Application/675905E5-23B9-4EE9-BBF4-BDD553B99C87/Library/Application%20Support/default.store
-CoreData: annotation: options:
-CoreData: annotation: 	NSMigratePersistentStoresAutomaticallyOption : 1
-CoreData: annotation: 	NSInferMappingModelAutomaticallyOption : 1
-CoreData: annotation: 	NSPersistentStoreRemoteChangeNotificationOptionKey : 1
-CoreData: annotation: 	NSPersistentHistoryTrackingKey : 1
-CoreData: error: <NSPersistentStoreCoordinator: 0x600002c30100>: Attempting recovery from error encountered during addPersistentStore: 0x600000c2afa0 Error Domain=NSCocoaErrorDomain Code=512 "Nie można zachować pliku." UserInfo={reason=Failed to create file; code = 2}
-CoreData: error: <NSPersistentStoreCoordinator: 0x600002c30100>: Attempting recovery from error encountered during addPersistentStore: 0x600000c2afa0 Error Domain=NSCocoaErrorDomain Code=512 "Nie można zachować pliku." UserInfo={reason=Failed to create file; code = 2}
-CoreData: error: During recovery, parent directory path reported as missing
-CoreData: error: During recovery, parent directory path reported as missing
-CoreData: error: Recovery attempt while adding <NSPersistentStoreDescription: 0x600000c2afa0> (type: SQLite, url: file:///Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers/Data/Application/675905E5-23B9-4EE9-BBF4-BDD553B99C87/Library/Application%20Support/default.store) was successful!
-CoreData: error: Recovery attempt while adding <NSPersistentStoreDescription: 0x600000c2afa0> (type: SQLite, url: file:///Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers/Data/Application/675905E5-23B9-4EE9-BBF4-BDD553B99C87/Library/Application%20Support/default.store) was successful!
 Applied file protection to 3 database files, excluded 3 from backup
-Localization: Loaded bundle for language 'pl' from path: /Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers/Bundle/Application/105B733E-FA5A-4735-B4C6-35974A3183CD/Dueasy_v2.app/pl.lproj
-Localization: Updated locale to 'pl' for date formatting
 Starting Keychain migration for security-sensitive settings...
-Localization: Loaded bundle for language 'pl' from path: /Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers/Bundle/Application/105B733E-FA5A-4735-B4C6-35974A3183CD/Dueasy_v2.app/pl.lproj
-Localization: Updated locale to 'pl' for date formatting
 Keychain migration completed
 Migrating keyword learning data from version 0 to 1
-Localization: Loaded bundle for language 'pl' from path: /Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers/Bundle/Application/105B733E-FA5A-4735-B4C6-35974A3183CD/Dueasy_v2.app/pl.lproj
-Localization: Updated locale to 'pl' for date formatting
 AppleVisionOCRService initialized with 2-pass recognition
 Recognition languages: pl-PL, en-US
 Standard pass minTextHeight: 0.012000
 Sensitive pass minTextHeight: 0.007000
+numANECores: Unknown aneSubType
 Vision supported languages: 30 languages
 RecurringDateService initialized with timezone: Europe/Warsaw
+Fraud detection services initialized
 Using Firebase subscription service (RevenueCat unavailable)
 Starting network monitoring
 Network monitor started
-Backup services initialized
-AppEnvironment initialized for tier: Pro (heavy services deferred)
-Saved value to Keychain for key 'security.cloudAnalysisEnabled'
-TESTING: Cloud analysis force-enabled
+AccessManager initialized with tier: Guest
+AccessManager initialized: tier=Guest
+Backup services initialized with access control
+AppEnvironment initialized (heavy services deferred)
 DuEasy app initialized
-Localization: Loaded bundle for language 'pl' from path: /Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers/Bundle/Application/105B733E-FA5A-4735-B4C6-35974A3183CD/Dueasy_v2.app/pl.lproj
-Localization: Updated locale to 'pl' for date formatting
 Current calendar permission: notDetermined, hasWriteAccess: false
-Starting auth bootstrap...
-No existing user, creating anonymous user...
-App became active
-Auth state changed: user signed out
-Initial subscription tier: Free
-Current notification permission: notDetermined, isAuthorized: false
-nw_socket_set_connection_idle [C1.1.1.1:3] setsockopt SO_CONNECTION_IDLE failed [42: Protocol not available]
-nw_socket_set_connection_idle [C1.1.1.1:3] setsockopt SO_CONNECTION_IDLE failed [42: Protocol not available]
-nw_socket_set_connection_idle [C2.1.1.1:3] setsockopt SO_CONNECTION_IDLE failed [42: Protocol not available]
-nw_socket_set_connection_idle [C2.1.1.1:3] setsockopt SO_CONNECTION_IDLE failed [42: Protocol not available]
-Auth state updated - isAppleLinked: false
-Auth state changed: user signed in
-Auth state updated - isAppleLinked: false
-Anonymous user created successfully
+Existing user found during initial bootstrap
+Auth state updated - isAppleLinked: true
 === APP STARTUP MIGRATIONS START ===
 Running vendor profile migrations...
 Checking for vendor migrations to global version 1
@@ -465,23 +42,580 @@ Backfilling vendor-only fingerprints for existing templates
 Backfilled 0 templates with vendor-only fingerprints
 No templates needed vendor-only fingerprint backfill
 === APP STARTUP MIGRATIONS COMPLETE ===
-nw_socket_set_connection_idle [C3.1.1.1:3] setsockopt SO_CONNECTION_IDLE failed [42: Protocol not available]
-nw_socket_set_connection_idle [C3.1.1.1:3] setsockopt SO_CONNECTION_IDLE failed [42: Protocol not available]
+App became active
+Auth state updated - isAppleLinked: true
+Auth state changed: user signed in
+Current notification permission: notDetermined, isAuthorized: false
+Access state changed: Guest -> Free
+Initial subscription tier: Free
 User skipped Apple Sign In
-Localization: Loaded bundle for language 'pl' from path: /Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers/Bundle/Application/105B733E-FA5A-4735-B4C6-35974A3183CD/Dueasy_v2.app/pl.lproj
-Localization: Updated locale to 'pl' for date formatting
-Requesting calendar permission...
-Calendar access request result: true
-Calendar permission result: true
-App became active
-Requesting notification permission...
-Notification authorization result: true
-Notification permission result: true
-App became active
-Completing onboarding - calendar: true, notifications: true
-Localization: Loaded bundle for language 'pl' from path: /Users/bart/Library/Developer/CoreSimulator/Devices/7B6C8BFB-255E-47BF-9D52-2B5429A31F0B/data/Containers/Bundle/Application/105B733E-FA5A-4735-B4C6-35974A3183CD/Dueasy_v2.app/pl.lproj
-Localization: Updated locale to 'pl' for date formatting
+Completing onboarding - calendar: false, notifications: false
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
 HomeViewModel.loadMetrics() called
 Computing Home metrics
 No documents found - returning empty state
 Home metrics loaded successfully
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Initialized VNDocumentCameraViewController (VisionKit document scanner)
+Scanner provides: edge detection, perspective correction, contrast enhancement
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+fopen failed for data file: errno = 2 (No such file or directory)
+Errors found! Invalidating cache...
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Unable to simultaneously satisfy constraints.
+	Probably at least one of the constraints in the following list is one you don't want. 
+	Try this: 
+		(1) look at each constraint and try to figure out which you don't expect; 
+		(2) find the code that added the unwanted constraint or constraints and fix it. 
+	(Note: If you're seeing NSAutoresizingMaskLayoutConstraints that you don't understand, refer to the documentation for the UIView property translatesAutoresizingMaskIntoConstraints) 
+(
+    "<NSAutoresizingMaskLayoutConstraint:0x11dc1de50 h=--& v=--& _TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x11dc2d880.width == 0   (active)>",
+    "<NSLayoutConstraint:0x11dc1d770 _TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x11dc2d880.leading == _UIButtonBarButton:0x11dc44000.leading   (active)>",
+    "<NSLayoutConstraint:0x11dc1d7c0 H:[_UIButtonBarButton:0x11dc44000]-(0)-|   (active, names: '|':_TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x11dc2d880 )>",
+    "<NSLayoutConstraint:0x11dc1d590 'IB_Leading_Leading' H:|-(2)-[_UIModernBarButton:0x11e357480]   (active, names: '|':_UIButtonBarButton:0x11dc44000 )>",
+    "<NSLayoutConstraint:0x11dc1d5e0 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x11e357480]-(2)-|   (active, names: '|':_UIButtonBarButton:0x11dc44000 )>"
+)
+
+Will attempt to recover by breaking constraint 
+<NSLayoutConstraint:0x11dc1d5e0 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x11e357480]-(2)-|   (active, names: '|':_UIButtonBarButton:0x11dc44000 )>
+
+Make a symbolic breakpoint at UIViewAlertForUnsatisfiableConstraints to catch this in the debugger.
+The methods in the UIConstraintBasedLayoutDebugging category on UIView listed in <UIKitCore/UIView.h> may also be helpful.
+fopen failed for data file: errno = 2 (No such file or directory)
+Errors found! Invalidating cache...
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+App became active
+Unable to simultaneously satisfy constraints.
+	Probably at least one of the constraints in the following list is one you don't want. 
+	Try this: 
+		(1) look at each constraint and try to figure out which you don't expect; 
+		(2) find the code that added the unwanted constraint or constraints and fix it. 
+	(Note: If you're seeing NSAutoresizingMaskLayoutConstraints that you don't understand, refer to the documentation for the UIView property translatesAutoresizingMaskIntoConstraints) 
+(
+    "<NSAutoresizingMaskLayoutConstraint:0x11f17f5c0 h=--& v=--& _TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x11df68a80.width == 0   (active)>",
+    "<NSLayoutConstraint:0x11f17ed50 _TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x11df68a80.leading == _UIButtonBarButton:0x11ca66800.leading   (active)>",
+    "<NSLayoutConstraint:0x11f17ee90 H:[_UIButtonBarButton:0x11ca66800]-(0)-|   (active, names: '|':_TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x11df68a80 )>",
+    "<NSLayoutConstraint:0x11f17efd0 'IB_Leading_Leading' H:|-(2)-[_UIModernBarButton:0x11e355880]   (active, names: '|':_UIButtonBarButton:0x11ca66800 )>",
+    "<NSLayoutConstraint:0x11f17eda0 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x11e355880]-(2)-|   (active, names: '|':_UIButtonBarButton:0x11ca66800 )>"
+)
+
+Will attempt to recover by breaking constraint 
+<NSLayoutConstraint:0x11f17eda0 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x11e355880]-(2)-|   (active, names: '|':_UIButtonBarButton:0x11ca66800 )>
+
+Make a symbolic breakpoint at UIViewAlertForUnsatisfiableConstraints to catch this in the debugger.
+The methods in the UIConstraintBasedLayoutDebugging category on UIView listed in <UIKitCore/UIView.h> may also be helpful.
+Document scan completed: 1 page(s) scanned
+Images are pre-processed by VisionKit for optimal OCR quality
+Created draft document without title - fingerprint will be set on finalize
+CREATE: Inserting document E868A861-4726-4D12-BDFA-2729D7B37ABF
+SAVE: Context saved and committed
+CREATE: Document E868A861-4726-4D12-BDFA-2729D7B37ABF saved successfully
+Storage create_directory: pages=0, success=true
+Storage save: pages=1, success=true
+UPDATE: Updating document E868A861-4726-4D12-BDFA-2729D7B37ABF
+SAVE: Context saved and committed
+UPDATE: Document E868A861-4726-4D12-BDFA-2729D7B37ABF updated successfully
+Lazy init: HybridAnalysisRouter (decision-based routing)
+Lazy init: LayoutFirstInvoiceParser
+LayoutFirstInvoiceParser initialized
+Skipping duplicate analysis start - already processed or in progress
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+Processing 1 images for document E868A861-4726-4D12-BDFA-2729D7B37ABF
+Auth already bootstrapped: signedIn=true
+Extraction decision: cloudAllowed(remaining: 3)
+Original image: 1960x2868
+Processed image: 1960x2868
+Preprocessing applied: sharpen
+Starting 2-pass OCR: Standard + Sensitive passes
+OCR pass Standard configured: minTextHeight=0.012000
+👁️ Vision returned 75 observations for Standard pass
+OCR pass 'Standard': lines=75, avgConfidence=0.980
+OCR pass Sensitive configured: minTextHeight=0.007000
+👁️ Vision returned 74 observations for Sensitive pass
+OCR pass 'Sensitive': lines=74, avgConfidence=0.980
+Merging: Standard=75 lines, Sensitive=74 lines
+Merge complete: 71 duplicates removed, 3 new lines added, 78 total
+OCR completed: lines=78, avgConfidence=0.98, duration=0.00s
+OCR completed: 1354 chars, 78 lines, confidence: 0.981
+OCR line sources: standard=75, sensitive=3, merged=0
+OCR confidence: high=75, medium=0, low=3
+Decision-based routing: cloudAllowed, remaining=3
+Cloud analysis started: textLength=1354, imageCount=1
+🔑 Checking Firebase authentication...
+🔑 Auth status: signedIn=true, hasUserId=true
+🔑 User ID (preview): lfGmft8p...
+🔵 Calling Firebase function 'analyzeDocument' (attempt 1/4)
+Analysis started: type=invoice, textLength=1354, lines=78
+Language detection: polish=9, english=0
+Document language detected: polish
+Analyzing layout for 78 lines
+Grouped into 22 rows
+Detected 4 columns
+Partitioned into 9 non-empty blocks
+Block bottomCenter: 4 lines
+Block bottomLeft: 3 lines
+Block bottomRight: 1 lines
+Block middleCenter: 21 lines
+Block middleLeft: 9 lines
+Block middleRight: 19 lines
+Block topCenter: 9 lines
+Block topLeft: 10 lines
+Block topRight: 2 lines
+Layout analysis: 22 rows, 4 columns
+Block topLeft: 10 lines
+Block topCenter: 9 lines
+Block topRight: 2 lines
+Block middleLeft: 9 lines
+Block middleCenter: 21 lines
+Block middleRight: 19 lines
+Block bottomLeft: 3 lines
+Block bottomCenter: 4 lines
+Block bottomRight: 1 lines
+Detected 32 anchors in 78 lines
+Anchor: vendorLabel conf=1.00 pattern='sprzedawca'
+Anchor: buyerLabel conf=1.00 pattern='nabywca'
+Anchor: nipLabel conf=1.00 pattern='nip'
+Anchor: nipLabel conf=1.00 pattern='nip'
+Anchor: invoiceNumberLabel conf=1.00 pattern='faktura vat'
+Detected 32 anchors, 9 types
+Found NIP/Tax ID anchor
+Found vendor anchor at Y=0.149
+Vendor accepted with company suffix: 'TOYOTA LEASING POLSKA Sp. z o.o.'
+Vendor block captured: name + 3 address lines
+NIP-based vendor: confidence=0.950, suffix=false, address=true, vendorSection=true
+Cross-validated vendor candidate: 2 strategies agree, boost=0.050000
+Found amount anchor
+Direct line-scan found definitive amount keyword at line 55, y=0.618
+Amount extraction: found 14 raw candidates, 7 after dedup
+  Candidate 1: confidence=0.960, y=0.62, source=do-zaplaty: do zapłaty
+  Candidate 2: confidence=0.350, y=0.53, source=pattern: amount
+  Candidate 3: confidence=0.350, y=0.53, source=pattern: amount
+  Candidate 4: confidence=0.350, y=0.60, source=pattern: amount
+  Candidate 5: confidence=0.350, y=0.60, source=pattern: amount
+Score gap to 2nd place: 0.610
+Selected amount: confidence=0.960, source=do-zaplaty: do zapłaty
+Date ranking: 2 candidates (deduped), top score: 80.0
+Date extraction: found 2 candidates
+  Date candidate 1: confidence=0.80, source=date-ranking: old-past-date-penalty, near-due-date-anchor [yyyy-MM-dd]
+  Date candidate 2: confidence=0.50, source=date-ranking: old-past-date-penalty, close-to-anchor [yyyy-MM-dd]
+Found invoice number anchor
+Found bank account anchor
+Built candidates: vendor=3, nip=3, amount=3, date=2, docNum=2, bank=1
+Field extracted: type=vendor, method=anchor, confidence=1.00, candidates=3
+  Vendor candidate 1: confidence=1.000, source=vendor-block-capture: sprzedawca, hasSuffix=true
+  Vendor candidate 2: confidence=1.000, source=nip-block: above NIP [cross-validated], hasSuffix=false
+  Vendor candidate 3: confidence=0.700, source=region-block: topLeft, hasSuffix=false
+Parsing completed: fields=4/4, confidence=1.00
+Local candidate generation completed: 14 total candidates
+✅ Firebase function 'analyzeDocument' completed successfully
+OpenAI extraction: hasVendor=true, hasAddress=true, hasNIP=true
+OpenAI returned dueDate string (length=10)
+Parsed dueDate with ISO8601 format
+Quota updated from backend: 1/3 used, 2 remaining
+Cloud analysis completed: hasVendor=true, hasAmount=true, hasDate=true
+Analysis completed: vendor=true, amount=true, date=true, invoice#=true
+Applied vendor template for NIP: [NIP:***664]
+OCR/Parsing result: hasVendor=true, hasAmount=true, hasDueDate=true, confidence=0.980769, mode=cloud
+Set vendor with confidence 1.000000, mode: suggested
+Set amount with confidence 1.000000, mode: suggested
+Found 3 suggested amounts
+Set dueDate with confidence 1.000000, mode: suggested
+Populating ViewModel fields: vendorCandidates=3, amountCandidates=3, dateCandidates=2, nipCandidates=3, docNumCandidates=2, bankCandidates=1
+Deleting document: E868A861-4726-4D12-BDFA-2729D7B37ABF
+Extracted values - calendarEventId: nil, fileURL: /var/mobile/Containers/Data/Application/7FECFF6D-E077-4568-918D-65AA345BCEF0/Documents/ScannedDocuments/4E7A2591-308B-4852-BADA-6E9E83A07F93, recurringInstanceId: nil
+Cancelled 0 notifications for document: E868A861-4726-4D12-BDFA-2729D7B37ABF
+Cancelled notifications for document
+Storage delete: pages=0, success=true
+Deleted document file: /var/mobile/Containers/Data/Application/7FECFF6D-E077-4568-918D-65AA345BCEF0/Documents/ScannedDocuments/4E7A2591-308B-4852-BADA-6E9E83A07F93
+SAVE: Context saved and committed
+Document E868A861-4726-4D12-BDFA-2729D7B37ABF deleted from SwiftData
+Document deleted successfully: E868A861-4726-4D12-BDFA-2729D7B37ABF
+HomeViewModel.loadMetrics() called
+Computing Home metrics
+No documents found - returning empty state
+Home metrics loaded successfully
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Permission calendar: granted=false
+Permission notifications: granted=false
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Signed out
+User signed out
+Re-bootstrap: Creating new anonymous user after sign-out...
+Auth state changed: user signed out
+Auth state updated - isAppleLinked: false
+Auth state changed: user signed in
+Auth state updated - isAppleLinked: false
+Anonymous user created successfully
+Failed to create 1206x0 image slot (alpha=1 wide=1) (client=0xf9bf731) [0x5 (os/kern) failure]
+Permission calendar: granted=false
+Permission notifications: granted=false
+Starting Apple credential linking for user: D7VhDXxPuHPu60EeOxJe587zHXW2
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+Apple Sign In completed successfully
+Apple account already linked to another Firebase user
+App became active
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+App became active
+Apple Sign In completed successfully
+Auth state updated - isAppleLinked: true
+Auth state changed: user signed in
+Signed in with Apple
+Auth state updated - isAppleLinked: true
+HomeViewModel.loadMetrics() called
+Computing Home metrics
+No documents found - returning empty state
+Home metrics loaded successfully
+Signed out
+User signed out
+Re-bootstrap: Creating new anonymous user after sign-out...
+Auth state changed: user signed out
+Auth state updated - isAppleLinked: false
+Auth state changed: user signed in
+Auth state updated - isAppleLinked: false
+Anonymous user created successfully
+HomeViewModel.loadMetrics() called
+Computing Home metrics
+No documents found - returning empty state
+Home metrics loaded successfully
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Initialized VNDocumentCameraViewController (VisionKit document scanner)
+Scanner provides: edge detection, perspective correction, contrast enhancement
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Unable to simultaneously satisfy constraints.
+	Probably at least one of the constraints in the following list is one you don't want. 
+	Try this: 
+		(1) look at each constraint and try to figure out which you don't expect; 
+		(2) find the code that added the unwanted constraint or constraints and fix it. 
+	(Note: If you're seeing NSAutoresizingMaskLayoutConstraints that you don't understand, refer to the documentation for the UIView property translatesAutoresizingMaskIntoConstraints) 
+(
+    "<NSAutoresizingMaskLayoutConstraint:0x121e46c60 h=--& v=--& _TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x121cf32c0.width == 0   (active)>",
+    "<NSLayoutConstraint:0x121cae710 _TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x121cf32c0.leading == _UIButtonBarButton:0x11f639680.leading   (active)>",
+    "<NSLayoutConstraint:0x121caefd0 H:[_UIButtonBarButton:0x11f639680]-(0)-|   (active, names: '|':_TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x121cf32c0 )>",
+    "<NSLayoutConstraint:0x11f331950 'IB_Leading_Leading' H:|-(2)-[_UIModernBarButton:0x11df27b80]   (active, names: '|':_UIButtonBarButton:0x11f639680 )>",
+    "<NSLayoutConstraint:0x11f331e00 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x11df27b80]-(2)-|   (active, names: '|':_UIButtonBarButton:0x11f639680 )>"
+)
+
+Will attempt to recover by breaking constraint 
+<NSLayoutConstraint:0x11f331e00 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x11df27b80]-(2)-|   (active, names: '|':_UIButtonBarButton:0x11f639680 )>
+
+Make a symbolic breakpoint at UIViewAlertForUnsatisfiableConstraints to catch this in the debugger.
+The methods in the UIConstraintBasedLayoutDebugging category on UIView listed in <UIKitCore/UIView.h> may also be helpful.
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+Unable to simultaneously satisfy constraints.
+	Probably at least one of the constraints in the following list is one you don't want. 
+	Try this: 
+		(1) look at each constraint and try to figure out which you don't expect; 
+		(2) find the code that added the unwanted constraint or constraints and fix it. 
+	(Note: If you're seeing NSAutoresizingMaskLayoutConstraints that you don't understand, refer to the documentation for the UIView property translatesAutoresizingMaskIntoConstraints) 
+(
+    "<NSAutoresizingMaskLayoutConstraint:0x11f6c3750 h=--& v=--& _TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x121d19880.width == 0   (active)>",
+    "<NSLayoutConstraint:0x11f5c15e0 _TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x121d19880.leading == _UIButtonBarButton:0x11f639b80.leading   (active)>",
+    "<NSLayoutConstraint:0x11f5c1220 H:[_UIButtonBarButton:0x11f639b80]-(0)-|   (active, names: '|':_TtCC5UIKit19NavigationButtonBar15ItemWrapperView:0x121d19880 )>",
+    "<NSLayoutConstraint:0x11f5c2670 'IB_Leading_Leading' H:|-(2)-[_UIModernBarButton:0x11f224380]   (active, names: '|':_UIButtonBarButton:0x11f639b80 )>",
+    "<NSLayoutConstraint:0x11f5c1b30 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x11f224380]-(2)-|   (active, names: '|':_UIButtonBarButton:0x11f639b80 )>"
+)
+
+Will attempt to recover by breaking constraint 
+<NSLayoutConstraint:0x11f5c1b30 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x11f224380]-(2)-|   (active, names: '|':_UIButtonBarButton:0x11f639b80 )>
+
+Make a symbolic breakpoint at UIViewAlertForUnsatisfiableConstraints to catch this in the debugger.
+The methods in the UIConstraintBasedLayoutDebugging category on UIView listed in <UIKitCore/UIView.h> may also be helpful.
+UIColor created with component values far outside the expected range. Set a breakpoint on UIColorBreakForOutOfRangeColorComponents to debug. This message will only be logged once.
+Document scan completed: 1 page(s) scanned
+Images are pre-processed by VisionKit for optimal OCR quality
+Created draft document without title - fingerprint will be set on finalize
+CREATE: Inserting document AD1AF074-7160-4F63-957D-A021A5D7D9B5
+SAVE: Context saved and committed
+CREATE: Document AD1AF074-7160-4F63-957D-A021A5D7D9B5 saved successfully
+Storage save: pages=1, success=true
+UPDATE: Updating document AD1AF074-7160-4F63-957D-A021A5D7D9B5
+SAVE: Context saved and committed
+UPDATE: Document AD1AF074-7160-4F63-957D-A021A5D7D9B5 updated successfully
+Skipping duplicate analysis start - already processed or in progress
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+Requesting visual style in an implementation that has disabled it, returning nil. Behavior of caller is undefined.
+<<<< FigXPCUtilities >>>> signalled err=-17281 at <>:302
+<<<< FigCaptureSourceRemote >>>> Fig assert: "err == 0 " at bail (FigCaptureSourceRemote.m:569) - (err=-17281)
+Processing 1 images for document AD1AF074-7160-4F63-957D-A021A5D7D9B5
+Auth already bootstrapped: signedIn=true
+Access state changed: Free -> Guest
+Extraction decision: localOnly(reason: Dueasy_v2.LocalOnlyReason.notSignedIn)
+Original image: 1950x2866
+Processed image: 1950x2866
+Preprocessing applied: sharpen
+Starting 2-pass OCR: Standard + Sensitive passes
+OCR pass Standard configured: minTextHeight=0.012000
+👁️ Vision returned 74 observations for Standard pass
+OCR pass 'Standard': lines=74, avgConfidence=0.973
+OCR pass Sensitive configured: minTextHeight=0.007000
+👁️ Vision returned 72 observations for Sensitive pass
+OCR pass 'Sensitive': lines=72, avgConfidence=0.979
+Merging: Standard=74 lines, Sensitive=72 lines
+Merge complete: 69 duplicates removed, 3 new lines added, 77 total
+OCR completed: lines=77, avgConfidence=0.97, duration=0.00s
+OCR completed: 1368 chars, 77 lines, confidence: 0.974
+OCR line sources: standard=74, sensitive=3, merged=0
+OCR confidence: high=73, medium=0, low=4
+Decision-based routing: localOnly reason=notSignedIn
+Analysis started: type=invoice, textLength=1368, lines=77
+Language detection: polish=9, english=0
+Document language detected: polish
+Analyzing layout for 77 lines
+Grouped into 22 rows
+Detected 4 columns
+Partitioned into 9 non-empty blocks
+Block bottomCenter: 4 lines
+Block bottomLeft: 3 lines
+Block bottomRight: 1 lines
+Block middleCenter: 18 lines
+Block middleLeft: 8 lines
+Block middleRight: 23 lines
+Block topCenter: 8 lines
+Block topLeft: 10 lines
+Block topRight: 2 lines
+Layout analysis: 22 rows, 4 columns
+Block topLeft: 10 lines
+Block topCenter: 8 lines
+Block topRight: 2 lines
+Block middleLeft: 8 lines
+Block middleCenter: 18 lines
+Block middleRight: 23 lines
+Block bottomLeft: 3 lines
+Block bottomCenter: 4 lines
+Block bottomRight: 1 lines
+Detected 35 anchors in 77 lines
+Anchor: vendorLabel conf=1.00 pattern='sprzedawca'
+Anchor: buyerLabel conf=1.00 pattern='nabywca'
+Anchor: nipLabel conf=1.00 pattern='nip'
+Anchor: nipLabel conf=1.00 pattern='nip'
+Anchor: invoiceNumberLabel conf=1.00 pattern='faktura vat'
+Detected 35 anchors, 9 types
+Found NIP/Tax ID anchor
+Found vendor anchor at Y=0.146
+Vendor accepted with company suffix: 'TOYOTA LEASING POLSKA Sp. z o.o.'
+Vendor block captured: name + 3 address lines
+NIP-based vendor: confidence=0.950, suffix=false, address=true, vendorSection=true
+Cross-validated vendor candidate: 2 strategies agree, boost=0.050000
+Found amount anchor
+Direct line-scan found definitive amount keyword at line 54, y=0.609
+Amount extraction: found 14 raw candidates, 6 after dedup
+  Candidate 1: confidence=0.960, y=0.61, source=do-zaplaty: do zapłaty
+  Candidate 2: confidence=0.350, y=0.52, source=pattern: amount
+  Candidate 3: confidence=0.350, y=0.54, source=pattern: amount
+  Candidate 4: confidence=0.350, y=0.59, source=pattern: amount
+  Candidate 5: confidence=0.350, y=0.52, source=pattern: amount
+Score gap to 2nd place: 0.610
+Selected amount: confidence=0.960, source=do-zaplaty: do zapłaty
+Date ranking: 2 candidates (deduped), top score: 80.0
+Date extraction: found 2 candidates
+  Date candidate 1: confidence=0.80, source=date-ranking: old-past-date-penalty, near-due-date-anchor [yyyy-MM-dd]
+  Date candidate 2: confidence=0.50, source=date-ranking: old-past-date-penalty, close-to-anchor [yyyy-MM-dd]
+Found invoice number anchor
+Found bank account anchor
+Built candidates: vendor=3, nip=3, amount=3, date=2, docNum=2, bank=1
+Field extracted: type=vendor, method=anchor, confidence=1.00, candidates=3
+  Vendor candidate 1: confidence=1.000, source=nip-block: above NIP [cross-validated], hasSuffix=false
+  Vendor candidate 2: confidence=1.000, source=vendor-block-capture: sprzedawca, hasSuffix=true
+  Vendor candidate 3: confidence=0.700, source=region-block: topLeft, hasSuffix=false
+Parsing completed: fields=4/4, confidence=1.00
+Analysis completed: vendor=true, amount=true, date=true, invoice#=true
+Applied vendor template for NIP: [NIP:***213]
+OCR/Parsing result: hasVendor=true, hasAmount=true, hasDueDate=true, confidence=0.974026, mode=local_fallback
+Set vendor with confidence 1.000000, mode: suggested
+Set amount with confidence 0.960000, mode: suggested
+Found 3 suggested amounts
+Set dueDate with confidence 0.800000, mode: suggested
+Populating ViewModel fields: vendorCandidates=3, amountCandidates=3, dateCandidates=2, nipCandidates=3, docNumCandidates=2, bankCandidates=1
+Selected vendor alternative from vendor-block-capture: sprzedawca
+User selected alternative for vendor: index=1, confidence=1.000000, method=anchor
+Learning from alternative selection for vendor
+Created new vendor template
+Alternative selection learned for vendor. Template active: true
+Result accumulator timeout: 3.000000, exceeded.
+Unexpected missing conversation type, fallback to message
+Saving document - hasVendor: true, hasAmount: true, hasDueDate: true
+Calling finalizeUseCase (amount and date hidden for privacy)
+Recording corrections for adaptive learning
+Amount was corrected (values hidden for privacy)
+Learning from user correction for amount (valueLength=7)
+Generated 12 search variants for amount
+Found amount in OCR text (variantLength=8)
+Found context before value (length=50)
+Learned keyword for amount, confidence=60
+Saved 1 keywords for amount
+Retrieved 1 learned keywords for amount
+Learned keyword for amount, confidence=60
+Saved 2 keywords for amount
+Retrieved 2 learned keywords for amount
+Learned keyword for amount, confidence=60
+Saved 3 keywords for amount
+Vendor was corrected (values hidden for privacy)
+Learning from user correction for vendor (valueLength=32)
+Found context before value (length=26)
+Learned keyword for vendor, confidence=60
+Saved 1 keywords for vendor
+Retrieved 1 learned keywords for vendor
+Learned keyword for vendor, confidence=60
+Saved 2 keywords for vendor
+Retrieved 2 learned keywords for vendor
+Learned keyword for vendor, confidence=60
+Saved 3 keywords for vendor
+Retrieved 3 learned keywords for vendor
+Learned keyword for vendor, confidence=60
+Saved 4 keywords for vendor
+Retrieved 4 learned keywords for vendor
+Learned keyword for vendor, confidence=60
+Saved 5 keywords for vendor
+Invoice number was corrected (values hidden for privacy)
+Learning from user correction for invoiceNumber (valueLength=16)
+Found context before value (length=50)
+Learned keyword for invoiceNumber, confidence=60
+Saved 1 keywords for invoiceNumber
+Retrieved 1 learned keywords for invoiceNumber
+Learned keyword for invoiceNumber, confidence=60
+Saved 2 keywords for invoiceNumber
+Retrieved 2 learned keywords for invoiceNumber
+Learned keyword for invoiceNumber, confidence=60
+Saved 3 keywords for invoiceNumber
+Skipping generic keyword (length=7)
+Correction learning completed
+Feedback recorded successfully for document AD1AF074-7160-4F63-957D-A021A5D7D9B5
+Parsing feedback recorded (privacy-safe)
+Recording correction for field: vendor
+Created new vendor template
+Template updated successfully. Corrections count: 1, Active: false
+Recording correction for field: amount
+Created new vendor template
+Template updated successfully. Corrections count: 1, Active: false
+Recording correction for field: documentNumber
+Created new vendor template
+Template updated successfully. Corrections count: 1, Active: false
+Vendor template learning recorded for NIP: [NIP:***213]
+Finalizing document: hasTitle=true, currency=PLN (amount/date hidden for privacy)
+Document fields updated - hasNIP: true, hasAddress: true
+Generating fingerprint: name+NIP - nameLength=32
+Set vendor fingerprint: 99f75e7f4336aa61... for vendor (name hidden for privacy)
+Classified document as category: insurance, confidence: 0.60
+RecurringMatcherService available - attempting automatic match
+Attempting automatic recurring match for document
+Generating fingerprint: name+NIP+amount - nameLength=32, bucket=bucket_1100
+No recurring template found for vendor fingerprint or amount range
+No matching recurring instance found for document
+Calendar event creation skipped (skipCalendar=true)
+Saved learning data: amountCorrected=true, dueDateCorrected=false, vendorCorrected=true
+Privacy-safe learning data saved (no PII/financial data)
+Notification authorization: isAuthorized=false, enabled=true
+Notifications not updated - not authorized or disabled
+UPDATE: Updating document AD1AF074-7160-4F63-957D-A021A5D7D9B5
+SAVE: Context saved and committed
+UPDATE: Document AD1AF074-7160-4F63-957D-A021A5D7D9B5 updated successfully
+Document finalized and saved successfully
+Document saved successfully
+Analyzing document for anomalies
+HomeViewModel.loadMetrics() called
+Computing Home metrics
+Home metrics computed: upcoming7=1, overdue=1, recurring=0
+Home metrics loaded successfully
+Update NavigationRequestObserver tried to update multiple times per frame.
+First IBAN recorded for vendor
+Anomalies detected: types=["unusualFirstInvoiceAmount": 1, "bankAccountChanged": 1], severities=["info": 2]
+Analysis complete: 2 anomalies detected
+Fraud detection complete: 2 anomalies (critical: false, warning: false)
+Tracking element window has a non-placeholder input view: (null)
+Tracking element window has a non-placeholder input view: (null)
+Tracking element window has a non-placeholder input view: (null)
+Tracking element window has a non-placeholder input view: (null)
+Tracking element window has a non-placeholder input view: (null)

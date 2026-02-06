@@ -1,7 +1,10 @@
 import Foundation
-import UIKit
 import Observation
 import os.log
+
+#if canImport(UIKit)
+import UIKit
+#endif
 
 /// ViewModel for the document review screen.
 /// Handles OCR processing, field editing, feedback recording, and document finalization.
@@ -81,24 +84,31 @@ final class DocumentReviewViewModel {
     /// Extraction failure details (for UI display)
     var extractionFailure: ExtractionFailure?
 
-    /// Whether to show paywall sheet (user tapped upgrade button in banner)
+    /// Whether to show blocking paywall sheet.
+    /// Set to true when rate limit is exceeded. The user cannot proceed with
+    /// document analysis until they upgrade to Pro.
     var shouldShowPaywall: Bool = false
 
-    /// Rate limit info for banner display.
-    /// Set when cloud extraction rate limit was exceeded and local fallback was used.
-    /// When non-nil, the UI should show an informative banner with upgrade option.
+    /// Rate limit info for paywall display.
+    /// Set when cloud extraction rate limit was exceeded.
+    /// When non-nil AND shouldShowPaywall is true, the UI must show a blocking paywall.
     var rateLimitInfo: RateLimitInfo?
 
-    /// Whether rate limit banner should be shown.
-    /// True when extraction completed with rate limit fallback mode.
+    /// Whether rate limit info should be displayed in the UI.
+    /// True when rate limit info is available (for paywall or informational display).
     var shouldShowRateLimitBanner: Bool {
-        analysisResult?.extractionMode.isRateLimited == true || rateLimitInfo != nil
+        rateLimitInfo != nil
     }
 
-    /// Message to display in rate limit banner
+    /// Message to display in rate limit context (paywall or banner)
     var rateLimitBannerMessage: String {
-        rateLimitInfo?.bannerMessage ?? analysisResult?.rateLimitInfo?.bannerMessage ?? ""
+        rateLimitInfo?.statusMessage ?? ""
     }
+
+    // Access state
+    /// The extraction mode decision made for this analysis session.
+    /// Set before extraction starts. UI can use this for mode badges and messaging.
+    var extractionDecision: ExtractionModeDecision?
 
     // Permission state
     var calendarPermissionGranted: Bool = false
@@ -160,6 +170,21 @@ final class DocumentReviewViewModel {
     private let createRecurringTemplateUseCase: CreateRecurringTemplateFromDocumentUseCase?
     private let vendorFingerprintService: VendorFingerprintServiceProtocol?
     private let documentClassifierService: DocumentClassifierServiceProtocol?
+
+    /// Auth bootstrapper for ensuring Firebase auth is ready before cloud analysis.
+    /// Called idempotently before extraction to prevent auth timing races.
+    private let authBootstrapper: AuthBootstrapper?
+
+    /// Access manager for making extraction routing decisions.
+    /// When provided, the ViewModel uses `accessManager.makeAnalysisDecision()`
+    /// instead of relying on the router's internal logic.
+    private let accessManager: AccessManager?
+
+    /// Stored task for document analysis, decoupled from view lifecycle.
+    /// This prevents CancellationError when the view is dismissed during analysis.
+    /// Only cancelled when starting a new analysis or when the ViewModel is deallocated.
+    /// Using nonisolated(unsafe) to allow access from deinit.
+    nonisolated(unsafe) private var analysisTask: Task<Void, Never>?
 
     var documentId: UUID { document.id }
 
@@ -281,7 +306,9 @@ final class DocumentReviewViewModel {
         vendorTemplateService: VendorTemplateService? = nil,
         createRecurringTemplateUseCase: CreateRecurringTemplateFromDocumentUseCase? = nil,
         vendorFingerprintService: VendorFingerprintServiceProtocol? = nil,
-        documentClassifierService: DocumentClassifierServiceProtocol? = nil
+        documentClassifierService: DocumentClassifierServiceProtocol? = nil,
+        authBootstrapper: AuthBootstrapper? = nil,
+        accessManager: AccessManager? = nil
     ) {
         self.document = document
         self.images = images
@@ -295,6 +322,8 @@ final class DocumentReviewViewModel {
         self.createRecurringTemplateUseCase = createRecurringTemplateUseCase
         self.vendorFingerprintService = vendorFingerprintService
         self.documentClassifierService = documentClassifierService
+        self.authBootstrapper = authBootstrapper
+        self.accessManager = accessManager
 
         // Initialize reminder offsets and calendar settings from settings
         self.reminderOffsets = Set(settingsManager.defaultReminderOffsets)
@@ -302,18 +331,73 @@ final class DocumentReviewViewModel {
         self.addToCalendar = settingsManager.addToCalendarByDefault
     }
 
+    deinit {
+        // Cancel any in-flight analysis when the ViewModel is deallocated.
+        // This is the only place besides startAnalysis where cancellation occurs.
+        analysisTask?.cancel()
+    }
+
     // MARK: - Actions
 
-    func processImages() async {
-        // CRITICAL: Guard against multiple OCR runs
+    /// Starts document analysis in a stored task decoupled from view lifecycle.
+    /// This prevents CancellationError when the view is dismissed during analysis.
+    /// Safe to call multiple times -- guarded by hasProcessedOCR/isProcessingOCR.
+    ///
+    /// CRITICAL FIX: Guard flags are set SYNCHRONOUSLY here, before the Task is created.
+    /// This prevents a race condition where `onAppear` fires twice in rapid succession
+    /// before the Task has started executing. Without this, the second call would pass
+    /// the guard, cancel the first Task (which then sets hasProcessedOCR=true on cancellation
+    /// path), and the second Task's processImages() would be blocked by the first Task's flag.
+    /// Result: analysis never completes, user sees empty fields.
+    func startAnalysis() {
+        // CRITICAL: Guard against multiple OCR runs.
+        // Both flags are checked AND set synchronously (same MainActor turn)
+        // to prevent TOCTOU race between two rapid onAppear calls.
         guard !hasProcessedOCR && !isProcessingOCR else {
-            logger.warning("Skipping duplicate OCR processing - already processed or in progress")
+            logger.info("Skipping duplicate analysis start - already processed or in progress")
             return
         }
 
-        logger.info("Processing \(self.images.count) images for document \(self.document.id)")
+        // Set flags SYNCHRONOUSLY before creating the Task.
+        // This ensures a second call to startAnalysis() (from a rapid onAppear)
+        // will be blocked by the guard above, even if the Task hasn't started yet.
         isProcessingOCR = true
-        hasProcessedOCR = true  // Mark as processed immediately to prevent re-runs
+        hasProcessedOCR = true
+
+        // Cancel any previous task (should not happen due to guard above, but defensive)
+        analysisTask?.cancel()
+
+        // Run analysis in a stored task that survives view dismiss
+        analysisTask = Task { [weak self] in
+            guard let self else { return }
+            await self.processImages()
+        }
+    }
+
+    /// Explicitly retries document analysis after a failure or cancellation.
+    /// Unlike `startAnalysis()`, this resets the processed guard to allow a re-run.
+    /// Should only be called from an explicit user action (e.g., "Retry" button).
+    func retryAnalysis() {
+        logger.info("User requested analysis retry - resetting guards")
+        analysisTask?.cancel()
+        analysisTask = nil
+        hasProcessedOCR = false
+        isProcessingOCR = false
+        extractionProgress = .idle
+        error = nil
+        extractionFailure = nil
+        startAnalysis()
+    }
+
+    /// Internal implementation of document analysis.
+    /// Called from `startAnalysis()` inside a stored Task, NOT from a view `.task` modifier.
+    /// This ensures the analysis is not cancelled when the view disappears.
+    ///
+    /// NOTE: `isProcessingOCR` and `hasProcessedOCR` are already set by `startAnalysis()`
+    /// BEFORE this Task starts executing. This prevents the race condition where
+    /// `onAppear` fires twice before the Task begins.
+    private func processImages() async {
+        logger.info("Processing \(self.images.count) images for document \(self.document.id)")
         error = nil
         extractionFailure = nil
         shouldShowPaywall = false
@@ -323,14 +407,74 @@ final class DocumentReviewViewModel {
         // Update progress state
         extractionProgress = .ocrProcessing
 
+        // RELIABILITY FIX: Ensure Firebase auth is bootstrapped before cloud analysis.
+        // bootstrap() is idempotent -- if auth is already ready, this returns immediately.
+        // This prevents the race condition where analysis starts before DuEasyApp.task{} completes.
+        //
+        // CRITICAL FIX: Only attempt auth bootstrap when online.
+        // When offline, auth bootstrap tries Auth.auth().signInAnonymously() which
+        // requires network and will hang/timeout, blocking the entire analysis pipeline.
+        // Local OCR and parsing require NO authentication, so we skip bootstrap when offline.
+        if let authBootstrapper {
+            if authBootstrapper.hasBootstrapped {
+                // Already bootstrapped (success or failure) - no delay
+                logger.info("Auth already bootstrapped: signedIn=\(authBootstrapper.isSignedIn)")
+            } else {
+                // Not yet bootstrapped - only attempt if online
+                // This prevents blocking the entire pipeline when offline
+                logger.info("Auth not yet bootstrapped, checking network before attempting...")
+                // Note: We don't inject networkMonitor into the VM, so we check
+                // auth bootstrapper state directly. If bootstrap hasn't completed,
+                // we give it a short window to complete (it may have been started
+                // by DuEasyApp.task{} already), but don't block indefinitely.
+                let bootstrapTask = Task {
+                    await authBootstrapper.bootstrap()
+                }
+                // Wait at most 3 seconds for auth bootstrap to complete.
+                // If it takes longer (offline/slow network), proceed without auth.
+                // Cloud analysis will gracefully fall back to local in the router.
+                let timeoutTask = Task {
+                    try await Task.sleep(nanoseconds: 3_000_000_000)
+                }
+                // Race: whichever finishes first wins
+                _ = await withTaskGroup(of: Void.self) { group in
+                    group.addTask { await bootstrapTask.value }
+                    group.addTask { try? await timeoutTask.value }
+                    // Wait for the first to complete, then cancel the rest
+                    await group.next()
+                    group.cancelAll()
+                }
+                logger.info("Auth bootstrap result (with timeout): signedIn=\(authBootstrapper.isSignedIn), hasBootstrapped=\(authBootstrapper.hasBootstrapped)")
+            }
+        }
+
         do {
+            // Check for cancellation before starting expensive work
+            try Task.checkCancellation()
+
             // Update progress: now extracting
-            extractionProgress = .extracting(mode: nil)
+            // CRITICAL FIX: Compute extraction decision from AccessManager BEFORE calling use case.
+            // This is the single decision point that enforces guest/free/pro access rules.
+            // Without this, the legacy routing path allows ALL users (including guests)
+            // to reach cloud analysis -- the root cause of the guest cloud access bug.
+            let decision: ExtractionModeDecision? = accessManager?.makeAnalysisDecision()
+            if let decision = decision {
+                extractionDecision = decision
+                logger.info("Extraction decision: \(String(describing: decision))")
+                extractionProgress = .extracting(mode: nil)
+            } else {
+                logger.warning("No AccessManager available -- extraction will use legacy routing (no access control)")
+                extractionProgress = .extracting(mode: nil)
+            }
 
             var result = try await extractUseCase.execute(
                 images: images,
-                documentType: document.type
+                documentType: document.type,
+                decision: decision
             )
+
+            // Check for cancellation after extraction
+            try Task.checkCancellation()
 
             // Update progress: now parsing
             extractionProgress = .parsing
@@ -353,18 +497,23 @@ final class DocumentReviewViewModel {
             // Populate fields and determine review modes
             populateFieldsFromResult(result)
 
-            // Check if rate limit fallback was used - update rateLimitInfo for banner display
-            if result.extractionMode.isRateLimited, let limitInfo = result.rateLimitInfo {
-                self.rateLimitInfo = limitInfo
-                logger.info("Extraction used rate limit fallback: \(limitInfo.used)/\(limitInfo.limit)")
-            }
-
             // Mark extraction as completed
             extractionProgress = .completed(result: ExtractionResult(
                 mode: result.extractionMode,
                 confidence: result.overallConfidence,
                 hasExtractedFields: result.vendorName != nil || result.amount != nil || result.dueDate != nil
             ))
+
+        } catch is CancellationError {
+            // Task was cancelled (e.g., ViewModel deallocated or new analysis started).
+            // This is expected and NOT an error. Do not update error state.
+            logger.info("Analysis task was cancelled - not an error")
+            // RACE CONDITION FIX: Do NOT reset hasProcessedOCR here.
+            // Resetting it allowed onAppear (which fires multiple times in SwiftUI)
+            // to restart analysis immediately after cancellation, causing every document
+            // to be analysed twice: once cancelled, once completed. This doubled auth
+            // bootstrap calls and added latency to every scan.
+            // If a genuine retry is needed, the caller must explicitly reset the flag.
 
         } catch let cloudError as CloudExtractionError {
             // Handle cloud extraction errors with proper categorization
@@ -396,8 +545,9 @@ final class DocumentReviewViewModel {
 
     /// Handles CloudExtractionError with proper categorization.
     ///
-    /// NOTE: Rate limit errors are now handled by the router with local fallback,
-    /// so they should not reach here. If they do, we still handle gracefully.
+    /// MONETIZATION CRITICAL: Rate limit errors trigger a **blocking paywall**.
+    /// The user cannot proceed with document analysis until they upgrade.
+    /// This is the intended behavior to enforce the free tier limit of 3 per month.
     private func handleCloudExtractionError(_ error: CloudExtractionError) {
         logger.error("Cloud extraction error: \(error.localizedDescription)")
 
@@ -406,15 +556,16 @@ final class DocumentReviewViewModel {
 
         switch error {
         case .rateLimitExceeded(let used, let limit, let resetDate):
-            // NOTE: This should not normally be reached since router now falls back to local.
-            // If it does reach here (e.g., local fallback also failed), show banner not blocking paywall.
-            logger.warning("Rate limit error reached ViewModel (should have been handled by router): \(used)/\(limit)")
+            // MONETIZATION: Rate limit exceeded - show blocking paywall.
+            // The user CANNOT continue analyzing documents until they upgrade.
+            // This is thrown by HybridAnalysisRouter when the backend or local
+            // failsafe reports the monthly limit has been reached.
+            logger.warning("Rate limit exceeded: \(used)/\(limit). Showing blocking paywall.")
 
             self.rateLimitInfo = RateLimitInfo(used: used, limit: limit, resetDate: resetDate)
-            // Do NOT show blocking paywall - user can still continue with manual entry
-            // Banner will be shown via shouldShowRateLimitBanner computed property
+            self.shouldShowPaywall = true
 
-            // Map to AppError for legacy error handling
+            // Set error for legacy handling paths
             self.error = .cloudServiceUnavailable
             extractionProgress = .failed(extractionFailure!)
 
@@ -449,10 +600,12 @@ final class DocumentReviewViewModel {
         // Note: rateLimitInfo is kept for banner display
     }
 
-    /// Dismisses the rate limit banner (user chose to continue with local extraction).
+    /// Dismisses the rate limit banner.
+    /// Note: With the blocking paywall, this is used when the paywall is dismissed
+    /// (user navigates back). The rate limit info is cleared.
     func dismissRateLimitBanner() {
         rateLimitInfo = nil
-        logger.info("User dismissed rate limit banner, continuing with local extraction")
+        logger.info("Rate limit banner dismissed")
     }
 
     /// Populate fields from analysis result and set review modes
@@ -634,7 +787,8 @@ final class DocumentReviewViewModel {
                 bankAccountNumber: bankAccountNumber.isEmpty ? nil : bankAccountNumber,
                 notes: notes.isEmpty ? nil : notes,
                 reminderOffsets: Array(reminderOffsets).sorted(by: >),
-                skipCalendar: !addToCalendar
+                skipCalendar: !addToCalendar,
+                ocrText: ocrText.isEmpty ? nil : ocrText
             )
 
             // Mark as paid if requested

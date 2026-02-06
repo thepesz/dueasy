@@ -48,6 +48,9 @@ function calculateResetDate() {
 /**
  * Get current usage for a user this month.
  *
+ * IMPORTANT: This function handles all Firestore errors gracefully.
+ * It will never throw - returns default values on any error.
+ *
  * @param {string} uid - Firebase user ID
  * @returns {Promise<{count: number, limit: number, tier: string}>} Current usage info
  */
@@ -55,11 +58,30 @@ async function getUsage(uid) {
   const monthKey = getMonthKey();
   const usageKey = `usage:${uid}:${monthKey}`;
 
-  const db = admin.firestore();
-  const usageDoc = await db.collection('usage').doc(usageKey).get();
+  let currentCount = 0;
 
-  const currentCount = usageDoc.exists ? (usageDoc.data().count || 0) : 0;
-  const tier = await getUserTier(uid);
+  // Safely get usage document
+  try {
+    const db = admin.firestore();
+    const usageDoc = await db.collection('usage').doc(usageKey).get();
+    if (usageDoc && usageDoc.exists) {
+      const data = usageDoc.data();
+      currentCount = (data && data.count) || 0;
+    }
+  } catch (usageError) {
+    console.log('Error fetching usage document (defaulting to 0):', usageError?.message);
+    currentCount = 0;
+  }
+
+  // Get tier with fallback to 'free' on any error
+  let tier = 'free';
+  try {
+    tier = await getUserTier(uid);
+  } catch (error) {
+    console.warn('Error getting user tier in getUsage, defaulting to free:', error?.message);
+    tier = 'free';
+  }
+
   const limit = MONTHLY_LIMITS[tier] || MONTHLY_LIMITS.free;
 
   return {
@@ -75,6 +97,9 @@ async function getUsage(uid) {
  * This is an atomic operation - it checks and increments in one transaction
  * to prevent race conditions when user makes multiple rapid requests.
  *
+ * IMPORTANT: This function now logs detailed errors but still fails-open for UX.
+ * Set USAGE_FAIL_CLOSED=true environment variable to fail-closed for testing.
+ *
  * @param {string} uid - Firebase user ID
  * @returns {Promise<{allowed: boolean, used: number, limit: number, tier: string, resetDate?: Date, error?: Object}>}
  */
@@ -82,63 +107,148 @@ async function checkAndIncrementUsage(uid) {
   const monthKey = getMonthKey();
   const usageKey = `usage:${uid}:${monthKey}`;
 
-  const db = admin.firestore();
-  const usageRef = db.collection('usage').doc(usageKey);
+  console.log('[UsageCounter] Starting check for:', {uid, monthKey, usageKey});
 
-  // Get user's tier and limit
-  const tier = await getUserTier(uid);
+  // Get user's tier and limit with fallback to 'free' on any error
+  // This MUST be outside the transaction to avoid nested async issues
+  let tier = 'free';
+  try {
+    tier = await getUserTier(uid);
+    console.log('[UsageCounter] Got user tier:', tier);
+  } catch (error) {
+    console.warn('[UsageCounter] Error getting user tier, defaulting to free:', {
+      error: error?.message,
+      code: error?.code,
+    });
+    tier = 'free';
+  }
   const limit = MONTHLY_LIMITS[tier] || MONTHLY_LIMITS.free;
 
-  // Use a transaction for atomic check-and-increment
-  const result = await db.runTransaction(async (transaction) => {
-    const usageDoc = await transaction.get(usageRef);
-    const currentCount = usageDoc.exists ? (usageDoc.data().count || 0) : 0;
+  // Wrap entire transaction in try-catch for robustness
+  let result;
+  let transactionError = null;
 
-    // Check if limit exceeded
-    if (currentCount >= limit) {
-      const resetDate = calculateResetDate();
+  try {
+    const db = admin.firestore();
+    const usageRef = db.collection('usage').doc(usageKey);
+
+    console.log('[UsageCounter] Starting Firestore transaction for:', usageKey);
+
+    // Use a transaction for atomic check-and-increment
+    // CRITICAL: Do NOT catch errors inside the transaction - let them propagate
+    result = await db.runTransaction(async (transaction) => {
+      // Read current usage - if doc doesn't exist, that's fine (count = 0)
+      const usageDoc = await transaction.get(usageRef);
+
+      let currentCount = 0;
+      if (usageDoc.exists) {
+        const data = usageDoc.data();
+        currentCount = (data && data.count) || 0;
+        console.log('[UsageCounter] Existing usage doc found, count:', currentCount);
+      } else {
+        console.log('[UsageCounter] No existing usage doc, starting at 0');
+      }
+
+      // Check if limit exceeded
+      if (currentCount >= limit) {
+        const resetDate = calculateResetDate();
+        console.log('[UsageCounter] Limit exceeded:', {currentCount, limit});
+
+        // Return early - no write needed
+        return {
+          allowed: false,
+          used: currentCount,
+          limit: limit,
+          tier: tier,
+          error: {
+            code: 'limit_exceeded',
+            data: {
+              used: currentCount,
+              limit: limit,
+              tier: tier,
+              resetDateISO: resetDate.toISOString(),
+            },
+          },
+        };
+      }
+
+      // Increment usage - use set with merge to create doc if it doesn't exist
+      const newCount = currentCount + 1;
+      console.log('[UsageCounter] Incrementing usage from', currentCount, 'to', newCount);
+
+      transaction.set(usageRef, {
+        count: newCount,
+        lastUsed: admin.firestore.FieldValue.serverTimestamp(),
+        userId: uid,
+        monthKey: monthKey,
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      }, {merge: true});
+
+      console.log('[UsageCounter] Transaction set() called, returning result');
 
       return {
+        allowed: true,
+        used: newCount,
+        limit: limit,
+        tier: tier,
+        remaining: limit - newCount,
+      };
+    });
+
+    console.log('[UsageCounter] Transaction completed successfully:', result);
+  } catch (error) {
+    // Capture detailed error information
+    transactionError = {
+      message: error?.message,
+      code: error?.code,
+      details: error?.details,
+      stack: error?.stack?.substring(0, 500),
+    };
+
+    console.error('[UsageCounter] TRANSACTION FAILED - DETAILED ERROR:', transactionError);
+
+    // Check if we should fail-closed (for testing) or fail-open (for production UX)
+    const failClosed = process.env.USAGE_FAIL_CLOSED === 'true';
+
+    if (failClosed) {
+      // Fail-closed: Block the request so we can debug
+      console.error('[UsageCounter] FAIL_CLOSED mode - blocking request');
+      result = {
         allowed: false,
-        used: currentCount,
+        used: 0,
         limit: limit,
         tier: tier,
         error: {
-          code: 'limit_exceeded',
+          code: 'transaction_failed',
           data: {
-            used: currentCount,
-            limit: limit,
-            tier: tier,
-            resetDateISO: resetDate.toISOString(),
+            message: 'Usage tracking failed. Please try again.',
+            debugInfo: transactionError,
           },
         },
+        transactionFailed: true,
+      };
+    } else {
+      // Fail-open: Allow the request (better UX, but usage not tracked)
+      console.warn('[UsageCounter] FAIL_OPEN mode - allowing request despite error');
+      result = {
+        allowed: true,
+        used: 0,
+        limit: limit,
+        tier: tier,
+        remaining: limit,
+        transactionFailed: true,
+        transactionErrorDetails: transactionError,
       };
     }
+  }
 
-    // Increment usage
-    const newCount = currentCount + 1;
-    transaction.set(usageRef, {
-      count: newCount,
-      lastUsed: admin.firestore.FieldValue.serverTimestamp(),
-      userId: uid,
-      monthKey: monthKey,
-    }, {merge: true});
-
-    return {
-      allowed: true,
-      used: newCount,
-      limit: limit,
-      tier: tier,
-      remaining: limit - newCount,
-    };
-  });
-
-  console.log('Usage check result', {
+  console.log('[UsageCounter] Final result:', {
     userId: uid,
     tier: result.tier,
     used: result.used,
     limit: result.limit,
     allowed: result.allowed,
+    transactionFailed: result.transactionFailed || false,
   });
 
   return result;
@@ -147,6 +257,9 @@ async function checkAndIncrementUsage(uid) {
 /**
  * Decrement usage count (used for rollback on failed operations).
  *
+ * IMPORTANT: This function handles all Firestore errors gracefully.
+ * It will never throw - just logs and continues on any error.
+ *
  * @param {string} uid - Firebase user ID
  * @returns {Promise<void>}
  */
@@ -154,23 +267,36 @@ async function decrementUsage(uid) {
   const monthKey = getMonthKey();
   const usageKey = `usage:${uid}:${monthKey}`;
 
-  const db = admin.firestore();
-  const usageRef = db.collection('usage').doc(usageKey);
+  try {
+    const db = admin.firestore();
+    const usageRef = db.collection('usage').doc(usageKey);
 
-  await db.runTransaction(async (transaction) => {
-    const usageDoc = await transaction.get(usageRef);
-    if (usageDoc.exists) {
-      const currentCount = usageDoc.data().count || 0;
+    await db.runTransaction(async (transaction) => {
+      let currentCount = 0;
+      try {
+        const usageDoc = await transaction.get(usageRef);
+        if (usageDoc && usageDoc.exists) {
+          const data = usageDoc.data();
+          currentCount = (data && data.count) || 0;
+        }
+      } catch (getError) {
+        console.log('Error reading usage doc in decrement, skipping:', getError?.message);
+        return; // Exit transaction without changes
+      }
+
       if (currentCount > 0) {
         transaction.update(usageRef, {
           count: currentCount - 1,
           lastDecremented: admin.firestore.FieldValue.serverTimestamp(),
         });
       }
-    }
-  });
+    });
 
-  console.log('Usage decremented for user:', uid);
+    console.log('Usage decremented for user:', uid);
+  } catch (error) {
+    // Don't throw - decrement is best-effort
+    console.warn('Failed to decrement usage (non-critical):', error?.message);
+  }
 }
 
 /**
@@ -184,10 +310,14 @@ async function resetUsage(uid, monthKey = null) {
   const key = monthKey || getMonthKey();
   const usageKey = `usage:${uid}:${key}`;
 
-  const db = admin.firestore();
-  await db.collection('usage').doc(usageKey).delete();
-
-  console.log('Usage reset for user:', uid, 'month:', key);
+  try {
+    const db = admin.firestore();
+    await db.collection('usage').doc(usageKey).delete();
+    console.log('Usage reset for user:', uid, 'month:', key);
+  } catch (error) {
+    console.warn('Failed to reset usage:', error?.message);
+    // Don't throw - admin operations should be resilient
+  }
 }
 
 /**
@@ -198,28 +328,180 @@ async function resetUsage(uid, monthKey = null) {
  * @returns {Promise<Array<{month: string, count: number}>>}
  */
 async function getUsageHistory(uid, monthsBack = 6) {
-  const db = admin.firestore();
   const history = [];
-
   const now = new Date();
 
-  for (let i = 0; i < monthsBack; i++) {
-    const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const monthKey = `${year}-${month}`;
-    const usageKey = `usage:${uid}:${monthKey}`;
+  try {
+    const db = admin.firestore();
 
-    const usageDoc = await db.collection('usage').doc(usageKey).get();
-    const count = usageDoc.exists ? (usageDoc.data().count || 0) : 0;
+    for (let i = 0; i < monthsBack; i++) {
+      const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const monthKey = `${year}-${month}`;
+      const usageKey = `usage:${uid}:${monthKey}`;
 
-    history.push({
-      month: monthKey,
-      count: count,
-    });
+      let count = 0;
+      try {
+        const usageDoc = await db.collection('usage').doc(usageKey).get();
+        if (usageDoc && usageDoc.exists) {
+          const data = usageDoc.data();
+          count = (data && data.count) || 0;
+        }
+      } catch (docError) {
+        console.log('Error fetching usage for month', monthKey, ':', docError?.message);
+        count = 0;
+      }
+
+      history.push({
+        month: monthKey,
+        count: count,
+      });
+    }
+  } catch (error) {
+    console.warn('Failed to get usage history:', error?.message);
+    // Return empty history on error
   }
 
   return history;
+}
+
+/**
+ * Diagnostic function to test Firestore write permissions.
+ * Call this to verify the backend can write to the usage collection.
+ *
+ * @param {string} uid - Firebase user ID to test with
+ * @returns {Promise<{success: boolean, error?: Object, testDocId?: string}>}
+ */
+async function testFirestoreWrite(uid) {
+  const testDocId = `test:${uid}:${Date.now()}`;
+
+  console.log('[UsageCounter] Testing Firestore write with doc:', testDocId);
+
+  try {
+    const db = admin.firestore();
+    const testRef = db.collection('usage').doc(testDocId);
+
+    // Test 1: Simple write (no transaction)
+    console.log('[UsageCounter] Test 1: Simple write...');
+    await testRef.set({
+      test: true,
+      timestamp: admin.firestore.FieldValue.serverTimestamp(),
+      userId: uid,
+    });
+    console.log('[UsageCounter] Test 1: Simple write SUCCESS');
+
+    // Test 2: Read it back
+    console.log('[UsageCounter] Test 2: Read back...');
+    const doc = await testRef.get();
+    if (!doc.exists) {
+      throw new Error('Document was written but cannot be read back');
+    }
+    console.log('[UsageCounter] Test 2: Read back SUCCESS, data:', doc.data());
+
+    // Test 3: Transaction write
+    console.log('[UsageCounter] Test 3: Transaction write...');
+    await db.runTransaction(async (transaction) => {
+      const currentDoc = await transaction.get(testRef);
+      transaction.set(testRef, {
+        test: true,
+        transactionTest: true,
+        count: (currentDoc.data()?.count || 0) + 1,
+        timestamp: admin.firestore.FieldValue.serverTimestamp(),
+      }, {merge: true});
+    });
+    console.log('[UsageCounter] Test 3: Transaction write SUCCESS');
+
+    // Test 4: Verify transaction write persisted
+    console.log('[UsageCounter] Test 4: Verify transaction persisted...');
+    const finalDoc = await testRef.get();
+    const finalData = finalDoc.data();
+    if (!finalData?.transactionTest) {
+      throw new Error('Transaction write did not persist');
+    }
+    console.log('[UsageCounter] Test 4: Transaction persisted SUCCESS, data:', finalData);
+
+    // Cleanup test document
+    await testRef.delete();
+    console.log('[UsageCounter] Test document cleaned up');
+
+    return {
+      success: true,
+      testDocId: testDocId,
+      message: 'All Firestore write tests passed',
+    };
+  } catch (error) {
+    console.error('[UsageCounter] Firestore write test FAILED:', {
+      message: error?.message,
+      code: error?.code,
+      details: error?.details,
+    });
+
+    return {
+      success: false,
+      testDocId: testDocId,
+      error: {
+        message: error?.message,
+        code: error?.code,
+        details: error?.details,
+      },
+    };
+  }
+}
+
+/**
+ * Direct increment without transaction (for debugging).
+ * Use this if transactions are failing but you need usage tracking.
+ *
+ * WARNING: This is NOT atomic and may have race conditions.
+ * Only use for testing or as a last resort.
+ *
+ * @param {string} uid - Firebase user ID
+ * @returns {Promise<{success: boolean, newCount?: number, error?: Object}>}
+ */
+async function directIncrementUsage(uid) {
+  const monthKey = getMonthKey();
+  const usageKey = `usage:${uid}:${monthKey}`;
+
+  console.log('[UsageCounter] Direct increment (non-transactional) for:', usageKey);
+
+  try {
+    const db = admin.firestore();
+    const usageRef = db.collection('usage').doc(usageKey);
+
+    // Use FieldValue.increment for atomic increment without transaction
+    await usageRef.set({
+      count: admin.firestore.FieldValue.increment(1),
+      lastUsed: admin.firestore.FieldValue.serverTimestamp(),
+      userId: uid,
+      monthKey: monthKey,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    }, {merge: true});
+
+    // Read back to verify
+    const doc = await usageRef.get();
+    const data = doc.data();
+
+    console.log('[UsageCounter] Direct increment SUCCESS, new count:', data?.count);
+
+    return {
+      success: true,
+      newCount: data?.count,
+    };
+  } catch (error) {
+    console.error('[UsageCounter] Direct increment FAILED:', {
+      message: error?.message,
+      code: error?.code,
+    });
+
+    return {
+      success: false,
+      error: {
+        message: error?.message,
+        code: error?.code,
+      },
+    };
+  }
 }
 
 module.exports = {
@@ -230,5 +512,7 @@ module.exports = {
   getUsageHistory,
   getMonthKey,
   calculateResetDate,
+  testFirestoreWrite,
+  directIncrementUsage,
   MONTHLY_LIMITS,
 };

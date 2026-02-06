@@ -1,5 +1,7 @@
 import Foundation
+#if canImport(UIKit)
 import UIKit
+#endif
 import os.log
 
 /// Use case for extracting text from images and suggesting field values.
@@ -22,10 +24,15 @@ struct ExtractAndSuggestFieldsUseCase: Sendable {
     /// - Parameters:
     ///   - images: Document images to process
     ///   - documentType: Expected document type for focused parsing
+    ///   - decision: Pre-computed extraction routing decision from AccessManager.
+    ///     When provided, uses the decision-based routing path that enforces
+    ///     guest/free/pro access rules. When nil, falls back to legacy routing
+    ///     (NOT recommended -- only for backward compatibility during transition).
     /// - Returns: Analysis result with extracted field suggestions
     func execute(
         images: [UIImage],
-        documentType: DocumentType
+        documentType: DocumentType,
+        decision: ExtractionModeDecision? = nil
     ) async throws -> DocumentAnalysisResult {
         // Step 1: Run 2-pass OCR to extract text with line data and confidence
         let ocrResult = try await ocrService.recognizeText(from: images)
@@ -58,18 +65,35 @@ struct ExtractAndSuggestFieldsUseCase: Sendable {
             )
         }
 
-        // Step 2: Analyze using router (local first, cloud assist if needed)
-        let analysisResult = try await analysisRouter.analyzeDocument(
-            ocrResult: ocrResult,
-            images: images,
-            documentType: documentType,
-            forceCloud: false
-        )
+        // Step 2: Analyze using router with access-controlled routing.
+        // When a decision is provided (from AccessManager), use the decision-based
+        // routing path that enforces guest/free/pro access rules.
+        // This is the primary path and ensures guest users never reach cloud analysis.
+        let analysisResult: DocumentAnalysisResult
+        if let decision = decision {
+            analysisResult = try await analysisRouter.analyzeDocument(
+                ocrResult: ocrResult,
+                images: images,
+                documentType: documentType,
+                decision: decision
+            )
+        } else {
+            // Legacy fallback -- only reached if caller does not provide a decision.
+            // This path does NOT enforce access rules and should be removed in a future cleanup.
+            logger.warning("ExtractUseCase called without ExtractionModeDecision -- using legacy routing (no access control)")
+            analysisResult = try await analysisRouter.analyzeDocument(
+                ocrResult: ocrResult,
+                images: images,
+                documentType: documentType,
+                forceCloud: false
+            )
+        }
 
         logger.info("Analysis completed: vendor=\(analysisResult.vendorName != nil), amount=\(analysisResult.amount != nil), date=\(analysisResult.dueDate != nil), invoice#=\(analysisResult.documentNumber != nil)")
 
         // Return result with OCR confidence factored in and raw OCR text for learning
         // CRITICAL: Copy ALL fields including candidates (needed for learning system and alternatives UI)
+        // CRITICAL: Also copy extractionMode and rateLimitInfo from router result!
         return DocumentAnalysisResult(
             documentType: analysisResult.documentType,
             vendorName: analysisResult.vendorName,
@@ -105,6 +129,10 @@ struct ExtractAndSuggestFieldsUseCase: Sendable {
             fieldConfidences: analysisResult.fieldConfidences,
             provider: analysisResult.provider,
             version: analysisResult.version,
+            // CRITICAL FIX: Preserve extraction mode from router (cloud/local/fallback)
+            extractionMode: analysisResult.extractionMode,
+            // CRITICAL FIX: Preserve rate limit info for UI banner display
+            rateLimitInfo: analysisResult.rateLimitInfo,
             rawHints: nil, // Don't store raw text for privacy
             rawOCRText: ocrResult.text // Provide OCR text for keyword learning (not persisted)
         )

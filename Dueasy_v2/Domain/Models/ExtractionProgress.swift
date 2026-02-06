@@ -332,6 +332,6 @@ struct RateLimitInfo: Equatable, Sendable, Codable {
 
     /// Short status for banner display
     var bannerMessage: String {
-        "AI limit reached (\(used)/\(limit)). Using offline extraction."
+        "AI limit reached (\(used)/\(limit)). Upgrade to continue."
     }
 }

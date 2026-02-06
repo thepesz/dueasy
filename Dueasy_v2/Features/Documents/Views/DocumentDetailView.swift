@@ -24,6 +24,10 @@ struct DocumentDetailView: View {
     @State private var showingRecurringDeletionSheet = false  // Step 2: Recurring options
     @State private var recurringDeletionViewModel: RecurringDeletionViewModel?
 
+    // FRAUD DETECTION: Anomaly states
+    @State private var anomalyViewModel: AnomalyViewModel?
+    @State private var showingAnomalyDetail = false
+
     var body: some View {
         // LAYOUT FIX (v3): Use .safeAreaInset instead of GeometryReader + ZStack
         // .safeAreaInset handles safe area calculations automatically and reliably
@@ -43,7 +47,10 @@ struct DocumentDetailView: View {
         .toolbar(.hidden, for: .navigationBar)
         .task {
             setupViewModel()
+            setupAnomalyViewModel()
             await viewModel?.loadDocument()
+            // Load anomalies after document loads
+            await anomalyViewModel?.loadAnomalies(forDocumentId: documentId)
         }
         .onChange(of: viewModel?.shouldDismiss ?? false) { _, shouldDismiss in
             if shouldDismiss { dismiss() }
@@ -82,6 +89,18 @@ struct DocumentDetailView: View {
                 }
             }
         }
+        // FRAUD DETECTION: Anomaly detail sheet
+        .sheet(isPresented: $showingAnomalyDetail) {
+            if let doc = viewModel?.document {
+                AnomalyDetailView(
+                    documentId: doc.id,
+                    vendorFingerprint: doc.vendorFingerprint,
+                    documentTitle: doc.title
+                )
+                .environment(environment)
+                .environment(\.uiStyle, uiStyle)
+            }
+        }
         .id(documentId) // Force view recreation when document changes
     }
 
@@ -97,6 +116,17 @@ struct DocumentDetailView: View {
     private var contentBody: some View {
         if let viewModel = viewModel, let doc = viewModel.document {
             VStack(alignment: .leading, spacing: Spacing.md) {
+                // FRAUD DETECTION: Anomaly banner (shown when critical/warning anomalies exist)
+                if let anomalyVM = anomalyViewModel, anomalyVM.hasUrgentAnomalies {
+                    AnomalyBannerView(
+                        totalCount: anomalyVM.totalUnresolvedCount,
+                        criticalCount: anomalyVM.unresolvedCriticalCount,
+                        warningCount: anomalyVM.unresolvedWarningCount,
+                        infoCount: anomalyVM.unresolvedInfoCount,
+                        onTap: { showingAnomalyDetail = true }
+                    )
+                }
+
                 // Header
                 headerSection(document: doc)
 
@@ -419,6 +449,11 @@ struct DocumentDetailView: View {
             markAsPaidUseCase: environment.makeMarkAsPaidUseCase(),
             deleteUseCase: environment.makeDeleteDocumentUseCase()
         )
+    }
+
+    private func setupAnomalyViewModel() {
+        guard anomalyViewModel == nil else { return }
+        anomalyViewModel = environment.makeAnomalyViewModel()
     }
 }
 

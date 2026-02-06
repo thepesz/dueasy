@@ -11,46 +11,6 @@ import FirebaseAuth
 import FirebaseFunctions
 #endif
 
-// MARK: - App Tier
-
-/// Application tier determining available features.
-///
-/// ## Cloud Extraction Access
-///
-/// Both tiers have access to cloud extraction with backend-enforced limits:
-/// - Free tier: 3 cloud extractions per month
-/// - Pro tier: 100 cloud extractions per month
-///
-/// Backend is the single source of truth for usage limits.
-/// No client-side enforcement.
-enum AppTier: String, Sendable {
-    case free
-    case pro
-
-    var displayName: String {
-        switch self {
-        case .free: return "Free"
-        case .pro: return "Pro"
-        }
-    }
-
-    /// Whether premium cloud features are available at this tier.
-    /// Note: Basic cloud extraction is available to all tiers (within limits).
-    /// This refers to premium features like cloud vault, priority processing, etc.
-    var hasPremiumCloudFeatures: Bool {
-        self == .pro
-    }
-
-    /// Monthly cloud extraction limit for this tier.
-    /// Note: This is informational only. Backend enforces actual limits.
-    var monthlyCloudExtractionLimit: Int {
-        switch self {
-        case .free: return 3
-        case .pro: return 100
-        }
-    }
-}
-
 // MARK: - Lazy Service Box
 
 /// Thread-safe lazy initialization wrapper for heavy services.
@@ -103,25 +63,6 @@ final class AppEnvironment {
 
     let modelContext: ModelContext
 
-    // MARK: - App Tier
-
-    /// Base tier set at initialization (used when subscription service unavailable).
-    /// In production with RevenueCat, use `currentTier` instead which queries subscription state.
-    private let baseTier: AppTier
-
-    /// Current application tier (free or pro).
-    /// Dynamically determined from subscription service when available.
-    /// Falls back to baseTier if subscription check fails.
-    var appTier: AppTier {
-        // For synchronous access, we use the cached tier from subscription changes
-        // The actual tier is determined asynchronously by subscription service
-        return _cachedTier ?? baseTier
-    }
-
-    /// Cached tier updated from subscription service status changes.
-    /// This allows synchronous access to current tier while subscription is managed asynchronously.
-    private var _cachedTier: AppTier?
-
     // MARK: - Repositories
 
     let documentRepository: DocumentRepositoryProtocol
@@ -166,6 +107,16 @@ final class AppEnvironment {
     let recurringIntegrityService: RecurringIntegrityService
     let fingerprintMigrationService: FingerprintMigrationService
 
+    // MARK: - Fraud Detection Services
+
+    /// String matching service for vendor spoofing detection.
+    /// Provides Levenshtein distance, homoglyph detection, and similarity scoring.
+    let stringMatchingService: StringMatchingServiceProtocol
+
+    /// Fraud detection service for analyzing documents.
+    /// Detects IBAN changes, vendor spoofing, timing and amount anomalies.
+    let fraudDetectionService: FraudDetectionServiceProtocol
+
     // MARK: - Cloud Integration Services (Phase 1 Foundation)
 
     /// Authentication service for backend access.
@@ -199,17 +150,23 @@ final class AppEnvironment {
         _lazyAnalysisRouter.value
     }
 
+    // MARK: - Access Management
+
+    /// Single source of truth for app access state (auth + tier + quota + capabilities).
+    /// Replaces scattered tier checks across the codebase.
+    /// UI and services query this instead of checking auth/subscription independently.
+    let accessManager: AccessManager
+
     // MARK: - Settings
 
     let settingsManager: SettingsManager
 
     // MARK: - Backup Services
 
-    /// Local backup service for export/import functionality
+    /// Local backup service for export/import functionality.
+    /// Handles encrypted JSON export/import with password protection.
+    /// Requires Sign in with Apple (access controlled at service and UI level).
     let backupService: BackupServiceProtocol
-
-    /// iCloud auto-backup service for automatic encrypted backups
-    let iCloudBackupService: iCloudBackupService
 
     // MARK: - Configuration
 
@@ -226,13 +183,9 @@ final class AppEnvironment {
 
     /// Initialize AppEnvironment with all dependencies.
     /// Heavy services use lazy initialization to reduce startup time.
-    /// - Parameters:
-    ///   - modelContext: SwiftData model context
-    ///   - tier: Application tier (default: .free)
-    init(modelContext: ModelContext, tier: AppTier = .free) {
+    /// - Parameter modelContext: SwiftData model context
+    init(modelContext: ModelContext) {
         self.modelContext = modelContext
-        self.baseTier = tier
-        self._cachedTier = nil // Will be set from subscription service
 
         // Initialize settings manager first (other services may depend on it)
         self.settingsManager = SettingsManager()
@@ -336,6 +289,18 @@ final class AppEnvironment {
             templateService: templateService
         )
 
+        // Fraud detection services
+        // StringMatchingService is lightweight (no dependencies), initialize eagerly
+        let stringMatcher = StringMatchingService()
+        self.stringMatchingService = stringMatcher
+
+        // FraudDetectionService needs modelContext and stringMatchingService
+        self.fraudDetectionService = FraudDetectionService(
+            modelContext: modelContext,
+            stringMatchingService: stringMatcher
+        )
+        PrivacyLogger.app.info("Fraud detection services initialized")
+
         // LAZY INITIALIZATION: LayoutFirstInvoiceParser
         // This is a heavy service with multiple sub-parsers and regex patterns.
         // Defer initialization until first document scan to reduce app startup time.
@@ -384,25 +349,39 @@ final class AppEnvironment {
         self.networkMonitor.startMonitoring()
         PrivacyLogger.app.info("Network monitor started")
 
+        // Initialize AccessManager - single source of truth for app access state.
+        // Combines auth state, subscription status, and usage tracking.
+        // Must be initialized after authBootstrapper, subscriptionService, and networkMonitor.
+        self.accessManager = AccessManager(
+            authBootstrapper: self.authBootstrapper,
+            subscriptionService: self.subscriptionService,
+            networkMonitor: self.networkMonitor,
+            settingsManager: self.settingsManager
+        )
+        PrivacyLogger.app.info("AccessManager initialized: tier=\(self.accessManager.tier.displayName)")
+
         // LAZY INITIALIZATION: Analysis Router
-        // All tiers use HybridAnalysisRouter with cloud-first routing.
+        // Simplified: Router receives decisions from AccessManager.
+        // No client-side failsafe or subscription checks in the router.
         // Backend enforces monthly limits (Free: 3, Pro: 100).
-        // NO client-side tier-based routing - backend is source of truth.
         let capturedAuthService = self.authService
+        let capturedAccessManager = self.accessManager
         let capturedSettingsManager = self.settingsManager
         let capturedNetworkMonitor: NetworkMonitorProtocol = self.networkMonitor
         let lazyDocAnalysis = self._lazyDocumentAnalysisService
 
         self._lazyAnalysisRouter = LazyService {
             #if canImport(FirebaseAuth) && canImport(FirebaseFunctions)
-            PrivacyLogger.app.info("Lazy init: HybridAnalysisRouter (cloud-first routing for all tiers)")
-            let cloudGateway = FirebaseCloudExtractionGateway(authService: capturedAuthService)
+            PrivacyLogger.app.info("Lazy init: HybridAnalysisRouter (decision-based routing)")
+            let cloudGateway = FirebaseCloudExtractionGateway(
+                authService: capturedAuthService,
+                accessManager: capturedAccessManager
+            )
             return HybridAnalysisRouter(
                 localService: lazyDocAnalysis.value,
                 cloudGateway: cloudGateway,
                 networkMonitor: capturedNetworkMonitor,
-                settingsManager: capturedSettingsManager,
-                config: .default
+                settingsManager: capturedSettingsManager
             )
             #else
             PrivacyLogger.app.warning("Lazy init: LocalOnlyAnalysisRouter (Firebase SDK unavailable)")
@@ -411,47 +390,17 @@ final class AppEnvironment {
         }
 
         // Initialize backup services
-        let localBackupService = LocalBackupService(modelContainer: modelContext.container)
-        self.backupService = localBackupService
-        self.iCloudBackupService = Dueasy_v2.iCloudBackupService(
-            backupService: localBackupService,
-            keychain: KeychainService()
+        // Note: authBootstrapper is injected for defense-in-depth access control.
+        // Anonymous users are blocked at UI level (BackupSettingsView) but also at
+        // service level to prevent programmatic bypass.
+        let localBackupService = LocalBackupService(
+            modelContainer: modelContext.container,
+            authBootstrapper: self.authBootstrapper
         )
-        PrivacyLogger.app.info("Backup services initialized")
+        self.backupService = localBackupService
+        PrivacyLogger.app.info("Backup services initialized with access control")
 
-        // Start observing subscription status changes
-        // This updates _cachedTier whenever subscription state changes
-        startSubscriptionObservation()
-
-        PrivacyLogger.app.info("AppEnvironment initialized for tier: \(tier.displayName) (heavy services deferred)")
-    }
-
-    // MARK: - Subscription Observation
-
-    /// Start observing subscription status changes to keep cached tier in sync.
-    /// Called during initialization and whenever subscription service is ready.
-    private func startSubscriptionObservation() {
-        Task { [weak self] in
-            guard let self = self else { return }
-
-            // Initial subscription check
-            let initialStatus = await self.subscriptionService.subscriptionStatus
-            await MainActor.run {
-                self._cachedTier = initialStatus.tier == .pro ? .pro : .free
-                PrivacyLogger.app.info("Initial subscription tier: \(self._cachedTier?.displayName ?? "unknown")")
-            }
-
-            // Listen for ongoing status changes
-            for await status in self.subscriptionService.statusChanges() {
-                await MainActor.run {
-                    let newTier: AppTier = status.tier == .pro ? .pro : .free
-                    if self._cachedTier != newTier {
-                        self._cachedTier = newTier
-                        PrivacyLogger.app.info("Subscription tier changed to: \(newTier.displayName)")
-                    }
-                }
-            }
-        }
+        PrivacyLogger.app.info("AppEnvironment initialized (heavy services deferred)")
     }
 
     // MARK: - Use Case Factory Methods
@@ -486,6 +435,7 @@ final class AppEnvironment {
     /// to existing recurring instances. This ensures that when a user scans a new invoice
     /// for a vendor that already has a recurring template, the document is automatically
     /// linked to the appropriate recurring instance instead of creating a duplicate.
+    /// FRAUD DETECTION: Includes fraud detection service for anomaly analysis after finalization.
     func makeFinalizeInvoiceUseCase() -> FinalizeInvoiceUseCase {
         FinalizeInvoiceUseCase(
             repository: documentRepository,
@@ -496,7 +446,8 @@ final class AppEnvironment {
             classifierService: documentClassifierService,
             recurringMatcherService: recurringMatcherService,
             recurringTemplateService: recurringTemplateService,
-            recurringSchedulerService: recurringSchedulerService
+            recurringSchedulerService: recurringSchedulerService,
+            fraudDetectionService: fraudDetectionService
         )
     }
 
@@ -692,8 +643,7 @@ final class AppEnvironment {
             documentRepository: documentRepository,
             recurringTemplateService: recurringTemplateService,
             recurringSchedulerService: recurringSchedulerService,
-            recurringDateService: recurringDateService,
-            appTier: appTier
+            recurringDateService: recurringDateService
         )
     }
 
@@ -1012,30 +962,4 @@ final class AppEnvironment {
         )
     }
 
-    // MARK: - Tier Convenience Methods
-
-    /// Check if premium cloud features are available (cloud vault, priority, etc.)
-    /// Note: Basic cloud extraction is available to all tiers.
-    var hasPremiumCloudFeatures: Bool {
-        appTier.hasPremiumCloudFeatures
-    }
-
-    /// Check if cloud analysis is currently available.
-    /// Requires: signed in + network (available to all tiers within limits)
-    var isCloudAnalysisAvailable: Bool {
-        get async {
-            return await analysisRouter.isCloudAvailable
-        }
-    }
-
-    /// Current analysis mode based on settings
-    var currentAnalysisMode: AnalysisMode {
-        analysisRouter.analysisMode
-    }
-
-    /// Monthly cloud extraction limit for current tier (informational only).
-    /// Backend enforces actual limits.
-    var monthlyCloudExtractionLimit: Int {
-        appTier.monthlyCloudExtractionLimit
-    }
 }

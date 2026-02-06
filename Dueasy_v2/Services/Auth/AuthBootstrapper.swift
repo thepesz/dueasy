@@ -103,26 +103,32 @@ final class AuthBootstrapper {
     ///
     /// This method is idempotent - safe to call multiple times.
     /// Should be called at the earliest safe point in app lifecycle.
+    ///
+    /// NOTE: If the user was signed out (e.g., after Apple credential conflict),
+    /// this method will create a new anonymous user to restore cloud functionality.
     func bootstrap() async {
-        guard !hasBootstrapped else {
-            logger.debug("Auth already bootstrapped, skipping")
-            return
-        }
-
-        logger.info("Starting auth bootstrap...")
-
         #if canImport(FirebaseAuth)
         // Check if user already exists
         if let user = Auth.auth().currentUser {
-            logger.info("Existing user found")
+            // User exists - update state and mark as bootstrapped
+            if !hasBootstrapped {
+                logger.info("Existing user found during initial bootstrap")
+            } else {
+                logger.debug("Re-bootstrap called with existing user")
+            }
             updateState(user: user)
             hasBootstrapped = true
             return
         }
 
         // No existing user - create anonymous user
+        // This handles both initial launch AND recovery after sign-out
         do {
-            logger.info("No existing user, creating anonymous user...")
+            if hasBootstrapped {
+                logger.info("Re-bootstrap: Creating new anonymous user after sign-out...")
+            } else {
+                logger.info("No existing user, creating anonymous user...")
+            }
             let result = try await Auth.auth().signInAnonymously()
             updateState(user: result.user)
             logger.info("Anonymous user created successfully")
@@ -135,7 +141,9 @@ final class AuthBootstrapper {
         }
         #else
         // Firebase SDK not available - mark as bootstrapped without auth
-        logger.warning("Firebase SDK not available, skipping auth bootstrap")
+        if !hasBootstrapped {
+            logger.warning("Firebase SDK not available, skipping auth bootstrap")
+        }
         hasBootstrapped = true
         #endif
     }
